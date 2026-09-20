@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, X } from 'lucide-react';
 import { useCart } from '../CartContext';
 
 const PAYMENTS = [
-  { id: 'cod', label: 'Cash on Delivery (COD)',
-    note: 'Pay in cash when your order arrives. Please prepare the exact amount. Our rider will hand you the item after payment is received.' },
   { id: 'gcash', label: 'GCash',
     note: 'Send payment to GCash number 09454408496 (XMARKET Official). Upload your receipt screenshot after payment. Scan the QR below.',
     showQR: true },
@@ -13,17 +11,17 @@ const PAYMENTS = [
     note: 'Send payment to Maya number 09454408496 (XMARKET Official). Upload your receipt screenshot after payment. Scan the QR below.',
     showQR: true },
   { id: 'gotyme', label: 'Bank Transfer [Gotyme]',
-    note: 'Transfer to: Gotyme Bank | Account Name: XMARKET Official | Account No: 0123 4567 8901. Send us a screenshot of the transfer confirmation.' },
-  { id: 'seabank', label: 'Bank Transfer [Seabank/Maribank]',
-    note: 'Transfer to: Seabank / Maribank | Account Name: XMARKET Official | Account No: 9876 5432 1098. Send us a screenshot of the transfer confirmation.' },
+    note: 'Transfer to: Gotyme Bank | Account Name: XMARKET Official | Account No: 0123 4567 8901. Send us a screenshot of the transfer confirmation.',
+    showQR: true,
+    showQR: true },
 ];
 
 const DELIVERIES = [
-  { id: 'pickup', label: 'Pick-up [anytime]', fee: '₱0',
+  { id: 'pickup', label: 'Pick-up [anytime]',
     note: 'Pick up at our warehouse: XMARKET Hub, 123 Mabini St., Manila. Open anytime. Please bring your order number.' },
-  { id: 'standard', label: 'Standard [3-7 days]', fee: '₱10/km',
+  { id: 'standard', label: 'Standard [3-7 days]',
     note: 'Delivered by our partner courier within 3-7 days. Delivery fee is computed at ₱10 per kilometer from the warehouse.' },
-  { id: 'express', label: 'Express [Lalamove]', fee: 'Lalamove charge',
+  { id: 'express', label: 'Express [Lalamove]',
     note: 'Same-day or next-day delivery via Lalamove. Actual fee is charged based on Lalamove\'s live quotation at checkout.' },
 ];
 
@@ -49,9 +47,9 @@ export default function Checkout() {
   const [form, setForm] = useState({
     fullName: '', mobile: '', address: '', landmark: '', province: '',
     city: '', barangay: '', instructions: '', note: '',
-    payment: 'cod', delivery: 'standard'
+    payment: 'gcash', delivery: 'standard'
   });
-  const [errors, setErrors] = useState([]);
+  const [missing, setMissing] = useState([]);
 
   const upd = (k, v) => setForm({ ...form, [k]: v });
 
@@ -62,29 +60,27 @@ export default function Checkout() {
   const selectedPayment = PAYMENTS.find(p => p.id === form.payment);
   const selectedDelivery = DELIVERIES.find(d => d.id === form.delivery);
 
+  const LABELS = {
+    fullName: 'Full Name', mobile: 'Mobile Number', address: 'Delivery Address',
+    landmark: 'Nearest Landmark', province: 'Province', city: 'City / Municipality',
+    barangay: 'Barangay', instructions: 'Additional Delivery Instruction'
+  };
+  const REQUIRED = Object.keys(LABELS);
+
   const placeOrder = () => {
-    const required = ['fullName', 'mobile', 'address', 'landmark', 'province', 'city', 'barangay', 'instructions'];
-    const missing = required.filter(k => !form[k] || !form[k].trim());
-    if (missing.length > 0) {
-      setErrors(missing);
-      alert(
-        'Please fill the following required fields:\n\n' +
-        missing.map(k => '• ' + ({
-          fullName: 'Full Name', mobile: 'Mobile Number', address: 'Delivery Address',
-          landmark: 'Nearest Landmark', province: 'Province', city: 'City / Municipality',
-          barangay: 'Barangay', instructions: 'Additional Delivery Instruction'
-        }[k])).join('\n')
-      );
+    const missingFields = REQUIRED.filter(k => !form[k] || !form[k].trim());
+    if (missingFields.length > 0) {
+      setMissing(missingFields);
       return;
     }
-    setErrors([]);
+    setMissing([]);
     alert('Order placed successfully!\nTotal: ₱' + total);
     dispatch({ type: 'CLEAR' });
     navigate('/');
   };
 
   const input = (k, label, type = 'text') => {
-    const isErr = errors.includes(k);
+    const isErr = missing.includes(k);
     return (
       <div style={{ marginBottom: 10 }}>
         <label>{label} *</label>
@@ -93,6 +89,11 @@ export default function Checkout() {
             width: '100%', padding: 10, marginTop: 4,
             borderColor: isErr ? '#ff3d71' : undefined
           }} />
+        {isErr && (
+          <div style={{ fontSize: 11, color: '#ff3d71', marginTop: 2 }}>
+            This field is required
+          </div>
+        )}
       </div>
     );
   };
@@ -103,6 +104,30 @@ export default function Checkout() {
         <ArrowLeft size={20} />
       </button>
       <h2 style={{ marginBottom: 16 }}>Checkout</h2>
+
+      {missing.length > 0 && (
+        <div style={{
+          display: 'flex', gap: 10, alignItems: 'flex-start',
+          padding: 12, marginBottom: 12,
+          background: 'rgba(255,61,113,0.12)',
+          border: '1px solid #ff3d71',
+          borderRadius: 12
+        }}>
+          <AlertCircle size={18} color="#ff3d71" style={{ flexShrink: 0, marginTop: 2 }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: '#ff3d71', marginBottom: 4 }}>
+              Please fill the required fields
+            </div>
+            <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: '#ffb3c8', lineHeight: 1.6 }}>
+              {missing.map(k => <li key={k}>{LABELS[k]}</li>)}
+            </ul>
+          </div>
+          <button onClick={() => setMissing([])}
+            style={{ background: 'none', color: '#ff3d71', padding: 0 }}>
+            <X size={16} />
+          </button>
+        </div>
+      )}
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Delivery Information</h3>
@@ -118,8 +143,13 @@ export default function Checkout() {
           <textarea value={form.instructions} onChange={e => upd('instructions', e.target.value)}
             style={{
               width: '100%', padding: 10, marginTop: 4,
-              borderColor: errors.includes('instructions') ? '#ff3d71' : undefined
+              borderColor: missing.includes('instructions') ? '#ff3d71' : undefined
             }} rows="2" />
+          {missing.includes('instructions') && (
+            <div style={{ fontSize: 11, color: '#ff3d71', marginTop: 2 }}>
+              This field is required
+            </div>
+          )}
         </div>
         <div>
           <label>Note (optional)</label>
@@ -138,10 +168,7 @@ export default function Checkout() {
         ))}
         {selectedPayment && <InfoNote text={selectedPayment.note} />}
         {selectedPayment?.showQR && (
-          <div style={{
-            marginTop: 10, padding: 16, textAlign: 'center',
-            background: '#fff', borderRadius: 12
-          }}>
+          <div style={{ marginTop: 10, padding: 16, textAlign: 'center', background: '#fff', borderRadius: 12 }}>
             <div style={{ fontSize: 12, color: '#333', fontWeight: 700, marginBottom: 6 }}>SCAN TO PAY</div>
             <div style={{
               width: 160, height: 160, margin: '0 auto',
@@ -158,7 +185,7 @@ export default function Checkout() {
         {DELIVERIES.map(d => (
           <label key={d.id} style={{ display: 'block', marginBottom: 6, color: 'var(--text)', fontSize: 14 }}>
             <input type="radio" checked={form.delivery === d.id} onChange={() => upd('delivery', d.id)} style={{ marginRight: 8 }} />
-            {d.label} ({d.fee})
+            {d.label}
           </label>
         ))}
         {selectedDelivery && <InfoNote text={selectedDelivery.note} />}
@@ -174,7 +201,7 @@ export default function Checkout() {
         <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: '#e539ff' }}><span>Discount</span><span>-₱{discount}</span></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}><span>Shipping Fee</span><span>Calculating...</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}><span>Shipping Fee</span><span>SF will be added on the order confirmation</span></div>
         <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>
           <span>Total</span><span style={{ color: '#00d4ff' }}>₱{total}</span>

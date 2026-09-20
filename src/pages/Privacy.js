@@ -9,7 +9,6 @@ const sections = [
   { h: 'Third-Party Links', p: 'Our platform may link to third-party sites. We are not responsible for their privacy practices.' },
   { h: 'Children\'s Privacy', p: 'XMARKET is not intended for children under 13. We do not knowingly collect data from them.' },
   { h: 'Updates to this Policy', p: 'We may update this policy from time to time. Continued use implies acceptance of the updated version.' },
-  { h: 'Contact', p: 'For privacy questions, reach us via Customer Service or call +63 9454408496.' },
 ];
 
 export default function Privacy() {

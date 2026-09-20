@@ -11,9 +11,7 @@ export default function Notifications() {
       </button>
       <h2 style={{ marginBottom: 12 }}>Notifications</h2>
 
-      <div className="card" style={{
-        padding: 16, display: 'flex', gap: 12, alignItems: 'flex-start'
-      }}>
+      <div className="card" style={{ padding: 16, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
         <div style={{
           width: 40, height: 40, borderRadius: 12, flexShrink: 0,
           background: 'rgba(0,212,255,0.12)',
@@ -22,12 +20,10 @@ export default function Notifications() {
           <Bell size={18} color="#00d4ff" />
         </div>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>
-            Welcome to XMARKET!
-          </div>
+          <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 4 }}>Welcome to XMARKET!</div>
           <div style={{ fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.5 }}>
             Enjoy <span style={{ color: '#00d4ff', fontWeight: 700 }}>discounted prices</span> on
-            thousands of products. Shop now and save more!
+            all products. Shop now and save more!
           </div>
         </div>
       </div>

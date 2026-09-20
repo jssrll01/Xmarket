@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, SlidersHorizontal, ShoppingCart, Bell, ChevronDown, Check, Menu,
-  Store, Settings, Headphones, HelpCircle, MoreHorizontal, BadgeCheck
+  Store, Settings, HelpCircle, MoreHorizontal, BadgeCheck, Download
 } from 'lucide-react';
 import { products, banners } from '../products';
 import { useCart } from '../CartContext';
@@ -33,14 +33,42 @@ function Dropdown({ value, options, onChange }) {
 
 function Drawer({ open, onClose }) {
   const navigate = useNavigate();
+  const [canInstall, setCanInstall] = useState(!!window.__deferredPrompt);
+
+  useEffect(() => {
+    const onPrompt = () => setCanInstall(true);
+    window.addEventListener('bip-prompt-ready', onPrompt);
+    return () => window.removeEventListener('bip-prompt-ready', onPrompt);
+  }, []);
+
   if (!open) return null;
+
   const items = [
     { icon: Store, label: 'Start Selling', path: '/start-selling' },
     { icon: Settings, label: 'Settings', path: '/settings' },
-    { icon: Headphones, label: 'Customer Service', path: '/customer-service' },
     { icon: HelpCircle, label: 'Help', path: '/help' },
     { icon: MoreHorizontal, label: 'More', path: '/more' },
   ];
+
+  const handleInstall = async () => {
+    const prompt = window.__deferredPrompt;
+    if (prompt) {
+      prompt.prompt();
+      const choice = await prompt.userChoice;
+      if (choice.outcome === 'accepted') {
+        window.__deferredPrompt = null;
+        setCanInstall(false);
+      }
+      return;
+    }
+    alert(
+      'To install XMARKET:\n\n' +
+      '• Android Chrome: menu (⋮) → Add to Home screen\n' +
+      '• iOS Safari: Share (⬆) → Add to Home Screen\n' +
+      '• Desktop Chrome: address bar install icon'
+    );
+  };
+
   return (
     <>
       <div className="drawer-backdrop" onClick={onClose} />
@@ -70,6 +98,13 @@ function Drawer({ open, onClose }) {
             </button>
           );
         })}
+
+        {canInstall && (
+          <button className="drawer-item" onClick={handleInstall}>
+            <Download size={18} color="#00d4ff" />
+            Install App
+          </button>
+        )}
       </div>
     </>
   );
@@ -116,7 +151,7 @@ export default function Home() {
     return () => clearInterval(t);
   }, []);
 
-  const categories = ['All', 'Device', 'Mobile', 'MALL'];
+  const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
 
   let filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) &&
@@ -187,7 +222,7 @@ export default function Home() {
             transform: 'translateY(-50%)', color: 'var(--text-dim)'
           }} />
           <input
-            type="text" placeholder="Search by name..."
+            type="text" placeholder="Search a product..."
             value={search} onChange={e => setSearch(e.target.value)}
             style={{ paddingLeft: 36, paddingRight: 40 }}
           />
@@ -267,12 +302,20 @@ export default function Home() {
             <Link to={`/product/${p.id}`}>
               <div className="product-thumb">
                 <img src={p.images[0]} alt={p.name} />
-                <span style={{
-                  position: 'absolute', top: 8, left: 8,
-                  background: 'var(--grad-btn)', color: '#fff',
-                  fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999
-                }}>{p.discount > 0 && '-' + p.discount + '%'}</span>
-                {p.preorder && <span style={{ position: 'absolute', top: 8, right: 8, background: '#ff3d71', color: '#fff', fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999 }}>PRE-ORDER</span>}
+                {p.discount > 0 && (
+                  <span style={{
+                    position: 'absolute', top: 8, left: 8,
+                    background: 'var(--grad-btn)', color: '#fff',
+                    fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999
+                  }}>-{p.discount}%</span>
+                )}
+                {p.preorder && (
+                  <span style={{
+                    position: 'absolute', top: 8, right: 8,
+                    background: '#ff3d71', color: '#fff',
+                    fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999
+                  }}>PRE-ORDER</span>
+                )}
               </div>
               <div style={{ padding: 10 }}>
                 <div style={{ fontSize: 13, height: 36, overflow: 'hidden', fontWeight: 500 }}>{p.name}</div>
@@ -287,7 +330,9 @@ export default function Home() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
                   <span style={{ color: '#00d4ff', fontWeight: 800, fontSize: 15 }}>₱{p.price}</span>
-                  {p.originalPrice && <span style={{ color: 'var(--text-dim)', fontSize: 11, textDecoration: 'line-through' }}>₱{p.originalPrice}</span>}
+                  {p.originalPrice && (
+                    <span style={{ color: 'var(--text-dim)', fontSize: 11, textDecoration: 'line-through' }}>₱{p.originalPrice}</span>
+                  )}
                 </div>
               </div>
             </Link>

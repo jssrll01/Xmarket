@@ -33,7 +33,7 @@ export const products = [
     ],
     description: 'Pre-owned iPhone 6 64GB in good condition and perfect for basic everyday use such as calls, messaging, browsing, and social media. Comes with freebies for a sulit deal!',
     specs: 'The iPhone 6 (64GB) features a 4.7-inch Retina HD display, Apple A8 chip, 1GB RAM, and 64GB internal storage. It has an 8MP rear camera and 1.2MP front camera, Touch ID, 4G LTE connectivity, and a 1,810mAh battery. It has a slim aluminum body and runs on iOS.',
-    variants: ['White', '64GB']
+    variants: ['64GB']
   },
   {
     id: 3,

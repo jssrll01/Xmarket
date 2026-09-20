@@ -18,7 +18,7 @@ export default function ProductDetails() {
   const slideshowRef = useRef(null);
 
   useEffect(() => {
-    if (!product) return;
+    if (!product || !product.images || product.images.length < 2) return;
     const t = setInterval(() => {
       setSlide(s => {
         const next = (s + 1) % product.images.length;
@@ -39,17 +39,11 @@ export default function ProductDetails() {
   const share = async () => {
     try {
       if (navigator.share) {
-        await navigator.share({
-          title: product.name,
-          text: product.description,
-          url: window.location.href
-        });
+        await navigator.share({ title: product.name, text: product.description, url: window.location.href });
       } else {
         alert('Link: ' + window.location.href);
       }
-    } catch (err) {
-      console.log('Share cancelled');
-    }
+    } catch (err) {}
   };
 
   const doAdd = (setFn, isBuy) => {
@@ -72,8 +66,7 @@ export default function ProductDetails() {
           <div style={{
             position: 'absolute', top: 12, left: 12, zIndex: 2,
             background: '#ff3d71', color: '#fff',
-            fontSize: 11, fontWeight: 700,
-            padding: '4px 10px', borderRadius: 999
+            fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 999
           }}>PRE-ORDER</div>
         )}
         <div className="slideshow" ref={slideshowRef}

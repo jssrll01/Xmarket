@@ -59,7 +59,7 @@ export default function Cart() {
       <div className="card" style={{ padding: 16, marginTop: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: '#e539ff' }}><span>Discount</span><span>-₱{discount}</span></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}><span>Shipping Fee</span><span>Calculating...</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}><span>Shipping Fee</span><span>SF will be added on the order confirmation</span></div>
         <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>
           <span>Total</span><span style={{ color: '#00d4ff' }}>₱{total}</span>

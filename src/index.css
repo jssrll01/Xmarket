@@ -94,7 +94,6 @@ h1, h2, h3, h4 { color: var(--text); }
 }
 .icon-btn:active { transform: scale(0.95); }
 
-/* Search bar wrapper */
 .search-wrap {
   display: flex;
   gap: 8px;
@@ -122,7 +121,6 @@ h1, h2, h3, h4 { color: var(--text); }
   padding: 4px;
 }
 
-/* Custom dropdown */
 .dd { position: relative; }
 .dd-trigger {
   display: flex; align-items: center; justify-content: space-between;
@@ -169,7 +167,6 @@ h1, h2, h3, h4 { color: var(--text); }
   font-weight: 700;
 }
 
-/* Spinner */
 .spinner {
   width: 14px; height: 14px;
   border: 2px solid rgba(255,255,255,0.35);
@@ -180,7 +177,6 @@ h1, h2, h3, h4 { color: var(--text); }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Banner carousel */
 .banner-scroll {
   display: flex;
   overflow-x: auto;
@@ -206,7 +202,6 @@ h1, h2, h3, h4 { color: var(--text); }
   display: block;
 }
 
-/* Category chips */
 .chips {
   display: flex; gap: 8px; overflow-x: auto;
   padding: 10px 16px;
@@ -228,7 +223,6 @@ h1, h2, h3, h4 { color: var(--text); }
   border-color: transparent;
 }
 
-/* Product image tiles */
 .product-thumb {
   height: 140px;
   background: linear-gradient(135deg, #1a1152, #0a0f2e);
@@ -240,7 +234,6 @@ h1, h2, h3, h4 { color: var(--text); }
   width: 100%; height: 100%; object-fit: cover;
 }
 
-/* Auto carousel */
 .banner-wrap { position: relative; }
 .banner-track {
   display: flex;
@@ -276,7 +269,6 @@ h1, h2, h3, h4 { color: var(--text); }
   border-radius: 999px;
 }
 
-/* Drawer */
 .drawer-backdrop {
   position: fixed;
   inset: 0;
@@ -316,7 +308,6 @@ h1, h2, h3, h4 { color: var(--text); }
 }
 .drawer-item:hover { background: rgba(0,212,255,0.1); }
 
-/* Product image slideshow */
 .slideshow {
   display: flex;
   overflow-x: auto;

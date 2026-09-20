@@ -4,10 +4,9 @@ import { ArrowLeft } from 'lucide-react';
 
 const faqs = [
   { q: 'How do I place an order?', a: 'Add items to your cart and tap Proceed to Checkout.' },
-  { q: 'What payment methods do you accept?', a: 'COD, GCash, Maya, and Bank Transfer (Gotyme, Seabank/Maribank).' },
+  { q: 'What payment methods do you accept?', a: 'GCash, Maya, and Bank Transfer (Gotyme).' },
   { q: 'How long is delivery?', a: 'Pre-order 7-14 days, Standard 3-7 days, Express 1-2 days.' },
   { q: 'Do you offer vouchers?', a: 'Yes — seasonal vouchers appear on the Home banner and inside the app.' },
-  { q: 'Are the products authentic?', a: 'All sellers are verified. Look for the blue verified badge next to the store name.' },
 ];
 
 export default function Help() {
