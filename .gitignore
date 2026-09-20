@@ -1,0 +1,25 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# production build
+/build
+
+# logs & misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+start.log
+run.log
+
+# editor
+.vscode/
+.idea/
+
+# env
+.env
+.env.local
+
+# backups
+*.bak
