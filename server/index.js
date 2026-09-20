@@ -18,7 +18,7 @@ app.post('/api/order', async (req, res) => {
     return res.status(500).json({ error: 'Server not configured' });
   }
 
-  const { form, items, subtotal, discount, total, payment, delivery } = req.body || {};
+  const { form, items, subtotal, discount, total, payment, delivery, orderId } = req.body || {};
 
   if (!form || !items) {
     return res.status(400).json({ error: 'Missing order data' });
@@ -26,6 +26,8 @@ app.post('/api/order', async (req, res) => {
 
   const lines = [];
   lines.push('🛒 *NEW ORDER — XMARKET*');
+  lines.push('');
+  lines.push('🆔 *Order ID:* ' + (orderId || '-'));
   lines.push('');
   lines.push('👤 *Customer*');
   lines.push(`Name: ${form.fullName || '-'}`);
