@@ -70,6 +70,24 @@ export const products = [
     description: 'Xentrepreneur Course is a practical business learning program designed to help you build entrepreneurial knowledge, develop essential business skills, and understand how real businesses operate. Get lifetime access to the course and learn at your own pace—with continuous access to the lessons whenever you need them. Purchase once, learn for a lifetime.',
     specs: 'The Xentrepreneur Course includes 200+ comprehensive lessons covering essential business and entrepreneurship topics, including sales, marketing, business models, revenue, finance, networking, partnerships, operations, risk management, and more. Enjoy lifetime access with a one-time purchase, allowing you to learn at your own pace and revisit the lessons anytime, anywhere.',
     variants: []
+  },
+  {
+    id: 5,
+    name: 'Pricee App',
+    price: 89,
+    originalPrice: 299,
+    category: 'MALL',
+    discount: 70,
+    sold: 0,
+    store: 'XMALL',
+    verified: true,
+    preorder: false,
+    images: [
+      'https://res.cloudinary.com/bvw3okdf/image/upload/v1789910027/Purple_and_Black_Gradient_Esport_Presentation_20260920_211016_0000.png'
+    ],
+    description: 'Pricee is an advanced business calculator designed to make pricing, costing, and financial calculations faster and more professional. Create accurate calculations with ease, then generate a stunning, professional PDF report that you can download, save, or share with clients. Whether you\'re a freelancer, entrepreneur, or business owner, Pricee helps turn complex calculations into polished, ready-to-use documents.',
+    specs: 'Pricee features an advanced business calculation system with professional pricing and costing tools, customizable calculation inputs, automatic totals and profit calculations, and instant PDF generation. Each calculation can be transformed into a polished, downloadable PDF document, making it easy to save, print, or share professional quotations and calculations with clients. Designed for freelancers, entrepreneurs, service providers, and business owners.',
+    variants: []
   }
 ];
 
