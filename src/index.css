@@ -325,3 +325,8 @@ h1, h2, h3, h4 { color: var(--text); }
   object-fit: cover;
   display: block;
 }
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}

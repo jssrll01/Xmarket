@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, AlertCircle, X } from 'lucide-react';
+import { ArrowLeft, AlertCircle, X, CheckCircle2 } from 'lucide-react';
 import { useCart } from '../CartContext';
+
+const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
 
 const PAYMENTS = [
   { id: 'gcash', label: 'GCash',
@@ -12,7 +14,6 @@ const PAYMENTS = [
     showQR: true },
   { id: 'gotyme', label: 'Bank Transfer [Gotyme]',
     note: 'Transfer to: Gotyme Bank | Account Name: XMARKET Official | Account No: 0123 4567 8901. Send us a screenshot of the transfer confirmation.',
-    showQR: true,
     showQR: true },
 ];
 
@@ -50,6 +51,9 @@ export default function Checkout() {
     payment: 'gcash', delivery: 'standard'
   });
   const [missing, setMissing] = useState([]);
+  const [sending, setSending] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [orderId, setOrderId] = useState('');
 
   const upd = (k, v) => setForm({ ...form, [k]: v });
 
@@ -67,16 +71,40 @@ export default function Checkout() {
   };
   const REQUIRED = Object.keys(LABELS);
 
-  const placeOrder = () => {
+  const placeOrder = async () => {
     const missingFields = REQUIRED.filter(k => !form[k] || !form[k].trim());
     if (missingFields.length > 0) {
       setMissing(missingFields);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
     setMissing([]);
-    alert('Order placed successfully!\nTotal: ₱' + total);
+    setSending(true);
+
+    const paymentLabel = PAYMENTS.find(p => p.id === form.payment)?.label;
+    const deliveryLabel = DELIVERIES.find(d => d.id === form.delivery)?.label;
+    const newOrderId = 'XM-' + Date.now().toString().slice(-8);
+
+    try {
+      await fetch(ORDER_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          form, items, subtotal, discount, total,
+          payment: paymentLabel,
+          delivery: deliveryLabel,
+          orderId: newOrderId
+        })
+      });
+    } catch (err) {
+      console.log('Notify failed:', err);
+    }
+
+    setSending(false);
+    setOrderId(newOrderId);
+    setSuccess(true);
     dispatch({ type: 'CLEAR' });
-    navigate('/');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const input = (k, label, type = 'text') => {
@@ -89,45 +117,135 @@ export default function Checkout() {
             width: '100%', padding: 10, marginTop: 4,
             borderColor: isErr ? '#ff3d71' : undefined
           }} />
-        {isErr && (
-          <div style={{ fontSize: 11, color: '#ff3d71', marginTop: 2 }}>
-            This field is required
-          </div>
-        )}
       </div>
     );
   };
 
+  // ===== SUCCESS SCREEN =====
+  if (success) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        padding: '40px 24px',
+        color: 'var(--text)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        animation: 'fadeIn 0.4s ease'
+      }}>
+        <div style={{
+          width: 96, height: 96, borderRadius: '50%',
+          background: 'linear-gradient(135deg, #00d4ff33, #7b3ff233)',
+          border: '2px solid #00d4ff',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 24,
+          boxShadow: '0 0 40px rgba(0,212,255,0.4)',
+          animation: 'popIn 0.5s ease'
+        }}>
+          <CheckCircle2 size={48} color="#00d4ff" />
+        </div>
+
+        <h1 style={{
+          fontSize: 26, fontWeight: 900, marginBottom: 8,
+          background: 'linear-gradient(90deg, #00d4ff, #7b3ff2, #e539ff)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text'
+        }}>
+          Order Placed!
+        </h1>
+
+        <p style={{
+          color: 'var(--text-dim)', fontSize: 14, lineHeight: 1.6,
+          marginBottom: 24, maxWidth: 320
+        }}>
+          Thank you for shopping at XMARKET. We've received your order and
+          sent the details to our team.
+        </p>
+
+        <div className="card" style={{
+          padding: 16, marginBottom: 24, width: '100%', maxWidth: 320
+        }}>
+          <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4 }}>
+            Order ID
+          </div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#00d4ff', letterSpacing: 1 }}>
+            {orderId}
+          </div>
+          <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+            <span style={{ color: 'var(--text-dim)' }}>Total</span>
+            <span style={{ fontWeight: 700 }}>₱{total}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
+            <span style={{ color: 'var(--text-dim)' }}>Payment</span>
+            <span style={{ fontWeight: 700 }}>{selectedPayment?.label}</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
+            <span style={{ color: 'var(--text-dim)' }}>Delivery</span>
+            <span style={{ fontWeight: 700 }}>{selectedDelivery?.label}</span>
+          </div>
+        </div>
+
+        <div style={{
+          padding: 12, borderRadius: 12, marginBottom: 24,
+          background: 'rgba(0,212,255,0.08)',
+          border: '1px solid rgba(0,212,255,0.4)',
+          fontSize: 12, color: '#cbd2f5', lineHeight: 1.5,
+          maxWidth: 320, textAlign: 'left'
+        }}>
+          Our team will contact you shortly to confirm your order and the final
+          shipping fee.
+        </div>
+
+        <button className="btn-primary" onClick={() => navigate('/')}
+          style={{ padding: '14px 32px', fontSize: 15, fontWeight: 700 }}>
+          Continue Shopping
+        </button>
+      </div>
+    );
+  }
+
+  // ===== FORM =====
   return (
     <div style={{ padding: 16, paddingBottom: 100, color: 'var(--text)' }}>
+
+      {missing.length > 0 && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
+          padding: '14px 16px 16px',
+          background: 'linear-gradient(180deg, #2a0a1c 0%, rgba(42,10,28,0.95) 100%)',
+          borderBottom: '1px solid #ff3d71',
+          boxShadow: '0 8px 32px rgba(255,61,113,0.35)',
+          animation: 'slideDown 0.25s ease'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <AlertCircle size={20} color="#ff3d71" style={{ flexShrink: 0, marginTop: 2 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#ff3d71', marginBottom: 6 }}>
+                Please fill the required fields
+              </div>
+              <ul style={{
+                margin: 0, paddingLeft: 18, fontSize: 12.5,
+                color: '#ffb3c8', lineHeight: 1.7
+              }}>
+                {missing.map(k => <li key={k}>{LABELS[k]}</li>)}
+              </ul>
+            </div>
+            <button onClick={() => setMissing([])}
+              style={{ background: 'none', color: '#ff3d71', padding: 4 }}>
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+      )}
+
       <button onClick={() => navigate(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
       <h2 style={{ marginBottom: 16 }}>Checkout</h2>
-
-      {missing.length > 0 && (
-        <div style={{
-          display: 'flex', gap: 10, alignItems: 'flex-start',
-          padding: 12, marginBottom: 12,
-          background: 'rgba(255,61,113,0.12)',
-          border: '1px solid #ff3d71',
-          borderRadius: 12
-        }}>
-          <AlertCircle size={18} color="#ff3d71" style={{ flexShrink: 0, marginTop: 2 }} />
-          <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: '#ff3d71', marginBottom: 4 }}>
-              Please fill the required fields
-            </div>
-            <ul style={{ margin: 0, paddingLeft: 16, fontSize: 12, color: '#ffb3c8', lineHeight: 1.6 }}>
-              {missing.map(k => <li key={k}>{LABELS[k]}</li>)}
-            </ul>
-          </div>
-          <button onClick={() => setMissing([])}
-            style={{ background: 'none', color: '#ff3d71', padding: 0 }}>
-            <X size={16} />
-          </button>
-        </div>
-      )}
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Delivery Information</h3>
@@ -145,11 +263,6 @@ export default function Checkout() {
               width: '100%', padding: 10, marginTop: 4,
               borderColor: missing.includes('instructions') ? '#ff3d71' : undefined
             }} rows="2" />
-          {missing.includes('instructions') && (
-            <div style={{ fontSize: 11, color: '#ff3d71', marginTop: 2 }}>
-              This field is required
-            </div>
-          )}
         </div>
         <div>
           <label>Note (optional)</label>
@@ -208,9 +321,9 @@ export default function Checkout() {
         </div>
       </div>
 
-      <button onClick={placeOrder} className="btn-primary"
+      <button onClick={placeOrder} disabled={sending} className="btn-primary"
         style={{ width: '100%', padding: 14, marginTop: 12, fontSize: 16 }}>
-        Place Order
+        {sending ? 'Placing Order...' : 'Place Order'}
       </button>
     </div>
   );
