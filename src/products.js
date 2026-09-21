@@ -68,7 +68,7 @@ export const products = [
       'https://res.cloudinary.com/bvw3okdf/image/upload/v1789624820/Purple_and_Black_Gradient_Esport_Presentation_20260917_135402_0000.jpg'
     ],
     description: 'Xentrepreneur Course is a practical business learning program designed to help you build entrepreneurial knowledge, develop essential business skills, and understand how real businesses operate. Get lifetime access to the course and learn at your own pace—with continuous access to the lessons whenever you need them. Purchase once, learn for a lifetime.',
-    specs: 'The Xentrepreneur Course includes 200+ comprehensive lessons covering essential business and entrepreneurship topics, including sales, marketing, business models, revenue, finance, networking, partnerships, operations, risk management, and more. Enjoy lifetime access with a one-time purchase, allowing you to learn at your own pace and revisit the lessons anytime, anywhere.',
+    specs: 'The Xentrepreneur Course includes 449+ comprehensive lessons covering essential business and entrepreneurship topics, including sales, marketing, business models, revenue, finance, networking, partnerships, operations, risk management, and more. Enjoy lifetime access with a one-time purchase, allowing you to learn at your own pace and revisit the lessons anytime, anywhere.',
     variants: []
   },
   {
