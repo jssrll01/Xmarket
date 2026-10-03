@@ -1,59 +1,5 @@
 export const products = [
   {
-    id: 1,
-    name: 'Deauther Watch SE',
-    price: 5199,
-    originalPrice: 7999,
-    category: 'Device',
-    discount: 35,
-    sold: 0,
-    store: 'DSTRIKE',
-    verified: true,
-    preorder: true,
-    images: [
-      'https://res.cloudinary.com/bvw3okdf/image/upload/v1789539788/1789538433431.png'
-    ],
-    description: 'Deauther Watch SE — a compact and feature-packed device designed for wireless network testing and security research. It includes Deauther Attack, Deauther Beacon, Deauther Probe, and Packet Monitor functions, making it useful for learning about Wi-Fi security and network behavior. Its sleek design makes it convenient to carry and use for authorized testing.',
-    specs: 'The Deauther Watch SE features double acrylic protection for added durability, a transparent case with a sleek look, and a soft silica gel strap for comfortable everyday wear. It also comes with an OLED display for clear and vibrant visuals.',
-    variants: ['black']
-  },
-  {
-    id: 2,
-    name: 'Apple IPhone 6 (Pre-owned)',
-    price: 4349,
-    originalPrice: 7199,
-    category: 'Mobile',
-    discount: 40,
-    sold: 0,
-    store: "Apple's Pre-Owned Store",
-    verified: true,
-    preorder: true,
-    images: [
-      'https://res.cloudinary.com/bvw3okdf/image/upload/v1789540433/1789540280785.png'
-    ],
-    description: 'Pre-owned iPhone 6 64GB in good condition and perfect for basic everyday use such as calls, messaging, browsing, and social media. Comes with freebies for a sulit deal!',
-    specs: 'The iPhone 6 (64GB) features a 4.7-inch Retina HD display, Apple A8 chip, 1GB RAM, and 64GB internal storage. It has an 8MP rear camera and 1.2MP front camera, Touch ID, 4G LTE connectivity, and a 1,810mAh battery. It has a slim aluminum body and runs on iOS.',
-    variants: ['64GB']
-  },
-  {
-    id: 3,
-    name: 'Redmi 10 5G (Pre-owned)',
-    price: 5599,
-    originalPrice: null,
-    category: 'Mobile',
-    discount: 0,
-    sold: 0,
-    store: 'Mobile Echo',
-    verified: true,
-    preorder: true,
-    images: [
-      'https://res.cloudinary.com/bvw3okdf/image/upload/v1789540862/1789540771975.png'
-    ],
-    description: 'Pre-owned Redmi Note 10 5G in good condition and ready for everyday use. Enjoy smooth performance, 5G connectivity, a clear display, and a long-lasting battery—perfect for browsing, social media, streaming, and gaming.',
-    specs: 'The Redmi 10 5G (6GB/128GB) features a 6.58-inch FHD+ 90Hz display, MediaTek Dimensity 700 5G processor, 6GB RAM, and 128GB internal storage. It has a 50MP main camera, 2MP depth camera, and 5MP front camera, along with a large 5,000mAh battery with 18W fast charging.',
-    variants: ['6GB/128GB Global']
-  },
-  {
     id: 4,
     name: 'Xentrepreneur Course',
     price: 149,
@@ -64,6 +10,7 @@ export const products = [
     store: 'XMALL',
     verified: true,
     preorder: false,
+    instant: true,
     images: [
       'https://res.cloudinary.com/bvw3okdf/image/upload/v1789624820/Purple_and_Black_Gradient_Esport_Presentation_20260917_135402_0000.jpg'
     ],
@@ -82,11 +29,31 @@ export const products = [
     store: 'XMALL',
     verified: true,
     preorder: false,
+    instant: true,
     images: [
       'https://res.cloudinary.com/bvw3okdf/image/upload/v1789910027/Purple_and_Black_Gradient_Esport_Presentation_20260920_211016_0000.png'
     ],
     description: 'Pricee is an advanced business calculator designed to make pricing, costing, and financial calculations faster and more professional. Create accurate calculations with ease, then generate a stunning, professional PDF report that you can download, save, or share with clients. Whether you\'re a freelancer, entrepreneur, or business owner, Pricee helps turn complex calculations into polished, ready-to-use documents.',
     specs: 'Pricee features an advanced business calculation system with professional pricing and costing tools, customizable calculation inputs, automatic totals and profit calculations, and instant PDF generation. Each calculation can be transformed into a polished, downloadable PDF document, making it easy to save, print, or share professional quotations and calculations with clients. Designed for freelancers, entrepreneurs, service providers, and business owners.',
+    variants: []
+  },
+  {
+    id: 6,
+    name: 'ReceiptX App',
+    price: 119,
+    originalPrice: 399,
+    category: 'MALL',
+    discount: 70,
+    sold: 0,
+    store: 'XMALL',
+    verified: true,
+    preorder: false,
+    instant: true,
+    images: [
+      'https://res.cloudinary.com/bvw3okdf/image/upload/v1791013260/Purple_and_Black_Gradient_Esport_Presentation_20261003_153224_0000.png'
+    ],
+    description: 'ReceiptX is a professional business receipt maker designed to help businesses create clean, polished, and customizable receipts in just a few steps. Choose between portrait or landscape layouts and export your receipts in multiple formats, including 80mm thermal receipts, PDF, images, and more. Whether for daily transactions, customer records, or professional documentation, ReceiptX makes receipt creation simple, flexible, and business-ready.',
+    specs: 'ReceiptX features a professional receipt creation system with customizable business and transaction details, portrait and landscape layouts, and multiple export formats. Generate receipts optimized for 80mm thermal printers, as well as PDF and image formats for digital use. Customize receipt information, preview your design, and create polished receipts ready to print, download, save, or share.',
     variants: []
   }
 ];

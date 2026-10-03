@@ -7,8 +7,6 @@ import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Notifications from './pages/Notifications';
-import StartSelling from './pages/StartSelling';
-import Settings from './pages/Settings';
 import CustomerService from './pages/CustomerService';
 import Help from './pages/Help';
 import More from './pages/More';
@@ -25,8 +23,6 @@ function Router() {
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/notifications" element={<Notifications />} />
-      <Route path="/start-selling" element={<StartSelling />} />
-      <Route path="/settings" element={<Settings />} />
       <Route path="/customer-service" element={<CustomerService />} />
       <Route path="/help" element={<Help />} />
       <Route path="/more" element={<More />} />

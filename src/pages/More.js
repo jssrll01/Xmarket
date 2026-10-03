@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Info, FileText, Shield, ChevronRight, Users } from 'lucide-react';
+import { ArrowLeft, Info, FileText, Shield, ChevronRight } from 'lucide-react';
 
 export default function More() {
   const navigate = useNavigate();
@@ -8,7 +8,6 @@ export default function More() {
     { icon: Info, label: 'About XMARKET', path: '/about' },
     { icon: FileText, label: 'Terms & Conditions', path: '/terms' },
     { icon: Shield, label: 'Privacy Policy', path: '/privacy' },
-    { icon: Users, label: 'Become a Seller', path: '/start-selling' },
   ];
   return (
     <div style={{ padding: 16, paddingBottom: 60, color: 'var(--text)' }}>

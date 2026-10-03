@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
+import { Blob } from 'buffer';
 
 const app = express();
 app.use(cors());
@@ -67,6 +68,34 @@ app.post('/api/order', async (req, res) => {
         text,
         parse_mode: 'Markdown'
       })
+    });
+    const data = await tgRes.json();
+    if (!data.ok) return res.status(500).json({ error: data.description });
+    return res.status(200).json({ ok: true });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/receipt', async (req, res) => {
+  if (!BOT_TOKEN || !CHAT_ID) {
+    return res.status(500).json({ error: 'Server not configured' });
+  }
+
+  const { orderId, name, dataUrl } = req.body || {};
+  if (!dataUrl) return res.status(400).json({ error: 'Missing receipt data' });
+
+  try {
+    const base64 = dataUrl.split(',')[1];
+    const buffer = Buffer.from(base64, 'base64');
+    const form = new FormData();
+    form.append('chat_id', CHAT_ID);
+    form.append('caption', 'Payment receipt for Order ' + (orderId || 'N/A'));
+    form.append('photo', new Blob([buffer]), name || 'receipt.jpg');
+
+    const tgRes = await fetch('https://api.telegram.org/bot' + BOT_TOKEN + '/sendPhoto', {
+      method: 'POST',
+      body: form
     });
     const data = await tgRes.json();
     if (!data.ok) return res.status(500).json({ error: data.description });

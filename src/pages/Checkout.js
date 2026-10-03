@@ -1,29 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, AlertCircle, X, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap } from 'lucide-react';
 import { useCart } from '../CartContext';
 
 const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
+const RECEIPT_API = 'https://xmarket-telegram-bot.onrender.com/api/receipt';
 
 const PAYMENTS = [
   { id: 'gcash', label: 'GCash',
-    note: 'Send payment to GCash number 09454408496 (XMARKET Official). Upload your receipt screenshot after payment. Scan the QR below.',
-    showQR: true },
+    note: 'Send payment to GCash number 09454408496 (JE*****L C.). Upload your receipt screenshot after payment. Scan the QR below.',
+    qr: 'https://res.cloudinary.com/bvw3okdf/image/upload/v1790593677/GCash-MyQR-28092026184016.PNG.jpg' },
   { id: 'maya', label: 'Maya',
-    note: 'Send payment to Maya number 09454408496 (XMARKET Official). Upload your receipt screenshot after payment. Scan the QR below.',
-    showQR: true },
+    note: 'Send payment to Maya number 09454408496 (JE*****L C.). Upload your receipt screenshot after payment. Scan the QR below.',
+    qr: 'https://res.cloudinary.com/bvw3okdf/image/upload/v1790593882/myqr_1790592093301.jpg' },
   { id: 'gotyme', label: 'Bank Transfer [Gotyme]',
-    note: 'Transfer to: Gotyme Bank | Account Name: XMARKET Official | Account No: 0123 4567 8901. Send us a screenshot of the transfer confirmation.',
-    showQR: true },
+    note: 'Transfer to: Gotyme Bank | Account Name: Jessrell Custodio | Account No: 0152 4915 7462. Send us a screenshot of the transfer confirmation.',
+    qr: 'https://res.cloudinary.com/bvw3okdf/image/upload/v1790592841/Screenshot_20260928_183617_GoTyme_PH.jpg' },
 ];
 
 const DELIVERIES = [
   { id: 'pickup', label: 'Pick-up [anytime]',
-    note: 'Pick up at our warehouse: XMARKET Hub, 123 Mabini St., Manila. Open anytime. Please bring your order number.' },
-  { id: 'standard', label: 'Standard [3-7 days]',
-    note: 'Delivered by our partner courier within 3-7 days. Delivery fee is computed at ₱10 per kilometer from the warehouse.' },
+    note: 'Pick up at XMARKET, Poblacion, San Pascual, Batangas. Open anytime. Please bring your order number.' },
+  { id: 'meetup', label: 'Meet-up [3-7 days]',
+    note: 'Meet-Up with us within 3-7 days. Delivery fee is computed at ₱15 per kilometer from the warehouse.' },
   { id: 'express', label: 'Express [Lalamove]',
-    note: 'Same-day or next-day delivery via Lalamove. Actual fee is charged based on Lalamove\'s live quotation at checkout.' },
+    note: 'Same-day or next-day delivery via Lalamove. Actual fee is charged based on Lalamove\'s live quotation at checkout. (Buyer will shoulder the delivery fee of Lalamove)' },
+  { id: 'instant', label: 'Instant Delivery [Applicable for digital products only]',
+    instantOnly: true,
+    note: 'Instant Delivery for digital products — no delivery fee. You will receive your product immediately after payment confirmation.' },
 ];
 
 function InfoNote({ text }) {
@@ -45,15 +49,28 @@ function InfoNote({ text }) {
 export default function Checkout() {
   const { items, dispatch } = useCart();
   const navigate = useNavigate();
+
+  const hasInstant = items.some(i => i.instant);
+  const allInstant = items.length > 0 && items.every(i => i.instant);
+
   const [form, setForm] = useState({
     fullName: '', mobile: '', address: '', landmark: '', province: '',
     city: '', barangay: '', instructions: '', note: '',
-    payment: 'gcash', delivery: 'standard'
+    payment: 'gcash',
+    delivery: allInstant ? 'instant' : 'meetup'
   });
   const [missing, setMissing] = useState([]);
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
+  const [receipt, setReceipt] = useState(null);
+  const [receiptSent, setReceiptSent] = useState(false);
+
+  useEffect(() => {
+    if (allInstant && form.delivery !== 'instant') {
+      setForm(f => ({ ...f, delivery: 'instant' }));
+    }
+  }, [allInstant]);
 
   const upd = (k, v) => setForm({ ...form, [k]: v });
 
@@ -64,12 +81,45 @@ export default function Checkout() {
   const selectedPayment = PAYMENTS.find(p => p.id === form.payment);
   const selectedDelivery = DELIVERIES.find(d => d.id === form.delivery);
 
+  const availableDeliveries = DELIVERIES.filter(d => {
+    if (d.id === 'instant') return allInstant;
+    return true;
+  });
+
   const LABELS = {
     fullName: 'Full Name', mobile: 'Mobile Number', address: 'Delivery Address',
     landmark: 'Nearest Landmark', province: 'Province', city: 'City / Municipality',
     barangay: 'Barangay', instructions: 'Additional Delivery Instruction'
   };
   const REQUIRED = Object.keys(LABELS);
+
+  const handleReceipt = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      setReceipt({ name: file.name, dataUrl: reader.result });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const sendReceipt = async () => {
+    if (!receipt) return;
+    try {
+      await fetch(RECEIPT_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: orderId || 'N/A',
+          name: receipt.name,
+          dataUrl: receipt.dataUrl
+        })
+      });
+      setReceiptSent(true);
+    } catch (err) {
+      console.log('Receipt send failed:', err);
+    }
+  };
 
   const placeOrder = async () => {
     const missingFields = REQUIRED.filter(k => !form[k] || !form[k].trim());
@@ -91,8 +141,7 @@ export default function Checkout() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           form, items, subtotal, discount, total,
-          payment: paymentLabel,
-          delivery: deliveryLabel,
+          payment: paymentLabel, delivery: deliveryLabel,
           orderId: newOrderId
         })
       });
@@ -113,67 +162,40 @@ export default function Checkout() {
       <div style={{ marginBottom: 10 }}>
         <label>{label} *</label>
         <input type={type} value={form[k]} onChange={e => upd(k, e.target.value)}
-          style={{
-            width: '100%', padding: 10, marginTop: 4,
-            borderColor: isErr ? '#ff3d71' : undefined
-          }} />
+          style={{ width: '100%', padding: 10, marginTop: 4,
+            borderColor: isErr ? '#ff3d71' : undefined }} />
       </div>
     );
   };
 
-  // ===== SUCCESS SCREEN =====
   if (success) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        padding: '40px 24px',
-        color: 'var(--text)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        textAlign: 'center',
-        animation: 'fadeIn 0.4s ease'
-      }}>
+      <div style={{ minHeight: '100vh', padding: '40px 24px', color: 'var(--text)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        justifyContent: 'center', textAlign: 'center', animation: 'fadeIn 0.4s ease' }}>
         <div style={{
           width: 96, height: 96, borderRadius: '50%',
           background: 'linear-gradient(135deg, #00d4ff33, #7b3ff233)',
           border: '2px solid #00d4ff',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: 24,
-          boxShadow: '0 0 40px rgba(0,212,255,0.4)',
+          marginBottom: 24, boxShadow: '0 0 40px rgba(0,212,255,0.4)',
           animation: 'popIn 0.5s ease'
         }}>
           <CheckCircle2 size={48} color="#00d4ff" />
         </div>
-
-        <h1 style={{
-          fontSize: 26, fontWeight: 900, marginBottom: 8,
+        <h1 style={{ fontSize: 26, fontWeight: 900, marginBottom: 8,
           background: 'linear-gradient(90deg, #00d4ff, #7b3ff2, #e539ff)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text'
-        }}>
+          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
           Order Placed!
         </h1>
-
-        <p style={{
-          color: 'var(--text-dim)', fontSize: 14, lineHeight: 1.6,
-          marginBottom: 24, maxWidth: 320
-        }}>
-          Thank you for shopping at XMARKET. We've received your order and
-          sent the details to our team.
+        <p style={{ color: 'var(--text-dim)', fontSize: 14, lineHeight: 1.6,
+          marginBottom: 24, maxWidth: 320 }}>
+          Thank you for shopping at XMARKET. We've received your order and sent the details to our team.
         </p>
 
-        <div className="card" style={{
-          padding: 16, marginBottom: 24, width: '100%', maxWidth: 320
-        }}>
-          <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4 }}>
-            Order ID
-          </div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: '#00d4ff', letterSpacing: 1 }}>
-            {orderId}
-          </div>
+        <div className="card" style={{ padding: 16, marginBottom: 24, width: '100%', maxWidth: 320 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4 }}>Order ID</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#00d4ff', letterSpacing: 1 }}>{orderId}</div>
           <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
             <span style={{ color: 'var(--text-dim)' }}>Total</span>
@@ -189,15 +211,43 @@ export default function Checkout() {
           </div>
         </div>
 
-        <div style={{
-          padding: 12, borderRadius: 12, marginBottom: 24,
-          background: 'rgba(0,212,255,0.08)',
-          border: '1px solid rgba(0,212,255,0.4)',
-          fontSize: 12, color: '#cbd2f5', lineHeight: 1.5,
-          maxWidth: 320, textAlign: 'left'
-        }}>
-          Our team will contact you shortly to confirm your order and the final
-          shipping fee.
+        <div style={{ width: '100%', maxWidth: 320, marginBottom: 24 }}>
+          {!receiptSent ? (
+            <>
+              <div style={{
+                padding: 12, borderRadius: 12, marginBottom: 12,
+                background: 'rgba(255,214,0,0.08)',
+                border: '1px solid rgba(255,214,0,0.4)',
+                fontSize: 12, color: '#ffe066', lineHeight: 1.5,
+                textAlign: 'left'
+              }}>
+                Upload your payment receipt so we can verify and process your order faster.
+              </div>
+              <label className="btn-outline" style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                gap: 8, padding: 12, cursor: 'pointer', width: '100%'
+              }}>
+                <Upload size={16} />
+                {receipt ? receipt.name : 'Upload Payment Receipt'}
+                <input type="file" accept="image/*" onChange={handleReceipt} style={{ display: 'none' }} />
+              </label>
+              {receipt && (
+                <button onClick={sendReceipt} className="btn-primary"
+                  style={{ width: '100%', padding: 12, marginTop: 8 }}>
+                  Send Receipt
+                </button>
+              )}
+            </>
+          ) : (
+            <div style={{
+              padding: 12, borderRadius: 12,
+              background: 'rgba(0,212,255,0.08)',
+              border: '1px solid rgba(0,212,255,0.4)',
+              fontSize: 13, color: '#cbd2f5', textAlign: 'center'
+            }}>
+              ✓ Receipt sent. We'll verify and contact you shortly.
+            </div>
+          )}
         </div>
 
         <button className="btn-primary" onClick={() => navigate('/')}
@@ -208,7 +258,6 @@ export default function Checkout() {
     );
   }
 
-  // ===== FORM =====
   return (
     <div style={{ padding: 16, paddingBottom: 100, color: 'var(--text)' }}>
 
@@ -227,15 +276,11 @@ export default function Checkout() {
               <div style={{ fontWeight: 700, fontSize: 14, color: '#ff3d71', marginBottom: 6 }}>
                 Please fill the required fields
               </div>
-              <ul style={{
-                margin: 0, paddingLeft: 18, fontSize: 12.5,
-                color: '#ffb3c8', lineHeight: 1.7
-              }}>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: '#ffb3c8', lineHeight: 1.7 }}>
                 {missing.map(k => <li key={k}>{LABELS[k]}</li>)}
               </ul>
             </div>
-            <button onClick={() => setMissing([])}
-              style={{ background: 'none', color: '#ff3d71', padding: 4 }}>
+            <button onClick={() => setMissing([])} style={{ background: 'none', color: '#ff3d71', padding: 4 }}>
               <X size={18} />
             </button>
           </div>
@@ -246,6 +291,21 @@ export default function Checkout() {
         <ArrowLeft size={20} />
       </button>
       <h2 style={{ marginBottom: 16 }}>Checkout</h2>
+
+      {allInstant && (
+        <div style={{
+          display: 'flex', gap: 10, alignItems: 'center',
+          padding: 12, marginBottom: 12,
+          background: 'rgba(255,214,0,0.1)',
+          border: '1px solid rgba(255,214,0,0.5)',
+          borderRadius: 12
+        }}>
+          <Zap size={18} color="#ffd600" />
+          <div style={{ fontSize: 12.5, color: '#ffe066' }}>
+            Your cart contains <b>digital products</b>. Instant Delivery will be used — no fee.
+          </div>
+        </div>
+      )}
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Delivery Information</h3>
@@ -259,10 +319,8 @@ export default function Checkout() {
         <div style={{ marginBottom: 10 }}>
           <label>Additional Delivery Instruction *</label>
           <textarea value={form.instructions} onChange={e => upd('instructions', e.target.value)}
-            style={{
-              width: '100%', padding: 10, marginTop: 4,
-              borderColor: missing.includes('instructions') ? '#ff3d71' : undefined
-            }} rows="2" />
+            style={{ width: '100%', padding: 10, marginTop: 4,
+              borderColor: missing.includes('instructions') ? '#ff3d71' : undefined }} rows="2" />
         </div>
         <div>
           <label>Note (optional)</label>
@@ -280,24 +338,29 @@ export default function Checkout() {
           </label>
         ))}
         {selectedPayment && <InfoNote text={selectedPayment.note} />}
-        {selectedPayment?.showQR && (
+        {selectedPayment?.qr && (
           <div style={{ marginTop: 10, padding: 16, textAlign: 'center', background: '#fff', borderRadius: 12 }}>
-            <div style={{ fontSize: 12, color: '#333', fontWeight: 700, marginBottom: 6 }}>SCAN TO PAY</div>
-            <div style={{
-              width: 160, height: 160, margin: '0 auto',
-              background: 'repeating-linear-gradient(45deg,#000 0 6px,#fff 6px 12px)',
-              borderRadius: 8
-            }} />
-            <div style={{ fontSize: 11, color: '#555', marginTop: 6 }}>XMARKET Official</div>
+            <div style={{ fontSize: 12, color: '#333', fontWeight: 700, marginBottom: 8 }}>SCAN TO PAY</div>
+            <img src={selectedPayment.qr} alt="QR code"
+              style={{ width: 200, height: 200, objectFit: 'contain', borderRadius: 8 }} />
           </div>
         )}
       </div>
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Delivery Method</h3>
-        {DELIVERIES.map(d => (
-          <label key={d.id} style={{ display: 'block', marginBottom: 6, color: 'var(--text)', fontSize: 14 }}>
-            <input type="radio" checked={form.delivery === d.id} onChange={() => upd('delivery', d.id)} style={{ marginRight: 8 }} />
+        {availableDeliveries.map(d => (
+          <label key={d.id}
+            style={{
+              display: 'block', marginBottom: 6, fontSize: 14,
+              color: allInstant && d.id !== 'instant' ? 'var(--text-dim)' : 'var(--text)',
+              opacity: allInstant && d.id !== 'instant' ? 0.5 : 1
+            }}>
+            <input type="radio"
+              checked={form.delivery === d.id}
+              disabled={allInstant && d.id !== 'instant'}
+              onChange={() => { if (!allInstant) upd('delivery', d.id); }}
+              style={{ marginRight: 8 }} />
             {d.label}
           </label>
         ))}

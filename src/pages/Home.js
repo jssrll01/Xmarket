@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, SlidersHorizontal, ShoppingCart, Bell, ChevronDown, Check, Menu,
-  Store, Settings, HelpCircle, MoreHorizontal, BadgeCheck, Download
+  Store, HelpCircle, MoreHorizontal, BadgeCheck, Download
 } from 'lucide-react';
 import { products, banners } from '../products';
 import { useCart } from '../CartContext';
@@ -44,8 +44,6 @@ function Drawer({ open, onClose }) {
   if (!open) return null;
 
   const items = [
-    { icon: Store, label: 'Start Selling', path: '/start-selling' },
-    { icon: Settings, label: 'Settings', path: '/settings' },
     { icon: HelpCircle, label: 'Help', path: '/help' },
     { icon: MoreHorizontal, label: 'More', path: '/more' },
   ];
