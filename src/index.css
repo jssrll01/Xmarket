@@ -490,7 +490,7 @@ h1, h2, h3, h4 { color: var(--text); }
 /* Accent variant for high-priority actions (Place Order, Send Receipt, Continue Shopping) */
 .btn-primary.accent {
   background: linear-gradient(145deg, #2a1560, #1a1140) !important;
-  color: #e539ff !important;
+  color: #ffffff !important;
   box-shadow:
     6px 6px 16px rgba(0,0,0,0.65),
     -4px -4px 12px rgba(255,255,255,0.05),
@@ -506,7 +506,7 @@ h1, h2, h3, h4 { color: var(--text); }
 /* Soft outline button */
 .btn-outline {
   background: linear-gradient(145deg, #131a44, #0f1438) !important;
-  color: #00d4ff !important;
+  color: #ffffff !important;
   box-shadow:
     5px 5px 14px rgba(0,0,0,0.6),
     -3px -3px 10px rgba(255,255,255,0.04),
@@ -632,4 +632,19 @@ button[style*="#ff3d71"] * {
 
 .drawer-item svg[color="#00d4ff"] {
   stroke: #00d4ff !important;
+}
+
+/* Ensure the button element itself has white text */
+.btn-primary,
+.btn-primary *,
+.btn-primary.accent,
+.btn-primary.accent *,
+button.btn-primary {
+  color: #ffffff !important;
+}
+
+/* Spinner inside any button stays visible */
+button .spinner {
+  border-color: rgba(255,255,255,0.35) !important;
+  border-top-color: #ffffff !important;
 }
