@@ -6,6 +6,14 @@ import { useCart } from '../CartContext';
 export default function Cart() {
   const { items, dispatch } = useCart();
   const navigate = useNavigate();
+
+  const goBack = () => {
+    if (window.history.length > 1 && document.referrer) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
   const [going, setGoing] = useState(false);
 
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
@@ -31,7 +39,7 @@ export default function Cart() {
 
   return (
     <div style={{ padding: 16, paddingBottom: 100, color: 'var(--text)' }}>
-      <button onClick={() => navigate(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+      <button onClick={goBack} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
       <h2 style={{ marginBottom: 16 }}>Shopping Cart</h2>

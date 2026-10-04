@@ -50,6 +50,14 @@ export default function Checkout() {
   const { items, dispatch } = useCart();
   const navigate = useNavigate();
 
+  const goBack = () => {
+    if (window.history.length > 1 && document.referrer) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   const allInstant = items.length > 0 && items.every(i => i.instant);
 
   const [form, setForm] = useState({
@@ -295,7 +303,7 @@ export default function Checkout() {
         </div>
       )}
 
-      <button onClick={() => navigate(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+      <button onClick={goBack} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
       <h2 style={{ marginBottom: 16 }}>Checkout</h2>

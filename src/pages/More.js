@@ -4,6 +4,14 @@ import { ArrowLeft, Info, FileText, Shield, ChevronRight } from 'lucide-react';
 
 export default function More() {
   const navigate = useNavigate();
+
+  const goBack = () => {
+    if (window.history.length > 1 && document.referrer) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
   const items = [
     { icon: Info, label: 'About XMARKET', path: '/about' },
     { icon: FileText, label: 'Terms & Conditions', path: '/terms' },
@@ -11,7 +19,7 @@ export default function More() {
   ];
   return (
     <div style={{ padding: 16, paddingBottom: 60, color: 'var(--text)' }}>
-      <button onClick={() => navigate(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+      <button onClick={goBack} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
       <h2 style={{ marginBottom: 12 }}>More</h2>

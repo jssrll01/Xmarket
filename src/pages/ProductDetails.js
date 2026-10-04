@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store } from 'lucide-react';
+import { ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store, Home } from 'lucide-react';
 import { products } from '../products';
 import { useCart } from '../CartContext';
 
@@ -9,6 +9,14 @@ export default function ProductDetails() {
   const navigate = useNavigate();
   const product = products.find(p => p.id === +id);
   const { dispatch } = useCart();
+
+  const goBack = () => {
+    if (window.history.length > 1 && document.referrer) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
 
   const [qty, setQty] = useState(1);
   const [variant, setVariant] = useState(product?.variants?.[0]);
@@ -57,9 +65,14 @@ export default function ProductDetails() {
 
   return (
     <div style={{ padding: 16, paddingBottom: 100, color: 'var(--text)' }}>
-      <button onClick={() => navigate(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
-        <ArrowLeft size={20} />
-      </button>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+        <button onClick={goBack} className="icon-btn">
+          <ArrowLeft size={20} />
+        </button>
+        <button onClick={() => navigate('/')} className="icon-btn">
+          <Home size={18} />
+        </button>
+      </div>
 
       <div style={{ position: 'relative', marginBottom: 12 }}>
         {product.preorder && (
