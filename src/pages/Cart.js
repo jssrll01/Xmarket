@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { useCart } from '../CartContext';
+import SmartImage from '../components/SmartImage';
 
 export default function Cart() {
   const { items, dispatch } = useCart();
@@ -47,8 +48,8 @@ export default function Cart() {
       {items.map(i => (
         <div key={i.id + (i.variant || '')} className="card"
           style={{ padding: 12, marginBottom: 10, display: 'flex', gap: 12 }}>
-          <img src={i.images[0]} alt={i.name}
-            style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 12, boxShadow: 'var(--raised-sm)' }} />
+          <SmartImage src={i.images[0]} alt={i.name}
+            style={{ width: 64, height: 64, borderRadius: 12, boxShadow: 'var(--raised-sm)', flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 'bold' }}>{i.name}</div>
             {i.variant && <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Variant: {i.variant}</div>}

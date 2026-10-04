@@ -5,6 +5,7 @@ import {
   Store, HelpCircle, MoreHorizontal, BadgeCheck, Download
 } from 'lucide-react';
 import { products, banners } from '../products';
+import SmartImage from '../components/SmartImage';
 import { useCart } from '../CartContext';
 
 function Dropdown({ value, options, onChange }) {
@@ -257,7 +258,7 @@ export default function Home() {
             style={{ transform: `translateX(-${bannerIdx * 100}%)` }}>
             {banners.map((b, i) => (
               <div key={i} className="banner-slide-full">
-                <img src={b} alt={'Banner ' + (i+1)} />
+                <SmartImage src={b} alt={'Banner ' + (i+1)} style={{ height: 180 }} />
               </div>
             ))}
           </div>
@@ -299,7 +300,7 @@ export default function Home() {
           }}>
             <Link to={`/product/${p.id}`}>
               <div className="product-thumb">
-                <img src={p.images[0]} alt={p.name} />
+                <SmartImage src={p.images[0]} alt={p.name} />
                 {p.discount > 0 && (
                   <span style={{
                     position: 'absolute', top: 8, left: 8,

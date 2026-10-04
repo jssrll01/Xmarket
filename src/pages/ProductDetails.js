@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store } from 'lucide-react';
 import { products } from '../products';
+import SmartImage from '../components/SmartImage';
 import { useCart } from '../CartContext';
 
 export default function ProductDetails() {
@@ -83,7 +84,7 @@ export default function ProductDetails() {
             setSlide(Math.round(e.currentTarget.scrollLeft / w));
           }}>
           {product.images.map((img, i) => (
-            <img key={i} src={img} alt={'view ' + (i+1)} />
+            <SmartImage key={i} src={img} alt={'view ' + (i+1)} style={{ flex: '0 0 100%', height: 320 }} />
           ))}
         </div>
         {product.images.length > 1 && (

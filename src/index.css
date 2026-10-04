@@ -780,3 +780,45 @@ button .spinner {
   border-color: rgba(255,255,255,0.4) !important;
   border-top-color: #ffffff !important;
 }
+
+/* ===== IMAGE SKELETON ===== */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(145deg, #1a2255, #141a44);
+  box-shadow: var(--inset-sm);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.06) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
+
+.img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  display: block;
+}
+.img-wrap img.loaded {
+  opacity: 1;
+}
