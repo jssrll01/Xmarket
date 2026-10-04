@@ -232,7 +232,7 @@ export default function Checkout() {
                 <input type="file" accept="image/*" onChange={handleReceipt} style={{ display: 'none' }} />
               </label>
               {receipt && (
-                <button onClick={sendReceipt} disabled={sendingReceipt} className="btn-primary"
+                <button onClick={sendReceipt} disabled={sendingReceipt} className="btn-primary accent"
                   style={{
                     width: '100%', padding: 12, marginTop: 8,
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
@@ -255,7 +255,7 @@ export default function Checkout() {
               }}>
                 ✓ Receipt sent. We'll verify and contact you shortly.
               </div>
-              <button className="btn-primary" onClick={() => navigate('/')}
+              <button className="btn-primary accent" onClick={() => navigate('/')}
                 style={{ padding: '14px 32px', fontSize: 15, fontWeight: 700, width: '100%' }}>
                 Continue Shopping
               </button>
@@ -392,7 +392,7 @@ export default function Checkout() {
         </div>
       </div>
 
-      <button onClick={placeOrder} disabled={sending} className="btn-primary"
+      <button onClick={placeOrder} disabled={sending} className="btn-primary accent"
         style={{
           width: '100%', padding: 14, marginTop: 12, fontSize: 16,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
