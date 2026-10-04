@@ -575,3 +575,61 @@ button[style*="#ff3d71"] {
   color: #00d4ff !important;
   font-weight: 700;
 }
+
+/* ===== FORCE WHITE BUTTON TEXT ===== */
+button,
+button *,
+.btn-primary,
+.btn-primary *,
+.btn-outline,
+.btn-outline *,
+.btn-ghost,
+.btn-ghost *,
+.icon-btn,
+.icon-btn *,
+.dd-trigger,
+.dd-trigger *,
+.chip,
+.chip *,
+.drawer-item,
+.drawer-item *,
+.dd-item,
+.dd-item * {
+  color: #ffffff !important;
+}
+
+button .accent-text,
+.btn-danger,
+.btn-danger * {
+  color: #ff3d71 !important;
+}
+
+button svg {
+  color: inherit;
+}
+
+/* Restore intentional colors */
+button[style*="#ff3d71"],
+button[style*="#ff3d71"] * {
+  color: #ff3d71 !important;
+}
+
+.chip.active,
+.chip.active * {
+  color: #ffffff !important;
+}
+
+.dd-item.active,
+.dd-item.active * {
+  color: #ffffff !important;
+}
+
+.icon-btn svg,
+.drawer-item svg,
+.dd-trigger svg {
+  stroke: #ffffff !important;
+}
+
+.drawer-item svg[color="#00d4ff"] {
+  stroke: #00d4ff !important;
+}
