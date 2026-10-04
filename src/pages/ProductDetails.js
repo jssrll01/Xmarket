@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store, Home } from 'lucide-react';
+import { ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store } from 'lucide-react';
 import { products } from '../products';
 import { useCart } from '../CartContext';
 
@@ -65,14 +65,9 @@ export default function ProductDetails() {
 
   return (
     <div style={{ padding: 16, paddingBottom: 100, color: 'var(--text)' }}>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <button onClick={goBack} className="icon-btn">
-          <ArrowLeft size={20} />
-        </button>
-        <button onClick={() => navigate('/')} className="icon-btn">
-          <Home size={18} />
-        </button>
-      </div>
+      <button onClick={goBack} className="icon-btn" style={{ marginBottom: 12 }}>
+        <ArrowLeft size={20} />
+      </button>
 
       <div style={{ position: 'relative', marginBottom: 12 }}>
         {product.preorder && (
