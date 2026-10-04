@@ -78,10 +78,10 @@ export const products = [
   {
     id: 8,
     name: 'Simple Modern Food Business Menu',
-    price: 959,
-    originalPrice: 4799,
+    price: 749,
+    originalPrice: 4999,
     category: 'Website',
-    discount: 80,
+    discount: 85,
     sold: 0,
     store: 'DEV.exe',
     verified: true,
