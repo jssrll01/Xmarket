@@ -80,8 +80,22 @@ button {
   font-family: inherit;
   color: var(--text);
   background: transparent;
+  border: none;
+  outline: none;
+  transition: box-shadow 0.15s ease, transform 0.12s ease;
 }
 button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* Every default button gets the neumorphic raised surface */
+button:not(.btn-primary):not(.dd-item) {
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--raised-sm);
+}
+button:not(.btn-primary):not(.dd-item):active {
+  box-shadow: var(--inset);
+  transform: scale(0.98);
+}
 label { color: var(--text-dim); font-size: 13px; }
 h1, h2, h3, h4 { color: var(--text); }
 
@@ -391,4 +405,64 @@ h1, h2, h3, h4 { color: var(--text); }
   0%   { transform: scale(0.5); opacity: 0; }
   60%  { transform: scale(1.1); }
   100% { transform: scale(1); opacity: 1; }
+}
+
+/* ===== HARD OVERRIDES FOR CUSTOM BUTTON CLASSES ===== */
+.btn-primary,
+.btn-outline,
+.btn-ghost,
+.icon-btn,
+.dd-trigger,
+.chip,
+.drawer-item {
+  border: none !important;
+}
+
+.btn-primary {
+  background: var(--grad-btn) !important;
+  box-shadow:
+    4px 4px 12px rgba(0,0,0,0.5),
+    -2px -2px 8px rgba(0,212,255,0.15),
+    inset 0 0 0 1px rgba(255,255,255,0.1) !important;
+}
+.btn-primary:active {
+  box-shadow:
+    inset 4px 4px 10px rgba(0,0,0,0.5),
+    inset -4px -4px 10px rgba(255,255,255,0.05) !important;
+  transform: scale(0.98);
+}
+
+.btn-outline,
+.btn-ghost,
+.icon-btn,
+.dd-trigger,
+.chip,
+.drawer-item {
+  background: var(--surface) !important;
+  box-shadow: var(--raised-sm) !important;
+}
+.btn-outline:active,
+.btn-ghost:active,
+.icon-btn:active,
+.dd-trigger:active,
+.chip:active,
+.drawer-item:active {
+  box-shadow: var(--inset) !important;
+  transform: scale(0.98);
+}
+
+.chip.active {
+  background: var(--grad-btn) !important;
+  box-shadow:
+    4px 4px 12px rgba(0,0,0,0.5),
+    -2px -2px 8px rgba(0,212,255,0.15) !important;
+}
+
+.dd-item {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.dd-item.active {
+  background: var(--grad-btn) !important;
+  box-shadow: none !important;
 }
