@@ -28,16 +28,17 @@ const faqs = [
 function FAQItem({ item }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="card" style={{ padding: 14, marginBottom: 8 }}>
-      <button
+    <div className="card" style={{ padding: 16, marginBottom: 10 }}>
+      <div
         onClick={() => setOpen(!open)}
         style={{
-          width: '100%', display: 'flex', alignItems: 'center',
+          display: 'flex', alignItems: 'center',
           justifyContent: 'space-between', gap: 12,
-          background: 'none', color: 'var(--text)',
-          fontWeight: 700, fontSize: 14, textAlign: 'left', padding: 0
+          cursor: 'pointer'
         }}>
-        <span>{item.q}</span>
+        <div style={{ color: 'var(--text)', fontWeight: 700, fontSize: 14 }}>
+          {item.q}
+        </div>
         <ChevronDown
           size={18}
           color="#00d4ff"
@@ -46,12 +47,12 @@ function FAQItem({ item }) {
             transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.25s ease'
           }} />
-      </button>
+      </div>
       {open && (
         <div style={{
           fontSize: 13, color: 'var(--text-dim)', lineHeight: 1.6,
-          marginTop: 10, paddingTop: 10,
-          borderTop: '1px solid var(--border)',
+          marginTop: 12, paddingTop: 12,
+          borderTop: '1px solid rgba(255,255,255,0.06)',
           animation: 'fadeIn 0.2s ease'
         }}>
           {item.a}

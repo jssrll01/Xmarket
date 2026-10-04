@@ -1,6 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bell, Zap, Tag, ShieldCheck, Sparkles } from 'lucide-react';
+import {
+  ArrowLeft, Bell, Zap, Tag, ShieldCheck, Sparkles,
+  Gift, Clock, Star, Truck
+} from 'lucide-react';
 
 const notifs = [
   { icon: Bell, color: '#00d4ff',
@@ -18,6 +21,18 @@ const notifs = [
   { icon: ShieldCheck, color: '#7b3ff2',
     title: 'Verified Sellers',
     body: 'Look for the blue badge next to store names. All verified sellers are trusted.' },
+  { icon: Gift, color: '#e539ff',
+    title: 'Free Minor Adjustments',
+    body: 'Selected digital services include 1 month of free minor adjustments after delivery.' },
+  { icon: Truck, color: '#00d4ff',
+    title: 'Meet-up Option Available',
+    body: 'Prefer face-to-face? Choose Meet-up at checkout — 3 to 7 days, ₱15 per km.' },
+  { icon: Clock, color: '#ffd600',
+    title: 'Pre-order Items',
+    body: 'Pre-order products ship 7-14 days after confirmation. Look for the PRE-ORDER tag.' },
+  { icon: Star, color: '#ffd600',
+    title: 'Rate Your Experience',
+    body: 'Loved your purchase? Let us know — feedback helps us improve.' },
 ];
 
 export default function Notifications() {
@@ -33,9 +48,10 @@ export default function Notifications() {
         return (
           <div key={i} className="card" style={{ padding: 16, marginBottom: 10, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
             <div style={{
-              width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-              background: 'rgba(0,212,255,0.12)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center'
+              width: 42, height: 42, borderRadius: 14, flexShrink: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--surface-2)',
+              boxShadow: 'var(--inset-sm)'
             }}>
               <Icon size={18} color={n.color} />
             </div>
