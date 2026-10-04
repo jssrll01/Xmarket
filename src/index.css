@@ -648,3 +648,135 @@ button .spinner {
   border-color: rgba(255,255,255,0.35) !important;
   border-top-color: #ffffff !important;
 }
+
+/* ===== ENLIGHTENED BUTTON BACKGROUNDS ===== */
+.btn-primary,
+button.btn-primary {
+  background: linear-gradient(145deg, #2f3c7a, #232c5e) !important;
+  color: #ffffff !important;
+  box-shadow:
+    6px 6px 16px rgba(0,0,0,0.55),
+    -4px -4px 12px rgba(255,255,255,0.06),
+    inset 0 0 0 1px rgba(0,212,255,0.35) !important;
+}
+.btn-primary:active {
+  background: linear-gradient(145deg, #232c5e, #2f3c7a) !important;
+  box-shadow:
+    inset 5px 5px 12px rgba(0,0,0,0.55),
+    inset -3px -3px 8px rgba(255,255,255,0.04) !important;
+}
+
+.btn-primary.accent {
+  background: linear-gradient(145deg, #4a2688, #331a5e) !important;
+  color: #ffffff !important;
+  box-shadow:
+    6px 6px 16px rgba(0,0,0,0.55),
+    -4px -4px 12px rgba(255,255,255,0.06),
+    inset 0 0 0 1px rgba(229,57,255,0.4) !important;
+}
+.btn-primary.accent:active {
+  background: linear-gradient(145deg, #331a5e, #4a2688) !important;
+}
+
+.btn-outline {
+  background: linear-gradient(145deg, #2a346b, #1f2756) !important;
+  color: #ffffff !important;
+  box-shadow:
+    5px 5px 14px rgba(0,0,0,0.55),
+    -3px -3px 10px rgba(255,255,255,0.05),
+    inset 0 0 0 1px rgba(0,212,255,0.3) !important;
+}
+.btn-outline:active {
+  background: linear-gradient(145deg, #1f2756, #2a346b) !important;
+}
+
+.btn-ghost {
+  background: linear-gradient(145deg, #252f66, #1c2454) !important;
+  color: #ffffff !important;
+  box-shadow:
+    4px 4px 10px rgba(0,0,0,0.5),
+    -3px -3px 8px rgba(255,255,255,0.05) !important;
+}
+.btn-ghost:active {
+  background: linear-gradient(145deg, #1c2454, #252f66) !important;
+  box-shadow:
+    inset 3px 3px 8px rgba(0,0,0,0.55),
+    inset -2px -2px 6px rgba(255,255,255,0.03) !important;
+}
+
+.icon-btn {
+  background: linear-gradient(145deg, #252f66, #1c2454) !important;
+  color: #ffffff !important;
+  box-shadow:
+    4px 4px 10px rgba(0,0,0,0.5),
+    -3px -3px 8px rgba(255,255,255,0.05) !important;
+}
+.icon-btn:active {
+  background: linear-gradient(145deg, #1c2454, #252f66) !important;
+  box-shadow:
+    inset 3px 3px 8px rgba(0,0,0,0.55),
+    inset -2px -2px 6px rgba(255,255,255,0.03) !important;
+}
+
+.dd-trigger {
+  background: linear-gradient(145deg, #252f66, #1c2454) !important;
+  color: #ffffff !important;
+  box-shadow:
+    4px 4px 10px rgba(0,0,0,0.5),
+    -3px -3px 8px rgba(255,255,255,0.05) !important;
+}
+
+.chip {
+  background: linear-gradient(145deg, #252f66, #1c2454) !important;
+  color: #ffffff !important;
+  box-shadow:
+    4px 4px 10px rgba(0,0,0,0.5),
+    -3px -3px 8px rgba(255,255,255,0.05) !important;
+}
+.chip.active {
+  background: linear-gradient(145deg, #4a2688, #331a5e) !important;
+  color: #ffffff !important;
+  box-shadow:
+    5px 5px 14px rgba(0,0,0,0.55),
+    -3px -3px 10px rgba(255,255,255,0.05),
+    inset 0 0 0 1px rgba(229,57,255,0.4) !important;
+}
+
+.drawer-item {
+  background: linear-gradient(145deg, #252f66, #1c2454) !important;
+  color: #ffffff !important;
+  box-shadow:
+    4px 4px 10px rgba(0,0,0,0.5),
+    -3px -3px 8px rgba(255,255,255,0.05) !important;
+}
+.drawer-item:active {
+  background: linear-gradient(145deg, #1c2454, #252f66) !important;
+  box-shadow:
+    inset 3px 3px 8px rgba(0,0,0,0.55),
+    inset -2px -2px 6px rgba(255,255,255,0.03) !important;
+}
+
+.dd-menu {
+  background: linear-gradient(145deg, #232c5e, #1a2050) !important;
+  box-shadow:
+    8px 8px 24px rgba(0,0,0,0.6),
+    -4px -4px 12px rgba(255,255,255,0.04) !important;
+}
+.dd-item {
+  background: transparent !important;
+  color: #ffffff !important;
+  box-shadow: none !important;
+}
+.dd-item:hover {
+  background: rgba(255,255,255,0.06) !important;
+}
+.dd-item.active {
+  background: linear-gradient(145deg, #4a2688, #331a5e) !important;
+  color: #ffffff !important;
+}
+
+/* Spinner on bright buttons */
+button .spinner {
+  border-color: rgba(255,255,255,0.4) !important;
+  border-top-color: #ffffff !important;
+}
