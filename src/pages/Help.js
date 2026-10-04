@@ -12,7 +12,7 @@ const faqs = [
   { q: 'What is Instant Delivery?',
     a: 'Instant Delivery is available for digital products like courses and apps. There is no delivery fee, and you receive the product immediately after payment confirmation.' },
   { q: 'How do I upload my payment receipt?',
-    a: 'After choosing a payment method on the Checkout page, tap the Upload Payment Receipt button. Attach your screenshot and submit — we receive it instantly via our Telegram bot.' },
+    a: 'After choosing a payment method on the Checkout page, tap the Upload Payment Receipt button. Attach your screenshot and submit.' },
   { q: 'Do you offer vouchers?',
     a: 'Yes — seasonal vouchers and promo codes appear on the Home banner. Check back often for limited-time deals.' },
   { q: 'How do I know my order was received?',

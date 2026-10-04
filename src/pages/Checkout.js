@@ -25,7 +25,7 @@ const DELIVERIES = [
     note: 'Meet-Up with us within 3-7 days. Delivery fee is computed at ₱15 per kilometer from the warehouse.' },
   { id: 'express', label: 'Express [Lalamove]',
     note: 'Same-day or next-day delivery via Lalamove. Actual fee is charged based on Lalamove\'s live quotation at checkout. (Buyer will shoulder the delivery fee of Lalamove)' },
-  { id: 'instant', label: 'Instant Delivery [Applicable for digital products only]',
+  { id: 'instant', label: 'Instant [Applicable for digital products only]',
     instantOnly: true,
     note: 'Instant Delivery for digital products — no delivery fee. You will receive your product immediately after payment confirmation.' },
 ];
@@ -50,7 +50,6 @@ export default function Checkout() {
   const { items, dispatch } = useCart();
   const navigate = useNavigate();
 
-  const hasInstant = items.some(i => i.instant);
   const allInstant = items.length > 0 && items.every(i => i.instant);
 
   const [form, setForm] = useState({
@@ -64,6 +63,7 @@ export default function Checkout() {
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
   const [receipt, setReceipt] = useState(null);
+  const [sendingReceipt, setSendingReceipt] = useState(false);
   const [receiptSent, setReceiptSent] = useState(false);
 
   useEffect(() => {
@@ -97,14 +97,13 @@ export default function Checkout() {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = () => {
-      setReceipt({ name: file.name, dataUrl: reader.result });
-    };
+    reader.onload = () => setReceipt({ name: file.name, dataUrl: reader.result });
     reader.readAsDataURL(file);
   };
 
   const sendReceipt = async () => {
     if (!receipt) return;
+    setSendingReceipt(true);
     try {
       await fetch(RECEIPT_API, {
         method: 'POST',
@@ -119,6 +118,7 @@ export default function Checkout() {
     } catch (err) {
       console.log('Receipt send failed:', err);
     }
+    setSendingReceipt(false);
   };
 
   const placeOrder = async () => {
@@ -232,28 +232,36 @@ export default function Checkout() {
                 <input type="file" accept="image/*" onChange={handleReceipt} style={{ display: 'none' }} />
               </label>
               {receipt && (
-                <button onClick={sendReceipt} className="btn-primary"
-                  style={{ width: '100%', padding: 12, marginTop: 8 }}>
-                  Send Receipt
+                <button onClick={sendReceipt} disabled={sendingReceipt} className="btn-primary"
+                  style={{
+                    width: '100%', padding: 12, marginTop: 8,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+                  }}>
+                  {sendingReceipt ? (
+                    <>
+                      <span className="spinner" /> Sending Receipt...
+                    </>
+                  ) : 'Send Receipt'}
                 </button>
               )}
             </>
           ) : (
-            <div style={{
-              padding: 12, borderRadius: 12,
-              background: 'rgba(0,212,255,0.08)',
-              border: '1px solid rgba(0,212,255,0.4)',
-              fontSize: 13, color: '#cbd2f5', textAlign: 'center'
-            }}>
-              ✓ Receipt sent. We'll verify and contact you shortly.
-            </div>
+            <>
+              <div style={{
+                padding: 12, borderRadius: 12, marginBottom: 16,
+                background: 'rgba(0,212,255,0.08)',
+                border: '1px solid rgba(0,212,255,0.4)',
+                fontSize: 13, color: '#cbd2f5', textAlign: 'center'
+              }}>
+                ✓ Receipt sent. We'll verify and contact you shortly.
+              </div>
+              <button className="btn-primary" onClick={() => navigate('/')}
+                style={{ padding: '14px 32px', fontSize: 15, fontWeight: 700, width: '100%' }}>
+                Continue Shopping
+              </button>
+            </>
           )}
         </div>
-
-        <button className="btn-primary" onClick={() => navigate('/')}
-          style={{ padding: '14px 32px', fontSize: 15, fontWeight: 700 }}>
-          Continue Shopping
-        </button>
       </div>
     );
   }
@@ -385,8 +393,15 @@ export default function Checkout() {
       </div>
 
       <button onClick={placeOrder} disabled={sending} className="btn-primary"
-        style={{ width: '100%', padding: 14, marginTop: 12, fontSize: 16 }}>
-        {sending ? 'Placing Order...' : 'Place Order'}
+        style={{
+          width: '100%', padding: 14, marginTop: 12, fontSize: 16,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+        }}>
+        {sending ? (
+          <>
+            <span className="spinner" /> Placing Order...
+          </>
+        ) : 'Place Order'}
       </button>
     </div>
   );
