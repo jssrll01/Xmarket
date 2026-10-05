@@ -7,6 +7,7 @@ import {
 import { products, banners } from '../products';
 import SmartImage from '../components/SmartImage';
 import { useCart } from '../CartContext';
+import { useToast } from '../components/Toast';
 
 function Dropdown({ value, options, onChange }) {
   const [open, setOpen] = useState(false);
@@ -109,30 +110,9 @@ function Drawer({ open, onClose }) {
   );
 }
 
-function Footer() {
-  return (
-    <footer style={{
-      marginTop: 32,
-      padding: '24px 16px 32px',
-      borderTop: '1px solid var(--border)',
-      background: 'linear-gradient(180deg, transparent 0%, rgba(123,63,242,0.08) 100%)',
-      textAlign: 'center'
-    }}>
-      <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5, marginBottom: 4 }}>
-        <span className="gradient-text">X</span>MARKET
-      </div>
-      <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 12 }}>
-        More Products. Lower Prices.
-      </div>
-      <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>
-        © {new Date().getFullYear()} XMARKET. All rights reserved.
-      </div>
-    </footer>
-  );
-}
-
 export default function Home() {
   const [search, setSearch] = useState('');
+  const [showSuggest, setShowSuggest] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [maxPrice, setMaxPrice] = useState(1000000);
   const [category, setCategory] = useState('All');
@@ -142,6 +122,7 @@ export default function Home() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
   const { items, dispatch } = useCart();
+  const { show: showToast } = useToast();
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -169,6 +150,7 @@ export default function Home() {
     setTimeout(() => {
       dispatch({ type: 'ADD', payload: p });
       setLoadingId(null);
+      showToast('Added to cart ✓');
     }, 700);
   };
 
@@ -197,7 +179,7 @@ export default function Home() {
               borderRadius: '50%', background: 'var(--magenta)'
             }} />
           </Link>
-          <Link to="/cart" className="icon-btn">
+          <Link to="/cart" className="icon-btn" aria-label="Cart">
             <ShoppingCart size={20} />
             {cartCount > 0 && (
               <span style={{
@@ -222,7 +204,10 @@ export default function Home() {
           }} />
           <input
             type="text" placeholder="Search a product..."
-            value={search} onChange={e => setSearch(e.target.value)}
+            value={search}
+            onChange={e => { setSearch(e.target.value); setShowSuggest(true); }}
+            onFocus={() => setShowSuggest(true)}
+            onBlur={() => setTimeout(() => setShowSuggest(false), 180)}
             style={{ paddingLeft: 36, paddingRight: 40 }}
           />
           {search && (
@@ -347,8 +332,6 @@ export default function Home() {
           </div>
         ))}
       </div>
-
-      <Footer />
     </div>
   );
 }

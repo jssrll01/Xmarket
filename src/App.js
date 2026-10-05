@@ -1,6 +1,8 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './CartContext';
+import { ToastProvider } from './components/Toast';
+import SiteFooter from './components/SiteFooter';
 import useScrollTop from './hooks/useScrollTop';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
@@ -16,27 +18,35 @@ import Privacy from './pages/Privacy';
 
 function Router() {
   useScrollTop();
+  const location = useLocation();
+  const hideFooter = location.pathname === '/checkout';
+
   return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/product/:id" element={<ProductDetails />} />
-      <Route path="/cart" element={<Cart />} />
-      <Route path="/checkout" element={<Checkout />} />
-      <Route path="/notifications" element={<Notifications />} />
-      <Route path="/customer-service" element={<CustomerService />} />
-      <Route path="/help" element={<Help />} />
-      <Route path="/more" element={<More />} />
-      <Route path="/about" element={<About />} />
-      <Route path="/terms" element={<Terms />} />
-      <Route path="/privacy" element={<Privacy />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/customer-service" element={<CustomerService />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="/more" element={<More />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/terms" element={<Terms />} />
+        <Route path="/privacy" element={<Privacy />} />
+      </Routes>
+      {!hideFooter && <SiteFooter />}
+    </>
   );
 }
 
 export default function App() {
   return (
     <CartProvider>
-      <Router />
+      <ToastProvider>
+        <Router />
+      </ToastProvider>
     </CartProvider>
   );
 }

@@ -43,6 +43,25 @@ export default function ProductDetails() {
     return () => clearInterval(t);
   }, [product]);
 
+  useEffect(() => {
+    if (!product) return;
+    document.title = product.name + ' - XMARKET';
+    const setMeta = (prop, content) => {
+      let el = document.querySelector('meta[property="' + prop + '"]');
+      if (!el) {
+        el = document.createElement('meta');
+        el.setAttribute('property', prop);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('content', content);
+    };
+    setMeta('og:title', product.name + ' - XMARKET');
+    setMeta('og:description', (product.description || '').slice(0, 160));
+    setMeta('og:image', product.images[0]);
+    setMeta('og:type', 'product');
+    setMeta('og:url', window.location.href);
+  }, [product]);
+
   if (!product) return <div style={{ padding: 20, color: 'var(--text)' }}>Product not found</div>;
 
   const share = async () => {
@@ -116,6 +135,10 @@ export default function ProductDetails() {
             }}>-{product.discount}%</span>
           )}
         </div>
+        <div className="social-proof">
+          🔥 <b>{(product.sold || 0) + 12}</b> people bought this today
+        </div>
+
         <p style={{ marginTop: 12, color: 'var(--text-dim)' }}>{product.description}</p>
 
         <h4 style={{ marginTop: 12 }}>Specifications</h4>
@@ -161,6 +184,36 @@ export default function ProductDetails() {
           {buying ? <span className="spinner" /> : 'Buy Now'}
         </button>
       </div>
+
+      {(() => {
+        const related = products.filter(x => x.id !== product.id && x.category === product.category).slice(0, 6);
+        const fallback = products.filter(x => x.id !== product.id).slice(0, 6);
+        const list = related.length > 0 ? related : fallback;
+        if (list.length === 0) return null;
+        return (
+          <>
+            <h3 style={{ margin: '24px 0 10px', fontSize: 16 }}>You may also like</h3>
+            <div className="related-scroll">
+              {list.map(r => (
+                <button
+                  key={r.id}
+                  onClick={() => navigate('/product/' + r.id)}
+                  className="related-card"
+                  style={{ cursor: 'pointer', textAlign: 'left' }}
+                >
+                  <div className="thumb">
+                    <img src={r.images[0]} alt={r.name} />
+                  </div>
+                  <div className="meta">
+                    <div className="name">{r.name}</div>
+                    <div className="price">₱{r.price}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </>
+        );
+      })()}
     </div>
   );
 }

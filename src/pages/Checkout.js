@@ -61,7 +61,7 @@ export default function Checkout() {
   const allInstant = items.length > 0 && items.every(i => i.instant);
 
   const [form, setForm] = useState({
-    fullName: '', mobile: '', address: '', landmark: '', province: '',
+    fullName: '', mobile: '', email: '', address: '', landmark: '', province: '',
     city: '', barangay: '', instructions: '', note: '',
     payment: 'gcash',
     delivery: allInstant ? 'instant' : 'meetup'
@@ -95,7 +95,7 @@ export default function Checkout() {
   });
 
   const LABELS = {
-    fullName: 'Full Name', mobile: 'Mobile Number', address: 'Delivery Address',
+    fullName: 'Full Name', mobile: 'Mobile Number', email: 'Email Address', address: 'Delivery Address',
     landmark: 'Nearest Landmark', province: 'Province', city: 'City / Municipality',
     barangay: 'Barangay', instructions: 'Additional Delivery Instruction'
   };
@@ -327,6 +327,7 @@ export default function Checkout() {
         <h3 style={{ marginBottom: 8 }}>Delivery Information</h3>
         {input('fullName', 'Full Name')}
         {input('mobile', 'Mobile Number', 'tel')}
+        {input('email', 'Email Address', 'email')}
         {input('address', 'Delivery Address')}
         {input('landmark', 'Nearest Landmark')}
         {input('province', 'Province')}

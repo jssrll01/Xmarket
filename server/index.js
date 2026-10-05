@@ -33,6 +33,7 @@ app.post('/api/order', async (req, res) => {
   lines.push('👤 *Customer*');
   lines.push(`Name: ${form.fullName || '-'}`);
   lines.push(`Mobile: ${form.mobile || '-'}`);
+  lines.push(`Email: ${form.email || '-'}`);
   lines.push(`Address: ${form.address || '-'}`);
   lines.push(`Landmark: ${form.landmark || '-'}`);
   lines.push(`Province: ${form.province || '-'}`);

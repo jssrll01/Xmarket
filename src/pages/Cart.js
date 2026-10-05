@@ -3,19 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { useCart } from '../CartContext';
 import SmartImage from '../components/SmartImage';
+import ConfirmDialog from '../components/ConfirmDialog';
+import { useToast } from '../components/Toast';
 
 export default function Cart() {
   const { items, dispatch } = useCart();
   const navigate = useNavigate();
-
-  const goBack = () => {
-    if (window.history.length > 1 && document.referrer) {
-      navigate(-1);
-    } else {
-      navigate('/');
-    }
-  };
+  const { show: showToast } = useToast();
   const [going, setGoing] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(null);
 
   const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
   const discount = items.reduce((s, i) => s + (i.originalPrice - i.price) * i.quantity, 0);
@@ -28,28 +24,44 @@ export default function Cart() {
 
   if (items.length === 0) {
     return (
-      <div style={{ padding: 40, textAlign: 'center', color: 'var(--text)' }}>
-        <ShoppingCart size={64} color="#00d4ff" />
-        <h2 style={{ marginTop: 12 }}>Your cart is empty</h2>
-        <button onClick={() => navigate('/')} className="btn-primary" style={{ marginTop: 16, padding: '12px 24px' }}>
-          Shop Now
+      <div style={{ padding: 16, color: 'var(--text)' }}>
+        <button onClick={() => navigate(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+          <ArrowLeft size={20} />
         </button>
+        <div className="empty-state">
+          <div className="icon-badge">
+            <ShoppingCart size={48} color="#00d4ff" />
+          </div>
+          <h3>Your cart is empty</h3>
+          <p>Looks like you haven't added anything yet. Explore our products and find something you love.</p>
+          <button onClick={() => navigate('/')} className="btn-primary" style={{ padding: '12px 28px' }}>
+            Start Shopping
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
     <div style={{ padding: 16, paddingBottom: 100, color: 'var(--text)' }}>
-      <button onClick={goBack} className="icon-btn" style={{ marginBottom: 12 }}>
+      <button onClick={() => navigate(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
-      <h2 style={{ marginBottom: 16 }}>Shopping Cart</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h2>Shopping Cart</h2>
+        <button
+          onClick={() => setConfirmRemove({ all: true })}
+          className="btn-ghost"
+          style={{ padding: '8px 14px', fontSize: 12, color: '#ff3d71' }}>
+          Clear All
+        </button>
+      </div>
 
       {items.map(i => (
         <div key={i.id + (i.variant || '')} className="card"
           style={{ padding: 12, marginBottom: 10, display: 'flex', gap: 12 }}>
           <SmartImage src={i.images[0]} alt={i.name}
-            style={{ width: 64, height: 64, borderRadius: 12, boxShadow: 'var(--raised-sm)', flexShrink: 0 }} />
+            style={{ width: 64, height: 64, borderRadius: 12, flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 'bold' }}>{i.name}</div>
             {i.variant && <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Variant: {i.variant}</div>}
@@ -63,14 +75,12 @@ export default function Cart() {
                 <Plus size={14} />
               </button>
               <button
-                onClick={() => dispatch({ type: 'REMOVE', payload: i.id })}
+                onClick={() => setConfirmRemove({ item: i })}
                 className="btn-ghost"
                 style={{
-                  marginLeft: 'auto',
-                  padding: '8px 12px',
+                  marginLeft: 'auto', padding: '8px 12px',
                   display: 'flex', alignItems: 'center', gap: 6,
-                  color: '#ff3d71',
-                  fontSize: 12, fontWeight: 700
+                  color: '#ff3d71', fontSize: 12, fontWeight: 700
                 }}>
                 <Trash2 size={14} /> Remove
               </button>
@@ -83,7 +93,7 @@ export default function Cart() {
         <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: '#e539ff' }}><span>Discount</span><span>-₱{discount}</span></div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}><span>Shipping Fee</span><span>SF will be added on the order confirmation</span></div>
-        <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid rgba(255,255,255,0.06)' }} />
+        <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid rgba(255,255,255,0.08)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>
           <span>Total</span><span style={{ color: '#00d4ff' }}>₱{total}</span>
         </div>
@@ -94,12 +104,28 @@ export default function Cart() {
           width: '100%', padding: 14, marginTop: 12, fontSize: 16,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
         }}>
-        {going ? (
-          <>
-            <span className="spinner" /> Proceeding...
-          </>
-        ) : 'Proceed to Checkout'}
+        {going ? (<><span className="spinner" /> Proceeding...</>) : 'Proceed to Checkout'}
       </button>
+
+      <ConfirmDialog
+        open={!!confirmRemove}
+        title={confirmRemove?.all ? 'Clear cart?' : 'Remove item?'}
+        message={confirmRemove?.all
+          ? 'Are you sure you want to remove all items from your cart?'
+          : `Remove "${confirmRemove?.item?.name}" from your cart?`}
+        confirmLabel={confirmRemove?.all ? 'Clear All' : 'Remove'}
+        onCancel={() => setConfirmRemove(null)}
+        onConfirm={() => {
+          if (confirmRemove?.all) {
+            dispatch({ type: 'CLEAR' });
+            showToast('Cart cleared');
+          } else {
+            dispatch({ type: 'REMOVE', payload: confirmRemove.item.id });
+            showToast('Item removed');
+          }
+          setConfirmRemove(null);
+        }}
+      />
     </div>
   );
 }
