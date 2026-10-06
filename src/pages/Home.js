@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, SlidersHorizontal, ShoppingCart, Bell, ChevronDown, Check, Menu,
@@ -11,9 +11,27 @@ import SmartImage from '../components/SmartImage';
 
 function Dropdown({ value, options, onChange }) {
   const [open, setOpen] = useState(false);
+  const ref = useRef(null);
   const current = options.find(o => o.value === value);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    const onScroll = () => setOpen(false);
+    document.addEventListener('mousedown', close);
+    document.addEventListener('touchstart', close);
+    window.addEventListener('scroll', onScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', close);
+      document.removeEventListener('touchstart', close);
+      window.removeEventListener('scroll', onScroll, true);
+    };
+  }, [open]);
+
   return (
-    <div className="dd">
+    <div className="dd" ref={ref}>
       <button className="dd-trigger" onClick={() => setOpen(!open)}>
         {current?.label}<ChevronDown size={14} />
       </button>
@@ -49,16 +67,13 @@ function Drawer({ open, onClose }) {
           alignItems: 'center', marginBottom: 20
         }}>
           <div>
-            <div style={{ fontSize: 22, fontWeight: 900 }}>
-              XMARKET
-            </div>
+            <div style={{ fontSize: 22, fontWeight: 900 }}>XMARKET</div>
             <div style={{ fontSize: 11, color: 'var(--muted)' }}>Menu</div>
           </div>
           <button className="icon-btn" onClick={onClose} aria-label="Close">
             <X size={18} />
           </button>
         </div>
-
         {items.map(it => {
           const Icon = it.icon;
           return (
@@ -80,7 +95,7 @@ export default function Home() {
   const [maxPrice, setMaxPrice] = useState(1000000);
   const [category, setCategory] = useState('All');
   const [minDiscount, setMinDiscount] = useState(0);
-  const [sort, setSort] = useState('best');
+  const [sort, setSort] = useState('priceLow');
   const [loadingId, setLoadingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
@@ -119,7 +134,6 @@ export default function Home() {
 
   return (
     <div style={{ paddingBottom: 40 }}>
-
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
 
       <div style={{
@@ -127,12 +141,8 @@ export default function Home() {
         padding: '16px 16px 4px'
       }}>
         <div>
-          <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5 }}>
-            XMARKET
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--muted)' }}>
-            Your World of Great Deals
-          </div>
+          <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5 }}>XMARKET</div>
+          <div style={{ fontSize: 11, color: 'var(--muted)' }}>Your World of Great Deals</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Link to="/notifications" className="icon-btn">
@@ -146,9 +156,7 @@ export default function Home() {
           </Link>
           <Link to="/cart" className="icon-btn">
             <ShoppingCart size={20} />
-            {cartCount > 0 && (
-              <span className="cart-count">{cartCount}</span>
-            )}
+            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
           </Link>
           <button className="icon-btn" onClick={() => setDrawerOpen(true)}>
             <Menu size={20} />
@@ -162,11 +170,9 @@ export default function Home() {
             position: 'absolute', left: 12, top: '50%',
             transform: 'translateY(-50%)', color: 'var(--muted)'
           }} />
-          <input
-            type="text" placeholder="Search a product..."
+          <input type="text" placeholder="Search a product..."
             value={search} onChange={e => setSearch(e.target.value)}
-            style={{ paddingLeft: 36, paddingRight: 40 }}
-          />
+            style={{ paddingLeft: 36, paddingRight: 40 }} />
           {search && (
             <button className="search-clear" onClick={() => setSearch('')}>
               <X size={16} />
@@ -223,9 +229,9 @@ export default function Home() {
         <div style={{ fontSize: 16, fontWeight: 800 }}>Featured Products</div>
         <Dropdown value={sort} onChange={setSort}
           options={[
-            { value: 'best', label: 'Best Seller' },
             { value: 'priceLow', label: 'Price: Low to High' },
-            { value: 'priceHigh', label: 'Price: High to Low' }
+            { value: 'priceHigh', label: 'Price: High to Low' },
+            { value: 'best', label: 'Best Seller' },
           ]} />
       </div>
 
@@ -235,33 +241,21 @@ export default function Home() {
             <Link to={`/product/${p.id}`}>
               <div className="product-thumb">
                 <SmartImage src={p.images[0]} alt={p.name} />
-                {p.discount > 0 && (
-                  <span className="discount-thumb">-{p.discount}%</span>
-                )}
-                {p.preorder && (
-                  <span className="preorder-badge">PRE-ORDER</span>
-                )}
-                {p.instant && !p.preorder && (
-                  <span className="instant-badge">INSTANT</span>
-                )}
+                {p.discount > 0 && <span className="discount-thumb">-{p.discount}%</span>}
+                {p.preorder && <span className="preorder-badge">PRE-ORDER</span>}
+                {p.instant && !p.preorder && <span className="instant-badge">INSTANT</span>}
               </div>
               <div style={{ padding: 12 }}>
                 <div style={{
-                  fontSize: 13,
-                  lineHeight: '1.35em',
-                  height: '2.7em',
-                  overflow: 'hidden',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  fontWeight: 700
+                  fontSize: 13, lineHeight: '1.35em', height: '2.7em',
+                  overflow: 'hidden', display: '-webkit-box',
+                  WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', fontWeight: 700
                 }}>{p.name}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
                   <Store size={11} />
                   <span style={{
                     fontSize: 11, color: 'var(--muted)',
-                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                    flex: 1
+                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1
                   }}>{p.store}</span>
                   {p.verified && <BadgeCheck size={12} />}
                 </div>
@@ -270,9 +264,7 @@ export default function Home() {
                   {p.originalPrice && (
                     <span style={{ color: 'var(--muted)', fontSize: 11, textDecoration: 'line-through' }}>₱{p.originalPrice}</span>
                   )}
-                  {p.discount > 0 && (
-                    <span className="discount-badge">-{p.discount}%</span>
-                  )}
+                  {p.discount > 0 && <span className="discount-badge">-{p.discount}%</span>}
                 </div>
               </div>
             </Link>
