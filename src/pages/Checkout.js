@@ -202,9 +202,12 @@ export default function Checkout() {
         }}>
           <CheckCircle2 size={48} color="#000000" />
         </div>
-        <h1 style={{ fontSize: 26, fontWeight: 900, marginBottom: 8,
-          background: 'var(--card)',
-          WebkitBackgroundClip: 'unset', WebkitTextFillColor: 'var(--text)', backgroundClip: 'unset' }}>
+        <h1 style={{
+          fontSize: 26,
+          fontWeight: 900,
+          marginBottom: 8,
+          color: 'var(--text)'
+        }}>
           Order Placed!
         </h1>
         <p style={{ color: 'var(--text-dim)', fontSize: 14, lineHeight: 1.6,
