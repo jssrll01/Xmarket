@@ -150,8 +150,16 @@ export default function Checkout() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          form, items, subtotal, discount, total,
-          payment: paymentLabel, delivery: deliveryLabel,
+          form,
+          items: items.map(i => ({
+            name: i.name,
+            variant: i.variant || null,
+            quantity: i.quantity,
+            price: i.price
+          })),
+          subtotal, discount, total,
+          payment: paymentLabel,
+          delivery: deliveryLabel,
           orderId: newOrderId
         })
       });

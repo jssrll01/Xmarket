@@ -257,7 +257,7 @@ export default function Home() {
                     fontSize: 11, color: 'var(--muted)',
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1
                   }}>{p.store}</span>
-                  {p.verified && <BadgeCheck size={12} />}
+                  {p.verified && <BadgeCheck size={12} color="#2563EB" />}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                   <span style={{ fontWeight: 800, fontSize: 15 }}>₱{p.price}</span>
