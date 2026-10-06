@@ -307,7 +307,6 @@ export default function Home() {
             <Link to={`/product/${p.id}`}>
               <div className="product-thumb">
                 <SmartImage src={p.images[0]} alt={p.name} />
-                {p.discount > 0 && <span className="discount-thumb">-{p.discount}%</span>}
                 {p.preorder && <span className="preorder-badge">PRE-ORDER</span>}
                 {p.instant && !p.preorder && <span className="instant-badge">INSTANT</span>}
               </div>
@@ -330,7 +329,6 @@ export default function Home() {
                   {p.originalPrice && (
                     <span style={{ color: 'var(--muted)', fontSize: 11, textDecoration: 'line-through' }}>₱{p.originalPrice}</span>
                   )}
-                  {p.discount > 0 && <span className="discount-badge">-{p.discount}%</span>}
                 </div>
               </div>
             </Link>
