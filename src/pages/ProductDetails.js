@@ -144,14 +144,14 @@ export default function ProductDetails() {
         {product.instant && !product.preorder && (
           <div className="instant-badge" style={{ left: 12, right: 'auto' }}>INSTANT</div>
         )}
-        <div className="slideshow" ref={slideshowRef}
+        <div className="slideshow pd-hero" ref={slideshowRef}
           onScroll={e => {
             const w = e.currentTarget.clientWidth;
             setSlide(Math.round(e.currentTarget.scrollLeft / w));
           }}>
           {product.images.map((img, i) => (
             <SmartImage key={i} src={img} alt={'view ' + (i+1)}
-              style={{ flex: '0 0 100%', height: 320 }} />
+              style={{ flex: "0 0 100%" }} />
           ))}
         </div>
         {product.images.length > 1 && (

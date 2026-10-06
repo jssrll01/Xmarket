@@ -60,10 +60,11 @@ function VariantModal({ product, onClose, onConfirm }) {
     <div style={{
       position: 'fixed', inset: 0, zIndex: 250,
       background: 'rgba(15,23,42,0.5)',
+      animation: 'modalFadeIn 180ms ease-out',
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       padding: 20
     }} onClick={onClose}>
-      <div className="card" style={{ width: '100%', maxWidth: 380, padding: 20 }}
+      <div className="card" style={{ width: '100%', maxWidth: 380, padding: 20, animation: 'modalPop 220ms ease-out' }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h3 style={{ fontSize: 16, fontWeight: 800 }}>Select a Variant</h3>
@@ -195,7 +196,7 @@ export default function Home() {
   };
 
   return (
-    <div style={{ paddingBottom: 40 }}>
+    <div className="page-enter" style={{ paddingBottom: 40 }}>
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
 
       {variantProduct && (
@@ -303,7 +304,7 @@ export default function Home() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 16px' }}>
         {filtered.map(p => (
-          <div key={p.id} className="card" style={{ borderRadius: 18, overflow: 'hidden' }}>
+          <div key={p.id} className="card fade-up" style={{ borderRadius: 18, overflow: "hidden" }}>
             <Link to={`/product/${p.id}`}>
               <div className="product-thumb">
                 <SmartImage src={p.images[0]} alt={p.name} />
@@ -328,6 +329,11 @@ export default function Home() {
                   <span style={{ fontWeight: 800, fontSize: 15 }}>₱{p.price}</span>
                   {p.originalPrice && (
                     <span style={{ color: 'var(--muted)', fontSize: 11, textDecoration: 'line-through' }}>₱{p.originalPrice}</span>
+                  )}
+                  {p.discount > 0 && (
+                    <span style={{ fontSize: 10, fontWeight: 800, color: '#DC2626', background: '#FEE2E2', padding: '2px 6px', borderRadius: 6, lineHeight: 1 }}>
+                      -{p.discount}%
+                    </span>
                   )}
                 </div>
               </div>

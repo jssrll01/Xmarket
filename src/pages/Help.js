@@ -77,20 +77,6 @@ const CATEGORIES = [
     { t: '[Payments] Why is my payment still processing?', slug: 'payment-processing' },
     { t: '[Payments] Can I pay using multiple payment methods?', slug: 'multiple-payments' },
   ]},
-  { name: 'XMARKET Wallet', items: [
-    { t: '[XMARKET Wallet] What is XMARKET Wallet?', slug: 'wallet-what' },
-    { t: '[XMARKET Wallet] How do I activate my XMARKET Wallet?', slug: 'wallet-activate' },
-    { t: '[XMARKET Wallet] How do I add money to my wallet?', slug: 'wallet-add-money' },
-    { t: '[XMARKET Wallet] How do I use my wallet balance?', slug: 'wallet-use' },
-    { t: '[XMARKET Wallet] How do I check my wallet balance?', slug: 'wallet-balance' },
-    { t: '[XMARKET Wallet] How do I view my wallet transactions?', slug: 'wallet-transactions' },
-    { t: '[XMARKET Wallet] Why is my wallet transaction pending?', slug: 'wallet-pending' },
-    { t: '[XMARKET Wallet] What should I do if my wallet balance is incorrect?', slug: 'wallet-incorrect' },
-    { t: '[XMARKET Wallet] How do I withdraw my wallet balance?', slug: 'wallet-withdraw' },
-    { t: '[XMARKET Wallet] What should I do if I cannot access my wallet?', slug: 'wallet-no-access' },
-    { t: '[XMARKET Wallet] What is my Wallet PIN?', slug: 'wallet-pin' },
-    { t: '[XMARKET Wallet] How do I reset my Wallet PIN?', slug: 'wallet-reset-pin' },
-  ]},
   { name: 'Vouchers & Promotions', items: [
     { t: '[Vouchers] What is an XMARKET voucher?', slug: 'voucher-what' },
     { t: '[Vouchers] How do I claim a voucher?', slug: 'voucher-claim' },
@@ -125,28 +111,6 @@ const CATEGORIES = [
     { t: '[Refunds] Where will my refund be sent?', slug: 'refund-destination' },
     { t: '[Refunds] Why have I not received my refund yet?', slug: 'refund-not-received' },
   ]},
-  { name: 'Selling on XMARKET', items: [
-    { t: '[Seller] How do I become an XMARKET seller?', slug: 'seller-become' },
-    { t: '[Seller] How do I create a seller account?', slug: 'seller-create' },
-    { t: '[Seller] How do I verify my seller account?', slug: 'seller-verify' },
-    { t: '[Seller] How do I add a product?', slug: 'seller-add-product' },
-    { t: '[Seller] How do I edit my product listing?', slug: 'seller-edit-product' },
-    { t: '[Seller] How do I add product photos?', slug: 'seller-photos' },
-    { t: '[Seller] How do I set my product price?', slug: 'seller-price' },
-    { t: '[Seller] How do I manage my inventory?', slug: 'seller-inventory' },
-    { t: '[Seller] How do I process an order?', slug: 'seller-process-order' },
-    { t: '[Seller] How do I arrange shipment?', slug: 'seller-ship' },
-    { t: '[Seller] How do I communicate with customers?', slug: 'seller-communicate' },
-    { t: '[Seller] How do I create a voucher?', slug: 'seller-voucher' },
-    { t: '[Seller] How do I create a promotion?', slug: 'seller-promotion' },
-    { t: '[Seller] How do I view my sales?', slug: 'seller-view-sales' },
-    { t: '[Seller] How do I receive my seller earnings?', slug: 'seller-earnings' },
-    { t: '[Seller] What are XMARKET seller fees?', slug: 'seller-fees' },
-    { t: '[Seller] What products are prohibited on XMARKET?', slug: 'seller-prohibited' },
-    { t: '[Seller] Why was my product listing removed?', slug: 'seller-listing-removed' },
-    { t: '[Seller] Why was my seller account restricted?', slug: 'seller-restricted' },
-    { t: '[Seller] How do I appeal a seller restriction?', slug: 'seller-appeal' },
-  ]},
   { name: 'Chat & Communication', items: [
     { t: '[Chat] How do I chat with a seller?', slug: 'chat-seller' },
     { t: '[Chat] How do I send photos through XMARKET Chat?', slug: 'chat-photos' },
@@ -180,19 +144,6 @@ const CATEGORIES = [
     { t: '[General] How does XMARKET protect buyers?', slug: 'general-protect-buyers' },
     { t: '[General] How does XMARKET protect sellers?', slug: 'general-protect-sellers' },
     { t: '[General] How can I provide feedback about XMARKET?', slug: 'general-feedback' },
-  ]},
-  { name: 'Policies', items: [
-    { t: '[Policies] XMARKET Terms of Service', path: '/terms' },
-    { t: '[Policies] XMARKET Privacy Policy', path: '/privacy' },
-    { t: '[Policies] XMARKET Community Guidelines', slug: 'policy-community' },
-    { t: '[Policies] XMARKET Prohibited Products Policy', slug: 'policy-prohibited' },
-    { t: '[Policies] XMARKET Seller Policy', slug: 'policy-seller' },
-    { t: '[Policies] XMARKET Buyer Policy', slug: 'policy-buyer' },
-    { t: '[Policies] XMARKET Voucher Terms', path: '/vouchers' },
-    { t: '[Policies] XMARKET Refund Policy', path: '/refund' },
-    { t: '[Policies] XMARKET Shipping Policy', slug: 'policy-shipping' },
-    { t: '[Policies] XMARKET Intellectual Property Policy', slug: 'policy-ip' },
-    { t: '[Policies] XMARKET Account Security Policy', slug: 'policy-security' },
   ]},
 ];
 
@@ -324,8 +275,6 @@ export default function Help() {
           <MessageCircle size={16} />
           Chat with XMARKET Support
         </button>
-        <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 10 }}>
-        </div>
       </div>
     </div>
   );

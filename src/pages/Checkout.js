@@ -221,7 +221,7 @@ export default function Checkout() {
           <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
             <span style={{ color: 'var(--text-dim)' }}>Total</span>
-            <span style={{ fontWeight: 700 }}>₱{total}</span>
+            <span style={{ fontWeight: 700 }}>₱—</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
             <span style={{ color: 'var(--text-dim)' }}>Payment</span>
