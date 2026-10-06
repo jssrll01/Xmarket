@@ -231,6 +231,34 @@ export default function ProductDetails() {
           {buying ? <span className="spinner" /> : 'Buy Now'}
         </button>
       </div>
+      <div style={{ marginTop: 24 }}>
+        <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>You may also like</h3>
+        <div className="related-scroll" style={{ padding: 0 }}>
+          {products
+            .filter(p => p.id !== product.id)
+            .sort((a, b) => {
+              const sameA = a.category === product.category ? 0 : 1;
+              const sameB = b.category === product.category ? 0 : 1;
+              return sameA - sameB;
+            })
+            .slice(0, 8)
+            .map(r => (
+              <button key={r.id}
+                onClick={() => navigate('/product/' + r.id)}
+                className="related-card"
+                style={{ cursor: 'pointer', textAlign: 'left' }}>
+                <div className="thumb">
+                  <SmartImage src={r.images[0]} alt={r.name} />
+                </div>
+                <div className="meta">
+                  <div className="name">{r.name}</div>
+                  <div className="price">₱{r.price}</div>
+                </div>
+              </button>
+            ))}
+        </div>
+      </div>
+
     </div>
   );
 }

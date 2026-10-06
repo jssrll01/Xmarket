@@ -51,6 +51,62 @@ function Dropdown({ value, options, onChange }) {
   );
 }
 
+function VariantModal({ product, onClose, onConfirm }) {
+  const [variant, setVariant] = useState(null);
+  const [error, setError] = useState(false);
+  if (!product) return null;
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 250,
+      background: 'rgba(15,23,42,0.5)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: 20
+    }} onClick={onClose}>
+      <div className="card" style={{ width: '100%', maxWidth: 380, padding: 20 }}
+        onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800 }}>Select a Variant</h3>
+          <button onClick={onClose} className="icon-btn" style={{ width: 34, height: 34 }}>
+            <X size={16} />
+          </button>
+        </div>
+
+        <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 12 }}>
+          {product.name}
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+          {product.variants.map(v => (
+            <button key={v}
+              onClick={() => { setVariant(v); setError(false); }}
+              className={'chip' + (variant === v ? ' active' : '')}
+              style={{ border: error && variant !== v ? '1px solid #DC2626' : undefined }}>
+              {v}
+            </button>
+          ))}
+        </div>
+
+        {error && (
+          <div style={{ color: '#DC2626', fontSize: 12, marginBottom: 12 }}>
+            Please select a variant to continue
+          </div>
+        )}
+
+        <button
+          onClick={() => {
+            if (!variant) { setError(true); return; }
+            onConfirm(variant);
+          }}
+          className="btn-primary"
+          style={{ width: '100%', padding: 12 }}>
+          Confirm
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function Drawer({ open, onClose }) {
   const navigate = useNavigate();
   if (!open) return null;
@@ -62,17 +118,12 @@ function Drawer({ open, onClose }) {
     <>
       <div className="drawer-backdrop" onClick={onClose} />
       <div className="drawer">
-        <div style={{
-          display: 'flex', justifyContent: 'space-between',
-          alignItems: 'center', marginBottom: 20
-        }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <div>
             <div style={{ fontSize: 22, fontWeight: 900 }}>XMARKET</div>
             <div style={{ fontSize: 11, color: 'var(--muted)' }}>Menu</div>
           </div>
-          <button className="icon-btn" onClick={onClose} aria-label="Close">
-            <X size={18} />
-          </button>
+          <button className="icon-btn" onClick={onClose}><X size={18} /></button>
         </div>
         {items.map(it => {
           const Icon = it.icon;
@@ -99,6 +150,7 @@ export default function Home() {
   const [loadingId, setLoadingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
+  const [variantProduct, setVariantProduct] = useState(null);
   const { items, dispatch } = useCart();
   const { show: showToast } = useToast();
 
@@ -109,7 +161,9 @@ export default function Home() {
     return () => clearInterval(t);
   }, []);
 
-  const categories = ['All', ...Array.from(new Set(products.map(p => p.category)))];
+  const order = ['All', 'MALL', 'Food', 'E-Book', 'Website', 'Device', 'Mobile', 'Accessories'];
+  const found = Array.from(new Set(products.map(p => p.category)));
+  const categories = order.filter(c => c === 'All' || found.includes(c));
 
   let filtered = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) &&
@@ -123,23 +177,39 @@ export default function Home() {
 
   const cartCount = items.reduce((s, i) => s + i.quantity, 0);
 
-  const handleAdd = (p) => {
+  const addToCart = (p, variant = '') => {
     setLoadingId(p.id);
     setTimeout(() => {
-      dispatch({ type: 'ADD', payload: p });
+      dispatch({ type: 'ADD', payload: { ...p, variant } });
       setLoadingId(null);
       showToast('Added to cart');
-    }, 700);
+    }, 500);
+  };
+
+  const handleAdd = (p) => {
+    if (p.variants && p.variants.length > 0) {
+      setVariantProduct(p);
+      return;
+    }
+    addToCart(p);
   };
 
   return (
     <div style={{ paddingBottom: 40 }}>
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
 
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '16px 16px 4px'
-      }}>
+      {variantProduct && (
+        <VariantModal
+          product={variantProduct}
+          onClose={() => setVariantProduct(null)}
+          onConfirm={(v) => {
+            addToCart(variantProduct, v);
+            setVariantProduct(null);
+          }}
+        />
+      )}
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 4px' }}>
         <div>
           <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5 }}>XMARKET</div>
           <div style={{ fontSize: 11, color: 'var(--muted)' }}>Your World of Great Deals</div>
@@ -198,8 +268,7 @@ export default function Home() {
 
       <div className="banner-wrap" style={{ padding: '12px 16px 4px' }}>
         <div style={{ overflow: 'hidden', borderRadius: 18 }}>
-          <div className="banner-track"
-            style={{ transform: `translateX(-${bannerIdx * 100}%)` }}>
+          <div className="banner-track" style={{ transform: `translateX(-${bannerIdx * 100}%)` }}>
             {banners.map((b, i) => (
               <div key={i} className="banner-slide-full">
                 <img src={b} alt={'Banner ' + (i+1)} />
@@ -222,10 +291,7 @@ export default function Home() {
         ))}
       </div>
 
-      <div style={{
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '4px 16px 12px'
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 16px 12px' }}>
         <div style={{ fontSize: 16, fontWeight: 800 }}>Featured Products</div>
         <Dropdown value={sort} onChange={setSort}
           options={[
