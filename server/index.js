@@ -44,7 +44,8 @@ app.post('/api/order', async (req, res) => {
   lines.push('');
   lines.push('📦 *Items*');
   items.forEach(i => {
-    lines.push(`• ${i.name} × ${i.quantity} — ₱${i.price * i.quantity}`);
+    const v = i.variant ? ` [${i.variant}]` : '';
+    lines.push(`• ${i.name}${v} × ${i.quantity} — ₱${i.price * i.quantity}`);
   });
   lines.push('');
   lines.push('💰 *Summary*');
