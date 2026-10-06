@@ -8,6 +8,9 @@ import { products, banners } from '../products';
 import { useCart } from '../CartContext';
 import { useToast } from '../components/Toast';
 import SmartImage from '../components/SmartImage';
+import { ProductGridSkeleton } from '../components/Skeleton';
+import EmptyState from '../components/EmptyState';
+import { PackageSearch } from 'lucide-react';
 
 function Dropdown({ value, options, onChange }) {
   const [open, setOpen] = useState(false);
@@ -152,14 +155,26 @@ export default function Home() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
   const [variantProduct, setVariantProduct] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+  const [searchFocus, setSearchFocus] = useState(false);
+  const { recent, add: addRecent, remove: removeRecent, clear: clearRecent } = useRecentSearches();
+  const { pulling, distance } = usePullToRefresh(async () => {
+    setHydrated(false);
+    await new Promise(r => setTimeout(r, 600));
+    setHydrated(true);
+  });
   const { items, dispatch } = useCart();
   const { show: showToast } = useToast();
 
   useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    const hyd = setTimeout(() => setHydrated(true), 300);
+    window.addEventListener("scroll", onScroll, { passive: true });
     const t = setInterval(() => {
       setBannerIdx(i => (i + 1) % banners.length);
     }, 3500);
-    return () => clearInterval(t);
+    return () => { clearInterval(t); window.removeEventListener("scroll", onScroll); clearTimeout(hyd); };
   }, []);
 
   const order = ['All', 'MALL', 'Food', 'E-Book', 'Website', 'Device', 'Mobile', 'Accessories'];
@@ -197,6 +212,12 @@ export default function Home() {
 
   return (
     <div className="page-enter" style={{ paddingBottom: 40 }}>
+      {pulling && (
+        <div className="ptr" style={{ height: distance }}>
+          <div className="ptr-spinner" />
+        </div>
+      )}
+      <div className={"sticky-header" + (scrolled ? " scrolled" : "")}>
       <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
 
       {variantProduct && (
@@ -235,7 +256,7 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="search-wrap">
+      <<div className="search-wrap">
         <div className="search-input-box">
           <Search size={16} style={{
             position: 'absolute', left: 12, top: '50%',
@@ -243,6 +264,9 @@ export default function Home() {
           }} />
           <input type="text" placeholder="Search a product..."
             value={search} onChange={e => setSearch(e.target.value)}
+            onFocus={() => setSearchFocus(true)}
+            onBlur={() => setTimeout(() => setSearchFocus(false), 150)}
+            onKeyDown={e => { if (e.key === "Enter") { addRecent(search); e.target.blur(); } }}
             style={{ paddingLeft: 36, paddingRight: 40 }} />
           {search && (
             <button className="search-clear" onClick={() => setSearch('')}>
@@ -282,6 +306,7 @@ export default function Home() {
             <span key={i} className={'banner-dot' + (i === bannerIdx ? ' active' : '')} />
           ))}
         </div>
+      </div>>
       </div>
 
       <div className="chips">

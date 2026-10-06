@@ -22,6 +22,9 @@ import Advertising from './pages/Advertising';
 import OffPlatformAds from './pages/OffPlatformAds';
 import Coins from './pages/Coins';
 import MegaVoucher from './pages/MegaVoucher';
+import Settings from './pages/Settings';
+import NotFound from './pages/NotFound';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function Router() {
   useScrollTop();
@@ -40,6 +43,7 @@ function Router() {
         <Route path="/help" element={<Help />} />
         <Route path="/help/:slug" element={<HelpArticle />} />
         <Route path="/more" element={<More />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/refund" element={<Refund />} />
@@ -49,6 +53,7 @@ function Router() {
         <Route path="/off-platform-ads" element={<OffPlatformAds />} />
         <Route path="/coins" element={<Coins />} />
         <Route path="/mega-voucher" element={<MegaVoucher />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideFooter && <SiteFooter />}
     </>

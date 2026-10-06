@@ -828,3 +828,244 @@ button:active,
 }
 
 /* END ANIMATIONS */
+
+/* ============================================================
+   STICKY HEADER (Home)
+   ============================================================ */
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+  padding-top: 4px;
+  padding-bottom: 4px;
+  transition: box-shadow 200ms ease;
+}
+.sticky-header.scrolled {
+  box-shadow: 0 4px 14px rgba(15,23,42,0.06);
+}
+
+/* ============================================================
+   SKELETON LOADERS
+   ============================================================ */
+.sk {
+  background: linear-gradient(90deg, var(--card) 0%, var(--border) 50%, var(--card) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 8px;
+}
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.sk-img  { width: 100%; aspect-ratio: 1 / 1; border-radius: 0; }
+.sk-line { height: 12px; }
+.sk-btn  { height: 40px; margin: 8px; border-radius: 12px; }
+.skeleton-card { border-radius: 18px; overflow: hidden; }
+
+/* ============================================================
+   SEARCH SUGGESTIONS DROPDOWN
+   ============================================================ */
+.search-suggest {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 44px;
+  background: var(--bg);
+  border-radius: 14px;
+  box-shadow: 0 8px 28px rgba(15,23,42,0.12);
+  padding: 8px 0;
+  z-index: 60;
+  animation: pageEnter 160ms ease-out both;
+  max-height: 340px;
+  overflow-y: auto;
+}
+.ss-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 14px 6px;
+  font-size: 11px; font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.ss-clear {
+  font-size: 11px; color: var(--primary);
+  background: none; padding: 4px 6px;
+}
+.ss-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 6px 0 0;
+}
+.ss-term {
+  display: flex; align-items: center; gap: 10px;
+  flex: 1; text-align: left;
+  padding: 10px 14px;
+  font-size: 13.5px;
+  color: var(--text);
+  background: none;
+}
+.ss-term:active { background: var(--card); }
+.ss-term span {
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ss-x {
+  padding: 8px; color: var(--muted);
+  background: none;
+}
+.ss-empty {
+  padding: 14px; font-size: 13px; color: var(--muted); text-align: center;
+}
+
+/* ============================================================
+   PULL TO REFRESH
+   ============================================================ */
+.ptr {
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  transition: height 120ms ease-out;
+}
+.ptr-spinner {
+  width: 26px; height: 26px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+
+/* ============================================================
+   BACK TO TOP
+   ============================================================ */
+.back-to-top {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity 200ms ease, transform 200ms ease;
+  z-index: 100;
+  box-shadow: 0 6px 20px rgba(37,99,235,0.35);
+}
+.back-to-top.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+/* ============================================================
+   SETTINGS
+   ============================================================ */
+.settings-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 12px;
+  border-radius: 12px;
+}
+.settings-row:hover { background: var(--card); }
+.sr-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--card);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sr-body { flex: 1; min-width: 0; }
+.sr-title { font-size: 14px; font-weight: 700; }
+.sr-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.sr-right { color: var(--muted); display: flex; align-items: center; }
+
+.switch {
+  position: relative;
+  width: 42px; height: 24px;
+  border-radius: 999px;
+  background: var(--border);
+  padding: 0;
+  transition: background 180ms ease;
+  flex-shrink: 0;
+}
+.switch.on { background: var(--primary); }
+.switch .knob {
+  position: absolute; top: 2px; left: 2px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #fff;
+  transition: transform 180ms ease;
+}
+.switch.on .knob { transform: translateX(18px); }
+
+/* ============================================================
+   ERROR PAGES (404 / 500)
+   ============================================================ */
+.error-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  min-height: 70vh;
+  text-align: center;
+  overflow: hidden;
+}
+.err-glow {
+  position: absolute;
+  width: 340px; height: 340px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(37,99,235,0.14), transparent 65%);
+  top: 8%;
+  pointer-events: none;
+  animation: pageEnter 400ms ease-out both;
+}
+.err-code {
+  font-size: 84px;
+  font-weight: 900;
+  letter-spacing: -2px;
+  background: linear-gradient(135deg, var(--primary), var(--purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+  margin-bottom: 10px;
+  animation: pageEnter 300ms ease-out both;
+}
+.err-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.err-msg {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+  max-width: 320px;
+  margin-bottom: 26px;
+}
+.err-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.err-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 14px;
+}
+.err-detail {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--card);
+  padding: 10px 14px;
+  border-radius: 10px;
+  max-width: 90vw;
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
