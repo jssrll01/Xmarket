@@ -11,10 +11,17 @@ import Checkout from './pages/Checkout';
 import Notifications from './pages/Notifications';
 import CustomerService from './pages/CustomerService';
 import Help from './pages/Help';
+import HelpArticle from './pages/help/HelpArticle';
 import More from './pages/More';
-import About from './pages/About';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
+import Refund from './pages/Refund';
+import Vouchers from './pages/Vouchers';
+import Mall from './pages/Mall';
+import Advertising from './pages/Advertising';
+import OffPlatformAds from './pages/OffPlatformAds';
+import Coins from './pages/Coins';
+import MegaVoucher from './pages/MegaVoucher';
 
 function Router() {
   useScrollTop();
@@ -31,10 +38,17 @@ function Router() {
         <Route path="/notifications" element={<Notifications />} />
         <Route path="/customer-service" element={<CustomerService />} />
         <Route path="/help" element={<Help />} />
+        <Route path="/help/:slug" element={<HelpArticle />} />
         <Route path="/more" element={<More />} />
-        <Route path="/about" element={<About />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/refund" element={<Refund />} />
+        <Route path="/vouchers" element={<Vouchers />} />
+        <Route path="/mall" element={<Mall />} />
+        <Route path="/advertising" element={<Advertising />} />
+        <Route path="/off-platform-ads" element={<OffPlatformAds />} />
+        <Route path="/coins" element={<Coins />} />
+        <Route path="/mega-voucher" element={<MegaVoucher />} />
       </Routes>
       {!hideFooter && <SiteFooter />}
     </>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap } from 'lucide-react';
 import { useCart } from '../CartContext';
+import { useToast } from '../components/Toast';
 
 const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
 const RECEIPT_API = 'https://xmarket-telegram-bot.onrender.com/api/receipt';
@@ -34,13 +35,13 @@ function InfoNote({ text }) {
   return (
     <div style={{
       marginTop: 10, padding: 10,
-      background: 'rgba(0,212,255,0.08)',
-      border: '1px solid rgba(0,212,255,0.4)',
+      background: 'var(--card)',
+      border: '1px solid var(--border)',
       borderRadius: 10,
-      fontSize: 12, color: '#cbd2f5', lineHeight: 1.5,
+      fontSize: 12, color: "#000000", lineHeight: 1.5,
       display: 'flex', gap: 8, alignItems: 'flex-start'
     }}>
-      <AlertCircle size={14} color="#00d4ff" style={{ flexShrink: 0, marginTop: 2 }} />
+      <AlertCircle size={14} color="#000000" style={{ flexShrink: 0, marginTop: 2 }} />
       <span>{text}</span>
     </div>
   );
@@ -48,6 +49,7 @@ function InfoNote({ text }) {
 
 export default function Checkout() {
   const { items, dispatch } = useCart();
+  const { show: showToast } = useToast();
   const navigate = useNavigate();
 
   const goBack = () => {
@@ -160,6 +162,7 @@ export default function Checkout() {
     setSending(false);
     setOrderId(newOrderId);
     setSuccess(true);
+    showToast('Order placed successfully');
     dispatch({ type: 'CLEAR' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -171,7 +174,7 @@ export default function Checkout() {
         <label>{label} *</label>
         <input type={type} value={form[k]} onChange={e => upd(k, e.target.value)}
           style={{ width: '100%', padding: 10, marginTop: 4,
-            borderColor: isErr ? '#ff3d71' : undefined }} />
+            borderColor: isErr ? '#000000' : undefined }} />
       </div>
     );
   };
@@ -183,17 +186,17 @@ export default function Checkout() {
         justifyContent: 'center', textAlign: 'center', animation: 'fadeIn 0.4s ease' }}>
         <div style={{
           width: 96, height: 96, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #00d4ff33, #7b3ff233)',
-          border: '2px solid #00d4ff',
+          background: 'var(--card)',
+          border: '2px solid #000000',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           marginBottom: 24, boxShadow: '0 0 40px rgba(0,212,255,0.4)',
           animation: 'popIn 0.5s ease'
         }}>
-          <CheckCircle2 size={48} color="#00d4ff" />
+          <CheckCircle2 size={48} color="#000000" />
         </div>
         <h1 style={{ fontSize: 26, fontWeight: 900, marginBottom: 8,
-          background: 'linear-gradient(90deg, #00d4ff, #7b3ff2, #e539ff)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+          background: 'var(--card)',
+          WebkitBackgroundClip: 'unset', WebkitTextFillColor: 'var(--text)', backgroundClip: 'unset' }}>
           Order Placed!
         </h1>
         <p style={{ color: 'var(--text-dim)', fontSize: 14, lineHeight: 1.6,
@@ -203,7 +206,7 @@ export default function Checkout() {
 
         <div className="card" style={{ padding: 16, marginBottom: 24, width: '100%', maxWidth: 320 }}>
           <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4 }}>Order ID</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: '#00d4ff', letterSpacing: 1 }}>{orderId}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: "#000000", letterSpacing: 1 }}>{orderId}</div>
           <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
             <span style={{ color: 'var(--text-dim)' }}>Total</span>
@@ -224,9 +227,9 @@ export default function Checkout() {
             <>
               <div style={{
                 padding: 12, borderRadius: 12, marginBottom: 12,
-                background: 'rgba(255,214,0,0.08)',
-                border: '1px solid rgba(255,214,0,0.4)',
-                fontSize: 12, color: '#ffe066', lineHeight: 1.5,
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                fontSize: 12, color: "#000000", lineHeight: 1.5,
                 textAlign: 'left'
               }}>
                 Upload your payment receipt so we can verify and process your order faster.
@@ -257,9 +260,9 @@ export default function Checkout() {
             <>
               <div style={{
                 padding: 12, borderRadius: 12, marginBottom: 16,
-                background: 'rgba(0,212,255,0.08)',
-                border: '1px solid rgba(0,212,255,0.4)',
-                fontSize: 13, color: '#cbd2f5', textAlign: 'center'
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                fontSize: 13, color: "#000000", textAlign: 'center'
               }}>
                 ✓ Receipt sent. We'll verify and contact you shortly.
               </div>
@@ -281,22 +284,22 @@ export default function Checkout() {
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
           padding: '14px 16px 16px',
-          background: 'linear-gradient(180deg, #2a0a1c 0%, rgba(42,10,28,0.95) 100%)',
-          borderBottom: '1px solid #ff3d71',
-          boxShadow: '0 8px 32px rgba(255,61,113,0.35)',
+          background: 'var(--card)',
+          borderBottom: '1px solid #000000',
+          boxShadow: '0 8px 24px rgba(11,16,48,0.15)',
           animation: 'slideDown 0.25s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-            <AlertCircle size={20} color="#ff3d71" style={{ flexShrink: 0, marginTop: 2 }} />
+            <AlertCircle size={20} color="#000000" style={{ flexShrink: 0, marginTop: 2 }} />
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: 14, color: '#ff3d71', marginBottom: 6 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: "#000000", marginBottom: 6 }}>
                 Please fill the required fields
               </div>
-              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: '#ffb3c8', lineHeight: 1.7 }}>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: "#000000", lineHeight: 1.7 }}>
                 {missing.map(k => <li key={k}>{LABELS[k]}</li>)}
               </ul>
             </div>
-            <button onClick={() => setMissing([])} style={{ background: 'none', color: '#ff3d71', padding: 4 }}>
+            <button onClick={() => setMissing([])} style={{ background: "transparent", color: "var(--primary)", padding: 4 }}>
               <X size={18} />
             </button>
           </div>
@@ -312,12 +315,12 @@ export default function Checkout() {
         <div style={{
           display: 'flex', gap: 10, alignItems: 'center',
           padding: 12, marginBottom: 12,
-          background: 'rgba(255,214,0,0.1)',
-          border: '1px solid rgba(255,214,0,0.5)',
+          background: 'var(--card)',
+          border: '1px solid var(--border)',
           borderRadius: 12
         }}>
-          <Zap size={18} color="#ffd600" />
-          <div style={{ fontSize: 12.5, color: '#ffe066' }}>
+          <Zap size={18} color="#000000" />
+          <div style={{ fontSize: 12.5, color: "#000000" }}>
             Your cart contains <b>digital products</b>. Instant Delivery will be used — no fee.
           </div>
         </div>
@@ -337,7 +340,7 @@ export default function Checkout() {
           <label>Additional Delivery Instruction *</label>
           <textarea value={form.instructions} onChange={e => upd('instructions', e.target.value)}
             style={{ width: '100%', padding: 10, marginTop: 4,
-              borderColor: missing.includes('instructions') ? '#ff3d71' : undefined }} rows="2" />
+              borderColor: missing.includes('instructions') ? '#000000' : undefined }} rows="2" />
         </div>
         <div>
           <label>Note (optional)</label>
@@ -356,8 +359,8 @@ export default function Checkout() {
         ))}
         {selectedPayment && <InfoNote text={selectedPayment.note} />}
         {selectedPayment?.qr && (
-          <div style={{ marginTop: 10, padding: 16, textAlign: 'center', background: '#fff', borderRadius: 12 }}>
-            <div style={{ fontSize: 12, color: '#333', fontWeight: 700, marginBottom: 8 }}>SCAN TO PAY</div>
+          <div style={{ marginTop: 10, padding: 16, textAlign: 'center', background: 'var(--card)', borderRadius: 12 }}>
+            <div style={{ fontSize: 12, color: "#000000", fontWeight: 700, marginBottom: 8 }}>SCAN TO PAY</div>
             <img src={selectedPayment.qr} alt="QR code"
               style={{ width: 200, height: 200, objectFit: 'contain', borderRadius: 8 }} />
           </div>
@@ -393,11 +396,11 @@ export default function Checkout() {
         ))}
         <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#e539ff' }}><span>Discount</span><span>-₱{discount}</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: "#000000" }}><span>Discount</span><span>-₱{discount}</span></div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}><span>Shipping Fee</span><span>SF will be added on the order confirmation</span></div>
         <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>
-          <span>Total</span><span style={{ color: '#00d4ff' }}>₱{total}</span>
+          <span>Total</span><span style={{ color: "#000000" }}>₱{total}</span>
         </div>
       </div>
 

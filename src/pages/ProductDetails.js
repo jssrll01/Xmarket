@@ -93,7 +93,7 @@ export default function ProductDetails() {
         {product.preorder && (
           <div style={{
             position: 'absolute', top: 12, left: 12, zIndex: 2,
-            background: '#ff3d71', color: '#fff',
+            background: 'var(--card)', color: "#000000",
             fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 999
           }}>PRE-ORDER</div>
         )}
@@ -117,20 +117,20 @@ export default function ProductDetails() {
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-          <Store size={14} color="#00d4ff" />
+          <Store size={14} color="#000000" />
           <span style={{ fontSize: 13, color: 'var(--text-dim)' }}>{product.store}</span>
-          {product.verified && <BadgeCheck size={16} color="#00d4ff" />}
+          {product.verified && <BadgeCheck size={16} color="#000000" />}
         </div>
 
         <h2>{product.name}</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-          <span style={{ color: '#00d4ff', fontSize: 24, fontWeight: 'bold' }}>₱{product.price}</span>
+          <span style={{ color: "#000000", fontSize: 24, fontWeight: 'bold' }}>₱{product.price}</span>
           {product.originalPrice && (
             <span style={{ textDecoration: 'line-through', color: 'var(--text-dim)' }}>₱{product.originalPrice}</span>
           )}
           {product.discount > 0 && (
             <span style={{
-              background: 'var(--grad-btn)', color: '#fff',
+              background: 'var(--grad-btn)', color: "#000000",
               padding: '2px 8px', borderRadius: 6, fontSize: 12, fontWeight: 700
             }}>-{product.discount}%</span>
           )}
@@ -152,9 +152,9 @@ export default function ProductDetails() {
                 <button key={v} onClick={() => setVariant(v)}
                   style={{
                     padding: '6px 14px', borderRadius: 999,
-                    border: '1px solid #00d4ff',
+                    border: '1px solid #000000',
                     background: variant === v ? 'var(--grad-btn)' : 'transparent',
-                    color: variant === v ? '#fff' : '#00d4ff', fontWeight: 600
+                    color: variant === v ? '#000000' : '#000000', fontWeight: 600
                   }}>{v}</button>
               ))}
             </div>

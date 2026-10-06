@@ -30,7 +30,7 @@ export default function Cart() {
         </button>
         <div className="empty-state">
           <div className="icon-badge">
-            <ShoppingCart size={48} color="#00d4ff" />
+            <ShoppingCart size={48} color="#000000" />
           </div>
           <h3>Your cart is empty</h3>
           <p>Looks like you haven't added anything yet. Explore our products and find something you love.</p>
@@ -52,7 +52,7 @@ export default function Cart() {
         <button
           onClick={() => setConfirmRemove({ all: true })}
           className="btn-ghost"
-          style={{ padding: '8px 14px', fontSize: 12, color: '#ff3d71' }}>
+          style={{ padding: '8px 14px', fontSize: 12, color: "#000000" }}>
           Clear All
         </button>
       </div>
@@ -65,7 +65,7 @@ export default function Cart() {
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 'bold' }}>{i.name}</div>
             {i.variant && <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Variant: {i.variant}</div>}
-            <div style={{ color: '#00d4ff', fontWeight: 'bold', marginTop: 4 }}>₱{i.price}</div>
+            <div style={{ color: "#000000", fontWeight: 'bold', marginTop: 4 }}>₱{i.price}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
               <button onClick={() => dispatch({ type: 'DECREASE', payload: i.id })} className="btn-ghost" style={{ padding: 7 }}>
                 <Minus size={14} />
@@ -80,7 +80,7 @@ export default function Cart() {
                 style={{
                   marginLeft: 'auto', padding: '8px 12px',
                   display: 'flex', alignItems: 'center', gap: 6,
-                  color: '#ff3d71', fontSize: 12, fontWeight: 700
+                  color: "#000000", fontSize: 12, fontWeight: 700
                 }}>
                 <Trash2 size={14} /> Remove
               </button>
@@ -91,11 +91,11 @@ export default function Cart() {
 
       <div className="card" style={{ padding: 16, marginTop: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#e539ff' }}><span>Discount</span><span>-₱{discount}</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: "#000000" }}><span>Discount</span><span>-₱{discount}</span></div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}><span>Shipping Fee</span><span>SF will be added on the order confirmation</span></div>
         <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid rgba(255,255,255,0.08)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>
-          <span>Total</span><span style={{ color: '#00d4ff' }}>₱{total}</span>
+          <span>Total</span><span style={{ color: "#000000" }}>₱{total}</span>
         </div>
       </div>
 

@@ -25,14 +25,13 @@ export function ToastProvider({ children }) {
       }}>
         {toasts.map(t => (
           <div key={t.id} style={{
-            background: t.type === 'success'
-              ? 'linear-gradient(145deg, #6373d8, #4a59b8)'
-              : 'linear-gradient(145deg, #d8638a, #b84a6b)',
-            color: '#fff',
+            background: 'var(--neu-surface, #F8FAFC)',
+            color: 'var(--text, #0F172A)',
+            border: '1px solid var(--border, #E2E8F0)',
             padding: '12px 20px',
             borderRadius: 14,
             fontSize: 13, fontWeight: 700,
-            boxShadow: '6px 6px 16px rgba(0,0,0,0.4), -4px -4px 12px rgba(255,255,255,0.1)',
+            boxShadow: '0 10px 30px rgba(15,23,42,0.12)',
             animation: 'toastIn 0.25s ease',
             pointerEvents: 'auto',
             maxWidth: 360

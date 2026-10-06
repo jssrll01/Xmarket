@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, SlidersHorizontal, ShoppingCart, Bell, ChevronDown, Check, Menu,
-  Store, HelpCircle, MoreHorizontal, BadgeCheck, Download
+  Store, HelpCircle, MoreHorizontal, BadgeCheck
 } from 'lucide-react';
 import { products, banners } from '../products';
-import SmartImage from '../components/SmartImage';
 import { useCart } from '../CartContext';
 import { useToast } from '../components/Toast';
+import SmartImage from '../components/SmartImage';
 
 function Dropdown({ value, options, onChange }) {
   const [open, setOpen] = useState(false);
@@ -35,40 +35,11 @@ function Dropdown({ value, options, onChange }) {
 
 function Drawer({ open, onClose }) {
   const navigate = useNavigate();
-  const [canInstall, setCanInstall] = useState(!!window.__deferredPrompt);
-
-  useEffect(() => {
-    const onPrompt = () => setCanInstall(true);
-    window.addEventListener('bip-prompt-ready', onPrompt);
-    return () => window.removeEventListener('bip-prompt-ready', onPrompt);
-  }, []);
-
   if (!open) return null;
-
   const items = [
     { icon: HelpCircle, label: 'Help', path: '/help' },
     { icon: MoreHorizontal, label: 'More', path: '/more' },
   ];
-
-  const handleInstall = async () => {
-    const prompt = window.__deferredPrompt;
-    if (prompt) {
-      prompt.prompt();
-      const choice = await prompt.userChoice;
-      if (choice.outcome === 'accepted') {
-        window.__deferredPrompt = null;
-        setCanInstall(false);
-      }
-      return;
-    }
-    alert(
-      'To install XMARKET:\n\n' +
-      '• Android Chrome: menu (⋮) → Add to Home screen\n' +
-      '• iOS Safari: Share (⬆) → Add to Home Screen\n' +
-      '• Desktop Chrome: address bar install icon'
-    );
-  };
-
   return (
     <>
       <div className="drawer-backdrop" onClick={onClose} />
@@ -79,9 +50,9 @@ function Drawer({ open, onClose }) {
         }}>
           <div>
             <div style={{ fontSize: 22, fontWeight: 900 }}>
-              <span className="gradient-text">X</span>MARKET
+              XMARKET
             </div>
-            <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>Menu</div>
+            <div style={{ fontSize: 11, color: 'var(--muted)' }}>Menu</div>
           </div>
           <button className="icon-btn" onClick={onClose} aria-label="Close">
             <X size={18} />
@@ -93,18 +64,11 @@ function Drawer({ open, onClose }) {
           return (
             <button key={it.path} className="drawer-item"
               onClick={() => { onClose(); navigate(it.path); }}>
-              <Icon size={18} color="#00d4ff" />
+              <Icon size={18} />
               {it.label}
             </button>
           );
         })}
-
-        {canInstall && (
-          <button className="drawer-item" onClick={handleInstall}>
-            <Download size={18} color="#00d4ff" />
-            Install App
-          </button>
-        )}
       </div>
     </>
   );
@@ -112,7 +76,6 @@ function Drawer({ open, onClose }) {
 
 export default function Home() {
   const [search, setSearch] = useState('');
-  const [showSuggest, setShowSuggest] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [maxPrice, setMaxPrice] = useState(1000000);
   const [category, setCategory] = useState('All');
@@ -150,7 +113,7 @@ export default function Home() {
     setTimeout(() => {
       dispatch({ type: 'ADD', payload: p });
       setLoadingId(null);
-      showToast('Added to cart ✓');
+      showToast('Added to cart');
     }, 700);
   };
 
@@ -165,29 +128,26 @@ export default function Home() {
       }}>
         <div>
           <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5 }}>
-            <span className="gradient-text">X</span>MARKET
+            XMARKET
           </div>
-          <div style={{ fontSize: 11, color: 'var(--text-dim)' }}>
-            Your World of <span style={{ color: '#00d4ff', fontWeight: 700 }}>Great Deals</span>
+          <div style={{ fontSize: 11, color: 'var(--muted)' }}>
+            Your World of Great Deals
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <Link to="/notifications" className="icon-btn">
             <Bell size={20} />
             <span style={{
-              position: 'absolute', top: 8, right: 8, width: 8, height: 8,
-              borderRadius: '50%', background: 'var(--magenta)'
+              position: 'absolute', top: 8, right: 8,
+              width: 10, height: 10, borderRadius: '50%',
+              background: '#DC2626',
+              border: '2px solid #FFFFFF'
             }} />
           </Link>
-          <Link to="/cart" className="icon-btn" aria-label="Cart">
+          <Link to="/cart" className="icon-btn">
             <ShoppingCart size={20} />
             {cartCount > 0 && (
-              <span style={{
-                position: 'absolute', top: -4, right: -4,
-                background: 'var(--grad-btn)', color: '#fff',
-                borderRadius: '50%', padding: '2px 6px',
-                fontSize: 10, fontWeight: 700
-              }}>{cartCount}</span>
+              <span className="cart-count">{cartCount}</span>
             )}
           </Link>
           <button className="icon-btn" onClick={() => setDrawerOpen(true)}>
@@ -200,14 +160,11 @@ export default function Home() {
         <div className="search-input-box">
           <Search size={16} style={{
             position: 'absolute', left: 12, top: '50%',
-            transform: 'translateY(-50%)', color: 'var(--text-dim)'
+            transform: 'translateY(-50%)', color: 'var(--muted)'
           }} />
           <input
             type="text" placeholder="Search a product..."
-            value={search}
-            onChange={e => { setSearch(e.target.value); setShowSuggest(true); }}
-            onFocus={() => setShowSuggest(true)}
-            onBlur={() => setTimeout(() => setShowSuggest(false), 180)}
+            value={search} onChange={e => setSearch(e.target.value)}
             style={{ paddingLeft: 36, paddingRight: 40 }}
           />
           {search && (
@@ -216,11 +173,7 @@ export default function Home() {
             </button>
           )}
         </div>
-        <button className="icon-btn" onClick={() => setShowFilters(s => !s)}
-          style={{
-            background: showFilters ? 'var(--grad-btn)' : 'var(--card)',
-            borderColor: showFilters ? 'transparent' : 'var(--border)'
-          }}>
+        <button className="icon-btn" onClick={() => setShowFilters(s => !s)}>
           <SlidersHorizontal size={18} />
         </button>
       </div>
@@ -243,7 +196,7 @@ export default function Home() {
             style={{ transform: `translateX(-${bannerIdx * 100}%)` }}>
             {banners.map((b, i) => (
               <div key={i} className="banner-slide-full">
-                <SmartImage src={b} alt={'Banner ' + (i+1)} style={{ height: 180 }} />
+                <img src={b} alt={'Banner ' + (i+1)} />
               </div>
             ))}
           </div>
@@ -278,51 +231,54 @@ export default function Home() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 16px' }}>
         {filtered.map(p => (
-          <div key={p.id} style={{
-            background: 'var(--card)', borderRadius: 16, overflow: 'hidden',
-            border: '1px solid var(--border)',
-            boxShadow: '0 6px 24px rgba(0,0,0,0.4)'
-          }}>
+          <div key={p.id} className="card" style={{ borderRadius: 18, overflow: 'hidden' }}>
             <Link to={`/product/${p.id}`}>
               <div className="product-thumb">
                 <SmartImage src={p.images[0]} alt={p.name} />
                 {p.discount > 0 && (
-                  <span style={{
-                    position: 'absolute', top: 8, left: 8,
-                    background: 'var(--grad-btn)', color: '#fff',
-                    fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999
-                  }}>-{p.discount}%</span>
+                  <span className="discount-thumb">-{p.discount}%</span>
                 )}
                 {p.preorder && (
-                  <span style={{
-                    position: 'absolute', top: 8, right: 8,
-                    background: '#ff3d71', color: '#fff',
-                    fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999
-                  }}>PRE-ORDER</span>
+                  <span className="preorder-badge">PRE-ORDER</span>
+                )}
+                {p.instant && !p.preorder && (
+                  <span className="instant-badge">INSTANT</span>
                 )}
               </div>
-              <div style={{ padding: 10 }}>
-                <div style={{ fontSize: 13, height: 36, overflow: 'hidden', fontWeight: 500 }}>{p.name}</div>
+              <div style={{ padding: 12 }}>
+                <div style={{
+                  fontSize: 13,
+                  lineHeight: '1.35em',
+                  height: '2.7em',
+                  overflow: 'hidden',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  fontWeight: 700
+                }}>{p.name}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                  <Store size={11} color="#00d4ff" />
+                  <Store size={11} />
                   <span style={{
-                    fontSize: 11, color: 'var(--text-dim)',
+                    fontSize: 11, color: 'var(--muted)',
                     whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
                     flex: 1
                   }}>{p.store}</span>
-                  {p.verified && <BadgeCheck size={12} color="#00d4ff" />}
+                  {p.verified && <BadgeCheck size={12} />}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 4 }}>
-                  <span style={{ color: '#00d4ff', fontWeight: 800, fontSize: 15 }}>₱{p.price}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+                  <span style={{ fontWeight: 800, fontSize: 15 }}>₱{p.price}</span>
                   {p.originalPrice && (
-                    <span style={{ color: 'var(--text-dim)', fontSize: 11, textDecoration: 'line-through' }}>₱{p.originalPrice}</span>
+                    <span style={{ color: 'var(--muted)', fontSize: 11, textDecoration: 'line-through' }}>₱{p.originalPrice}</span>
+                  )}
+                  {p.discount > 0 && (
+                    <span className="discount-badge">-{p.discount}%</span>
                   )}
                 </div>
               </div>
             </Link>
             <button onClick={() => handleAdd(p)} disabled={loadingId === p.id}
               className="btn-primary"
-              style={{ width: '100%', padding: 10, fontSize: 12, borderRadius: 0 }}>
+              style={{ width: '100%', padding: 11, fontSize: 12, borderRadius: 0 }}>
               {loadingId === p.id
                 ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
                     <span className="spinner" /> ADDING
