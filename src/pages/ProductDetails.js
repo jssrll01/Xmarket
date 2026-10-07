@@ -116,11 +116,15 @@ export default function ProductDetails() {
   };
 
   const doAdd = (setFn, isBuy) => {
+    if (!user) {
+      showToast('Please sign in to continue');
+      navigate('/signin');
+      return;
+    }
     if (!validateVariant()) return;
     setFn(true);
     setTimeout(() => {
       for (let i = 0; i < qty; i++) {
-        if (!user) { navigate('/signin'); return; }
       dispatch({ type: 'ADD', payload: { ...product, variant } });
       }
       setFn(false);
