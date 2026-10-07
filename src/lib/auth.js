@@ -8,10 +8,8 @@ export async function signUp(form) {
       data: {
         username: form.username,
         first_name: form.firstName,
-        middle_name: form.middleName,
         last_name: form.lastName,
         phone: form.phone,
-        date_of_birth: form.dateOfBirth,
         delivery_address: form.deliveryAddress,
         nearest_landmark: form.nearestLandmark,
         province: form.province,

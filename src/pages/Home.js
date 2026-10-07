@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, SlidersHorizontal, ShoppingCart, Bell, ChevronDown, Check, Menu,
-  Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch
+  Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
 } from 'lucide-react';
 import { banners, fetchProducts } from '../lib/products';
 import { useCart } from '../CartContext';
@@ -118,6 +118,8 @@ function Drawer({ open, onClose }) {
   const items = [
     { icon: HelpCircle, label: 'Help', path: '/help' },
     { icon: MoreHorizontal, label: 'More', path: '/more' },
+    { icon: User, label: 'Profile', path: '/profile' },
+    { icon: Heart, label: 'Wishlist', path: '/wishlist' },
   ];
   return (
     <>
@@ -213,8 +215,12 @@ export default function Home() {
 
   const addToCart = (p, variant = '') => {
     setLoadingId(p.id);
-    setTimeout(() => {
-      dispatch({ type: 'ADD', payload: { ...p, variant } });
+    setTimeout(async () => {
+      await dispatch({ type: 'ADD', payload: {
+        product_id: p.uuid,
+        variant: variant || '',
+        quantity: 1,
+      }});
       setLoadingId(null);
       showToast('Added to cart');
     }, 500);

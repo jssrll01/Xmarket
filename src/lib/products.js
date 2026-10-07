@@ -37,3 +37,47 @@ export const banners = [
   'https://res.cloudinary.com/bvw3okdf/image/upload/v1789443126/file_0000000067d8820bb0bae75741f4350b.png',
   'https://res.cloudinary.com/bvw3okdf/image/upload/v1789443837/file_00000000a55c8246b2511b1883dc67d3.png'
 ];
+
+export async function fetchProductById(id) {
+  // id may be a legacy numeric id or a UUID; try both.
+  let query = supabase.from('products').select('*');
+  if (/^\d+$/.test(String(id))) {
+    query = query.eq('legacy_id', Number(id));
+  } else {
+    query = query.eq('id', id);
+  }
+  const { data, error } = await query.maybeSingle();
+  if (error || !data) return null;
+  return mapProduct(data);
+}
+
+export async function fetchRelatedProducts(category, excludeId, limit = 8) {
+  let query = supabase.from('products').select('*').limit(limit + 1);
+  if (category) query = query.eq('category', category);
+  const { data, error } = await query;
+  if (error) return [];
+  return (data || [])
+    .map(mapProduct)
+    .filter(p => String(p.id) !== String(excludeId))
+    .slice(0, limit);
+}
+
+function mapProduct(p) {
+  return {
+    id: p.legacy_id ?? p.id,
+    uuid: p.id,
+    name: p.name,
+    price: p.price,
+    originalPrice: p.original_price,
+    category: p.category,
+    discount: p.discount,
+    sold: p.sold,
+    store: p.store,
+    verified: p.verified,
+    preorder: p.preorder,
+    instant: p.instant,
+    images: p.images || [],
+    description: p.description,
+    variants: p.variants || [],
+  };
+}

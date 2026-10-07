@@ -24,6 +24,9 @@ import Coins from './pages/Coins';
 import MegaVoucher from './pages/MegaVoucher';
 import Settings from './pages/Settings';
 import SignUp from './pages/SignUp';
+import Profile from './pages/Profile';
+import Orders from './pages/Orders';
+import Wishlist from './pages/Wishlist';
 import SignIn from './pages/SignIn';
 import ForgotPassword from './pages/ForgotPassword';
 import { AuthProvider } from './context/AuthContext';
@@ -49,6 +52,9 @@ function Router() {
         <Route path="/more" element={<More />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/terms" element={<Terms />} />

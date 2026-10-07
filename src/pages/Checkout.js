@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap } from 'lucide-react';
+import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap, Wand2 } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { supabase } from '../lib/supabase';
 
 const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
 const RECEIPT_API = 'https://xmarket-telegram-bot.onrender.com/api/receipt';
@@ -26,7 +27,7 @@ const DELIVERIES = [
   { id: 'meetup', label: 'Meet-up [3-7 days]',
     note: 'Meet-Up with us within 3-7 days. Delivery fee is computed at ₱15 per kilometer from the warehouse.' },
   { id: 'express', label: 'Express [Lalamove]',
-    note: 'Same-day or next-day delivery via Lalamove. Actual fee is charged based on Lalamove\'s live quotation at checkout. (Buyer will shoulder the delivery fee of Lalamove)' },
+    note: "Same-day or next-day delivery via Lalamove. Actual fee is charged based on Lalamove's live quotation at checkout. (Buyer will shoulder the delivery fee of Lalamove)" },
   { id: 'instant', label: 'Instant [Applicable for digital products only]',
     instantOnly: true,
     note: 'Instant Delivery for digital products — no delivery fee. You will receive your product immediately after payment confirmation.' },
@@ -50,19 +51,9 @@ function InfoNote({ text }) {
 
 export default function Checkout() {
   const { items, dispatch } = useCart();
-  const { user } = useAuth();
+  const { user, loading: authLoading, profile } = useAuth();
   const { show: showToast } = useToast();
   const navigate = useNavigate();
-
-  if (!user) return null;
-
-  const goBack = () => {
-    if (window.history.length > 1 && document.referrer) {
-      navigate(-1);
-    } else {
-      navigate('/');
-    }
-  };
 
   const allInstant = items.length > 0 && items.every(i => i.instant);
 
@@ -70,7 +61,7 @@ export default function Checkout() {
     fullName: '', mobile: '', email: '', address: '', landmark: '', province: '',
     city: '', barangay: '', instructions: '', note: '',
     payment: 'gcash',
-    delivery: allInstant ? 'instant' : 'meetup'
+    delivery: 'meetup'
   });
   const [missing, setMissing] = useState([]);
   const [sending, setSending] = useState(false);
@@ -81,20 +72,42 @@ export default function Checkout() {
   const [receiptSent, setReceiptSent] = useState(false);
 
   useEffect(() => {
-    if (!user) navigate('/signin');
-  }, [user, navigate]);
+    if (!authLoading && !user) navigate('/signin');
+  }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    if (allInstant && form.delivery !== 'instant') {
-      setForm(f => ({ ...f, delivery: 'instant' }));
-    }
+    if (allInstant) setForm(f => ({ ...f, delivery: 'instant' }));
   }, [allInstant]);
 
-  const upd = (k, v) => setForm({ ...form, [k]: v });
-
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-  const discount = items.reduce((s, i) => s + (i.originalPrice - i.price) * i.quantity, 0);
+  const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
+  const discount = items.reduce((sum, i) => sum + Math.max(0, (Number(i.originalPrice) || 0) - (Number(i.price) || 0)) * (Number(i.quantity) || 1), 0);
   const total = subtotal;
+
+  const autofill = () => {
+    if (!profile) {
+      showToast('No saved profile information found');
+      return;
+    }
+    setForm(f => ({
+      ...f,
+      fullName: [profile.first_name, profile.last_name].filter(Boolean).join(' ') || f.fullName,
+      mobile: profile.phone || f.mobile,
+      email: user?.email || f.email,
+      address: profile.delivery_address || f.address,
+      landmark: profile.nearest_landmark || f.landmark,
+      province: profile.province || f.province,
+      city: profile.city || f.city,
+      barangay: profile.barangay || f.barangay,
+    }));
+    showToast('Filled from your account');
+  };
+
+  const goBack = () => {
+    if (window.history.length > 1 && document.referrer) navigate(-1);
+    else navigate('/');
+  };
+
+  const upd = (k, v) => setForm({ ...form, [k]: v });
 
   const selectedPayment = PAYMENTS.find(p => p.id === form.payment);
   const selectedDelivery = DELIVERIES.find(d => d.id === form.delivery);
@@ -126,16 +139,10 @@ export default function Checkout() {
       await fetch(RECEIPT_API, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId: orderId || 'N/A',
-          name: receipt.name,
-          dataUrl: receipt.dataUrl
-        })
+        body: JSON.stringify({ orderId: orderId || 'N/A', name: receipt.name, dataUrl: receipt.dataUrl })
       });
       setReceiptSent(true);
-    } catch (err) {
-      console.log('Receipt send failed:', err);
-    }
+    } catch (err) { console.log('Receipt send failed:', err); }
     setSendingReceipt(false);
   };
 
@@ -153,6 +160,7 @@ export default function Checkout() {
     const deliveryLabel = DELIVERIES.find(d => d.id === form.delivery)?.label;
     const newOrderId = 'XM-' + Date.now().toString().slice(-8);
 
+    // 1) Notify the Telegram bot (existing behavior)
     try {
       await fetch(ORDER_API, {
         method: 'POST',
@@ -163,24 +171,80 @@ export default function Checkout() {
             name: i.name,
             variant: i.variant || null,
             quantity: i.quantity,
-            price: i.price
+            price: i.price,
           })),
           subtotal, discount, total,
           payment: paymentLabel,
           delivery: deliveryLabel,
-          orderId: newOrderId
-        })
+          orderId: newOrderId,
+        }),
       });
+    } catch (err) { console.log('Notify failed:', err); }
+
+    // 2) Write the order to Supabase
+    try {
+      const { data: order, error: oErr } = await supabase
+        .from('orders')
+        .insert({
+          buyer_id: user.id,
+          order_code: newOrderId,
+          name: form.fullName,
+          mobile: form.mobile,
+          email: form.email,
+          address: form.address,
+          landmark: form.landmark,
+          province: form.province,
+          city: form.city,
+          barangay: form.barangay,
+          instructions: form.instructions,
+          subtotal, discount, total,
+          payment_method: paymentLabel,
+          delivery_method: deliveryLabel,
+          status: 'pending',
+        })
+        .select()
+        .single();
+
+      if (oErr) throw oErr;
+
+      // Insert line items
+      const orderItems = items.map(i => ({
+        order_id: order.id,
+        product_id: i.product_id,
+        name: i.name,
+        price: Number(i.price) || 0,
+        quantity: Number(i.quantity) || 1,
+        variant: i.variant || null,
+      }));
+      const { error: iErr } = await supabase.from('order_items').insert(orderItems);
+      if (iErr) console.log('order_items insert failed:', iErr.message);
+
+      // Increment sold count on each product
+      for (const it of items) {
+        const { data: prod } = await supabase
+          .from('products')
+          .select('sold')
+          .eq('id', it.product_id)
+          .maybeSingle();
+        if (prod) {
+          await supabase
+            .from('products')
+            .update({ sold: (prod.sold || 0) + it.quantity })
+            .eq('id', it.product_id);
+        }
+      }
+
+      // Clear the cart
+      await dispatch({ type: 'CLEAR' });
+
     } catch (err) {
-      console.log('Notify failed:', err);
+      console.log('Supabase order failed:', err);
+      showToast('Order sent but not saved. Contact support.');
     }
 
     setSending(false);
     setOrderId(newOrderId);
     setSuccess(true);
-    showToast('Order placed successfully');
-    dispatch({ type: 'CLEAR' });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const input = (k, label, type = 'text') => {
@@ -190,7 +254,7 @@ export default function Checkout() {
         <label>{label} *</label>
         <input type={type} value={form[k]} onChange={e => upd(k, e.target.value)}
           style={{ width: '100%', padding: 10, marginTop: 4,
-            borderColor: isErr ? '#000000' : undefined }} />
+            borderColor: isErr ? '#DC2626' : undefined }} />
       </div>
     );
   };
@@ -202,20 +266,13 @@ export default function Checkout() {
         justifyContent: 'center', textAlign: 'center', animation: 'fadeIn 0.4s ease' }}>
         <div style={{
           width: 96, height: 96, borderRadius: '50%',
-          background: 'var(--card)',
-          border: '2px solid #000000',
+          background: 'var(--card)', border: '2px solid var(--primary)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: 24, boxShadow: '0 0 40px rgba(0,212,255,0.4)',
-          animation: 'popIn 0.5s ease'
+          marginBottom: 24, animation: 'popIn 0.5s ease'
         }}>
-          <CheckCircle2 size={48} color="#000000" />
+          <CheckCircle2 size={48} color="var(--primary)" />
         </div>
-        <h1 style={{
-          fontSize: 26,
-          fontWeight: 900,
-          marginBottom: 8,
-          color: 'var(--text)'
-        }}>
+        <h1 style={{ fontSize: 26, fontWeight: 900, marginBottom: 8, color: 'var(--text)' }}>
           Order Placed!
         </h1>
         <p style={{ color: 'var(--text-dim)', fontSize: 14, lineHeight: 1.6,
@@ -225,11 +282,11 @@ export default function Checkout() {
 
         <div className="card" style={{ padding: 16, marginBottom: 24, width: '100%', maxWidth: 320 }}>
           <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4 }}>Order ID</div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: "#000000", letterSpacing: 1 }}>{orderId}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--primary)', letterSpacing: 1 }}>{orderId}</div>
           <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
             <span style={{ color: 'var(--text-dim)' }}>Total</span>
-            <span style={{ fontWeight: 700 }}>₱—</span>
+            <span style={{ fontWeight: 700 }}>₱{total}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
             <span style={{ color: 'var(--text-dim)' }}>Payment</span>
@@ -246,10 +303,8 @@ export default function Checkout() {
             <>
               <div style={{
                 padding: 12, borderRadius: 12, marginBottom: 12,
-                background: 'var(--card)',
-                border: '1px solid var(--border)',
-                fontSize: 12, color: "#000000", lineHeight: 1.5,
-                textAlign: 'left'
+                background: 'var(--card)', border: '1px solid var(--border)',
+                fontSize: 12, color: 'var(--text)', lineHeight: 1.5, textAlign: 'left'
               }}>
                 Upload your payment receipt so we can verify and process your order faster.
               </div>
@@ -262,16 +317,10 @@ export default function Checkout() {
                 <input type="file" accept="image/*" onChange={handleReceipt} style={{ display: 'none' }} />
               </label>
               {receipt && (
-                <button onClick={sendReceipt} disabled={sendingReceipt} className="btn-primary accent"
-                  style={{
-                    width: '100%', padding: 12, marginTop: 8,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
-                  }}>
-                  {sendingReceipt ? (
-                    <>
-                      <span className="spinner" /> Sending Receipt...
-                    </>
-                  ) : 'Send Receipt'}
+                <button onClick={sendReceipt} disabled={sendingReceipt} className="btn-primary"
+                  style={{ width: '100%', padding: 12, marginTop: 8,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+                  {sendingReceipt ? (<><span className="spinner" /> Sending Receipt...</>) : 'Send Receipt'}
                 </button>
               )}
             </>
@@ -279,67 +328,67 @@ export default function Checkout() {
             <>
               <div style={{
                 padding: 12, borderRadius: 12, marginBottom: 16,
-                background: 'var(--card)',
-                border: '1px solid var(--border)',
-                fontSize: 13, color: "#000000", textAlign: 'center'
+                background: 'var(--card)', border: '1px solid var(--border)',
+                fontSize: 13, color: 'var(--text)', textAlign: 'center'
               }}>
                 ✓ Receipt sent. We'll verify and contact you shortly.
               </div>
-              <button className="btn-primary accent" onClick={() => navigate('/')}
+              <button className="btn-primary" onClick={() => navigate('/')}
                 style={{ padding: '14px 32px', fontSize: 15, fontWeight: 700, width: '100%' }}>
                 Continue Shopping
               </button>
             </>
           )}
         </div>
+
       </div>
     );
   }
 
   return (
     <div style={{ padding: 16, paddingBottom: 100, color: 'var(--text)' }}>
-
       {missing.length > 0 && (
         <div style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 200,
-          padding: '14px 16px 16px',
-          background: 'var(--card)',
-          borderBottom: '1px solid #000000',
-          boxShadow: '0 8px 24px rgba(11,16,48,0.15)',
+          padding: '14px 16px 16px', background: 'var(--card)',
+          borderBottom: '1px solid var(--border)',
+          boxShadow: '0 8px 24px rgba(15,23,42,0.15)',
           animation: 'slideDown 0.25s ease'
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-            <AlertCircle size={20} color="#000000" style={{ flexShrink: 0, marginTop: 2 }} />
+            <AlertCircle size={20} color="#DC2626" style={{ flexShrink: 0, marginTop: 2 }} />
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: 700, fontSize: 14, color: "#000000", marginBottom: 6 }}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#DC2626', marginBottom: 6 }}>
                 Please fill the required fields
               </div>
-              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: "#000000", lineHeight: 1.7 }}>
+              <ul style={{ margin: 0, paddingLeft: 18, fontSize: 12.5, color: 'var(--text)', lineHeight: 1.7 }}>
                 {missing.map(k => <li key={k}>{LABELS[k]}</li>)}
               </ul>
             </div>
-            <button onClick={() => setMissing([])} style={{ background: "transparent", color: "var(--primary)", padding: 4 }}>
+            <button onClick={() => setMissing([])} style={{ background: 'transparent', color: 'var(--muted)', padding: 4 }}>
               <X size={18} />
             </button>
           </div>
         </div>
       )}
 
-      <button onClick={goBack} className="icon-btn" style={{ marginBottom: 12 }}>
-        <ArrowLeft size={20} />
-      </button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <button onClick={goBack} className="icon-btn"><ArrowLeft size={20} /></button>
+        <button onClick={autofill} className="btn-ghost"
+          style={{ padding: '8px 14px', fontSize: 12.5, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}>
+          <Wand2 size={14} /> Autofill
+        </button>
+      </div>
       <h2 style={{ marginBottom: 16 }}>Checkout</h2>
 
       {allInstant && (
         <div style={{
           display: 'flex', gap: 10, alignItems: 'center',
-          padding: 12, marginBottom: 12,
-          background: 'var(--card)',
-          border: '1px solid var(--border)',
-          borderRadius: 12
+          padding: 12, marginBottom: 12, background: 'var(--card)',
+          border: '1px solid var(--border)', borderRadius: 12
         }}>
-          <Zap size={18} color="#000000" />
-          <div style={{ fontSize: 12.5, color: "#000000" }}>
+          <Zap size={18} color="var(--primary)" />
+          <div style={{ fontSize: 12.5, color: 'var(--text)' }}>
             Your cart contains <b>digital products</b>. Instant Delivery will be used — no fee.
           </div>
         </div>
@@ -359,7 +408,7 @@ export default function Checkout() {
           <label>Additional Delivery Instruction *</label>
           <textarea value={form.instructions} onChange={e => upd('instructions', e.target.value)}
             style={{ width: '100%', padding: 10, marginTop: 4,
-              borderColor: missing.includes('instructions') ? '#000000' : undefined }} rows="2" />
+              borderColor: missing.includes('instructions') ? '#DC2626' : undefined }} rows="2" />
         </div>
         <div>
           <label>Note (optional)</label>
@@ -379,7 +428,7 @@ export default function Checkout() {
         {selectedPayment && <InfoNote text={selectedPayment.note} />}
         {selectedPayment?.qr && (
           <div style={{ marginTop: 10, padding: 16, textAlign: 'center', background: 'var(--card)', borderRadius: 12 }}>
-            <div style={{ fontSize: 12, color: "#000000", fontWeight: 700, marginBottom: 8 }}>SCAN TO PAY</div>
+            <div style={{ fontSize: 12, color: 'var(--text)', fontWeight: 700, marginBottom: 8 }}>SCAN TO PAY</div>
             <img src={selectedPayment.qr} alt="QR code"
               style={{ width: 200, height: 200, objectFit: 'contain', borderRadius: 8 }} />
           </div>
@@ -389,12 +438,11 @@ export default function Checkout() {
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Delivery Method</h3>
         {availableDeliveries.map(d => (
-          <label key={d.id}
-            style={{
-              display: 'block', marginBottom: 6, fontSize: 14,
-              color: allInstant && d.id !== 'instant' ? 'var(--text-dim)' : 'var(--text)',
-              opacity: allInstant && d.id !== 'instant' ? 0.5 : 1
-            }}>
+          <label key={d.id} style={{
+            display: 'block', marginBottom: 6, fontSize: 14,
+            color: allInstant && d.id !== 'instant' ? 'var(--text-dim)' : 'var(--text)',
+            opacity: allInstant && d.id !== 'instant' ? 0.5 : 1
+          }}>
             <input type="radio"
               checked={form.delivery === d.id}
               disabled={allInstant && d.id !== 'instant'}
@@ -409,30 +457,27 @@ export default function Checkout() {
       <div className="card" style={{ padding: 16 }}>
         <h3 style={{ marginBottom: 8 }}>Order Summary</h3>
         {items.map(i => (
-          <div key={i.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
-            <span>{i.name} × {i.quantity}</span><span>₱{i.price * i.quantity}</span>
+          <div key={i.rowId} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
+            <span>{i.name} × {i.quantity}</span>
+            <span>₱{(Number(i.price) || 0) * (Number(i.quantity) || 1)}</span>
           </div>
         ))}
         <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: "#000000" }}><span>Discount</span><span>-₱{discount}</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--primary)' }}><span>Discount</span><span>-₱{discount}</span></div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}><span>Shipping Fee</span><span>SF will be added on the order confirmation</span></div>
         <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>
-          <span>Total</span><span style={{ color: "#000000" }}>₱{total}</span>
+          <span>Total</span><span>₱{total}</span>
         </div>
       </div>
 
-      <button onClick={placeOrder} disabled={sending} className="btn-primary accent"
+      <button onClick={placeOrder} disabled={sending} className="btn-primary"
         style={{
           width: '100%', padding: 14, marginTop: 12, fontSize: 16,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
         }}>
-        {sending ? (
-          <>
-            <span className="spinner" /> Placing Order...
-          </>
-        ) : 'Place Order'}
+        {sending ? (<><span className="spinner" /> Placing Order...</>) : 'Place Order'}
       </button>
     </div>
   );

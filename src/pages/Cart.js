@@ -3,26 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
+import { fetchProducts } from '../lib/products';
 import SmartImage from '../components/SmartImage';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
 
 export default function Cart() {
   const { items, dispatch } = useCart();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user) navigate('/signin');
-  }, [user, navigate]);
-
-  if (!user) return null;
   const { show: showToast } = useToast();
   const [going, setGoing] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(null);
+  const [allProducts, setAllProducts] = useState([]);
 
-  const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
-  const discount = items.reduce((s, i) => s + (i.originalPrice - i.price) * i.quantity, 0);
+  useEffect(() => {
+    if (!authLoading && !user) navigate('/signin');
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    fetchProducts().then(list => setAllProducts(list));
+  }, []);
+
+  const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
+  const discount = items.reduce((sum, i) => sum + Math.max(0, (Number(i.originalPrice) || 0) - (Number(i.price) || 0)) * (Number(i.quantity) || 1), 0);
   const total = subtotal;
 
   const handleCheckout = () => {
@@ -50,13 +54,13 @@ export default function Cart() {
         <div style={{ marginTop: 24 }}>
           <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>You may also like</h3>
           <div className="related-scroll" style={{ padding: 0 }}>
-            {products.slice(0, 8).map(r => (
-              <button key={r.id}
+            {allProducts.slice(0, 8).map(r => (
+              <button key={r.uuid}
                 onClick={() => navigate('/product/' + r.id)}
                 className="related-card"
                 style={{ cursor: 'pointer', textAlign: 'left' }}>
                 <div className="thumb">
-                  <SmartImage src={r.images[0]} alt={r.name} />
+                  <SmartImage src={(r.images && r.images[0]) || 'https://via.placeholder.com/120?text=X'} alt={r.name} />
                 </div>
                 <div className="meta">
                   <div className="name">{r.name}</div>
@@ -70,11 +74,10 @@ export default function Cart() {
     );
   }
 
-  // Recommendation: same-category products first, then others
-  const cartIds = new Set(items.map(i => i.id));
-  const cartCats = new Set(items.map(i => i.category));
-  const recommended = products
-    .filter(p => !cartIds.has(p.id))
+  const cartIds = new Set(items.map(i => i.product_id));
+  const cartCats = new Set(items.map(i => i.category).filter(Boolean));
+  const recommended = allProducts
+    .filter(p => !cartIds.has(p.uuid))
     .sort((a, b) => {
       const aMatch = cartCats.has(a.category) ? 0 : 1;
       const bMatch = cartCats.has(b.category) ? 0 : 1;
@@ -99,20 +102,20 @@ export default function Cart() {
       </div>
 
       {items.map(i => (
-        <div key={i.id + (i.variant || '')} className="card"
+        <div key={i.rowId} className="card"
           style={{ padding: 12, marginBottom: 10, display: 'flex', gap: 12 }}>
-          <SmartImage src={i.images[0]} alt={i.name}
-            style={{ width: 64, height: 64, borderRadius: 12, flexShrink: 0 }} />
+          <SmartImage src={(i.images && i.images[0]) || 'https://via.placeholder.com/64?text=X'} alt={i.name}
+            style={{ width: 64, height: 64, borderRadius: 12, flexShrink: 0, background: "var(--card)" }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 700 }}>{i.name}</div>
             {i.variant && <div style={{ fontSize: 12, color: 'var(--muted)' }}>Variant: {i.variant}</div>}
             <div style={{ fontWeight: 800, marginTop: 4 }}>₱{i.price}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
-              <button onClick={() => dispatch({ type: 'DECREASE', payload: i.id })} className="btn-ghost" style={{ padding: 7 }}>
+              <button onClick={() => dispatch({ type: 'DECREASE', payload: i.rowId })} className="btn-ghost" style={{ padding: 7 }}>
                 <Minus size={14} />
               </button>
               <span>{i.quantity}</span>
-              <button onClick={() => dispatch({ type: 'INCREASE', payload: i.id })} className="btn-ghost" style={{ padding: 7 }}>
+              <button onClick={() => dispatch({ type: 'INCREASE', payload: i.rowId })} className="btn-ghost" style={{ padding: 7 }}>
                 <Plus size={14} />
               </button>
               <button
@@ -153,12 +156,12 @@ export default function Cart() {
           <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>You may also like</h3>
           <div className="related-scroll" style={{ padding: 0 }}>
             {recommended.map(r => (
-              <button key={r.id}
+              <button key={r.uuid}
                 onClick={() => navigate('/product/' + r.id)}
                 className="related-card"
                 style={{ cursor: 'pointer', textAlign: 'left' }}>
                 <div className="thumb">
-                  <SmartImage src={r.images[0]} alt={r.name} />
+                  <SmartImage src={(r.images && r.images[0]) || 'https://via.placeholder.com/120?text=X'} alt={r.name} />
                 </div>
                 <div className="meta">
                   <div className="name">{r.name}</div>
@@ -178,12 +181,12 @@ export default function Cart() {
           : `Remove "${confirmRemove?.item?.name}" from your cart?`}
         confirmLabel={confirmRemove?.all ? 'Clear All' : 'Remove'}
         onCancel={() => setConfirmRemove(null)}
-        onConfirm={() => {
+        onConfirm={async () => {
           if (confirmRemove?.all) {
-            dispatch({ type: 'CLEAR' });
+            await dispatch({ type: 'CLEAR' });
             showToast('Cart cleared');
           } else {
-            dispatch({ type: 'REMOVE', payload: confirmRemove.item.id });
+            await dispatch({ type: 'REMOVE', payload: confirmRemove.item.rowId });
             showToast('Item removed');
           }
           setConfirmRemove(null);

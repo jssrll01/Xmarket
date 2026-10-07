@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store } from 'lucide-react';
-import { products } from '../products';
+import {
+  ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store, Heart
+} from 'lucide-react';
+import { fetchProductById, fetchRelatedProducts } from '../lib/products';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { supabase } from '../lib/supabase';
 import SmartImage from '../components/SmartImage';
+import { ProductDetailSkeleton } from '../components/Skeleton';
 
 function Description({ text }) {
   const HEADINGS = [
@@ -16,39 +20,28 @@ function Description({ text }) {
     'Perfect For',
     "Why You'll Love It",
   ];
-  const lines = text.split('\n');
+  const lines = (text || '').split('\n');
   return (
     <div style={{ fontSize: 13.5, lineHeight: 1.7 }}>
       {lines.map((line, i) => {
         if (!line.trim()) return <div key={i} style={{ height: 10 }} />;
-
         if (HEADINGS.includes(line)) {
           return (
             <div key={i} style={{
-              fontWeight: 800,
-              fontSize: 15,
-              marginTop: i === 0 ? 0 : 16,
-              marginBottom: 8,
-              color: 'var(--text)'
+              fontWeight: 800, fontSize: 15,
+              marginTop: i === 0 ? 0 : 16, marginBottom: 6,
             }}>{line}</div>
           );
         }
-
         if (line.startsWith('•')) {
           return (
             <div key={i} style={{
-              display: 'flex',
-              gap: 8,
-              marginBottom: 6,
-              paddingLeft: 2
-            }}>
-              <span style={{ color: 'var(--primary)', fontWeight: 700 }}>•</span>
-              <span style={{ flex: 1 }}>{line.slice(1).trim()}</span>
-            </div>
+              paddingLeft: 14, textIndent: -14,
+              marginBottom: 4, color: 'var(--text)',
+            }}>{line}</div>
           );
         }
-
-        return <div key={i} style={{ marginBottom: 8 }}>{line}</div>;
+        return <p key={i} style={{ marginBottom: 8 }}>{line}</p>;
       })}
     </div>
   );
@@ -57,19 +50,51 @@ function Description({ text }) {
 export default function ProductDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const product = products.find(p => p.id === +id);
   const { dispatch } = useCart();
   const { user } = useAuth();
   const { show: showToast } = useToast();
 
+  const [product, setProduct] = useState(null);
+  const [related, setRelated] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [wishlisted, setWishlisted] = useState(false);
+
   const hasVariants = product?.variants && product.variants.length > 0;
-  const [variant, setVariant] = useState(hasVariants ? null : '');
+  const [variant, setVariant] = useState(null);
   const [variantError, setVariantError] = useState(false);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const [buying, setBuying] = useState(false);
   const [slide, setSlide] = useState(0);
   const slideshowRef = useRef(null);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    fetchProductById(id).then(p => {
+      if (!alive) return;
+      setProduct(p);
+      setLoading(false);
+      if (p) {
+        setVariant(p.variants && p.variants.length > 0 ? null : '');
+        fetchRelatedProducts(p.category, p.id, 8).then(list => {
+          if (alive) setRelated(list);
+        });
+      }
+    });
+    return () => { alive = false; };
+  }, [id]);
+
+  useEffect(() => {
+    if (!user || !product) { setWishlisted(false); return; }
+    supabase
+      .from('wishlists')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('product_id', product.uuid)
+      .maybeSingle()
+      .then(({ data }) => setWishlisted(!!data));
+  }, [user, product]);
 
   useEffect(() => {
     if (!product || !product.images || product.images.length < 2) return;
@@ -79,7 +104,7 @@ export default function ProductDetails() {
         if (slideshowRef.current) {
           slideshowRef.current.scrollTo({
             left: next * slideshowRef.current.clientWidth,
-            behavior: 'smooth'
+            behavior: 'smooth',
           });
         }
         return next;
@@ -88,60 +113,88 @@ export default function ProductDetails() {
     return () => clearInterval(t);
   }, [product]);
 
-  if (!product) return <div style={{ padding: 20 }}>Product not found</div>;
-
   const goBack = () => {
     if (window.history.length > 1 && document.referrer) navigate(-1);
     else navigate('/');
   };
 
   const share = async () => {
+    if (!product) return;
     const shareUrl = window.location.origin + '/product/' + product.id;
     try {
       if (navigator.share) {
         await navigator.share({ title: product.name, text: product.description, url: shareUrl });
       } else {
-        alert('Link: ' + shareUrl);
+        navigator.clipboard.writeText(shareUrl);
+        showToast('Link copied');
       }
     } catch (err) {}
   };
 
-  const validateVariant = () => {
-    if (hasVariants && !variant) {
-      setVariantError(true);
-      showToast('Please select a variant');
-      return false;
+  const toggleWishlist = async () => {
+    if (!user) { showToast('Please sign in'); navigate('/signin'); return; }
+    if (!product) return;
+    if (wishlisted) {
+      const { error } = await supabase
+        .from('wishlists')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('product_id', product.uuid);
+      if (!error) { setWishlisted(false); showToast('Removed from wishlist'); }
+    } else {
+      const { error } = await supabase
+        .from('wishlists')
+        .insert({ user_id: user.id, product_id: product.uuid });
+      if (!error) { setWishlisted(true); showToast('Added to wishlist'); }
     }
+  };
+
+  const validateVariant = () => {
+    if (hasVariants && !variant) { setVariantError(true); return false; }
     return true;
   };
 
   const doAdd = (setFn, isBuy) => {
-    if (!user) {
-      showToast('Please sign in to continue');
-      navigate('/signin');
-      return;
-    }
+    if (!user) { showToast('Please sign in'); navigate('/signin'); return; }
     if (!validateVariant()) return;
     setFn(true);
-    setTimeout(() => {
+    setTimeout(async () => {
       for (let i = 0; i < qty; i++) {
-      dispatch({ type: 'ADD', payload: { ...product, variant } });
+        await dispatch({ type: 'ADD', payload: {
+          product_id: product.uuid,
+          variant: variant || '',
+          quantity: 1,
+        }});
       }
       setFn(false);
       showToast(isBuy ? 'Proceeding to checkout' : 'Added to cart');
       navigate(isBuy ? '/checkout' : '/cart');
-    }, 700);
+    }, 400);
   };
 
+  if (loading) return <ProductDetailSkeleton />;
+
+  if (!product) {
+    return (
+      <div style={{ padding: 24, textAlign: 'center' }}>
+        <div style={{ fontSize: 17, fontWeight: 800, marginBottom: 8 }}>Product not found</div>
+        <button className="btn-primary" onClick={() => navigate('/')} style={{ padding: '12px 24px' }}>
+          Go home
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ padding: 16, paddingBottom: 100 }}>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-        <button onClick={goBack} className="icon-btn">
-          <ArrowLeft size={20} />
-        </button>
-        <button onClick={share} className="icon-btn">
-          <Share2 size={18} />
-        </button>
+    <div style={{ paddingBottom: 40 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', padding: 12 }}>
+        <button onClick={goBack} className="icon-btn"><ArrowLeft size={20} /></button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button onClick={toggleWishlist} className="icon-btn" aria-label="Wishlist">
+            <Heart size={18} fill={wishlisted ? '#DC2626' : 'none'} color={wishlisted ? '#DC2626' : 'currentColor'} />
+          </button>
+          <button onClick={share} className="icon-btn"><Share2 size={18} /></button>
+        </div>
       </div>
 
       <div style={{ position: 'relative', marginBottom: 12 }}>
@@ -157,8 +210,7 @@ export default function ProductDetails() {
             setSlide(Math.round(e.currentTarget.scrollLeft / w));
           }}>
           {product.images.map((img, i) => (
-            <SmartImage key={i} src={img} alt={'view ' + (i+1)}
-              style={{ flex: "0 0 100%" }} />
+            <SmartImage key={i} src={img} alt={'view ' + (i + 1)} style={{ flex: '0 0 100%' }} />
           ))}
         </div>
         {product.images.length > 1 && (
@@ -176,59 +228,60 @@ export default function ProductDetails() {
           <span style={{ fontSize: 13, color: 'var(--muted)' }}>{product.store}</span>
           {product.verified && <BadgeCheck size={16} color="#2563EB" />}
         </div>
-
         <h2>{product.name}</h2>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
           <span style={{ fontSize: 24, fontWeight: 'bold' }}>₱{product.price}</span>
           {product.originalPrice && (
-            <span style={{ textDecoration: 'line-through', color: 'var(--muted)' }}>₱{product.originalPrice}</span>
+            <span style={{ color: 'var(--muted)', fontSize: 14, textDecoration: 'line-through' }}>
+              ₱{product.originalPrice}
+            </span>
           )}
-          {product.discount > 0 && <span className="discount-badge">-{product.discount}%</span>}
+          {product.discount > 0 && (
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#DC2626', background: '#FEE2E2', padding: '3px 8px', borderRadius: 6 }}>
+              -{product.discount}%
+            </span>
+          )}
         </div>
-      </div>
-
-      <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-        <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 12 }}>Description</h3>
-        <Description text={product.description} />
+        <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>
+          {product.sold} sold
+        </div>
       </div>
 
       {hasVariants && (
         <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-          <h4 style={{ marginBottom: 4 }}>
-            Variant <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 12 }}>(required)</span>
-          </h4>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Variant</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {product.variants.map(v => (
               <button key={v}
                 onClick={() => { setVariant(v); setVariantError(false); }}
                 className={'chip' + (variant === v ? ' active' : '')}
-                style={{
-                  border: variantError && variant !== v ? '1px solid #DC2626' : undefined
-                }}>{v}</button>
+                style={{ border: variantError && variant !== v ? '1px solid #DC2626' : undefined }}>
+                {v}
+              </button>
             ))}
           </div>
           {variantError && (
             <div style={{ color: '#DC2626', fontSize: 12, marginTop: 8 }}>
-              Please select a variant to continue
+              Please select a variant
             </div>
           )}
         </div>
       )}
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-        <h4 style={{ marginBottom: 10 }}>Quantity</h4>
+        <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Quantity</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <button onClick={() => setQty(Math.max(1, qty-1))} className="btn-ghost" style={{ padding: 8 }}>
+          <button onClick={() => setQty(Math.max(1, qty - 1))} className="btn-ghost" style={{ padding: 8 }}>
             <Minus size={14} />
           </button>
-          <span style={{ minWidth: 20, textAlign: 'center' }}>{qty}</span>
-          <button onClick={() => setQty(qty+1)} className="btn-ghost" style={{ padding: 8 }}>
+          <span style={{ minWidth: 20, textAlign: 'center', fontWeight: 700 }}>{qty}</span>
+          <button onClick={() => setQty(qty + 1)} className="btn-ghost" style={{ padding: 8 }}>
             <Plus size={14} />
           </button>
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 8, padding: '0 16px' }}>
         <button onClick={() => doAdd(setAdding, false)} disabled={adding}
           className="btn-outline" style={{ flex: 1, padding: 12 }}>
           {adding ? <span className="spinner" /> : 'Add to Cart'}
@@ -238,19 +291,25 @@ export default function ProductDetails() {
           {buying ? <span className="spinner" /> : 'Buy Now'}
         </button>
       </div>
-      <div style={{ marginTop: 24 }}>
-        <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>You may also like</h3>
-        <div className="related-scroll" style={{ padding: 0 }}>
-          {products
-            .filter(p => p.id !== product.id)
-            .sort((a, b) => {
-              const sameA = a.category === product.category ? 0 : 1;
-              const sameB = b.category === product.category ? 0 : 1;
-              return sameA - sameB;
-            })
-            .slice(0, 8)
-            .map(r => (
-              <button key={r.id}
+
+      <div className="card" style={{ padding: 16, margin: '16px 16px 12px' }}>
+        <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>Description</h3>
+        <Description text={product.description} />
+      </div>
+
+      <div className="card" style={{ padding: 16, margin: '0 16px 12px' }}>
+        <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>Reviews</h3>
+        <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--muted)', fontSize: 13 }}>
+          No reviews yet. Be the first to review after purchase.
+        </div>
+      </div>
+
+      {related.length > 0 && (
+        <div style={{ padding: '12px 16px' }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>You may also like</h3>
+          <div className="related-scroll" style={{ padding: 0 }}>
+            {related.map(r => (
+              <button key={r.uuid}
                 onClick={() => navigate('/product/' + r.id)}
                 className="related-card"
                 style={{ cursor: 'pointer', textAlign: 'left' }}>
@@ -263,9 +322,9 @@ export default function ProductDetails() {
                 </div>
               </button>
             ))}
+          </div>
         </div>
-      </div>
-
+      )}
     </div>
   );
 }
