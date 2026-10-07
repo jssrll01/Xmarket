@@ -23,10 +23,16 @@ export default function CustomerService() {
       showToast('Your message has been sent');
     }, 900);
   };
+  const goBackSafe = () => {
+    const idx = window.history.state?.idx ?? 0;
+    if (idx > 0) navigate(-1);
+    else navigate('/');
+  };
+
 
   return (
     <div style={{ padding: 16, paddingBottom: 60 }}>
-      <button onClick={() => navigate(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+      <button onClick={goBackSafe} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
 

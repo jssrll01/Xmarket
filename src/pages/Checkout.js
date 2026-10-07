@@ -103,7 +103,8 @@ export default function Checkout() {
   };
 
   const goBack = () => {
-    if (window.history.length > 1 && document.referrer) navigate(-1);
+    const idx = window.history.state?.idx ?? 0;
+    if (idx > 0) navigate(-1);
     else navigate('/');
   };
 

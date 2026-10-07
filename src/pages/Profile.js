@@ -34,10 +34,16 @@ export default function Profile() {
       </div>
     </div>
   );
+  const goBackSafe = () => {
+    const idx = window.history.state?.idx ?? 0;
+    if (idx > 0) nav(-1);
+    else nav('/');
+  };
+
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <button onClick={() => nav(-1)} className="icon-btn" style={{ marginBottom: 16 }}>
+      <button onClick={goBackSafe} className="icon-btn" style={{ marginBottom: 16 }}>
         <ArrowLeft size={20} />
       </button>
 

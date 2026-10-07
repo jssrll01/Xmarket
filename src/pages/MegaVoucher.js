@@ -591,10 +591,16 @@ End of XMARKET Mega Discount Voucher Terms of Service
 
 export default function MegaVoucher() {
   const navigate = useNavigate();
+  const goBackSafe = () => {
+    const idx = window.history.state?.idx ?? 0;
+    if (idx > 0) navigate(-1);
+    else navigate('/');
+  };
+
 
   return (
     <div style={{ padding: 16, paddingBottom: 60, color: 'var(--text)' }}>
-      <button onClick={() => navigate(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+      <button onClick={goBackSafe} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
 

@@ -162,6 +162,12 @@ function CategoryBlock({ category, search, isOpen, onToggle }) {
     if (item.path) navigate(item.path);
     else if (item.slug) navigate('/help/' + item.slug);
   };
+  const goBackSafe = () => {
+    const idx = window.history.state?.idx ?? 0;
+    if (idx > 0) navigate(-1);
+    else navigate('/');
+  };
+
 
   return (
     <div style={{ marginBottom: 12 }}>
@@ -216,7 +222,7 @@ export default function Help() {
 
   return (
     <div style={{ padding: 16, paddingBottom: 60, color: 'var(--text)' }}>
-      <button onClick={() => navigate(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+      <button onClick={goBackSafe} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
 
