@@ -1,67 +1,61 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { useAuth } from './context/AuthContext';
+import { fetchCart, addToCart, updateQty, removeItem, clearCart } from './lib/cart';
 
 const CartContext = createContext();
 
-const STORAGE_KEY = 'xmarket_cart_v1';
-
-function loadCart() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { items: [] };
-    const parsed = JSON.parse(raw);
-    return { items: Array.isArray(parsed.items) ? parsed.items : [] };
-  } catch {
-    return { items: [] };
-  }
-}
-
-function saveCart(state) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch {}
-}
-
-const initialState = loadCart();
-
-function cartReducer(state, action) {
-  switch (action.type) {
-    case 'ADD': {
-      const existing = state.items.find(i => i.id === action.payload.id && i.variant === action.payload.variant);
-      if (existing) {
-        return { items: state.items.map(i =>
-          (i.id === action.payload.id && i.variant === action.payload.variant)
-            ? { ...i, quantity: i.quantity + 1 } : i
-        )};
-      }
-      return { items: [...state.items, { ...action.payload, quantity: 1 }] };
-    }
-    case 'REMOVE':
-      return { items: state.items.filter(i => i.id !== action.payload) };
-    case 'INCREASE':
-      return { items: state.items.map(i =>
-        i.id === action.payload ? { ...i, quantity: i.quantity + 1 } : i
-      )};
-    case 'DECREASE':
-      return { items: state.items.map(i =>
-        i.id === action.payload && i.quantity > 1
-          ? { ...i, quantity: i.quantity - 1 } : i
-      )};
-    case 'CLEAR':
-      return { items: [] };
-    default:
-      return state;
-  }
-}
-
 export function CartProvider({ children }) {
-  const [state, dispatch] = useReducer(cartReducer, initialState);
+  const { user } = useAuth();
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    saveCart(state);
-  }, [state]);
+  const reload = useCallback(async () => {
+    if (!user) { setItems([]); return; }
+    setLoading(true);
+    const { items } = await fetchCart(user.id);
+    setItems(items);
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => { reload(); }, [reload]);
+
+  const dispatch = useCallback(async (action) => {
+    if (!user) {
+      console.warn('[cart] blocked: not signed in');
+      return { requiresAuth: true };
+    }
+
+    switch (action.type) {
+      case 'ADD': {
+        const p = action.payload;
+        await addToCart(user.id, p.product_id, p.variant || '', p.quantity || 1);
+        break;
+      }
+      case 'REMOVE':
+        await removeItem(action.payload);
+        break;
+      case 'INCREASE': {
+        const it = items.find(i => i.rowId === action.payload);
+        if (it) await updateQty(it.rowId, it.quantity + 1);
+        break;
+      }
+      case 'DECREASE': {
+        const it = items.find(i => i.rowId === action.payload);
+        if (it) await updateQty(it.rowId, it.quantity - 1);
+        break;
+      }
+      case 'CLEAR':
+        await clearCart(user.id);
+        break;
+      default:
+        break;
+    }
+    await reload();
+    return { ok: true };
+  }, [user, items, reload]);
 
   return (
-    <CartContext.Provider value={{ ...state, dispatch }}>
+    <CartContext.Provider value={{ items, dispatch, loading, reload }}>
       {children}
     </CartContext.Provider>
   );

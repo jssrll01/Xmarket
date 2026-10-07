@@ -4,13 +4,15 @@ import {
   Search, X, SlidersHorizontal, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch
 } from 'lucide-react';
-import { products, banners } from '../products';
+import { banners, fetchProducts } from '../lib/products';
 import { useCart } from '../CartContext';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import SmartImage from '../components/SmartImage';
 import { ProductGridSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import useRecentSearches from '../hooks/useRecentSearches';
+import UserMenu from '../components/UserMenu';
 
 function Dropdown({ value, options, onChange }) {
   const [open, setOpen] = useState(false);
@@ -149,6 +151,8 @@ function Drawer({ open, onClose }) {
 export default function Home() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
+  const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [maxPrice, setMaxPrice] = useState(1000000);
   const [category, setCategory] = useState('All');
@@ -163,6 +167,7 @@ export default function Home() {
   const [searchFocus, setSearchFocus] = useState(false);
   const { recent, add: addRecent, remove: removeRecent, clear: clearRecent } = useRecentSearches();
   const { items, dispatch } = useCart();
+  const { user } = useAuth();
   const { show: showToast } = useToast();
 
   useEffect(() => {
@@ -177,6 +182,17 @@ export default function Home() {
       window.removeEventListener('scroll', onScroll);
       clearTimeout(hyd);
     };
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    fetchProducts().then(list => {
+      if (alive) {
+        setProducts(list);
+        setProductsLoading(false);
+      }
+    });
+    return () => { alive = false; };
   }, []);
 
   const order = ['All', 'MALL', 'Food', 'E-Book', 'Website', 'Device', 'Mobile', 'Accessories'];
@@ -205,6 +221,11 @@ export default function Home() {
   };
 
   const handleAdd = (p) => {
+    if (!user) {
+      showToast('Please sign in to add items');
+      navigate('/signin');
+      return;
+    }
     if (p.variants && p.variants.length > 0) {
       setVariantProduct(p);
       return;
@@ -259,6 +280,7 @@ export default function Home() {
               <ShoppingCart size={20} />
               {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
             </Link>
+            <UserMenu />
             <button className="icon-btn" onClick={() => setDrawerOpen(true)}>
               <Menu size={20} />
             </button>
@@ -374,7 +396,7 @@ export default function Home() {
           ]} />
       </div>
 
-      {!hydrated ? (
+      {(!hydrated || productsLoading) ? (
         <ProductGridSkeleton count={6} />
       ) : filtered.length === 0 ? (
         <EmptyState

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap } from 'lucide-react';
 import { useCart } from '../CartContext';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 
 const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
@@ -49,8 +50,11 @@ function InfoNote({ text }) {
 
 export default function Checkout() {
   const { items, dispatch } = useCart();
+  const { user } = useAuth();
   const { show: showToast } = useToast();
   const navigate = useNavigate();
+
+  if (!user) return null;
 
   const goBack = () => {
     if (window.history.length > 1 && document.referrer) {
@@ -75,6 +79,10 @@ export default function Checkout() {
   const [receipt, setReceipt] = useState(null);
   const [sendingReceipt, setSendingReceipt] = useState(false);
   const [receiptSent, setReceiptSent] = useState(false);
+
+  useEffect(() => {
+    if (!user) navigate('/signin');
+  }, [user, navigate]);
 
   useEffect(() => {
     if (allInstant && form.delivery !== 'instant') {

@@ -1,15 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { useCart } from '../CartContext';
-import { products } from '../products';
+import { useAuth } from '../context/AuthContext';
 import SmartImage from '../components/SmartImage';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
 
 export default function Cart() {
   const { items, dispatch } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user) navigate('/signin');
+  }, [user, navigate]);
+
+  if (!user) return null;
   const { show: showToast } = useToast();
   const [going, setGoing] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(null);

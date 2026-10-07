@@ -23,6 +23,10 @@ import OffPlatformAds from './pages/OffPlatformAds';
 import Coins from './pages/Coins';
 import MegaVoucher from './pages/MegaVoucher';
 import Settings from './pages/Settings';
+import SignUp from './pages/SignUp';
+import SignIn from './pages/SignIn';
+import ForgotPassword from './pages/ForgotPassword';
+import { AuthProvider } from './context/AuthContext';
 import NotFound from './pages/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
 
@@ -44,6 +48,9 @@ function Router() {
         <Route path="/help/:slug" element={<HelpArticle />} />
         <Route path="/more" element={<More />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/refund" element={<Refund />} />
@@ -62,10 +69,12 @@ function Router() {
 
 export default function App() {
   return (
-    <CartProvider>
-      <ToastProvider>
-        <Router />
-      </ToastProvider>
-    </CartProvider>
+    <AuthProvider>
+      <CartProvider>
+        <ToastProvider>
+          <Router />
+        </ToastProvider>
+      </CartProvider>
+    </AuthProvider>
   );
 }

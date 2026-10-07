@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store } from 'lucide-react';
 import { products } from '../products';
 import { useCart } from '../CartContext';
+import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import SmartImage from '../components/SmartImage';
 
@@ -58,6 +59,7 @@ export default function ProductDetails() {
   const navigate = useNavigate();
   const product = products.find(p => p.id === +id);
   const { dispatch } = useCart();
+  const { user } = useAuth();
   const { show: showToast } = useToast();
 
   const hasVariants = product?.variants && product.variants.length > 0;
@@ -118,7 +120,8 @@ export default function ProductDetails() {
     setFn(true);
     setTimeout(() => {
       for (let i = 0; i < qty; i++) {
-        dispatch({ type: 'ADD', payload: { ...product, variant } });
+        if (!user) { navigate('/signin'); return; }
+      dispatch({ type: 'ADD', payload: { ...product, variant } });
       }
       setFn(false);
       showToast(isBuy ? 'Proceeding to checkout' : 'Added to cart');
