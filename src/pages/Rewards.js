@@ -64,10 +64,15 @@ export default function Rewards() {
         Earn 1 point for every ₱10 spent. Unlock tier vouchers as you go.
       </p>
 
-      <div className="card" style={{
+      <div style={{
         padding: 24, marginBottom: 16,
         background: 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
-        color: '#fff', borderRadius: 16, position: 'relative', overflow: 'hidden',
+        color: '#ffffff',
+        borderRadius: 16,
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 10px 30px rgba(37, 99, 235, 0.25)',
+        WebkitTapHighlightColor: 'transparent',
       }}>
         <Sparkles size={80} style={{ position: 'absolute', top: -10, right: -20, opacity: 0.15 }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
