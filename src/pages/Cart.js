@@ -34,12 +34,13 @@ export default function Cart() {
     setTimeout(() => navigate('/checkout'), 500);
   };
 
-  if (items.length === 0) {
   const goBackSafe = () => {
-    const idx = window.history.state?.idx ?? 0;
-    if (idx > 0) navigate(-1);
-    else navigate('/');
+    const idx = window.history.state?.idx;
+    if (typeof idx === 'number' && idx > 0) navigate(-1);
+    else navigate('/', { replace: true });
   };
+
+  if (items.length === 0) {
 
     return (
       <div style={{ padding: 16 }}>

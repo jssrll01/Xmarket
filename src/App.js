@@ -78,7 +78,9 @@ export default function App() {
     <AuthProvider>
       <CartProvider>
         <ToastProvider>
-          <Router />
+          <ErrorBoundary>
+            <Router />
+          </ErrorBoundary>
         </ToastProvider>
       </CartProvider>
     </AuthProvider>
