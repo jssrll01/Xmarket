@@ -4,7 +4,8 @@ import {
   Search, X, SlidersHorizontal, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
 } from 'lucide-react';
-import { banners, fetchProducts } from '../lib/products';
+import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
+import { Star } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -155,6 +156,8 @@ export default function Home() {
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
+  const [stats, setStats] = useState({});
+  const [loadError, setLoadError] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
   const [maxPrice, setMaxPrice] = useState(1000000);
   const [category, setCategory] = useState('All');
@@ -186,16 +189,26 @@ export default function Home() {
     };
   }, []);
 
-  useEffect(() => {
+  const loadProducts = React.useCallback(() => {
     let alive = true;
-    fetchProducts().then(list => {
-      if (alive) {
+    setLoadError(null);
+    setProductsLoading(true);
+    Promise.all([fetchProducts(), fetchProductStatsMap()])
+      .then(([list, statsMap]) => {
+        if (!alive) return;
         setProducts(list);
+        setStats(statsMap);
         setProductsLoading(false);
-      }
-    });
+      })
+      .catch(err => {
+        if (!alive) return;
+        setLoadError(err.message || 'Failed to load products');
+        setProductsLoading(false);
+      });
     return () => { alive = false; };
   }, []);
+
+  useEffect(() => { loadProducts(); }, [loadProducts]);
 
   const order = ['All', 'MALL', 'Food', 'E-Book', 'Website', 'Device', 'Mobile', 'Accessories'];
   const found = Array.from(new Set(products.map(p => p.category)));
@@ -402,7 +415,15 @@ export default function Home() {
           ]} />
       </div>
 
-      {(!hydrated || productsLoading) ? (
+      {loadError ? (
+        <div style={{ textAlign: 'center', padding: '48px 24px' }}>
+          <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 8 }}>Couldn't load products</div>
+          <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>{loadError}</div>
+          <button className="btn-primary" onClick={loadProducts} style={{ padding: '12px 24px' }}>
+            Try again
+          </button>
+        </div>
+      ) : (!hydrated || productsLoading) ? (
         <ProductGridSkeleton count={6} />
       ) : filtered.length === 0 ? (
         <EmptyState

@@ -13,7 +13,7 @@ export default function Wishlist() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) { nav('/signin'); return; }
+    if (!user) { nav('/signin', { replace: true }); return; }
     supabase
       .from('wishlists')
       .select('id, product:products(id, legacy_id, name, price, images, store)')
@@ -37,7 +37,17 @@ export default function Wishlist() {
       <h2 style={{ marginBottom: 20 }}>My Wishlist</h2>
 
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          {[1,2,3,4].map(i => (
+            <div key={i} className="card" style={{ padding: 0 }}>
+              <div className="sk sk-img" />
+              <div style={{ padding: 12 }}>
+                <div className="sk sk-line" style={{ width: '90%', marginBottom: 8 }} />
+                <div className="sk sk-line" style={{ width: '40%' }} />
+              </div>
+            </div>
+          ))}
+        </div>
       ) : items.length === 0 ? (
         <EmptyState
           icon={Heart}

@@ -81,3 +81,20 @@ function mapProduct(p) {
     variants: p.variants || [],
   };
 }
+
+
+export async function fetchProductStatsMap() {
+  const { data, error } = await supabase
+    .from('product_stats')
+    .select('product_id, avg_rating, review_count, sold');
+  if (error) { console.warn('[stats]', error.message); return {}; }
+  const map = {};
+  (data || []).forEach(r => {
+    map[r.product_id] = {
+      avgRating: Number(r.avg_rating) || 0,
+      reviewCount: Number(r.review_count) || 0,
+      sold: Number(r.sold) || 0,
+    };
+  });
+  return map;
+}

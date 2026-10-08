@@ -14,7 +14,14 @@ export default function AuthShell({ title, subtitle, children, footer }) {
       background: 'var(--bg)',
     }}>
       <div style={{ width: '100%', maxWidth: 440 }}>
-        <button onClick={() => nav(-1)} className="icon-btn" style={{ marginBottom: 20 }}>
+        <button onClick={() => {
+          const idx = window.history.state?.idx;
+          if (typeof idx === 'number' && idx > 0) {
+            nav(-1);
+          } else {
+            nav('/', { replace: true });
+          }
+        }} className="icon-btn" style={{ marginBottom: 20 }}>
           <ArrowLeft size={20} />
         </button>
 

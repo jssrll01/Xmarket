@@ -9,7 +9,22 @@ export default function Profile() {
   const nav = useNavigate();
   const { user, profile } = useAuth();
 
-  if (!user) { nav('/signin'); return null; }
+  if (!user) {
+    return (
+      <div style={{ padding: 24, textAlign: 'center', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>Sign in required</div>
+        <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20, maxWidth: 280 }}>
+          Please sign in to view and edit your profile.
+        </p>
+        <button className="btn-primary" onClick={() => nav('/signin')} style={{ padding: '12px 28px', marginBottom: 10 }}>
+          Sign in
+        </button>
+        <button className="btn-ghost" onClick={() => nav('/')} style={{ padding: '10px 24px' }}>
+          Go home
+        </button>
+      </div>
+    );
+  }
 
   const Field = ({ icon: Icon, label, value }) => (
     <div style={{

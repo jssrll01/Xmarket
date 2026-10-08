@@ -72,7 +72,7 @@ export default function Checkout() {
   const [receiptSent, setReceiptSent] = useState(false);
 
   useEffect(() => {
-    if (!authLoading && !user) navigate('/signin');
+    if (!authLoading && !user) navigate('/signin', { replace: true });
   }, [user, authLoading, navigate]);
 
   useEffect(() => {

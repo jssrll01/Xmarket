@@ -18,7 +18,7 @@ export default function Cart() {
   const [allProducts, setAllProducts] = useState([]);
 
   useEffect(() => {
-    if (!authLoading && !user) navigate('/signin');
+    if (!authLoading && !user) navigate('/signin', { replace: true });
   }, [user, authLoading, navigate]);
 
   useEffect(() => {

@@ -37,7 +37,15 @@ export default function Orders() {
       <h2 style={{ marginBottom: 20 }}>My Orders</h2>
 
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
+        <>
+          {[1,2,3].map(i => (
+            <div key={i} className="card" style={{ padding: 16, marginBottom: 12 }}>
+              <div className="sk sk-line" style={{ width: '40%', marginBottom: 10 }} />
+              <div className="sk sk-line" style={{ width: '70%', marginBottom: 10 }} />
+              <div className="sk sk-line" style={{ width: '50%' }} />
+            </div>
+          ))}
+        </>
       ) : orders.length === 0 ? (
         <EmptyState
           icon={Package}
