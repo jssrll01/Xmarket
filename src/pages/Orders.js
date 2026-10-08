@@ -34,7 +34,7 @@ export default function Orders() {
       <button onClick={goBackSafe} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
-      <h2 style={{ marginBottom: 20 }}>My Orders</h2>
+      <h2 style={{ marginBottom: 20 }}>Orders</h2>
 
       {loading ? (
         <>
@@ -56,7 +56,7 @@ export default function Orders() {
         />
       ) : (
         orders.map(o => (
-          <div key={o.id} className="card" style={{ padding: 16, marginBottom: 12 }}>
+          <div key={o.id} onClick={() => nav(`/orders/${o.id}`)} className="card" style={{ padding: 16, marginBottom: 12, cursor: "pointer" }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
               <span style={{ fontSize: 12, color: 'var(--muted)' }}>Order</span>
               <span style={{ fontSize: 11, padding: '3px 8px', background: 'var(--card)', borderRadius: 6, fontWeight: 700 }}>

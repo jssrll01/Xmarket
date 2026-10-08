@@ -208,7 +208,7 @@ export default function BuyMultiple() {
 
           <p style={{ marginBottom: 10 }}><strong>Step 19: Check your order confirmation</strong></p>
           <p style={{ marginBottom: 10 }}>
-            After the order has been successfully submitted, go to My Orders to view your order information.
+            After the order has been successfully submitted, go to Orders to view your order information.
           </p>
           <p>
             Depending on how XMARKET processes multi-product orders, your purchase may appear as one order with multiple items or as separate shipments or order records.
@@ -375,7 +375,7 @@ export default function BuyMultiple() {
           <p>• Different couriers</p>
           <p>• Separate parcels</p>
           <p style={{ marginTop: 10 }}>
-            Check My Orders for the latest delivery information.
+            Check Orders for the latest delivery information.
           </p>
         </div>
       </div>

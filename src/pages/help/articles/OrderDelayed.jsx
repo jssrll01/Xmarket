@@ -18,7 +18,7 @@ export default function OrderDelayed() {
         <div>
           <p>1. Sign in to your XMARKET account.</p>
           <p>2. Open My Account.</p>
-          <p>3. Select Orders or My Orders.</p>
+          <p>3. Select Orders or Orders.</p>
           <p>4. Select the delayed order.</p>
           <p>5. Review the order status.</p>
           <p>6. Open the tracking information if available.</p>

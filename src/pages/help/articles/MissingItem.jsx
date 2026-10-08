@@ -19,7 +19,7 @@ export default function MissingItem() {
         <div>
           <p>1. Open XMARKET.</p>
           <p>2. Go to My Account.</p>
-          <p>3. Select Orders or My Orders.</p>
+          <p>3. Select Orders or Orders.</p>
           <p>4. Open the affected order.</p>
           <p>5. Review all products and quantities.</p>
           <p>6. Check whether the products have separate tracking information.</p>

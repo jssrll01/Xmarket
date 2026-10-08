@@ -29,7 +29,7 @@ export default function ChangeAddress() {
           <p>If XMARKET supports address changes for your order:</p>
           <p>1. Sign in to your XMARKET account.</p>
           <p>2. Open My Account.</p>
-          <p>3. Select Orders or My Orders.</p>
+          <p>3. Select Orders or Orders.</p>
           <p>4. Open the affected order.</p>
           <p>5. Select the available Change Address or Edit option.</p>
           <p>6. Choose an existing address or add a new address.</p>

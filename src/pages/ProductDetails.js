@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store, Heart
 } from 'lucide-react';
@@ -10,6 +10,7 @@ import { useToast } from '../components/Toast';
 import { supabase } from '../lib/supabase';
 import SmartImage from '../components/SmartImage';
 import { ProductDetailSkeleton } from '../components/Skeleton';
+import ProductReviews from '../components/ProductReviews';
 
 function Description({ text }) {
   const HEADINGS = [
@@ -226,7 +227,7 @@ export default function ProductDetails() {
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
           <Store size={14} />
-          <span style={{ fontSize: 13, color: 'var(--muted)' }}>{product.store}</span>
+          <Link to={`/store/${encodeURIComponent(product.store)}`} style={{ fontSize: 13, color: "var(--muted)", textDecoration: "none" }}>{product.store}</Link>
           {product.verified && <BadgeCheck size={16} color="#2563EB" />}
         </div>
         <h2>{product.name}</h2>
@@ -298,12 +299,7 @@ export default function ProductDetails() {
         <Description text={product.description} />
       </div>
 
-      <div className="card" style={{ padding: 16, margin: '0 16px 12px' }}>
-        <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>Reviews</h3>
-        <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--muted)', fontSize: 13 }}>
-          No reviews yet. Be the first to review after purchase.
-        </div>
-      </div>
+      <ProductReviews product={product} />
 
       {related.length > 0 && (
         <div style={{ padding: '12px 16px' }}>

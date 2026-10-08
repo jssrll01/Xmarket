@@ -29,7 +29,7 @@ export default function ChangeOrder() {
           <p>If XMARKET provides an option to modify the order:</p>
           <p>1. Sign in to your XMARKET account.</p>
           <p>2. Open My Account.</p>
-          <p>3. Select Orders or My Orders.</p>
+          <p>3. Select Orders or Orders.</p>
           <p>4. Open the order you want to change.</p>
           <p>5. Look for an available Edit, Change, or similar option.</p>
           <p>6. Select the information you want to modify.</p>

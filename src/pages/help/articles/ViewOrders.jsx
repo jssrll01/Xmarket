@@ -21,7 +21,7 @@ export default function ViewOrders() {
           <p><strong>Step 2: Open your account</strong></p>
           <p>Go to your Account, Profile, or account menu.</p>
           <p><strong>Step 3: Select Orders</strong></p>
-          <p>Select Orders, My Orders, or the applicable order-management option.</p>
+          <p>Select Orders, Orders, or the applicable order-management option.</p>
           <p><strong>Step 4: Browse your orders</strong></p>
           <p>Your available orders may be organized according to their current status, such as:</p>
           <p>• All</p>

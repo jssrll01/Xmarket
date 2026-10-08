@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, SlidersHorizontal, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
-} from 'lucide-react';
+, Gift, Settings, LogOut } from 'lucide-react';
 import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
+import { supabase } from '../lib/supabase';
+import { unreadCount } from '../lib/notifications';
 import { Star } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -115,41 +117,41 @@ function VariantModal({ product, onClose, onConfirm }) {
 }
 
 function Drawer({ open, onClose }) {
-  const navigate = useNavigate();
-  const items = [
-    { icon: HelpCircle, label: 'Help', path: '/help' },
-    { icon: MoreHorizontal, label: 'More', path: '/more' },
-    { icon: User, label: 'Profile', path: '/profile' },
-    { icon: Heart, label: 'Wishlist', path: '/wishlist' },
-  ];
+  const nav = useNavigate();
+  if (!open) return null;
+
+  const go = (path) => { onClose(); nav(path); };
+
+  const row = {
+    display: 'flex', alignItems: 'center', gap: 14,
+    padding: '16px 20px', fontSize: 16, fontWeight: 600,
+    background: 'var(--card)', borderRadius: 14, marginBottom: 10,
+    cursor: 'pointer', border: 'none', width: '100%', textAlign: 'left',
+    color: 'inherit',
+  };
+
   return (
-    <>
-      <div
-        className={'drawer-backdrop' + (open ? ' open' : '')}
-        onClick={onClose}
-      />
-      <div className={'drawer' + (open ? ' open' : '')}>
+    <div className={'drawer-backdrop' + (open ? ' open' : '')} onClick={onClose}>
+      <div className={'drawer' + (open ? ' open' : '')} onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
           <div>
             <div style={{ fontSize: 22, fontWeight: 900 }}>XMARKET</div>
-            <div style={{ fontSize: 11, color: 'var(--muted)' }}>Menu</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)' }}>Menu</div>
           </div>
-          <button className="icon-btn" onClick={onClose}><X size={18} /></button>
+          <button onClick={onClose} className="icon-btn"><X size={20} /></button>
         </div>
-        {items.map(it => {
-          const Icon = it.icon;
-          return (
-            <button key={it.path} className="drawer-item"
-              onClick={() => { onClose(); navigate(it.path); }}>
-              <Icon size={18} />
-              {it.label}
-            </button>
-          );
-        })}
+
+        <button style={row} onClick={() => go('/help')}>
+          <HelpCircle size={20} color="var(--primary)" /> Help
+        </button>
+        <button style={row} onClick={() => go('/more')}>
+          <MoreHorizontal size={20} color="var(--primary)" /> More
+        </button>
       </div>
-    </>
+    </div>
   );
 }
+
 
 export default function Home() {
   const navigate = useNavigate();
@@ -158,6 +160,11 @@ export default function Home() {
   const [productsLoading, setProductsLoading] = useState(true);
   const [stats, setStats] = useState({});
   const [loadError, setLoadError] = useState(null);
+  const [wishlist, setWishlist] = useState(new Set());
+  const [unread, setUnread] = useState(0);
+  const [trending, setTrending] = useState([]);
+  const [minRating, setMinRating] = useState(0);
+  const [storeFilter, setStoreFilter] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [maxPrice, setMaxPrice] = useState(1000000);
   const [category, setCategory] = useState('All');
@@ -210,16 +217,71 @@ export default function Home() {
 
   useEffect(() => { loadProducts(); }, [loadProducts]);
 
+  useEffect(() => {
+    import('../lib/products').then(({ fetchProducts }) => {
+      fetchProducts().then(list => {
+        setTrending(list.slice().sort((a, b) => (b.sold || 0) - (a.sold || 0)).slice(0, 5));
+      });
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!user) { setUnread(0); return; }
+    unreadCount(user.id).then(setUnread);
+  }, [user]);
+
+  useEffect(() => {
+    let alive = true;
+    if (!user) { setWishlist(new Set()); return; }
+    supabase
+      .from('wishlists')
+      .select('product_id')
+      .eq('user_id', user.id)
+      .then(({ data }) => {
+        if (!alive) return;
+        setWishlist(new Set((data || []).map(w => w.product_id)));
+      });
+    return () => { alive = false; };
+  }, [user]);
+
+
+
+
+  const toggleWishlist = async (p, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) { showToast('Please sign in'); navigate('/signin'); return; }
+    if (!p.uuid) return;
+    const isWished = wishlist.has(p.uuid);
+    if (isWished) {
+      const { error } = await supabase.from('wishlists').delete()
+        .eq('user_id', user.id).eq('product_id', p.uuid);
+      if (!error) {
+        setWishlist(prev => { const n = new Set(prev); n.delete(p.uuid); return n; });
+        showToast('Removed from wishlist');
+      }
+    } else {
+      const { error } = await supabase.from('wishlists').insert({ user_id: user.id, product_id: p.uuid });
+      if (!error) {
+        setWishlist(prev => new Set(prev).add(p.uuid));
+        showToast('Added to wishlist');
+      }
+    }
+  };
+
   const order = ['All', 'MALL', 'Food', 'E-Book', 'Website', 'Device', 'Mobile', 'Accessories'];
   const found = Array.from(new Set(products.map(p => p.category)));
   const categories = order.filter(c => c === 'All' || found.includes(c));
 
-  let filtered = products.filter(p =>
-    p.name.toLowerCase().includes(search.toLowerCase()) &&
-    p.price <= maxPrice &&
-    (category === 'All' || p.category === category) &&
-    p.discount >= minDiscount
-  );
+  let filtered = products.filter(p => {
+    if (!p.name.toLowerCase().includes(search.toLowerCase())) return false;
+    if (p.price > maxPrice) return false;
+    if (category !== 'All' && p.category !== category) return false;
+    if (p.discount < minDiscount) return false;
+    if (minRating > 0 && (stats[p.uuid]?.avgRating || 0) < minRating) return false;
+    if (storeFilter && !(p.store || '').toLowerCase().includes(storeFilter.toLowerCase())) return false;
+    return true;
+  });
   if (sort === 'priceLow') filtered.sort((a,b) => a.price - b.price);
   if (sort === 'priceHigh') filtered.sort((a,b) => b.price - a.price);
   if (sort === 'best') filtered.sort((a,b) => b.sold - a.sold);
@@ -288,6 +350,13 @@ export default function Home() {
           <div style={{ display: 'flex', gap: 8 }}>
             <Link to="/notifications" className="icon-btn">
               <Bell size={20} />
+              {unread > 0 && (
+                <span style={{
+                  position: 'absolute', top: 5, right: 5,
+                  width: 8, height: 8, borderRadius: '50%',
+                  background: '#DC2626',
+                }} />
+              )}
               <span style={{
                 position: 'absolute', top: 8, right: 8,
                 width: 10, height: 10, borderRadius: '50%',
@@ -325,7 +394,7 @@ export default function Home() {
               </button>
             )}
           </div>
-          <button className="icon-btn" onClick={() => setShowFilters(s => !s)}>
+                  <button className="icon-btn" onClick={() => setShowFilters(s => !s)}>
             <SlidersHorizontal size={18} />
           </button>
 
@@ -436,25 +505,44 @@ export default function Home() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 16px' }}>
           {filtered.map((p, i) => (
-            <div key={p.id} className="card fade-up" style={{ borderRadius: 18, overflow: 'hidden', animationDelay: Math.min(i * 40, 400) + 'ms' }}>
+            <div key={p.id} className="card fade-up" style={{ borderRadius: 18, overflow: 'hidden', animationDelay: Math.min(i * 40, 400) + 'ms', position: 'relative' }}>
+              <button
+                onClick={(e) => toggleWishlist(p, e)}
+                aria-label="Wishlist"
+                style={{
+                  position: 'absolute', top: 8, right: 8, zIndex: 5,
+                  width: 32, height: 32, borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.92)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  padding: 0, boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
+                }}
+              >
+                <Heart
+                  size={16}
+                  fill={wishlist.has(p.uuid) ? '#DC2626' : 'none'}
+                  color={wishlist.has(p.uuid) ? '#DC2626' : '#475569'}
+                />
+              </button>
               <Link to={`/product/${p.id}`}>
-                <div className="product-thumb">
+                <div className="product-thumb" style={{ position: "relative" }}>
                   <SmartImage src={p.images[0]} alt={p.name} />
-                  {p.preorder && <span className="preorder-badge">PRE-ORDER</span>}
-                  {p.instant && !p.preorder && <span className="instant-badge">INSTANT</span>}
-                </div>
+                  <div style={{
+                    position: 'absolute', top: 8, left: 8, zIndex: 4,
+                    display: 'flex', flexDirection: 'column', gap: 4,
+                  }}>
+                    {p.preorder && <span style={{ display: "inline-block", fontSize: 9, padding: "3px 6px", borderRadius: 4, background: "#7C3AED", color: "#fff", fontWeight: 700, letterSpacing: 0.5, boxShadow: "0 2px 6px rgba(15,23,42,0.15)" }}>PRE-ORDER</span>}
+                    {p.instant && !p.preorder && <span style={{ display: "inline-block", fontSize: 9, padding: "3px 6px", borderRadius: 4, background: "#10B981", color: "#fff", fontWeight: 700, letterSpacing: 0.5, boxShadow: "0 2px 6px rgba(15,23,42,0.15)" }}>INSTANT</span>}
+                  </div>
+</div>
                 <div style={{ padding: 12 }}>
                   <div style={{
                     fontSize: 13, lineHeight: '1.35em', height: '2.7em',
                     overflow: 'hidden', display: '-webkit-box',
                     WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', fontWeight: 700
                   }}>{p.name}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                    <Store size={11} />
-                    <span style={{
-                      fontSize: 11, color: 'var(--muted)',
-                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', flex: 1
-                    }}>{p.store}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4, overflow: 'hidden' }}>
+                    <Store size={11} style={{ flexShrink: 0 }} />
+                    <Link to={`/store/${encodeURIComponent(p.store)}`} style={{ fontSize: 10, color: "var(--muted)", opacity: 0.85, textDecoration: "none", fontWeight: 500, lineHeight: 1.1, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120, textTransform: "uppercase", letterSpacing: 0.3 }}>{p.store}</Link>
                     {p.verified && <BadgeCheck size={12} color="#2563EB" />}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>

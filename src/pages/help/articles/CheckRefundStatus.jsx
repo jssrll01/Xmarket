@@ -18,7 +18,7 @@ export default function CheckRefundStatus() {
         <div>
           <p>1. Sign in to XMARKET.</p>
           <p>2. Open My Account.</p>
-          <p>3. Select Orders or My Orders.</p>
+          <p>3. Select Orders or Orders.</p>
           <p>4. Find the order associated with your return or refund.</p>
           <p>5. Open the order details.</p>
           <p>6. Select Return/Refund, Refund Details, or the applicable option.</p>

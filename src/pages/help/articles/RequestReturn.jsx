@@ -19,7 +19,7 @@ export default function RequestReturn() {
         <div>
           <p>1. Sign in to XMARKET.</p>
           <p>2. Open My Account.</p>
-          <p>3. Select Orders or My Orders.</p>
+          <p>3. Select Orders or Orders.</p>
           <p>4. Find the order containing the product.</p>
           <p>5. Open the order details.</p>
           <p>6. Select Return, Return/Refund, or the applicable return option.</p>

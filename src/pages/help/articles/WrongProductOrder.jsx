@@ -19,7 +19,7 @@ export default function WrongProductOrder() {
           <p>Check the order immediately.</p>
           <p>1. Sign in to your XMARKET account.</p>
           <p>2. Open My Account.</p>
-          <p>3. Select Orders or My Orders.</p>
+          <p>3. Select Orders or Orders.</p>
           <p>4. Find the incorrect order.</p>
           <p>5. Open the order details.</p>
           <p>6. Check the current order status.</p>

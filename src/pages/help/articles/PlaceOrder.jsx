@@ -235,7 +235,7 @@ export default function PlaceOrder() {
             After your order has been successfully submitted, XMARKET will display your order confirmation.
           </p>
           <p style={{ marginBottom: 10 }}>
-            Your order should also appear under My Orders.
+            Your order should also appear under Orders.
           </p>
           <p>
             Depending on the system, you may receive a confirmation notification through the email address, mobile number, or notification system associated with your account.
@@ -247,7 +247,7 @@ export default function PlaceOrder() {
         <h3 style={{ marginBottom: 10, color: "#000000" }}>How do I know if my order was successfully placed?</h3>
         <div style={{ fontSize: 13.5, lineHeight: 1.7, color: 'var(--text-dim)' }}>
           <p style={{ marginBottom: 10 }}>
-            You can confirm your order by checking My Orders.
+            You can confirm your order by checking Orders.
           </p>
           <p style={{ marginBottom: 10 }}>
             A successfully submitted order may display information such as:
@@ -337,7 +337,7 @@ export default function PlaceOrder() {
         <h3 style={{ marginBottom: 10, color: "#000000" }}>What if I placed an order with the wrong information?</h3>
         <div style={{ fontSize: 13.5, lineHeight: 1.7, color: 'var(--text-dim)' }}>
           <p style={{ marginBottom: 10 }}>
-            If you have already placed the order, go to My Orders and open the order.
+            If you have already placed the order, go to Orders and open the order.
           </p>
           <p style={{ marginBottom: 10 }}>
             Depending on the order status and available XMARKET features, you may be able to cancel the order or contact the seller.
@@ -355,7 +355,7 @@ export default function PlaceOrder() {
         <h3 style={{ marginBottom: 10, color: "#000000" }}>What if my payment was completed but my order was not confirmed?</h3>
         <div style={{ fontSize: 13.5, lineHeight: 1.7, color: 'var(--text-dim)' }}>
           <p style={{ marginBottom: 10 }}>
-            If money was deducted from your payment method but your XMARKET order does not appear under My Orders:
+            If money was deducted from your payment method but your XMARKET order does not appear under Orders:
           </p>
           <p>1. Do not immediately place the same order again.</p>
           <p>2. Check your order history.</p>

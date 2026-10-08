@@ -18,7 +18,7 @@ export default function TrackParcel() {
         <div>
           <p>1. Sign in to your XMARKET account.</p>
           <p>2. Open My Account.</p>
-          <p>3. Select Orders or My Orders.</p>
+          <p>3. Select Orders or Orders.</p>
           <p>4. Select the order you want to track.</p>
           <p>5. Open the Shipping, Tracking, or similar section.</p>
           <p>6. Review the latest tracking status.</p>

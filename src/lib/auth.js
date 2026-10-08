@@ -40,3 +40,17 @@ export async function verifyResetCode(email, token) {
 export async function updatePassword(newPassword) {
   return supabase.auth.updateUser({ password: newPassword });
 }
+
+
+// --- New device alert (client-side heuristic) ---
+export async function checkNewDevice() {
+  try {
+    const key = 'xmarket.last-fingerprint';
+    const fp = `${navigator.userAgent}|${navigator.language}|${screen.width}x${screen.height}`;
+    const last = localStorage.getItem(key);
+    localStorage.setItem(key, fp);
+    return last && last !== fp;
+  } catch {
+    return false;
+  }
+}

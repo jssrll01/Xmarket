@@ -22,7 +22,7 @@ export default function CheckOrderStatus() {
           <p><strong>Step 2: Open your account</strong></p>
           <p>Go to your Account, Profile, or account menu.</p>
           <p><strong>Step 3: Open Orders</strong></p>
-          <p>Select Orders, My Orders, or the applicable order-management option.</p>
+          <p>Select Orders, Orders, or the applicable order-management option.</p>
           <p><strong>Step 4: Find your order</strong></p>
           <p>Locate the order you want to check.</p>
           <p>You may use available categories, filters, or search options.</p>

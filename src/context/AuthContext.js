@@ -14,8 +14,30 @@ export function AuthProvider({ children }) {
       setLoading(false);
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+    const { data: sub } = supabase.auth.onAuthStateChange(async (event, s) => {
       setSession(s);
+      if (event === 'SIGNED_IN' && s?.user) {
+        try {
+          const key = 'xmarket.last-fingerprint';
+          const fp = `${navigator.userAgent}|${navigator.language}|${screen.width}x${screen.height}`;
+          const last = localStorage.getItem(key);
+          if (last && last !== fp) {
+            // Fire the in-app toast
+            setTimeout(() => window.dispatchEvent(new CustomEvent('xmarket:new-device')), 100);
+            // Also persist as a notification row so it shows in the bell
+            try {
+              await supabase.from('notifications').insert({
+                user_id: s.user.id,
+                type: 'security',
+                title: 'New device sign-in',
+                body: 'A new device signed into your account. If this wasn\'t you, change your password.',
+                read: false,
+              });
+            } catch (e) {}
+          }
+          localStorage.setItem(key, fp);
+        } catch {}
+      }
     });
 
     return () => sub.subscription.unsubscribe();

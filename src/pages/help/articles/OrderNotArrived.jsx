@@ -18,7 +18,7 @@ export default function OrderNotArrived() {
         <div>
           <p>1. Sign in to XMARKET.</p>
           <p>2. Open My Account.</p>
-          <p>3. Select Orders or My Orders.</p>
+          <p>3. Select Orders or Orders.</p>
           <p>4. Open the affected order.</p>
           <p>5. Check the order status.</p>
           <p>6. Review the tracking information.</p>

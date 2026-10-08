@@ -215,6 +215,11 @@ function CategoryBlock({ category, search, isOpen, onToggle }) {
 
 export default function Help() {
   const navigate = useNavigate();
+  const goBackSafe = () => {
+    const idx = window.history.state?.idx ?? 0;
+    if (idx > 0) navigate(-1);
+    else navigate('/');
+  };
   const [search, setSearch] = useState('');
   const [openIndex, setOpenIndex] = useState(null);
 

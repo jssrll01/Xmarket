@@ -28,7 +28,7 @@ export default function DeductedNoOrder() {
       </div>
 
       <div className="card">
-        <h3>What if the order appears in My Orders?</h3>
+        <h3>What if the order appears in Orders?</h3>
         <div>
           <p>Open the order and check its current status.</p>
           <p>The order may still be:</p>
@@ -43,7 +43,7 @@ export default function DeductedNoOrder() {
       </div>
 
       <div className="card">
-        <h3>What if the order does not appear in My Orders?</h3>
+        <h3>What if the order does not appear in Orders?</h3>
         <div>
           <p>If money was deducted but no order appears:</p>
           <p>1. Check your payment transaction.</p>

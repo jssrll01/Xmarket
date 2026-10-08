@@ -4,6 +4,7 @@ import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap, Wand2 } from 'luc
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { validatePromo, computeDiscount, redeemPromo } from '../lib/promos';
 import { supabase } from '../lib/supabase';
 
 const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
@@ -68,6 +69,9 @@ export default function Checkout() {
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
   const [receipt, setReceipt] = useState(null);
+  const [promoInput, setPromoInput] = useState('');
+  const [promo, setPromo] = useState(null);
+  const [promoError, setPromoError] = useState('');
   const [sendingReceipt, setSendingReceipt] = useState(false);
   const [receiptSent, setReceiptSent] = useState(false);
 
@@ -80,8 +84,10 @@ export default function Checkout() {
   }, [allInstant]);
 
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
-  const discount = items.reduce((sum, i) => sum + Math.max(0, (Number(i.originalPrice) || 0) - (Number(i.price) || 0)) * (Number(i.quantity) || 1), 0);
-  const total = subtotal;
+  const itemDiscount = items.reduce((sum, i) => sum + Math.max(0, (Number(i.originalPrice) || 0) - (Number(i.price) || 0)) * (Number(i.quantity) || 1), 0);
+  const promoDiscount = computeDiscount(promo, subtotal);
+  const discount = itemDiscount + promoDiscount;
+  const total = Math.max(0, subtotal - promoDiscount);
 
   const autofill = () => {
     if (!profile) {
@@ -145,6 +151,14 @@ export default function Checkout() {
       setReceiptSent(true);
     } catch (err) { console.log('Receipt send failed:', err); }
     setSendingReceipt(false);
+  };
+
+  const applyPromo = async () => {
+    setPromoError('');
+    const { promo: p, error } = await validatePromo(promoInput, subtotal, user?.id);
+    if (error) { setPromoError(error); setPromo(null); return; }
+    setPromo(p);
+    showToast('Promo applied');
   };
 
   const placeOrder = async () => {
@@ -456,6 +470,23 @@ export default function Checkout() {
       </div>
 
       <div className="card" style={{ padding: 16 }}>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+          <input
+            type="text"
+            placeholder="Promo code"
+            value={promoInput}
+            onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
+            style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--border)', fontSize: 13 }}
+          />
+          <button
+            onClick={applyPromo}
+            className="btn-primary"
+            style={{ padding: '0 16px', fontSize: 13, borderRadius: 10 }}
+          >
+            Apply
+          </button>
+        </div>
+        {promoError && <div style={{ color: '#DC2626', fontSize: 12, marginBottom: 12 }}>{promoError}</div>}
         <h3 style={{ marginBottom: 8 }}>Order Summary</h3>
         {items.map(i => (
           <div key={i.rowId} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>

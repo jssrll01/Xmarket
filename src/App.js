@@ -26,6 +26,11 @@ import Settings from './pages/Settings';
 import SignUp from './pages/SignUp';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
+import OrderDetail from './pages/OrderDetail';
+import SellerProfile from './pages/SellerProfile';
+import Rewards from './pages/Rewards';
+import Following from './pages/Following';
+import Account from './pages/Account';
 import Wishlist from './pages/Wishlist';
 import SignIn from './pages/SignIn';
 import ForgotPassword from './pages/ForgotPassword';
@@ -54,6 +59,11 @@ function Router() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/orders/:id" element={<OrderDetail />} />
+        <Route path="/store/:store" element={<SellerProfile />} />
+        <Route path="/rewards" element={<Rewards />} />
+        <Route path="/following" element={<Following />} />
+        <Route path="/account" element={<Account />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -73,11 +83,32 @@ function Router() {
   );
 }
 
+function NewDeviceAlert() {
+  React.useEffect(() => {
+    const handler = () => {
+      const id = 'xmarket-new-device-toast';
+      let el = document.getElementById(id);
+      if (!el) {
+        el = document.createElement('div');
+        el.id = id;
+        el.style.cssText = 'position:fixed;top:16px;left:16px;right:16px;z-index:9999;padding:14px 16px;background:#FEF3C7;color:#78350F;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,0.1)';
+        el.textContent = 'New sign-in from this device. If this wasn\'t you, change your password.';
+        document.body.appendChild(el);
+        setTimeout(() => el && el.remove(), 7000);
+      }
+    };
+    window.addEventListener('xmarket:new-device', handler);
+    return () => window.removeEventListener('xmarket:new-device', handler);
+  }, []);
+  return null;
+}
+
 export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <ToastProvider>
+          <NewDeviceAlert />
           <ErrorBoundary>
             <Router />
           </ErrorBoundary>

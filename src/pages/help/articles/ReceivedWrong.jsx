@@ -26,7 +26,7 @@ export default function ReceivedWrong() {
         <div>
           <p>1. Open XMARKET.</p>
           <p>2. Go to My Account.</p>
-          <p>3. Select Orders or My Orders.</p>
+          <p>3. Select Orders or Orders.</p>
           <p>4. Open the affected order.</p>
           <p>5. Compare the order details with the product you received.</p>
           <p>6. Take clear photos of the product.</p>
