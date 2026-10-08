@@ -352,17 +352,11 @@ export default function Home() {
               <Bell size={20} />
               {unread > 0 && (
                 <span style={{
-                  position: 'absolute', top: 5, right: 5,
+                  position: 'absolute', top: 6, right: 6,
                   width: 8, height: 8, borderRadius: '50%',
                   background: '#DC2626',
                 }} />
               )}
-              <span style={{
-                position: 'absolute', top: 8, right: 8,
-                width: 10, height: 10, borderRadius: '50%',
-                background: '#DC2626',
-                border: '2px solid #FFFFFF'
-              }} />
             </Link>
             <Link to="/cart" className="icon-btn">
               <ShoppingCart size={20} />

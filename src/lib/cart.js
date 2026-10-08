@@ -14,7 +14,7 @@ export async function fetchCart(userId) {
   const productIds = [...new Set(rows.map(r => r.product_id))];
   const { data: products, error: e2 } = await supabase
     .from('products')
-    .select('id, legacy_id, name, price, original_price, images, store, verified, variants')
+    .select('id, legacy_id, name, price, original_price, images, store, verified, variants, instant, preorder')
     .in('id', productIds);
   if (e2) return { error: e2, items: [] };
 
@@ -39,6 +39,8 @@ export async function fetchCart(userId) {
         variants: p.variants || [],
         variant: row.variant || '',
         quantity: Number(row.quantity) || 1,
+        instant: !!p.instant,
+        preorder: !!p.preorder,
       };
     }),
   };

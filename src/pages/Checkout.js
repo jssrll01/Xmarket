@@ -20,6 +20,9 @@ const PAYMENTS = [
   { id: 'gotyme', label: 'Bank Transfer [Gotyme]',
     note: 'Transfer to: Gotyme Bank | Account Name: Jessrell Custodio | Account No: 0152 4915 7462. Send us a screenshot of the transfer confirmation.',
     qr: 'https://res.cloudinary.com/bvw3okdf/image/upload/v1790592841/Screenshot_20260928_183617_GoTyme_PH.jpg' },
+  { id: 'cod', label: 'Cash on Delivery',
+    note: 'Pay in cash when you receive your order. Available only for Pick-up and Meet-up.',
+    codOnly: true },
 ];
 
 const DELIVERIES = [
@@ -78,6 +81,28 @@ export default function Checkout() {
   useEffect(() => {
     if (!authLoading && !user) navigate('/signin', { replace: true });
   }, [user, authLoading, navigate]);
+
+  // COD only valid for pickup/meetup — reset to gcash if user switches away
+  // Delivery logic:
+  //  - If every item is instant → force 'instant' delivery, force non-COD payment
+  //  - If NOT all instant but delivery is currently 'instant' → reset to 'meetup'
+  useEffect(() => {
+    if (allInstant) {
+      if (form.delivery !== 'instant') {
+        setForm(f => ({ ...f, delivery: 'instant', payment: f.payment === 'cod' ? 'gcash' : f.payment }));
+      }
+    } else if (form.delivery === 'instant') {
+      setForm(f => ({ ...f, delivery: 'meetup' }));
+    }
+  }, [allInstant, form.delivery]);
+
+  // COD only valid for pickup/meetup
+  useEffect(() => {
+    const isCodEligible = form.delivery === 'pickup' || form.delivery === 'meetup';
+    if (form.payment === 'cod' && !isCodEligible) {
+      setForm(f => ({ ...f, payment: 'gcash' }));
+    }
+  }, [form.delivery, form.payment]);
 
   useEffect(() => {
     if (allInstant) setForm(f => ({ ...f, delivery: 'instant' }));
@@ -154,6 +179,10 @@ export default function Checkout() {
   };
 
   const applyPromo = async () => {
+    if (promo) {
+      setPromoError('A coupon is already applied. Remove it first.');
+      return;
+    }
     setPromoError('');
     const { promo: p, error } = await validatePromo(promoInput, subtotal, user?.id);
     if (error) { setPromoError(error); setPromo(null); return; }
@@ -161,105 +190,152 @@ export default function Checkout() {
     showToast('Promo applied');
   };
 
-  const placeOrder = async () => {
-    const missingFields = REQUIRED.filter(k => !form[k] || !form[k].trim());
-    if (missingFields.length > 0) {
-      setMissing(missingFields);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      return;
-    }
-    setMissing([]);
+  const removePromo = () => {
+    setPromo(null);
+    setPromoInput('');
+    setPromoError('');
+  };
+
+    const placeOrder = async () => {
+    if (sending) return;
     setSending(true);
-
-    const paymentLabel = PAYMENTS.find(p => p.id === form.payment)?.label;
-    const deliveryLabel = DELIVERIES.find(d => d.id === form.delivery)?.label;
-    const newOrderId = 'XM-' + Date.now().toString().slice(-8);
-
-    // 1) Notify the Telegram bot (existing behavior)
     try {
-      await fetch(ORDER_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          form,
-          items: items.map(i => ({
-            name: i.name,
-            variant: i.variant || null,
-            quantity: i.quantity,
-            price: i.price,
-          })),
-          subtotal, discount, total,
-          payment: paymentLabel,
-          delivery: deliveryLabel,
-          orderId: newOrderId,
-        }),
-      });
-    } catch (err) { console.log('Notify failed:', err); }
+      // Base required fields
+      const requiredFields = ['fullName', 'mobile', 'email'];
+      if (form.delivery === 'express' || form.delivery === 'meetup') {
+        requiredFields.push('address', 'province', 'city', 'barangay');
+      }
+      const missingFields = requiredFields.filter(k => !form[k] || !form[k].trim());
 
-    // 2) Write the order to Supabase
-    try {
-      const { data: order, error: oErr } = await supabase
-        .from('orders')
-        .insert({
-          buyer_id: user.id,
-          order_code: newOrderId,
-          name: form.fullName,
-          mobile: form.mobile,
-          email: form.email,
-          address: form.address,
-          landmark: form.landmark,
-          province: form.province,
-          city: form.city,
-          barangay: form.barangay,
-          instructions: form.instructions,
-          subtotal, discount, total,
-          payment_method: paymentLabel,
-          delivery_method: deliveryLabel,
-          status: 'pending',
-        })
-        .select()
-        .single();
-
-      if (oErr) throw oErr;
-
-      // Insert line items
-      const orderItems = items.map(i => ({
-        order_id: order.id,
-        product_id: i.product_id,
-        name: i.name,
-        price: Number(i.price) || 0,
-        quantity: Number(i.quantity) || 1,
-        variant: i.variant || null,
-      }));
-      const { error: iErr } = await supabase.from('order_items').insert(orderItems);
-      if (iErr) console.log('order_items insert failed:', iErr.message);
-
-      // Increment sold count on each product
-      for (const it of items) {
-        const { data: prod } = await supabase
-          .from('products')
-          .select('sold')
-          .eq('id', it.product_id)
-          .maybeSingle();
-        if (prod) {
-          await supabase
-            .from('products')
-            .update({ sold: (prod.sold || 0) + it.quantity })
-            .eq('id', it.product_id);
-        }
+      // Receipt required for GCash/Maya/GoTyme
+      const needsReceipt = ['gcash', 'maya', 'gotyme'].includes(form.payment);
+      if (needsReceipt && !receipt) {
+        showToast('Please upload your payment receipt');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
       }
 
-      // Clear the cart
-      await dispatch({ type: 'CLEAR' });
+      if (missingFields.length > 0) {
+        setMissing(missingFields);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+      setMissing([]);
 
+      const paymentLabel = PAYMENTS.find(p => p.id === form.payment)?.label;
+      const deliveryLabel = DELIVERIES.find(d => d.id === form.delivery)?.label;
+      const newOrderId = 'XM-' + Date.now().toString().slice(-8);
+
+      // 1) Notify Telegram with EVERYTHING in one call (order + delivery + receipt)
+      try {
+        await fetch(ORDER_API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            form,
+            items: items.map(i => ({
+              name: i.name,
+              variant: i.variant || null,
+              quantity: i.quantity,
+              price: i.price,
+            })),
+            subtotal, discount, total,
+            payment: paymentLabel,
+            delivery: deliveryLabel,
+            orderId: newOrderId,
+            promo: promo?.code || null,
+            receipt: receipt ? { name: receipt.name, dataUrl: receipt.dataUrl } : null,
+          }),
+        });
+      } catch (err) { console.log('Notify failed:', err); }
+
+      // 1b) Send the receipt separately so the bot definitely receives it
+      if (receipt) {
+        try {
+          await fetch(RECEIPT_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              orderId: newOrderId,
+              orderCode: newOrderId,
+              name: receipt.name,
+              dataUrl: receipt.dataUrl,
+            }),
+          });
+          console.log('Receipt sent to Telegram');
+        } catch (err) { console.log('Receipt send failed:', err); }
+      }
+
+      // 2) Write the order to Supabase
+      try {
+        const { data: order, error: oErr } = await supabase
+          .from('orders')
+          .insert({
+            buyer_id: user.id,
+            order_code: newOrderId,
+            name: form.fullName,
+            mobile: form.mobile,
+            email: form.email,
+            address: form.address,
+            landmark: form.landmark,
+            province: form.province,
+            city: form.city,
+            barangay: form.barangay,
+            instructions: form.instructions,
+            subtotal, discount, total,
+            payment_method: paymentLabel,
+            delivery_method: deliveryLabel,
+            status: 'pending',
+          })
+          .select()
+          .single();
+
+        if (oErr) throw oErr;
+
+        // Insert line items
+        const orderItems = items.map(i => ({
+          order_id: order.id,
+          product_id: i.product_id,
+          name: i.name,
+          price: Number(i.price) || 0,
+          quantity: Number(i.quantity) || 1,
+          variant: i.variant || null,
+        }));
+        const { error: iErr } = await supabase.from('order_items').insert(orderItems);
+        if (iErr) console.log('order_items insert failed:', iErr.message);
+
+        // Increment sold count on each product
+        for (const it of items) {
+          const { data: prod } = await supabase
+            .from('products')
+            .select('sold')
+            .eq('id', it.product_id)
+            .maybeSingle();
+          if (prod) {
+            await supabase
+              .from('products')
+              .update({ sold: (prod.sold || 0) + it.quantity })
+              .eq('id', it.product_id);
+          }
+        }
+
+        // Clear the cart
+        await dispatch({ type: 'CLEAR' });
+
+      } catch (err) {
+        console.log('Supabase order failed:', err);
+        showToast('Order sent but not saved. Contact support.');
+      }
+
+      setSending(false);
+      setOrderId(newOrderId);
+      setSuccess(true);
     } catch (err) {
-      console.log('Supabase order failed:', err);
-      showToast('Order sent but not saved. Contact support.');
+      console.error('[placeOrder] error:', err);
+      showToast(err?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setSending(false);
     }
-
-    setSending(false);
-    setOrderId(newOrderId);
-    setSuccess(true);
   };
 
   const input = (k, label, type = 'text') => {
@@ -314,46 +390,10 @@ export default function Checkout() {
         </div>
 
         <div style={{ width: '100%', maxWidth: 320, marginBottom: 24 }}>
-          {!receiptSent ? (
-            <>
-              <div style={{
-                padding: 12, borderRadius: 12, marginBottom: 12,
-                background: 'var(--card)', border: '1px solid var(--border)',
-                fontSize: 12, color: 'var(--text)', lineHeight: 1.5, textAlign: 'left'
-              }}>
-                Upload your payment receipt so we can verify and process your order faster.
-              </div>
-              <label className="btn-outline" style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                gap: 8, padding: 12, cursor: 'pointer', width: '100%'
-              }}>
-                <Upload size={16} />
-                {receipt ? receipt.name : 'Upload Payment Receipt'}
-                <input type="file" accept="image/*" onChange={handleReceipt} style={{ display: 'none' }} />
-              </label>
-              {receipt && (
-                <button onClick={sendReceipt} disabled={sendingReceipt} className="btn-primary"
-                  style={{ width: '100%', padding: 12, marginTop: 8,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
-                  {sendingReceipt ? (<><span className="spinner" /> Sending Receipt...</>) : 'Send Receipt'}
-                </button>
-              )}
-            </>
-          ) : (
-            <>
-              <div style={{
-                padding: 12, borderRadius: 12, marginBottom: 16,
-                background: 'var(--card)', border: '1px solid var(--border)',
-                fontSize: 13, color: 'var(--text)', textAlign: 'center'
-              }}>
-                ✓ Receipt sent. We'll verify and contact you shortly.
-              </div>
-              <button className="btn-primary" onClick={() => navigate('/')}
-                style={{ padding: '14px 32px', fontSize: 15, fontWeight: 700, width: '100%' }}>
-                Continue Shopping
-              </button>
-            </>
-          )}
+        <button className="btn-primary" onClick={() => navigate("/")}
+          style={{ padding: "14px 32px", fontSize: 15, fontWeight: 700, width: "100%", maxWidth: 320, marginBottom: 12 }}>
+          Continue Shopping
+        </button>
         </div>
 
       </div>
@@ -434,12 +474,24 @@ export default function Checkout() {
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Mode of Payment</h3>
-        {PAYMENTS.map(p => (
-          <label key={p.id} style={{ display: 'block', marginBottom: 6, color: 'var(--text)', fontSize: 14 }}>
-            <input type="radio" checked={form.payment === p.id} onChange={() => upd('payment', p.id)} style={{ marginRight: 8 }} />
-            {p.label}
-          </label>
-        ))}
+        {PAYMENTS.filter(p => !p.codOnly || (form.delivery === 'pickup' || form.delivery === 'meetup')).map(p => {
+          const isCodDisabled = p.codOnly && allInstant;
+          return (
+            <label key={p.id} style={{
+              display: 'block', marginBottom: 6, fontSize: 14,
+              color: isCodDisabled ? 'var(--text-dim)' : 'var(--text)',
+              opacity: isCodDisabled ? 0.4 : 1,
+              cursor: isCodDisabled ? 'not-allowed' : 'pointer',
+            }}>
+              <input type="radio"
+                checked={form.payment === p.id}
+                disabled={isCodDisabled}
+                onChange={() => { if (!isCodDisabled) upd('payment', p.id); }}
+                style={{ marginRight: 8 }} />
+              {p.label}
+            </label>
+          );
+        })}
         {selectedPayment && <InfoNote text={selectedPayment.note} />}
         {selectedPayment?.qr && (
           <div style={{ marginTop: 10, padding: 16, textAlign: 'center', background: 'var(--card)', borderRadius: 12 }}>
@@ -452,22 +504,50 @@ export default function Checkout() {
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Delivery Method</h3>
-        {availableDeliveries.map(d => (
-          <label key={d.id} style={{
-            display: 'block', marginBottom: 6, fontSize: 14,
-            color: allInstant && d.id !== 'instant' ? 'var(--text-dim)' : 'var(--text)',
-            opacity: allInstant && d.id !== 'instant' ? 0.5 : 1
-          }}>
-            <input type="radio"
-              checked={form.delivery === d.id}
-              disabled={allInstant && d.id !== 'instant'}
-              onChange={() => { if (!allInstant) upd('delivery', d.id); }}
-              style={{ marginRight: 8 }} />
-            {d.label}
-          </label>
-        ))}
+        {availableDeliveries.map(d => {
+          const isDisabled = allInstant && d.id !== 'instant';
+          return (
+            <label key={d.id} style={{
+              display: 'block', marginBottom: 6, fontSize: 14,
+              color: isDisabled ? 'var(--text-dim)' : 'var(--text)',
+              opacity: isDisabled ? 0.4 : 1,
+              cursor: isDisabled ? 'not-allowed' : 'pointer',
+            }}>
+              <input type="radio"
+                checked={form.delivery === d.id}
+                disabled={isDisabled}
+                onChange={() => { if (!isDisabled) upd('delivery', d.id); }}
+                style={{ marginRight: 8 }} />
+              {d.label}
+            </label>
+          );
+        })}
         {selectedDelivery && <InfoNote text={selectedDelivery.note} />}
       </div>
+
+      {['gcash', 'maya', 'gotyme'].includes(form.payment) && (
+        <div className="card" style={{ padding: 16, marginBottom: 12 }}>
+          <h3 style={{ marginBottom: 8 }}>Payment Receipt</h3>
+          <label className="btn-outline" style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: 8, padding: 12, cursor: 'pointer', width: '100%', borderRadius: 10
+          }}>
+            <Upload size={16} />
+            {receipt ? receipt.name : 'Upload Payment Receipt'}
+            <input type="file" accept="image/*" onChange={handleReceipt} style={{ display: 'none' }} />
+          </label>
+          {receipt && (
+            <button onClick={() => setReceipt(null)}
+              style={{
+                marginTop: 8, width: '100%', padding: 10, borderRadius: 10,
+                background: 'none', border: '1px solid var(--border)',
+                color: '#DC2626', fontSize: 12.5, fontWeight: 600, cursor: 'pointer'
+              }}>
+              Remove Receipt
+            </button>
+          )}
+        </div>
+      )}
 
       <div className="card" style={{ padding: 16 }}>
         <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
