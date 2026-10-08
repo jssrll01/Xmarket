@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Package, Heart, Gift, Users, Settings, LogOut } from 'lucide-react';
+import { User, Package, Heart, Gift, Users, Settings, LogOut, Ticket } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -67,6 +67,9 @@ export default function UserMenu() {
               </button>
               <button style={row} onClick={() => go('/rewards')}>
                 <Gift size={16} /> Loyalty Points
+              </button>
+              <button style={row} onClick={() => go('/vouchers')}>
+                <Ticket size={16} /> My Vouchers
               </button>
               <button style={row} onClick={() => go('/following')}>
                 <Users size={16} /> Following

@@ -46,3 +46,17 @@ export async function reorder(userId, items) {
   const { error } = await supabase.from('cart_items').insert(rows);
   return { error };
 }
+
+
+export async function cancelOrderWithReason(orderId, reason, note, userId) {
+  return supabase
+    .from('orders')
+    .update({
+      status: 'cancelled',
+      cancelled_at: new Date().toISOString(),
+      cancel_reason: reason,
+      cancel_note: note || null,
+    })
+    .eq('id', orderId)
+    .eq('buyer_id', userId);
+}

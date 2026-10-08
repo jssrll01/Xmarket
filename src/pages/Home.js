@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, SlidersHorizontal, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
-, Gift, Settings, LogOut } from 'lucide-react';
+, Gift, Settings, LogOut , Zap } from 'lucide-react';
 import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { supabase } from '../lib/supabase';
 import { unreadCount } from '../lib/notifications';
@@ -442,8 +442,7 @@ export default function Home() {
               onChange={e => setMinDiscount(+e.target.value)} style={{ width: '100%' }} />
           </div>
         )}
-
-      <div className="banner-wrap" style={{ padding: '12px 16px 4px' }}>
+<div className="banner-wrap" style={{ padding: '12px 16px 4px' }}>
         <div style={{ overflow: 'hidden', borderRadius: 18 }}>
           <div className="banner-track" style={{ transform: `translateX(-${bannerIdx * 100}%)` }}>
             {banners.map((b, i) => (
@@ -458,6 +457,64 @@ export default function Home() {
             <span key={i} className={'banner-dot' + (i === bannerIdx ? ' active' : '')} />
           ))}
         </div>
+      </div>
+
+      {/* Quick-access buttons */}
+      <div style={{
+        display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
+        padding: '4px 16px 12px',
+      }}>
+        <Link to="/bundles" style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '12px 14px', borderRadius: 14,
+          background: 'var(--card)', border: '1px solid var(--border)',
+          textDecoration: 'none', color: 'var(--text)',
+          fontWeight: 700, fontSize: 13,
+          WebkitTapHighlightColor: 'transparent',
+          WebkitTouchCallout: 'none',
+          userSelect: 'none',
+          touchAction: 'manipulation',
+          outline: 'none',
+        }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <Gift size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800 }}>Bundle Deals</div>
+            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 500 }}>Save more</div>
+          </div>
+        </Link>
+
+        <Link to="/flash-sale" style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '12px 14px', borderRadius: 14,
+          background: 'var(--card)', border: '1px solid var(--border)',
+          textDecoration: 'none', color: 'var(--text)',
+          fontWeight: 700, fontSize: 13,
+          WebkitTapHighlightColor: 'transparent',
+          WebkitTouchCallout: 'none',
+          userSelect: 'none',
+          touchAction: 'manipulation',
+          outline: 'none',
+        }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #F59E0B, #DC2626)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <Zap size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800 }}>Flash Sale</div>
+            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 500 }}>Limited time</div>
+          </div>
+        </Link>
       </div>
 
       <div className="chips">

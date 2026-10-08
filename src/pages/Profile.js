@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone, MapPin, Building, Map, Flag,
-  Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft
+  Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft, Ticket
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 

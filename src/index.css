@@ -1106,3 +1106,15 @@ button:active,
 .search-wrap {
   margin-top: 10px;
 }
+
+/* Remove touch indication on all interactive elements */
+button, a, [role="button"], .card {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: manipulation;
+}
+button:focus, a:focus {
+  outline: none;
+}

@@ -16,6 +16,9 @@ import More from './pages/More';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Refund from './pages/Refund';
+import Returns from './pages/Returns';
+import Bundles from './pages/Bundles';
+import FlashSale from './pages/FlashSale';
 import Vouchers from './pages/Vouchers';
 import Mall from './pages/Mall';
 import Advertising from './pages/Advertising';
@@ -62,6 +65,9 @@ function Router() {
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/store/:store" element={<SellerProfile />} />
         <Route path="/rewards" element={<Rewards />} />
+        <Route path="/returns" element={<Returns />} />
+        <Route path="/bundles" element={<Bundles />} />
+        <Route path="/flash-sale" element={<FlashSale />} />
         <Route path="/following" element={<Following />} />
         <Route path="/account" element={<Account />} />
         <Route path="/wishlist" element={<Wishlist />} />

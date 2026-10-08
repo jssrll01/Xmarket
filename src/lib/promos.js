@@ -2,6 +2,35 @@ import { supabase } from './supabase';
 
 export async function validatePromo(code, subtotal, userId) {
   const cleaned = code.trim().toUpperCase();
+
+  // 1) Try loyalty vouchers first (they have LOYAL* prefix)
+  if (cleaned.startsWith('LOYAL')) {
+    if (!userId) return { error: 'Sign in to use loyalty vouchers' };
+    const { data: v, error } = await supabase
+      .from('loyalty_vouchers')
+      .select('*')
+      .eq('code', cleaned)
+      .eq('user_id', userId)
+      .maybeSingle();
+    if (error) return { error: error.message };
+    if (!v) return { error: 'Invalid loyalty voucher' };
+    if (v.redeemed) return { error: 'Voucher already used' };
+    if (v.min_spend && subtotal < Number(v.min_spend)) {
+      return { error: `Minimum spend ₱${v.min_spend}` };
+    }
+    // Return a synthetic promo object compatible with computeDiscount()
+    return {
+      promo: {
+        code: v.code,
+        discount_type: 'fixed',
+        discount_value: v.discount_amount,
+        isVoucher: true,
+        voucherId: v.id,
+      }
+    };
+  }
+
+  // 2) Fall back to standard promo codes
   const { data, error } = await supabase
     .from('promo_codes')
     .select('*')
@@ -14,7 +43,6 @@ export async function validatePromo(code, subtotal, userId) {
   if (data.max_uses && data.used_count >= data.max_uses) return { error: 'Code usage limit reached' };
   if (data.min_spend && subtotal < Number(data.min_spend)) return { error: `Minimum spend ₱${data.min_spend}` };
 
-  // Per-user check
   if (userId) {
     const { count } = await supabase
       .from('promo_redemptions')
@@ -37,8 +65,19 @@ export function computeDiscount(promo, subtotal) {
   return 0;
 }
 
-export async function redeemPromo(code, userId, orderId) {
+export async function redeemPromo(code, userId, orderId, promoMeta) {
   const cleaned = code.trim().toUpperCase();
+
+  // Loyalty voucher — mark redeemed
+  if (promoMeta?.isVoucher && promoMeta.voucherId) {
+    await supabase
+      .from('loyalty_vouchers')
+      .update({ redeemed: true, redeemed_at: new Date().toISOString() })
+      .eq('id', promoMeta.voucherId);
+    return;
+  }
+
+  // Standard promo code
   await supabase.rpc('increment_promo_use', { promo_code: cleaned }).catch(() => {});
   if (userId) {
     await supabase.from('promo_redemptions').insert({
@@ -64,4 +103,23 @@ export async function fetchLoyaltyLedger(userId) {
     .order('created_at', { ascending: false })
     .limit(50);
   return data || [];
+}
+
+
+export async function fetchLoyaltyVouchers(userId) {
+  const { data } = await supabase
+    .from('loyalty_vouchers')
+    .select('id, code, tier, discount_amount, min_spend, redeemed')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  return data || [];
+}
+
+export async function redeemLoyaltyVoucher(code, userId) {
+  const { error } = await supabase
+    .from('loyalty_vouchers')
+    .update({ redeemed: true, redeemed_at: new Date().toISOString() })
+    .eq('code', code)
+    .eq('user_id', userId);
+  return { error };
 }
