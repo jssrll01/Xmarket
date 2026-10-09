@@ -103,6 +103,31 @@ export default function Xcards() {
         </p>
       </div>
 
+      <div className="card" style={{ padding: 16, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <Sparkles size={16} color="var(--primary)" />
+          <span style={{ fontWeight: 800, fontSize: 14 }}>How Xcards work</span>
+        </div>
+        <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'var(--muted)' }}>
+          • Xcards are <b style={{ color: 'var(--text)' }}>digital gift cards</b> from XMARKET<br />
+          • Each card has a <b style={{ color: 'var(--text)' }}>unique code</b> (starts with <code>XC</code>)<br />
+          • Buy with your <b style={{ color: 'var(--text)' }}>Xwallet balance</b> — instant deduction<br />
+          • Gift or share the code with <b style={{ color: 'var(--text)' }}>any XMARKET account</b><br />
+          • Redeem at <b style={{ color: 'var(--text)' }}>checkout</b> in the "Xcard code" field<br />
+          • <b style={{ color: 'var(--text)' }}>One-time use only</b> — cannot be reused<br />
+          • Balance does not expire
+        </div>
+      </div>
+
+      <div className="card" style={{ padding: 16, marginBottom: 16, background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', border: '1px solid #F59E0B' }}>
+        <div style={{ fontWeight: 800, fontSize: 13, color: '#78350F', marginBottom: 6 }}>
+          🎁 Perfect gift idea
+        </div>
+        <div style={{ fontSize: 12, color: '#78350F', lineHeight: 1.6 }}>
+          Buy an Xcard, copy the code, and send it to a friend. They redeem it at checkout for instant savings.
+        </div>
+      </div>
+
       <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 10 }}>My Xcards</h3>
       {loading ? (
         <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20 }}>Loading…</p>

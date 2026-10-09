@@ -143,6 +143,15 @@ export default function Xwallet() {
       {activeTab === 'topup' && (
         <div className="card" style={{ padding: 16, marginBottom: 16 }}>
           <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>Quick top-up</h3>
+          <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Custom amount (₱)</label>
+          <input
+            type="number"
+            value={topupAmount}
+            onChange={e => setTopupAmount(Number(e.target.value) || 0)}
+            placeholder="Enter amount"
+            style={{ width: '100%', padding: 12, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 }}
+          />
+          <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>Or pick a quick amount</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
             {TOPUP_AMOUNTS.map(a => (
               <button key={a} onClick={() => setTopupAmount(a)}

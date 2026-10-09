@@ -461,7 +461,7 @@ export default function Home() {
 
       {/* Quick-access buttons */}
       <div style={{
-        display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10,
+        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8,
         padding: '4px 16px 12px',
       }}>
         <Link to="/bundles" style={{
@@ -515,29 +515,32 @@ export default function Home() {
             <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 500 }}>Limited time</div>
           </div>
         </Link>
-      </div>
 
-      {/* XMALL banner */}
-      <div style={{ padding: '0 16px 12px' }}>
         <Link to="/xmall" style={{
-          display: 'flex', alignItems: 'center', gap: 12,
-          padding: '14px 16px', borderRadius: 14,
-          background: 'linear-gradient(135deg, #DC2626 0%, #F59E0B 100%)',
-          textDecoration: 'none', color: '#fff',
-          fontWeight: 700, fontSize: 14,
+          display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6,
+          padding: '10px 10px', borderRadius: 14,
+          background: 'var(--card)', border: '1px solid var(--border)',
+          textDecoration: 'none', color: 'var(--text)',
+          fontWeight: 700, fontSize: 12,
           WebkitTapHighlightColor: 'transparent',
+          userSelect: 'none',
           touchAction: 'manipulation',
-          boxShadow: '0 4px 12px rgba(220, 38, 38, 0.2)',
         }}>
           <div style={{
-            width: 40, height: 40, borderRadius: 10,
-            background: 'rgba(255,255,255,0.2)',
+            width: 30, height: 30, borderRadius: 9,
+            background: 'linear-gradient(135deg, #DC2626, #F59E0B)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
           }}>
-            <Store size={20} color="#fff" />
+            <Store size={14} color="#fff" />
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 12, fontWeight: 800 }}>XMALL</div>
+            <div style={{ fontSize: 9.5, color: 'var(--muted)', fontWeight: 500 }}>Official store</div>
+          </div>
+        </Link>
+      </div>
+<div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 15, fontWeight: 900, letterSpacing: 0.5 }}>XMALL</div>
             <div style={{ fontSize: 11, opacity: 0.9, fontWeight: 500, marginTop: 2 }}>
               Official XMARKET store

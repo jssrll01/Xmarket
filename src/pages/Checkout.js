@@ -118,7 +118,7 @@ export default function Checkout() {
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
   const itemDiscount = items.reduce((sum, i) => sum + Math.max(0, (Number(i.originalPrice) || 0) - (Number(i.price) || 0)) * (Number(i.quantity) || 1), 0);
   const promoDiscount = computeDiscount(promo, subtotal);
-  const xcardDiscount = Math.min(xcardValue, Math.max(0, subtotal - promoDiscount));
+  const xcardDiscount = Math.min(xcardValue, Math.max(0, subtotal - promoDiscount - itemDiscount));
   const discount = itemDiscount + promoDiscount + xcardDiscount;
   const total = Math.max(0, subtotal - promoDiscount - xcardDiscount);
 
@@ -264,6 +264,12 @@ export default function Checkout() {
             orderId: newOrderId,
             promo: promo?.code || null,
             receipt: receipt ? { name: receipt.name, dataUrl: receipt.dataUrl } : null,
+            xcard: xcardValue > 0 ? { code: xcardInput, amount: xcardValue } : null,
+            payment_status: form.payment === 'cod'
+              ? 'Cash on Delivery — collect on handover'
+              : form.payment === 'xwallet'
+                ? 'Paid via Xwallet'
+                : 'Awaiting receipt verification',
           }),
         });
       } catch (err) { console.log('Notify failed:', err); }
@@ -510,6 +516,7 @@ export default function Checkout() {
               {p.label}
             </label>
           );
+
         })}
         {selectedPayment && <InfoNote text={selectedPayment.note} />}
         {selectedPayment?.qr && (
@@ -586,6 +593,37 @@ export default function Checkout() {
           </button>
         </div>
         {promoError && <div style={{ color: '#DC2626', fontSize: 12, marginBottom: 12 }}>{promoError}</div>}
+
+        {/* XCARD REDEEM */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 8, marginTop: 12 }}>
+          <input
+            type="text"
+            placeholder="Xcard code"
+            value={xcardInput}
+            onChange={e => setXcardInput(e.target.value.toUpperCase())}
+            style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--border)', fontSize: 13, fontFamily: 'monospace', letterSpacing: 1 }}
+          />
+          <button onClick={applyXcard} className="btn-primary"
+            style={{ padding: '0 16px', fontSize: 13, borderRadius: 10 }}>
+            Apply Gift Card
+          </button>
+        </div>
+        {xcardError && <div style={{ color: '#DC2626', fontSize: 12, marginBottom: 12 }}>{xcardError}</div>}
+        {xcardValue > 0 && (
+          <div style={{
+            marginBottom: 12, padding: '8px 12px',
+            background: '#ECFDF5', border: '1px solid #10B981',
+            borderRadius: 8, fontSize: 12.5, color: '#065F46', fontWeight: 600,
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <span>✓ Xcard applied: ₱{xcardValue} off</span>
+            <button onClick={() => { setXcardValue(0); setXcardInput(''); setXcardId(null); }}
+              style={{ background: 'none', border: 'none', color: '#DC2626', fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>
+              Remove
+            </button>
+          </div>
+        )}
+
         <h3 style={{ marginBottom: 8 }}>Order Summary</h3>
         {items.map(i => (
           <div key={i.rowId} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
