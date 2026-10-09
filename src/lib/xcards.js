@@ -41,22 +41,12 @@ export async function fetchMyXcards(userId) {
 }
 
 export async function redeemXcard(code, userId) {
-  const cleaned = code.trim().toUpperCase();
-  const { data: card, error } = await supabase
-    .from('xcards')
-    .select('*')
-    .eq('code', cleaned)
-    .eq('active', true)
-    .maybeSingle();
-  if (error) return { error };
-  if (!card) return { error: 'Invalid or unknown Xcard' };
-  if (card.redeemed_by) return { error: 'Xcard already redeemed' };
-
-  const { error: uErr } = await supabase
-    .from('xcards')
-    .update({ redeemed_by: userId, redeemed_at: new Date().toISOString(), active: false })
-    .eq('id', card.id);
-  if (uErr) return { error: uErr };
-
-  return { card, error: null };
+  // Use the RPC — it accepts any Xcard regardless of products in cart.
+  const { data, error } = await supabase.rpc('redeem_xcard', {
+    in_code: code.trim(),
+    in_user: userId,
+  });
+  if (error) return { error: error.message };
+  if (data?.error) return { error: data.error };
+  return { card: { id: data.id, value: data.value, code: code.trim().toUpperCase() }, error: null };
 }

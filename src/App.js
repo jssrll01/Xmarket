@@ -21,6 +21,7 @@ import Bundles from './pages/Bundles';
 import FlashSale from './pages/FlashSale';
 import Xmall from './pages/Xmall';
 import Xwallet from './pages/Xwallet';
+import XwalletTopup from './pages/XwalletTopup';
 import Xcards from './pages/Xcards';
 import MyReports from './pages/report/MyReports';
 import BugReport from './pages/report/BugReport';
@@ -79,6 +80,7 @@ function Router() {
         <Route path="/flash-sale" element={<FlashSale />} />
         <Route path="/xmall" element={<Xmall />} />
         <Route path="/xwallet" element={<Xwallet />} />
+        <Route path="/xwallet/topup" element={<XwalletTopup />} />
         <Route path="/xcards" element={<Xcards />} />
         <Route path="/my-reports" element={<MyReports />} />
         <Route path="/report/bug" element={<BugReport />} />

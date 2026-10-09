@@ -7,6 +7,7 @@ import { useToast } from '../components/Toast';
 import { validatePromo, computeDiscount, redeemPromo } from '../lib/promos';
 import { redeemXcard } from '../lib/xcards';
 import { supabase } from '../lib/supabase';
+import { fetchWallet } from '../lib/xwallet';
 
 const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
 const RECEIPT_API = 'https://xmarket-telegram-bot.onrender.com/api/receipt';
@@ -72,6 +73,7 @@ export default function Checkout() {
   });
   const [missing, setMissing] = useState([]);
   const [sending, setSending] = useState(false);
+  const [xwalletBalance, setXwalletBalance] = useState(0);
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
   const [receipt, setReceipt] = useState(null);
@@ -84,6 +86,11 @@ export default function Checkout() {
   const [promoError, setPromoError] = useState('');
   const [sendingReceipt, setSendingReceipt] = useState(false);
   const [receiptSent, setReceiptSent] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    fetchWallet(user.id).then(setXwalletBalance);
+  }, [user]);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/signin', { replace: true });
@@ -217,6 +224,10 @@ export default function Checkout() {
 
     const placeOrder = async () => {
     if (sending) return;
+    if (form.payment === 'xwallet' && xwalletBalance < total) {
+      showToast('Insufficient Xwallet balance');
+      return;
+    }
     setSending(true);
     try {
       // Base required fields
@@ -342,6 +353,20 @@ export default function Checkout() {
               .update({ sold: (prod.sold || 0) + it.quantity })
               .eq('id', it.product_id);
           }
+        }
+
+        // If paid with Xwallet, debit the balance
+        if (form.payment === 'xwallet') {
+          try {
+            const { error: wErr } = await supabase.rpc('xwallet_debit', {
+              uid: user.id,
+              amt: total,
+              ttype: 'purchase',
+              ref: newOrderId,
+              nt: 'Order ' + newOrderId,
+            });
+            if (wErr) console.log('[xwallet] debit failed:', wErr);
+          } catch (err) { console.log('[xwallet] debit error:', err); }
         }
 
         // Clear the cart
@@ -513,7 +538,9 @@ export default function Checkout() {
                 disabled={isCodDisabled}
                 onChange={() => { if (!isCodDisabled) upd('payment', p.id); }}
                 style={{ marginRight: 8 }} />
-              {p.label}
+              {p.id === 'xwallet'
+                ? `Xwallet Balance (₱${xwalletBalance.toFixed(2)})`
+                : p.label}
             </label>
           );
 

@@ -517,26 +517,28 @@ export default function Home() {
         </Link>
 
         <Link to="/xmall" style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6,
-          padding: '10px 10px', borderRadius: 14,
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '12px 14px', borderRadius: 14,
           background: 'var(--card)', border: '1px solid var(--border)',
           textDecoration: 'none', color: 'var(--text)',
-          fontWeight: 700, fontSize: 12,
+          fontWeight: 700, fontSize: 13,
           WebkitTapHighlightColor: 'transparent',
+          WebkitTouchCallout: 'none',
           userSelect: 'none',
           touchAction: 'manipulation',
+          outline: 'none',
         }}>
           <div style={{
-            width: 30, height: 30, borderRadius: 9,
+            width: 34, height: 34, borderRadius: 10,
             background: 'linear-gradient(135deg, #DC2626, #F59E0B)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
           }}>
-            <Store size={14} color="#fff" />
+            <Store size={16} color="#fff" />
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 12, fontWeight: 800 }}>XMALL</div>
-            <div style={{ fontSize: 9.5, color: 'var(--muted)', fontWeight: 500 }}>Official store</div>
+            <div style={{ fontSize: 13, fontWeight: 800 }}>XMALL</div>
+            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 500 }}>Official store</div>
           </div>
         </Link>
       </div>
