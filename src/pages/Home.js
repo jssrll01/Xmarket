@@ -540,16 +540,6 @@ export default function Home() {
           </div>
         </Link>
       </div>
-<div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 15, fontWeight: 900, letterSpacing: 0.5 }}>XMALL</div>
-            <div style={{ fontSize: 11, opacity: 0.9, fontWeight: 500, marginTop: 2 }}>
-              Official XMARKET store
-            </div>
-          </div>
-          <span style={{ fontSize: 18 }}>→</span>
-        </Link>
-      </div>
-
       <div className="chips">
         {categories.map(c => (
           <button key={c}
