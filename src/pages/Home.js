@@ -517,6 +517,36 @@ export default function Home() {
         </Link>
       </div>
 
+      {/* XMALL banner */}
+      <div style={{ padding: '0 16px 12px' }}>
+        <Link to="/xmall" style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '14px 16px', borderRadius: 14,
+          background: 'linear-gradient(135deg, #DC2626 0%, #F59E0B 100%)',
+          textDecoration: 'none', color: '#fff',
+          fontWeight: 700, fontSize: 14,
+          WebkitTapHighlightColor: 'transparent',
+          touchAction: 'manipulation',
+          boxShadow: '0 4px 12px rgba(220, 38, 38, 0.2)',
+        }}>
+          <div style={{
+            width: 40, height: 40, borderRadius: 10,
+            background: 'rgba(255,255,255,0.2)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <Store size={20} color="#fff" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 15, fontWeight: 900, letterSpacing: 0.5 }}>XMALL</div>
+            <div style={{ fontSize: 11, opacity: 0.9, fontWeight: 500, marginTop: 2 }}>
+              Official XMARKET store
+            </div>
+          </div>
+          <span style={{ fontSize: 18 }}>→</span>
+        </Link>
+      </div>
+
       <div className="chips">
         {categories.map(c => (
           <button key={c}

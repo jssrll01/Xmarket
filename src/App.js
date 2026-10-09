@@ -19,6 +19,15 @@ import Refund from './pages/Refund';
 import Returns from './pages/Returns';
 import Bundles from './pages/Bundles';
 import FlashSale from './pages/FlashSale';
+import Xmall from './pages/Xmall';
+import Xwallet from './pages/Xwallet';
+import Xcards from './pages/Xcards';
+import MyReports from './pages/report/MyReports';
+import BugReport from './pages/report/BugReport';
+import OrderReport from './pages/report/OrderReport';
+import ShopReport from './pages/report/ShopReport';
+import ContentReport from './pages/report/ContentReport';
+import SecurityReport from './pages/report/SecurityReport';
 import Vouchers from './pages/Vouchers';
 import Mall from './pages/Mall';
 import Advertising from './pages/Advertising';
@@ -68,6 +77,15 @@ function Router() {
         <Route path="/returns" element={<Returns />} />
         <Route path="/bundles" element={<Bundles />} />
         <Route path="/flash-sale" element={<FlashSale />} />
+        <Route path="/xmall" element={<Xmall />} />
+        <Route path="/xwallet" element={<Xwallet />} />
+        <Route path="/xcards" element={<Xcards />} />
+        <Route path="/my-reports" element={<MyReports />} />
+        <Route path="/report/bug" element={<BugReport />} />
+        <Route path="/report/order" element={<OrderReport />} />
+        <Route path="/report/shop" element={<ShopReport />} />
+        <Route path="/report/content" element={<ContentReport />} />
+        <Route path="/report/security" element={<SecurityReport />} />
         <Route path="/following" element={<Following />} />
         <Route path="/account" element={<Account />} />
         <Route path="/wishlist" element={<Wishlist />} />

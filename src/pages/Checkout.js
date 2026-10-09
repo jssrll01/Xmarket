@@ -5,6 +5,7 @@ import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { validatePromo, computeDiscount, redeemPromo } from '../lib/promos';
+import { redeemXcard } from '../lib/xcards';
 import { supabase } from '../lib/supabase';
 
 const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
@@ -23,6 +24,8 @@ const PAYMENTS = [
   { id: 'cod', label: 'Cash on Delivery',
     note: 'Pay in cash when you receive your order. Available only for Pick-up and Meet-up.',
     codOnly: true },
+  { id: 'xwallet', label: 'Xwallet Balance',
+    note: 'Pay instantly with your Xwallet balance. Order will process immediately.' },
 ];
 
 const DELIVERIES = [
@@ -74,6 +77,10 @@ export default function Checkout() {
   const [receipt, setReceipt] = useState(null);
   const [promoInput, setPromoInput] = useState('');
   const [promo, setPromo] = useState(null);
+  const [xcardInput, setXcardInput] = useState('');
+  const [xcardValue, setXcardValue] = useState(0);
+  const [xcardId, setXcardId] = useState(null);
+  const [xcardError, setXcardError] = useState('');
   const [promoError, setPromoError] = useState('');
   const [sendingReceipt, setSendingReceipt] = useState(false);
   const [receiptSent, setReceiptSent] = useState(false);
@@ -111,8 +118,9 @@ export default function Checkout() {
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
   const itemDiscount = items.reduce((sum, i) => sum + Math.max(0, (Number(i.originalPrice) || 0) - (Number(i.price) || 0)) * (Number(i.quantity) || 1), 0);
   const promoDiscount = computeDiscount(promo, subtotal);
-  const discount = itemDiscount + promoDiscount;
-  const total = Math.max(0, subtotal - promoDiscount);
+  const xcardDiscount = Math.min(xcardValue, Math.max(0, subtotal - promoDiscount));
+  const discount = itemDiscount + promoDiscount + xcardDiscount;
+  const total = Math.max(0, subtotal - promoDiscount - xcardDiscount);
 
   const autofill = () => {
     if (!profile) {
@@ -194,6 +202,17 @@ export default function Checkout() {
     setPromo(null);
     setPromoInput('');
     setPromoError('');
+  };
+
+  const applyXcard = async () => {
+    setXcardError('');
+    const code = xcardInput.trim().toUpperCase();
+    if (!code) { setXcardError('Enter a code'); return; }
+    const { card, error } = await redeemXcard(code, user?.id);
+    if (error) { setXcardError(error); setXcardValue(0); setXcardId(null); return; }
+    setXcardValue(Number(card.value) || 0);
+    setXcardId(card.id);
+    showToast(`Xcard ₱${card.value} applied`);
   };
 
     const placeOrder = async () => {
