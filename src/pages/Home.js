@@ -5,6 +5,7 @@ import {
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
 , Gift, Settings, LogOut , Zap } from 'lucide-react';
 import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
+import { sortByStock, isOutOfStock } from '../lib/stock';
 import { supabase } from '../lib/supabase';
 import { unreadCount } from '../lib/notifications';
 import { Star } from 'lucide-react';
@@ -273,7 +274,7 @@ export default function Home() {
   const found = Array.from(new Set(products.map(p => p.category)));
   const categories = order.filter(c => c === 'All' || found.includes(c));
 
-  let filtered = products.filter(p => {
+  let filtered = sortByStock(products).filter(p => {
     if (!p.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (p.price > maxPrice) return false;
     if (category !== 'All' && p.category !== category) return false;

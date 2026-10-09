@@ -7,6 +7,7 @@ import { useToast } from '../components/Toast';
 import { validatePromo, computeDiscount, redeemPromo } from '../lib/promos';
 import { redeemXcard } from '../lib/xcards';
 import { supabase } from '../lib/supabase';
+import { isOutOfStock } from '../lib/stock';
 import { fetchWallet } from '../lib/xwallet';
 
 const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
@@ -223,6 +224,26 @@ export default function Checkout() {
   };
 
     const placeOrder = async () => {
+      // STOCK GUARD — verify every cart item is still in stock
+      try {
+        const ids = items.map(i => i.product_id).filter(Boolean);
+        if (ids.length > 0) {
+          const { data: prods } = await supabase
+            .from('products')
+            .select('id, stock, name')
+            .in('id', ids);
+          const outNames = (prods || [])
+            .filter(p => isOutOfStock(p))
+            .map(p => p.name || 'a product');
+          if (outNames.length > 0) {
+            alert(`Cannot checkout — out of stock: ${outNames.join(', ')}.\nRemove them from your cart and try again.`);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('checkout stock guard failed:', e);
+      }
+
     if (sending) return;
     if (form.payment === 'xwallet' && xwalletBalance < total) {
       showToast('Insufficient Xwallet balance');
