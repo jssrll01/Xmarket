@@ -5,13 +5,9 @@ import { useAuth } from '../../context/AuthContext';
 import { fetchMyReports } from '../../lib/reports';
 
 const STATUS_META = {
-  submitted:   { label: 'Submitted',   color: '#2563EB', icon: AlertCircle },
-  in_progress: { label: 'In Progress', color: '#F59E0B', icon: Clock },
-  resolved:    { label: 'Resolved',    color: '#10B981', icon: CheckCircle2 },
-  closed:      { label: 'Closed',      color: '#6B7280', icon: CheckCircle2 },
-  // Legacy fallbacks so old rows still render
-  processing:  { label: 'In Progress', color: '#F59E0B', icon: Clock },
-  completed:   { label: 'Resolved',    color: '#10B981', icon: CheckCircle2 },
+  submitted:  { label: 'Submitted',  color: '#2563EB', icon: AlertCircle },
+  processing: { label: 'Processing', color: '#F59E0B', icon: Clock },
+  completed:  { label: 'Completed',  color: '#10B981', icon: CheckCircle2 },
 };
 
 const CATEGORY_LABELS = {
@@ -31,18 +27,9 @@ export default function MyReports() {
 
   useEffect(() => {
     if (!user) { setLoading(false); return; }
-    let alive = true;
-    const load = async () => {
-      try {
-        const { items } = await fetchMyReports(user.id);
-        if (alive) { setItems(items); setLoading(false); }
-      } catch {
-        if (alive) setLoading(false);
-      }
-    };
-    load();
-    const id = setInterval(load, 5000); // refresh every 5s
-    return () => { alive = false; clearInterval(id); };
+    fetchMyReports(user.id).then(({ items }) => {
+      setItems(items); setLoading(false);
+    });
   }, [user]);
 
   if (!user) {
