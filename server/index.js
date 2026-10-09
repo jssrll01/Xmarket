@@ -2,8 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import fetch from 'node-fetch';
 import { Blob } from 'buffer';
+import { createClient } from '@supabase/supabase-js';
 
 const app = express();
+
+const sb = createClient(
+  process.env.SUPABASE_URL || 'https://dmdjytwrgqnvxdxdlnrp.supabase.co',
+  process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || ''
+);
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
 
@@ -141,6 +147,13 @@ app.post('/api/report/:category', async (req, res) => {
     return res.status(400).json({ error: 'Missing concern' });
   }
 
+  // Log to Supabase so xadmin can display it
+  try {
+    await logBotMessage(category, user_id, gmail, concern, {
+      ticket_id, gmail, phone, related_id,
+    });
+  } catch (e) {}
+
   const lines = [
     `*${REPORT_LABELS[category] || category.toUpperCase()} REPORT*`,
     '',
@@ -171,6 +184,40 @@ app.post('/api/report/:category', async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// ============================================================
+// Admin: send test message to a specific bot
+// ============================================================
+app.post('/api/admin/bot-test/:bot', async (req, res) => {
+  const { bot } = req.params;
+  const { text } = req.body || {};
+  const TOKEN = process.env[`BOT_TOKEN_${bot.toUpperCase()}`];
+  const CHAT = process.env[`CHAT_ID_${bot.toUpperCase()}`];
+  if (!TOKEN || !CHAT) return res.status(400).json({ error: 'Bot not configured' });
+  if (!text) return res.status(400).json({ error: 'Missing text' });
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: CHAT, text: `[TEST] ${text}`, parse_mode: 'Markdown' }),
+    });
+    const data = await r.json();
+    // Log the outbound message
+    try { await sb.from('bot_messages').insert({
+      bot, direction: 'out', from_id: 'admin', from_name: 'Admin', text: `[TEST] ${text}`,
+    }); } catch (e) {}
+    res.json({ ok: data.ok, forwarded: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Helper: log incoming report to bot_messages (used by /api/report)
+async function logBotMessage(bot, from_id, from_name, text, raw) {
+  try {
+    await sb.from('bot_messages').insert({ bot, direction: 'in', from_id, from_name, text, raw });
+  } catch (e) { console.error('logBotMessage failed:', e.message); }
+}
 
 app.listen(PORT, () => {
   console.log('Xmarket Telegram bot listening on port ' + PORT);
