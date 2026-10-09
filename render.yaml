@@ -24,3 +24,23 @@ services:
         sync: false
       - key: TELEGRAM_CHAT_ID
         sync: false
+      - key: BOT_TOKEN_BUG
+        sync: false
+      - key: BOT_TOKEN_ORDER
+        sync: false
+      - key: BOT_TOKEN_SHOP
+        sync: false
+      - key: BOT_TOKEN_CONTENT
+        sync: false
+      - key: BOT_TOKEN_SECURITY
+        sync: false
+      - key: CHAT_ID_BUG
+        sync: false
+      - key: CHAT_ID_ORDER
+        sync: false
+      - key: CHAT_ID_SHOP
+        sync: false
+      - key: CHAT_ID_CONTENT
+        sync: false
+      - key: CHAT_ID_SECURITY
+        sync: false

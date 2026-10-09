@@ -108,6 +108,70 @@ app.post('/api/receipt', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 4000;
+// ============================================================
+// Report forwarding — 5 dedicated Telegram bots
+// ============================================================
+const REPORT_BOTS = {
+  bug:      { token: process.env.BOT_TOKEN_BUG,      chat: process.env.CHAT_ID_BUG },
+  order:    { token: process.env.BOT_TOKEN_ORDER,    chat: process.env.CHAT_ID_ORDER },
+  shop:     { token: process.env.BOT_TOKEN_SHOP,     chat: process.env.CHAT_ID_SHOP },
+  content:  { token: process.env.BOT_TOKEN_CONTENT,  chat: process.env.CHAT_ID_CONTENT },
+  security: { token: process.env.BOT_TOKEN_SECURITY, chat: process.env.CHAT_ID_SECURITY },
+};
+
+const REPORT_LABELS = {
+  bug: '🪲 Bug & Technical',
+  order: '📦 Order & Product',
+  shop: '🏪 Shop / Seller',
+  content: '📝 Content & Review',
+  security: '🔒 Account Security',
+};
+
+app.post('/api/report/:category', async (req, res) => {
+  const { category } = req.params;
+  const bot = REPORT_BOTS[category];
+
+  if (!bot || !bot.token || !bot.chat) {
+    return res.status(400).json({ error: 'Unknown category or missing env vars' });
+  }
+
+  const { ticket_id, user_id, gmail, phone, concern, related_id, created_at } = req.body || {};
+
+  if (!concern) {
+    return res.status(400).json({ error: 'Missing concern' });
+  }
+
+  const lines = [
+    `*${REPORT_LABELS[category] || category.toUpperCase()} REPORT*`,
+    '',
+    `Ticket: \\`${ticket_id}\\``,
+    `User: \\`${user_id}\\``,
+    `Gmail: ${gmail || '-'}`,
+    `Phone: ${phone || '-'}`,
+    related_id ? `Related: ${related_id}` : null,
+    `Time: ${created_at || new Date().toISOString()}`,
+    '',
+    '*Concern:*',
+    concern,
+  ].filter(Boolean).join('\n');
+
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${bot.token}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: bot.chat,
+        text: lines,
+        parse_mode: 'Markdown',
+      }),
+    });
+    const data = await r.json();
+    res.json({ ok: data.ok, forwarded: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log('Xmarket Telegram bot listening on port ' + PORT);
 });
