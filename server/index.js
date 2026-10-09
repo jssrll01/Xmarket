@@ -19,7 +19,7 @@ app.post('/api/order', async (req, res) => {
     return res.status(500).json({ error: 'Server not configured' });
   }
 
-  const { form, items, subtotal, discount, total, payment, delivery, orderId } = req.body || {};
+  const { form, items, subtotal, discount, total, payment, delivery, orderId, xcard, payment_status } = req.body || {};
 
   if (!form || !items) {
     return res.status(400).json({ error: 'Missing order data' });
@@ -144,8 +144,8 @@ app.post('/api/report/:category', async (req, res) => {
   const lines = [
     `*${REPORT_LABELS[category] || category.toUpperCase()} REPORT*`,
     '',
-    `Ticket: \\`${ticket_id}\\``,
-    `User: \\`${user_id}\\``,
+    'Ticket: `' + ticket_id + '`',
+    'User: `' + user_id + '`',
     `Gmail: ${gmail || '-'}`,
     `Phone: ${phone || '-'}`,
     related_id ? `Related: ${related_id}` : null,
