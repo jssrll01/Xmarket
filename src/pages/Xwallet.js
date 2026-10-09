@@ -28,7 +28,6 @@ export default function Xwallet() {
 
   // Top-up form
   const [topupAmount, setTopupAmount] = useState(100);
-  const [topupLoading, setTopupLoading] = useState(false);
 
   // Transfer form
   const [transferEmail, setTransferEmail] = useState('');
@@ -64,18 +63,6 @@ export default function Xwallet() {
       </div>
     );
   }
-
-  const submitTopup = async () => {
-    const amt = Number(topupAmount);
-    if (!amt || amt < 10) { showToast('Minimum ₱10'); return; }
-    setTopupLoading(true);
-    const { error } = await createTopupRequest(user.id, amt, topupRef || null);
-    setTopupLoading(false);
-    if (error) { showToast(error.message); return; }
-    showToast(`Top-up request submitted for ₱${amt}`);
-    setTopupRef('');
-    refresh();
-  };
 
   const submitTransfer = async () => {
     setShowTransferConfirm(false);
