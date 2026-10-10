@@ -77,6 +77,7 @@ export default function Checkout() {
   const [xwalletBalance, setXwalletBalance] = useState(0);
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
+  const [orderError, setOrderError] = useState('');
   const [receipt, setReceipt] = useState(null);
   const [promoInput, setPromoInput] = useState('');
   const [promo, setPromo] = useState(null);
@@ -236,7 +237,8 @@ export default function Checkout() {
             .filter(p => isOutOfStock(p))
             .map(p => p.name || 'a product');
           if (outNames.length > 0) {
-            alert(`Cannot checkout — out of stock: ${outNames.join(', ')}.\nRemove them from your cart and try again.`);
+            setOrderError(`Cannot checkout — out of stock: ${outNames.join(', ')}. Remove them from your cart and try again.`);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
             return;
           }
         }

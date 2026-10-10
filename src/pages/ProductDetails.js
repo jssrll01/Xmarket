@@ -8,6 +8,7 @@ import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { supabase } from '../lib/supabase';
+import { isOutOfStock } from '../lib/stock';
 import SmartImage from '../components/SmartImage';
 import { ProductDetailSkeleton } from '../components/Skeleton';
 import ProductReviews from '../components/ProductReviews';
@@ -284,11 +285,11 @@ export default function ProductDetails() {
       </div>
 
       <div style={{ display: 'flex', gap: 8, padding: '0 16px' }}>
-        <button onClick={() => doAdd(setAdding, false)} disabled={adding}
+        <button onClick={() => doAdd(setAdding, false)} disabled={adding || isOutOfStock(product)}
           className="btn-outline" style={{ flex: 1, padding: 12 }}>
           {adding ? <span className="spinner" /> : 'Add to Cart'}
         </button>
-        <button onClick={() => doAdd(setBuying, true)} disabled={buying}
+        <button onClick={() => doAdd(setBuying, true)} disabled={buying || isOutOfStock(product)}
           className="btn-primary" style={{ flex: 1, padding: 12 }}>
           {buying ? <span className="spinner" /> : 'Buy Now'}
         </button>
