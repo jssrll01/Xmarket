@@ -474,6 +474,17 @@ export default function Checkout() {
   }
 
   return (
+    <>
+      {orderError && (
+        <div style={{
+          padding: 12, margin: '12px 16px',
+          background: '#FEE2E2', color: '#991B1B',
+          border: '1px solid #FCA5A5', borderRadius: 12,
+          fontSize: 13.5, fontWeight: 600, lineHeight: 1.5,
+        }}>
+          {orderError}
+        </div>
+      )}
     <div style={{ padding: 16, paddingBottom: 100, color: 'var(--text)' }}>
       {missing.length > 0 && (
         <div style={{
@@ -699,5 +710,6 @@ export default function Checkout() {
         {sending ? (<><span className="spinner" /> Placing Order...</>) : 'Place Order'}
       </button>
     </div>
+    </>
   );
 }
