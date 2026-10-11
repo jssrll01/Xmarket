@@ -73,6 +73,7 @@ function mapProduct(p) {
     category: p.category,
     discount: p.discount,
     sold: p.sold,
+    stock: typeof p.stock === 'number' ? p.stock : Number(p.stock ?? 0),
     store: p.store,
     verified: p.verified,
     preorder: p.preorder,
