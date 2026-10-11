@@ -286,6 +286,7 @@ export default function Home() {
   if (sort === 'priceLow') filtered.sort((a,b) => a.price - b.price);
   if (sort === 'priceHigh') filtered.sort((a,b) => b.price - a.price);
   if (sort === 'best') filtered.sort((a,b) => b.sold - a.sold);
+  filtered = sortByStock(filtered);
 
   const cartCount = items.reduce((s, i) => s + i.quantity, 0);
 
@@ -600,9 +601,35 @@ export default function Home() {
                   color={wishlist.has(p.uuid) ? '#DC2626' : '#475569'}
                 />
               </button>
-              <Link to={`/product/${p.id}`}>
+              <Link
+                to={isOutOfStock(p) ? '#' : `/product/${p.id}`}
+                onClick={(e) => { if (isOutOfStock(p)) e.preventDefault(); }}
+                style={{
+                  opacity: isOutOfStock(p) ? 0.55 : 1,
+                  filter: isOutOfStock(p) ? 'grayscale(0.6)' : 'none',
+                }}
+              >
                 <div className="product-thumb" style={{ position: "relative" }}>
                   <SmartImage src={p.images[0]} alt={p.name} />
+
+                  {isOutOfStock(p) && (
+                    <div style={{
+                      position: 'absolute', inset: 0,
+                      background: 'rgba(15,23,42,0.4)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      zIndex: 3,
+                    }}>
+                      <span style={{
+                        padding: '6px 14px', borderRadius: 8,
+                        background: '#EF4444', color: '#fff',
+                        fontSize: 11, fontWeight: 900, letterSpacing: 1,
+                        boxShadow: '0 4px 12px rgba(239,68,68,0.4)',
+                      }}>
+                        SOLD OUT
+                      </span>
+                    </div>
+                  )}
+
                   <div style={{
                     position: 'absolute', top: 8, left: 8, zIndex: 4,
                     display: 'flex', flexDirection: 'column', gap: 4,
@@ -635,14 +662,24 @@ export default function Home() {
                   </div>
                 </div>
               </Link>
-              <button onClick={() => handleAdd(p)} disabled={loadingId === p.id}
-                className="btn-primary"
-                style={{ width: "100%", padding: 11, fontSize: 12, borderRadius: 0 }}>
-                {loadingId === p.id
-                  ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-                      <span className="spinner" /> ADDING
-                    </span>
-                  : 'ADD TO CART'}
+              <button
+                onClick={() => !isOutOfStock(p) && handleAdd(p)}
+                disabled={loadingId === p.id || isOutOfStock(p)}
+                className={isOutOfStock(p) ? '' : 'btn-primary'}
+                style={{
+                  width: "100%", padding: 11, fontSize: 12, borderRadius: 0,
+                  background: isOutOfStock(p) ? '#94A3B8' : undefined,
+                  color: isOutOfStock(p) ? '#fff' : undefined,
+                  border: 'none',
+                  cursor: isOutOfStock(p) ? 'not-allowed' : 'pointer',
+                }}>
+                {isOutOfStock(p)
+                  ? 'SOLD OUT'
+                  : loadingId === p.id
+                    ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
+                        <span className="spinner" /> ADDING
+                      </span>
+                    : 'ADD TO CART'}
               </button>
             </div>
           ))}

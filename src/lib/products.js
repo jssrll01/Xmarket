@@ -20,6 +20,7 @@ export async function fetchProducts() {
     category: p.category,
     discount: p.discount,
     sold: p.sold,
+    stock: p.stock ?? 0,
     store: p.store,
     verified: p.verified,
     preorder: p.preorder,
