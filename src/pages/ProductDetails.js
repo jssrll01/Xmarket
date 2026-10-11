@@ -285,7 +285,7 @@ export default function ProductDetails() {
       </div>
 
       <div style={{ display: 'flex', gap: 8, padding: '0 16px' }}>
-        {Number(product?.stock || 0) <= 0 && (
+        {product && Number(product.stock || 0) <= 0 && (
           <div style={{
             padding: 10, marginBottom: 10,
             background: '#FEE2E2', color: '#991B1B',
@@ -295,7 +295,7 @@ export default function ProductDetails() {
             SOLD OUT — check back soon
           </div>
         )}
-        {Number(product?.stock || 0) > 0 && Number(product?.stock || 0) <= 5 && (
+        {product && Number(product.stock || 0) > 0 && Number(product.stock || 0) <= 5 && (
           <div style={{
             padding: 8, marginBottom: 10,
             background: '#FEF3C7', color: '#92400E',

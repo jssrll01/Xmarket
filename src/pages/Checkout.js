@@ -7,6 +7,7 @@ import { useToast } from '../components/Toast';
 import { validatePromo, computeDiscount, redeemPromo } from '../lib/promos';
 import { redeemXcard } from '../lib/xcards';
 import { supabase } from '../lib/supabase';
+import StockModal from '../components/StockModal';
 import { isOutOfStock } from '../lib/stock';
 import { fetchWallet } from '../lib/xwallet';
 
@@ -710,6 +711,11 @@ export default function Checkout() {
         {sending ? (<><span className="spinner" /> Placing Order...</>) : 'Place Order'}
       </button>
     </div>
+      <StockModal
+        open={!!orderError}
+        message={orderError}
+        onClose={() => setOrderError('')}
+      />
     </>
   );
 }
