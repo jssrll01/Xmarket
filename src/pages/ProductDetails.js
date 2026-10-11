@@ -246,7 +246,18 @@ export default function ProductDetails() {
           )}
         </div>
         <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>
-          {product.sold} sold
+          <span>{product.sold} sold</span>
+          <span style={{ margin: '0 6px', color: '#CBD5E1' }}>·</span>
+          <span style={{
+            color: Number(product.stock || 0) <= 0 ? '#DC2626'
+                 : Number(product.stock || 0) <= 5 ? '#F59E0B'
+                 : 'inherit',
+            fontWeight: 700,
+          }}>
+            {Number(product.stock || 0) <= 0
+              ? 'Out of stock'
+              : `${product.stock} in stock`}
+          </span>
         </div>
       </div>
 
