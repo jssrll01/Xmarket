@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { supabase } from '../lib/supabase';
 import { submitTopupBilling } from '../lib/xwallet';
+import { notifyTopup } from '../lib/wallet-bots';
 
 const PAYMENTS = [
   { id: 'gcash', label: 'GCash',
@@ -77,6 +78,10 @@ export default function XwalletTopup() {
     });
     setSending(false);
     if (error) { showToast(error.message); return; }
+    notifyTopup({
+      userId: user.id, amount: total, channel: selected.label,
+      userChatId: user?.telegram_chat_id || null,
+    }).catch(() => {});
     showToast('Top-up request submitted. Awaiting admin verification.');
     nav('/xwallet');
   };

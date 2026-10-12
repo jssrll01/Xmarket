@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { notifySendMoney, notifyBuyLoad } from '../lib/wallet-bots';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Wallet, Plus, ArrowUpRight, ArrowDownLeft, Send, Smartphone,
@@ -77,6 +78,10 @@ export default function Xwallet() {
     if (data?.error) { showToast(data.error); return; }
     showToast(`Sent ₱${amt} to ${transferEmail}`);
     setTransferAmount(''); setTransferEmail('');
+    notifySendMoney({
+      fromUserId: user.id, toUsername: transferEmail, amount: amt,
+      userChatId: user?.telegram_chat_id || null,
+    }).catch(() => {});
     refresh();
   };
 
@@ -91,6 +96,10 @@ export default function Xwallet() {
     if (error) { showToast(error.message || error); return; }
     showToast(`${loadNetwork} load ₱${amt} sent to ${loadNumber}`);
     setLoadAmount(''); setLoadNumber('');
+    notifyBuyLoad({
+      userId: user.id, network: loadNetwork, mobile: loadNumber, amount: amt,
+      userChatId: user?.telegram_chat_id || null,
+    }).catch(() => {});
     refresh();
   };
 
