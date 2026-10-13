@@ -23,3 +23,10 @@ run.log
 
 # backups
 *.bak
+
+# Service accounts
+service-account.json
+server/service-account.json
+firebase-service-account.json
+server/firebase-service-account.json
+
