@@ -1,24 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { Bell, X } from 'lucide-react';
 import { requestPushPermission, isPushSupported } from '../lib/fcm';
+import { useAuth } from '../context/AuthContext';
 
-export default function PushPrompt({ userId }) {
+export default function PushPrompt() {
+  const { user } = useAuth() || {};
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    if (!user) return;                          // don't prompt if not logged in
     if (!isPushSupported()) return;
     if (Notification.permission === 'granted') return;
     if (localStorage.getItem('xmarket.push.dismissed') === '1') return;
-    // Only show after a delay so it doesn't interrupt the first paint
     const id = setTimeout(() => setShow(true), 8000);
     return () => clearTimeout(id);
-  }, []);
+  }, [user]);
 
   const accept = async () => {
-    if (!userId) return;
+    if (!user) return;
     setBusy(true);
-    const res = await requestPushPermission({ userId });
+    const res = await requestPushPermission({ userId: user.id });
     setBusy(false);
     if (res.ok) {
       setShow(false);

@@ -50,11 +50,30 @@ import ForgotPassword from './pages/ForgotPassword';
 import { AuthProvider } from './context/AuthContext';
 import NotFound from './pages/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
+import PushPrompt from './components/PushPrompt';
+import { setupForegroundHandler } from './lib/fcm';
 
 function Router() {
   useScrollTop();
   const location = useLocation();
   const hideFooter = location.pathname === '/checkout';
+
+  // Foreground FCM handler — safe here because this Router is inside AuthProvider
+  React.useEffect(() => {
+    let cleanup = () => {};
+    setupForegroundHandler((payload) => {
+      const title = payload.notification?.title || 'XMARKET';
+      const body  = payload.notification?.body  || '';
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        new Notification(title, {
+          body,
+          icon: '/icons/icon-192.png',
+          tag: payload.data?.tag || undefined,
+        });
+      }
+    }).then((fn) => { if (typeof fn === 'function') cleanup = fn; });
+    return () => cleanup();
+  }, []);
 
   return (
     <>
