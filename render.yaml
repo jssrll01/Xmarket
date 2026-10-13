@@ -1,13 +1,46 @@
 services:
   - type: web
-    name: xmarket-app
+    name: xmarket-frontend
     runtime: static
     buildCommand: npm install && npm run build
-    staticPublishPath: ./build
+    staticPublishPath: build
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: NODE_VERSION
-        value: 20.11.0
+        value: 18.20.4
+
+  - type: web
+    name: xmarket-telegram-bot
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: BOT_TOKEN_BUG
+        sync: false
+      - key: BOT_TOKEN_ORDER
+        sync: false
+      - key: BOT_TOKEN_SHOP
+        sync: false
+      - key: BOT_TOKEN_CONTENT
+        sync: false
+      - key: BOT_TOKEN_SECURITY
+        sync: false
+      - key: CHAT_ID_BUG
+        sync: false
+      - key: CHAT_ID_ORDER
+        sync: false
+      - key: CHAT_ID_SHOP
+        sync: false
+      - key: CHAT_ID_CONTENT
+        sync: false
+      - key: CHAT_ID_SECURITY
+        sync: false
