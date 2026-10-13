@@ -50,6 +50,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import { AuthProvider } from './context/AuthContext';
 import NotFound from './pages/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
+import PushPrompt from './components/PushPrompt';
+import { setupForegroundHandler } from './lib/fcm';
+import { useAuth } from './context/AuthContext';
 
 function Router() {
   useScrollTop();
@@ -105,6 +108,8 @@ function Router() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideFooter && <SiteFooter />}
+      {user && <PushPrompt userId={user.id} />}
+
     </>
   );
 }
@@ -130,6 +135,25 @@ function NewDeviceAlert() {
 }
 
 export default function App() {
+
+  const { user } = useAuth() || {};
+
+  React.useEffect(() => {
+    let cleanup = () => {};
+    setupForegroundHandler((payload) => {
+      const title = payload.notification?.title || 'XMARKET';
+      const body = payload.notification?.body || '';
+      if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        new Notification(title, {
+          body,
+          icon: '/icons/icon-192.png',
+          tag: payload.data?.tag || undefined,
+        });
+      }
+    }).then((fn) => { if (typeof fn === 'function') cleanup = fn; });
+    return () => cleanup();
+  }, []);
+
   return (
     <AuthProvider>
       <CartProvider>
