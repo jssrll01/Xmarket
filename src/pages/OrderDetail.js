@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, XCircle, CheckCircle2, RotateCcw, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Package, XCircle, CheckCircle2, RotateCcw, AlertCircle, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../CartContext';
 import { useToast } from '../components/Toast';
@@ -93,7 +93,14 @@ export default function OrderDetail() {
     await reloadCart();
     showToast('Items added to cart');
     nav('/cart');
-  };
+  }
+
+  const onWriteReview = () => {
+    if (!items.length) return;
+    const firstProduct = items.find(i => i.product_id)?.product_id;
+    if (!firstProduct) { showToast('No product to review'); return; }
+    nav(`/product/${firstProduct}#review`);
+  };;
 
   if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted)' }}>Loading…</div>;
   if (!order) return (
@@ -195,6 +202,10 @@ export default function OrderDetail() {
             <CheckCircle2 size={14} /> Confirm receipt
           </button>
         )}
+        <button onClick={onWriteReview} disabled={busy || !items.length} className="btn-primary"
+          style={{ flex: 1, padding: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <Star size={14} /> Write a review
+        </button>
         <button onClick={onReorder} disabled={busy} className="btn-ghost"
           style={{ flex: 1, padding: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
           <RotateCcw size={14} /> Buy again

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Star, ThumbsUp, Reply } from 'lucide-react';
+import { Star, ThumbsUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from './Toast';
 import {
   fetchProductReviews, getEligibleOrder, submitReview,
-  voteHelpful, unvoteHelpful, hasVoted, replyToReview,
+  voteHelpful, unvoteHelpful, hasVoted,
 } from '../lib/reviews';
 
 function Stars({ value = 0, size = 14 }) {
@@ -30,8 +30,6 @@ export default function ProductReviews({ product }) {
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [votes, setVotes] = useState({});
-  const [replyingTo, setReplyingTo] = useState(null);
-  const [replyText, setReplyText] = useState('');
 
   useEffect(() => {
     let alive = true;
@@ -54,6 +52,13 @@ export default function ProductReviews({ product }) {
     Promise.all(reviews.map(r => hasVoted(r.id, user.id).then(v => [r.id, v])))
       .then(pairs => setVotes(Object.fromEntries(pairs)));
   }, [user, reviews]);
+
+  // If we arrived via /product/:id#review, auto-open the review form
+  useEffect(() => {
+    if (window.location.hash === '#review' && user && eligibleOrderId && !writing) {
+      setWriting(true);
+    }
+  }, [user, eligibleOrderId, writing]);
 
   const avgRating = reviews.length
     ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length
@@ -94,16 +99,6 @@ export default function ProductReviews({ product }) {
       setVotes(v => ({ ...v, [review.id]: true }));
       setReviews(rs => rs.map(r => r.id === review.id ? { ...r, helpful_count: r.helpful_count + 1 } : r));
     }
-  };
-
-  const submitReply = async (review) => {
-    if (!replyText.trim()) return;
-    const { error } = await replyToReview(review.id, replyText.trim());
-    if (error) { showToast(error.message); return; }
-    setReviews(rs => rs.map(r => r.id === review.id ? { ...r, seller_reply: replyText.trim() } : r));
-    setReplyingTo(null);
-    setReplyText('');
-    showToast('Reply posted');
   };
 
   const shareReview = async (review) => {

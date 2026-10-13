@@ -44,9 +44,6 @@ export async function unvoteHelpful(reviewId, userId) {
   return supabase.from('review_votes').delete().eq('review_id', reviewId).eq('user_id', userId);
 }
 
-export async function replyToReview(reviewId, reply) {
-  return supabase.from('reviews').update({ seller_reply: reply, replied_at: new Date().toISOString() }).eq('id', reviewId);
-}
 
 export async function hasVoted(reviewId, userId) {
   const { data } = await supabase
