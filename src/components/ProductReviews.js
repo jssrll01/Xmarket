@@ -199,24 +199,6 @@ export default function ProductReviews({ product }) {
                 Share
               </button>
             </div>
-            {replyingTo === r.id ? (
-              <div style={{ marginTop: 8 }}>
-                <textarea value={replyText} onChange={e => setReplyText(e.target.value)}
-                  placeholder="Reply as seller"
-                  style={{ width: '100%', padding: 8, fontSize: 12.5, minHeight: 60 }} />
-                <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-                  <button onClick={() => setReplyingTo(null)} className="btn-ghost" style={{ flex: 1, padding: 8, fontSize: 12 }}>Cancel</button>
-                  <button onClick={() => submitReply(r)} className="btn-primary" style={{ flex: 1, padding: 8, fontSize: 12 }}>Post reply</button>
-                </div>
-              </div>
-            ) : (
-              user && user.id === r.user_id && !r.seller_reply && (
-                <button onClick={() => setReplyingTo(r.id)}
-                  style={{ marginTop: 8, fontSize: 11.5, color: 'var(--primary)', background: 'none', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <Reply size={12} /> Add reply
-                </button>
-              )
-            )}
           </div>
         ))
       )}
