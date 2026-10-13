@@ -30,3 +30,12 @@ server/service-account.json
 firebase-service-account.json
 server/firebase-service-account.json
 
+
+# Firebase service accounts
+server/xmarket-pwa-service-account.json
+server/service-account.json
+server/firebase-service-account.json
+*-service-account.json
+*-firebase-adminsdk-*.json
+
+server/xmarket-pwa-service-account.json

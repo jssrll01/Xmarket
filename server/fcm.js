@@ -32,9 +32,12 @@ export async function sendPushToUser(sb, userId, { title, body, url, tag }) {
       tokens: tokens.map((t) => t.token),
       notification: { title, body },
       data: { url: url || '/', tag: tag || '' },
+      android: { priority: 'high', notification: { sound: 'default' } },
+      apns: { headers: { 'apns-priority': '10' }, payload: { aps: { sound: 'default', contentAvailable: true } } },
       webpush: {
         fcmOptions: { link: url || '/' },
         notification: { icon: '/icons/icon-192.png', badge: '/icons/icon-192.png' },
+        headers: { Urgency: 'high' },
       },
     });
 
