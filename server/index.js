@@ -4,6 +4,7 @@ import fetch from 'node-fetch';
 import { Blob } from 'buffer';
 import { createClient } from '@supabase/supabase-js';
 
+import { sendPushToUser } from './fcm.js';
 const app = express();
 
 const sb = createClient(
@@ -302,6 +303,22 @@ app.post('/api/admin/bot-test/:bot', async (req, res) => {
    START
    ============================================================ */
 const PORT = process.env.PORT || 3000;
+
+/* ============================================================
+   PUSH TEST ENDPOINT
+   ============================================================ */
+app.post('/api/push/test', async (req, res) => {
+  const { userId, title, body, url } = req.body || {};
+  if (!userId) return res.status(400).json({ error: 'Missing userId' });
+  const result = await sendPushToUser(sb, userId, {
+    title: title || 'XMARKET test',
+    body: body || 'Push notification test',
+    url: url || '/',
+    tag: 'test',
+  });
+  res.json(result);
+});
+
 app.listen(PORT, () => {
   console.log(`✅ xmarket-telegram-bot listening on ${PORT}`);
   console.log(`   order bot:      ${BOT_TOKEN ? 'configured' : 'MISSING'}`);
