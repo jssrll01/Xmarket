@@ -319,6 +319,35 @@ app.post('/api/push/test', async (req, res) => {
   res.json(result);
 });
 
+
+/* ============================================================
+   PUSH — arbitrary user + admins
+   ============================================================ */
+app.post('/api/push/user', async (req, res) => {
+  const { userId, title, body, url, tag } = req.body || {};
+  if (!userId) return res.status(400).json({ error: 'Missing userId' });
+  const result = await sendPushToUser(sb, userId, {
+    title: title || 'XMARKET',
+    body: body || '',
+    url: url || '/',
+    tag: tag || 'default',
+  });
+  res.json(result);
+});
+
+app.post('/api/push/admins', async (req, res) => {
+  const { title, body, url, tag } = req.body || {};
+  const adminIds = (process.env.ADMIN_USER_IDS || '').split(',').map(x => x.trim()).filter(Boolean);
+  if (!adminIds.length) return res.json({ ok: true, sent: 0, note: 'no ADMIN_USER_IDS configured' });
+  let sent = 0, failed = 0;
+  for (const uid of adminIds) {
+    const r = await sendPushToUser(sb, uid, { title: title || 'XMARKET', body: body || '', url: url || '/', tag: tag || 'admin' });
+    sent += r.sent || 0;
+    failed += r.failed || 0;
+  }
+  res.json({ ok: true, sent, failed });
+});
+
 app.listen(PORT, () => {
   console.log(`✅ xmarket-telegram-bot listening on ${PORT}`);
   console.log(`   order bot:      ${BOT_TOKEN ? 'configured' : 'MISSING'}`);

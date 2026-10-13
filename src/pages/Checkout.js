@@ -396,6 +396,20 @@ export default function Checkout() {
         // Clear the cart
         await dispatch({ type: 'CLEAR' });
 
+        // Fire admin push — new order placed
+        try {
+          await fetch('https://xmarket-telegram-bot.onrender.com/api/push/admins', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: '🛒 New order ' + newOrderId,
+              body: form.fullName + ' · ₱' + total + ' · ' + paymentLabel,
+              url: '/orders',
+              tag: 'new-order',
+            }),
+          });
+        } catch (e) { console.log('[push] admin notify failed:', e); }
+
       } catch (err) {
         console.log('Supabase order failed:', err);
         showToast('Order sent but not saved. Contact support.');
