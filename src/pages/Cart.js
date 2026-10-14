@@ -4,6 +4,7 @@ import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { fetchProducts } from '../lib/products';
+import { parseCartVariant, comboLabel } from '../lib/variants';
 import SmartImage from '../components/SmartImage';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
@@ -115,7 +116,7 @@ export default function Cart() {
             style={{ width: 64, height: 64, borderRadius: 12, flexShrink: 0, background: "var(--card)" }} />
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 700 }}>{i.name}</div>
-            {i.variant && <div style={{ fontSize: 12, color: 'var(--muted)' }}>Variant: {i.variant}</div>}
+            {i.variant && <div style={{ fontSize: 12, color: 'var(--muted)' }}>Variant: {comboLabel(parseCartVariant(i.variant))}</div>}
             <div style={{ fontWeight: 800, marginTop: 4 }}>₱{i.price}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
               <button onClick={() => dispatch({ type: 'DECREASE', payload: i.rowId })} className="btn-ghost" style={{ padding: 7 }}>
