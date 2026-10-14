@@ -691,6 +691,13 @@ export default function Home() {
           ))}
         </div>
       )}
+
+      <QuickView
+        product={qvProduct}
+        onClose={() => setQvProduct(null)}
+        onAddToCart={(p, sel) => dispatch({ type: 'ADD', payload: { product_id: p.id, variant: JSON.stringify(sel), quantity: 1 } })}
+        onOpenFull={(p) => navigate(`/product/${p.legacy_id || p.id}`)}
+      />
     </div>
   );
 }
