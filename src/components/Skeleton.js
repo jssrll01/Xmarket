@@ -1,8 +1,10 @@
 import React from 'react';
 
-export function ProductCardSkeleton() {
+const stagger = (i) => ({ animationDelay: `${Math.min(i * 40, 240)}ms` });
+
+export function ProductCardSkeleton({ index = 0 }) {
   return (
-    <div className="card skeleton-card">
+    <div className="card skeleton-card fade-up" style={stagger(index)}>
       <div className="sk sk-img" />
       <div style={{ padding: 12 }}>
         <div className="sk sk-line" style={{ width: '90%' }} />
@@ -17,14 +19,16 @@ export function ProductCardSkeleton() {
 export function ProductGridSkeleton({ count = 6 }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, padding: '0 16px' }}>
-      {Array.from({ length: count }).map((_, i) => <ProductCardSkeleton key={i} />)}
+      {Array.from({ length: count }).map((_, i) => (
+        <ProductCardSkeleton key={i} index={i} />
+      ))}
     </div>
   );
 }
 
 export function ProductDetailSkeleton() {
   return (
-    <div style={{ padding: 16 }}>
+    <div style={{ padding: 16 }} className="fade-up">
       <div className="sk" style={{ width: '100%', aspectRatio: '3/2', borderRadius: 16 }} />
       <div className="sk sk-line" style={{ width: '70%', height: 22, marginTop: 16 }} />
       <div className="sk sk-line" style={{ width: '40%', marginTop: 10 }} />

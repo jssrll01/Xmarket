@@ -1118,3 +1118,132 @@ button, a, [role="button"], .card {
 button:focus, a:focus {
   outline: none;
 }
+
+/* ============================================================
+   C-PASS OVERRIDES — append-only, safe cascade
+   Fix: undefined pageEnter keyframes, keyframe dedupe,
+   plus missing neumorphic touches on a few components.
+   ============================================================ */
+
+/* Undefined keyframes were referenced by .search-suggest, .err-glow, .err-code.
+   Define pageEnter once so those animations actually run. */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* For .search-suggest we do NOT want translate (dropdown position), so scope it: */
+.search-suggest { animation: pageEnterFade 160ms ease-out both !important; }
+.err-glow       { animation: pageEnterFade 400ms ease-out both !important; }
+.err-code       { animation: pageEnterFade 300ms ease-out both !important; }
+
+/* Dedupe shimmer — one authoritative definition, GPU-only transform */
+@keyframes shimmer {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.sk {
+  position: relative;
+  overflow: hidden;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-inset-sm);
+}
+.sk::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.75) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+.sk-img  { width: 100%; aspect-ratio: 1 / 1; border-radius: 0; }
+.sk-line { height: 12px; border-radius: 8px; }
+.sk-btn  { height: 40px; margin: 8px; border-radius: 12px; }
+
+/* Skeleton cards inherit neu look */
+.skeleton-card {
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--neu-surface) !important;
+  box-shadow: var(--neu-raised) !important;
+}
+
+/* ------------------------------------------------------------
+   Neu polish for components not yet covered
+   ------------------------------------------------------------ */
+
+/* Toast (used by Toast.js) */
+.toast {
+  background: var(--neu-surface) !important;
+  border: none !important;
+  border-radius: 14px !important;
+  box-shadow: var(--neu-raised) !important;
+  animation: toastIn 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Modal / confirm dialog */
+.dialog-backdrop {
+  background: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: pageEnterFade 160ms ease-out both;
+}
+.dialog {
+  background: var(--neu-surface) !important;
+  border: none !important;
+  border-radius: 20px !important;
+  box-shadow:
+    10px 10px 26px var(--neu-dark),
+    -10px -10px 26px var(--neu-light) !important;
+  animation: modalPop 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* BottomNav-ish / generic nav pill (safe if unused) */
+.nav-pill {
+  background: var(--neu-surface);
+  border-radius: 999px;
+  box-shadow: var(--neu-raised);
+}
+
+/* Rating stars glow */
+.stars svg { color: #F59E0B; stroke: #F59E0B; }
+
+/* ------------------------------------------------
+   Neumorphic page background texture
+   (very subtle, GPU-free — pure background)
+   ------------------------------------------------ */
+body {
+  background:
+    radial-gradient(1200px 600px at 100% -10%, rgba(99, 102, 241, 0.06), transparent 60%),
+    radial-gradient(900px 500px at -10% 110%, rgba(37, 99, 235, 0.05), transparent 60%),
+    #EFF2F7;
+  background-attachment: fixed;
+}
+
+/* ------------------------------------------------
+   Section headers — consistent neu rhythm
+   ------------------------------------------------ */
+.section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  padding: 0 16px;
+  margin: 18px 0 10px;
+  letter-spacing: -0.2px;
+}
+
+/* ------------------------------------------------
+   Global reduced motion — one authoritative guard
+   ------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .fade-up,
+  .dialog,
+  .toast,
+  .sk::after {
+    animation: none !important;
+  }
+}
