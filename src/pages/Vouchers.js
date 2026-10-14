@@ -10,7 +10,7 @@ import EmptyState from '../components/EmptyState';
 
 const TABS = [
   { id: 'active',   label: 'Active' },
-  { id: 'used',     label: 'Used' },
+  { id: 'used',     label: 'Used up' },
   { id: 'expired',  label: 'Expired' },
 ];
 
@@ -26,12 +26,22 @@ function countdown(until) {
   return `${mins}m left`;
 }
 
+// Bucket against real columns: active, expires_at, max_uses, used_count
 function voucherStatus(v) {
   const now = Date.now();
   const expires = v.expires_at ? new Date(v.expires_at).getTime() : null;
-  if (v.used_at) return 'used';
   if (expires && expires <= now) return 'expired';
+  if (v.max_uses && v.used_count >= v.max_uses) return 'used';
+  if (v.active === false) return 'used';
   return 'active';
+}
+
+function discountLabel(v) {
+  const type = String(v.discount_type || '').toLowerCase();
+  const value = Number(v.discount_value) || 0;
+  if (type === 'percent' || type === 'percentage' || type === 'pct') return `${value}%`;
+  if (type === 'shipping' || type === 'free_shipping') return 'Free ship';
+  return `₱${value.toLocaleString()}`;
 }
 
 export default function Vouchers() {
@@ -45,13 +55,12 @@ export default function Vouchers() {
 
   useEffect(() => {
     if (!user) { nav('/signin', { replace: true }); return; }
+    // Global catalog — no user_id filter
     supabase
       .from('promo_codes')
       .select('*')
-      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
-        // Missing table or RLS block → don't crash, just show empty
         if (error) {
           console.warn('[vouchers] promo_codes unavailable:', error.message);
           setRows([]);
@@ -97,7 +106,6 @@ export default function Vouchers() {
         </h2>
       </div>
 
-      {/* Tabs */}
       <div className="vo-tabs">
         {TABS.map((t) => {
           const count = (buckets[t.id] || []).length;
@@ -122,13 +130,13 @@ export default function Vouchers() {
         <EmptyState
           icon={Ticket}
           title="No vouchers yet"
-          message="Vouchers you earn from promos and milestones will show up here."
+          message="Promo codes will show up here when they go live."
         />
       ) : visible.length === 0 ? (
         <EmptyState
           icon={Ticket}
           title={`No ${tab} vouchers`}
-          message="Check back when you earn new ones."
+          message="Check back when new ones drop."
         />
       ) : (
         <div className="vo-list">
@@ -136,15 +144,13 @@ export default function Vouchers() {
             const status = voucherStatus(v);
             const isActive = status === 'active';
             return (
-              <div key={v.id} className={'vo-card vo-' + status}>
+              <div key={v.code} className={'vo-card vo-' + status}>
                 <div className="vo-card-left">
                   <div className="vo-amount">
-                    {v.discount_type === 'percent'
-                      ? `${v.discount_value || v.value || 0}%`
-                      : `₱${Number(v.discount_value || v.value || 0).toLocaleString()}`}
+                    {discountLabel(v)}
                     <span className="vo-amount-off">OFF</span>
                   </div>
-                  {v.min_spend && (
+                  {v.min_spend > 0 && (
                     <div className="vo-min-spend">
                       Min ₱{Number(v.min_spend).toLocaleString()}
                     </div>
@@ -152,7 +158,7 @@ export default function Vouchers() {
                 </div>
 
                 <div className="vo-card-body">
-                  <div className="vo-title">{v.title || v.code || 'Voucher'}</div>
+                  <div className="vo-title">{v.code}</div>
                   {v.description && <div className="vo-desc">{v.description}</div>}
 
                   <div className="vo-code-row">
@@ -176,7 +182,7 @@ export default function Vouchers() {
                     )}
                     {status === 'used' && (
                       <span className="vo-badge used">
-                        <Check size={11} /> Used
+                        <Check size={11} /> Used up
                       </span>
                     )}
                     {status === 'expired' && (
@@ -184,9 +190,9 @@ export default function Vouchers() {
                         <XCircle size={11} /> Expired
                       </span>
                     )}
-                    {v.category && (
+                    {v.per_user_limit && (
                       <span className="vo-badge cat">
-                        <Tag size={10} /> {v.category}
+                        <Tag size={10} /> Limit {v.per_user_limit}/user
                       </span>
                     )}
                   </div>
