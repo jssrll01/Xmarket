@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { X, ShoppingCart, Zap, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import SmartImage from './SmartImage';
-import { getVariantConfig, comboLabel, priceFor, discountPct } from '../lib/variants';
+import { getVariantConfig, comboLabel, priceFor, discountPct, stockFor, totalStock } from '../lib/variants';
 
 export default function QuickView({ product, onClose, onAddToCart, onOpenFull }) {
   const [selection, setSelection] = useState({});
@@ -24,9 +24,9 @@ export default function QuickView({ product, onClose, onAddToCart, onOpenFull })
   const price = priceFor(product, selection);
   const orig = Number(product.original_price) || 0;
   const pct = discountPct(product);
-  const stock = Number(product.stock || 0);
-
   const complete = Object.keys(config).every(k => selection[k]);
+  // Effective stock: per-variant when selection complete, else total rollup
+  const stock = complete ? stockFor(product, selection) : totalStock(product);
 
   return (
     <div className="qv-backdrop" onClick={onClose}>
@@ -93,7 +93,7 @@ export default function QuickView({ product, onClose, onAddToCart, onOpenFull })
               disabled={!complete || stock <= 0}
               onClick={() => {
                 if (!complete) return;
-                onAddToCart?.(product, selection, qty);
+                onAddToCart?.(product, JSON.stringify(selection), qty);
                 onClose();
               }}
             >

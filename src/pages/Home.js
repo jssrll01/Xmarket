@@ -17,6 +17,7 @@ import { ProductGridSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import useRecentSearches from '../hooks/useRecentSearches';
 import UserMenu from '../components/UserMenu';
+import VariantPicker from '../components/VariantPicker';
 
 
 // Banner copy — parallel to `banners` array in lib/products.js (index-aligned).
@@ -70,19 +71,19 @@ function Dropdown({ value, options, onChange }) {
 }
 
 function VariantModal({ product, onClose, onConfirm }) {
-  const [variant, setVariant] = useState(null);
+  const [selection, setSelection] = useState({});
   const [error, setError] = useState(false);
   if (!product) return null;
 
+  const config = product.variant_config && Object.keys(product.variant_config).length > 0
+    ? product.variant_config
+    : (product.variants && product.variants.length > 0 ? { Variant: product.variants } : {});
+  const dims = Object.keys(config);
+  const complete = dims.length > 0 && dims.every(d => selection[d]);
+
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 250,
-      background: 'rgba(15,23,42,0.5)',
-      animation: 'modalFadeIn 180ms ease-out',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: 20
-    }} onClick={onClose}>
-      <div className="card" style={{ width: '100%', maxWidth: 380, padding: 20, animation: 'modalPop 220ms ease-out' }}
+    <div className="dialog-backdrop" onClick={onClose}>
+      <div className="dialog" style={{ width: '100%', maxWidth: 380, padding: 20 }}
         onClick={e => e.stopPropagation()}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h3 style={{ fontSize: 16, fontWeight: 800 }}>Select a Variant</h3>
@@ -95,27 +96,25 @@ function VariantModal({ product, onClose, onConfirm }) {
           {product.name}
         </div>
 
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
-          {product.variants.map(v => (
-            <button key={v}
-              onClick={() => { setVariant(v); setError(false); }}
-              className={'chip' + (variant === v ? ' active' : '')}
-              style={{ border: error && variant !== v ? '1px solid #DC2626' : undefined }}>
-              {v}
-            </button>
-          ))}
+        <div style={{ marginBottom: 16 }}>
+          <VariantPicker
+            product={product}
+            selection={selection}
+            onChange={(sel) => { setSelection(sel); setError(false); }}
+            error={error}
+          />
         </div>
 
         {error && (
           <div style={{ color: '#DC2626', fontSize: 12, marginBottom: 12 }}>
-            Please select a variant to continue
+            Please select all options to continue
           </div>
         )}
 
         <button
           onClick={() => {
-            if (!variant) { setError(true); return; }
-            onConfirm(variant);
+            if (!complete) { setError(true); return; }
+            onConfirm(JSON.stringify(selection));
           }}
           className="btn-primary"
           style={{ width: '100%', padding: 12 }}>
