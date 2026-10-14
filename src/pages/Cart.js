@@ -4,7 +4,7 @@ import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { fetchProducts } from '../lib/products';
-import { parseCartVariant, comboLabel } from '../lib/variants';
+import { parseCartVariant, comboLabel, priceRange } from '../lib/variants';
 import SmartImage from '../components/SmartImage';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';

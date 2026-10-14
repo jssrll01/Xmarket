@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import EmptyState from '../components/EmptyState';
 import SmartImage from '../components/SmartImage';
+import { priceRange } from '../lib/variants';
 
 export default function Wishlist() {
   const nav = useNavigate();

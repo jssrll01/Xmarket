@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import SmartImage from '../components/SmartImage';
+import { priceRange } from '../lib/variants';
 
 export default function SellerProfile() {
   const { store } = useParams();

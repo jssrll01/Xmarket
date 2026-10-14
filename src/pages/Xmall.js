@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Store, Search, X, BadgeCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import SmartImage from '../components/SmartImage';
+import { priceRange } from '../lib/variants';
 
 export default function Xmall() {
   const nav = useNavigate();
