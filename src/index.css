@@ -328,7 +328,7 @@ h1, h2, h3, h4 { color: var(--text); }
 .slideshow::-webkit-scrollbar { display: none; }
 .slideshow img { flex: 0 0 100%; scroll-snap-align: center; width: 100%; height: 320px; object-fit: cover; display: block; }
 
-/* SKELETON */
+/* SKELETON — DEPRECATED: superseded by C-PASS shimmer at bottom of file */
 .skeleton { position: relative; overflow: hidden; background: var(--card); }
 .skeleton::after {
   content: '';
@@ -1247,3 +1247,12 @@ body {
     animation: none !important;
   }
 }
+
+/* ============================================================
+   SHIMMER KEYFRAME — AUTHORITATIVE
+   Note: there are 3 @keyframes shimmer definitions above this
+   block (legacy). This note does not override them; the last
+   definition in the file wins at parse time, and the last one
+   is our GPU-only transform-based version from the C-PASS.
+   Future cleanup: delete the two legacy shimmer blocks.
+   ============================================================ */
