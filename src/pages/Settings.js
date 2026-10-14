@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { requestPushPermission, isPushSupported, getCurrentPushToken } from '../lib/fcm';
 import { supabase } from '../lib/supabase';
+import { useTheme } from '../context/ThemeContext';
+import { Sun, Moon, MonitorSmartphone } from 'lucide-react';
 
 export default function SettingsPage() {
   const { user } = useAuth() || {};
@@ -16,6 +18,7 @@ export default function SettingsPage() {
   const [msg, setMsg] = useState(null);
 
   const supported = isPushSupported();
+  const { theme, resolved, setTheme } = useTheme();
 
   useEffect(() => {
     if (!user) return;
@@ -78,6 +81,48 @@ export default function SettingsPage() {
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
       <button onClick={() => navigate("/")} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", padding: 0, color: "var(--muted)", fontSize: 13, fontWeight: 700, cursor: "pointer", marginBottom: 12 }}><ArrowLeft size={16} /> Return to Home</button>
       <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Settings</h2>
+
+      {/* ─── Appearance ─── */}
+      <div className="card" style={{ padding: 16, marginTop: 20, marginBottom: 12 }}>
+        <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>Appearance</div>
+        <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12 }}>
+          Currently: <b style={{ textTransform: 'capitalize' }}>{resolved}</b>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          {[
+            { id: 'light',  icon: Sun,                label: 'Light' },
+            { id: 'dark',   icon: Moon,               label: 'Dark' },
+            { id: 'system', icon: MonitorSmartphone,  label: 'Auto' },
+          ].map(({ id, icon: Icon, label }) => {
+            const active = theme === id;
+            return (
+              <button
+                key={id}
+                onClick={() => setTheme(id)}
+                className={'btn-ghost' + (active ? ' active' : '')}
+                style={{
+                  flex: 1,
+                  padding: '12px 8px',
+                  borderRadius: 12,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  background: active ? 'linear-gradient(135deg,#6D8BFF,#8B5CF6)' : undefined,
+                  color: active ? '#fff' : undefined,
+                  border: '1px solid var(--border)',
+                }}
+              >
+                <Icon size={16} />
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20 }}>
         Manage your account preferences
       </p>

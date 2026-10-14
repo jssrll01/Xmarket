@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './CartContext';
 import { ToastProvider } from './components/Toast';
 import SiteFooter from './components/SiteFooter';
+import BottomNav from './components/BottomNav';
 import useScrollTop from './hooks/useScrollTop';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
@@ -48,6 +49,7 @@ import Wishlist from './pages/Wishlist';
 import SignIn from './pages/SignIn';
 import ForgotPassword from './pages/ForgotPassword';
 import { AuthProvider } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import NotFound from './pages/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
 import PushPrompt from './components/PushPrompt';
@@ -55,8 +57,15 @@ import { setupForegroundHandler } from './lib/fcm';
 
 function Router() {
   useScrollTop();
+  React.useEffect(() => {
+    const path = window.location.pathname;
+    const hidden = path === '/checkout' || path === '/signin' || path === '/signup';
+    document.body.classList.toggle('has-bottom-nav', !hidden);
+    return () => {};
+  }, []);
   const location = useLocation();
   const hideFooter = location.pathname === '/checkout';
+  const hideBottomNav = location.pathname === '/checkout' || location.pathname === '/signin' || location.pathname === '/signup';
 
   // Foreground FCM handler — safe here because this Router is inside AuthProvider
   React.useEffect(() => {
@@ -124,6 +133,7 @@ function Router() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideFooter && <SiteFooter />}
+      {!hideBottomNav && <BottomNav />}
     </>
   );
 }
@@ -150,6 +160,7 @@ function NewDeviceAlert() {
 
 export default function App() {
   return (
+    <ThemeProvider>
     <AuthProvider>
       <CartProvider>
         <ToastProvider>
@@ -160,5 +171,6 @@ export default function App() {
         </ToastProvider>
       </CartProvider>
     </AuthProvider>
+    </ThemeProvider>
   );
 }
