@@ -18,7 +18,7 @@ const GROUPS = [
       { icon: ShoppingBag, label: 'My Orders',      to: '/orders' },
       { icon: Heart,       label: 'Wishlist',       to: '/wishlist' },
       { icon: RotateCcw,   label: 'Returns',        to: '/returns' },
-      { icon: MessageSquare, label: 'My Reports',   to: '/reports' },
+      { icon: MessageSquare, label: 'My Reports',   to: '/my-reports' },
     ],
   },
   {
@@ -39,7 +39,7 @@ const GROUPS = [
   {
     title: 'Account',
     items: [
-      { icon: MapPin,    label: 'Addresses',   to: '/addresses' },
+      { icon: MapPin,    label: 'Addresses',   to: '/account' },
       { icon: Settings,  label: 'Settings',    to: '/settings' },
       { icon: ShieldCheck, label: 'Account',   to: '/account' },
     ],

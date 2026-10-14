@@ -50,7 +50,17 @@ export default function Vouchers() {
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .then(({ data }) => { setRows(data || []); setLoading(false); });
+      .then(({ data, error }) => {
+        // Missing table or RLS block → don't crash, just show empty
+        if (error) {
+          console.warn('[vouchers] promo_codes unavailable:', error.message);
+          setRows([]);
+        } else {
+          setRows(data || []);
+        }
+        setLoading(false);
+      })
+      .catch(() => { setRows([]); setLoading(false); });
   }, [user, nav]);
 
   if (!user) return null;

@@ -4221,3 +4221,13 @@ button.set-row { cursor: pointer; }
 .xmall-hero {
   display: none !important;
 }
+
+
+/* ─── FIX: allow page scroll ─── */
+html, body, #root {
+  overflow-x: hidden;
+  overflow-y: auto;
+  height: auto;
+  min-height: 100vh;
+  -webkit-overflow-scrolling: touch;
+}

@@ -9,9 +9,13 @@ export default function QuickView({ product, onClose, onAddToCart, onOpenFull })
   const [qty, setQty] = useState(1);
 
   useEffect(() => {
+    // Only lock body scroll while a product is actually mounted.
+    // If `product` is null we return early, so we never trap the page.
+    if (!product) return;
+    const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
-  }, []);
+    return () => { document.body.style.overflow = prev || ''; };
+  }, [product]);
 
   if (!product) return null;
 
