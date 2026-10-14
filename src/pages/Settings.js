@@ -1,24 +1,99 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, BellOff, Check, X, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { requestPushPermission, isPushSupported, getCurrentPushToken } from '../lib/fcm';
+import {
+  ArrowLeft, Bell, BellOff, Check, X, Sun, Moon, MonitorSmartphone,
+  Globe, Coins, ShieldCheck, Trash2, AlertTriangle, ChevronRight,
+} from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { Sun, Moon, MonitorSmartphone } from 'lucide-react';
+import { requestPushPermission, isPushSupported } from '../lib/fcm';
+import { useToast } from '../components/Toast';
+import ConfirmDialog from '../components/ConfirmDialog';
+
+const LS_KEY = 'xmarket_settings';
+
+const DEFAULT_SETTINGS = {
+  language: 'en',
+  currency: 'PHP',
+  notif_orders: true,
+  notif_promos: true,
+  notif_chat: true,
+  notif_email: false,
+};
+
+function loadSettings() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    return raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : { ...DEFAULT_SETTINGS };
+  } catch { return { ...DEFAULT_SETTINGS }; }
+}
+function saveSettings(s) {
+  try { localStorage.setItem(LS_KEY, JSON.stringify(s)); } catch {}
+}
+
+/* ─── Row building blocks ─── */
+function Section({ title, children }) {
+  return (
+    <div className="set-section">
+      <div className="set-section-title">{title}</div>
+      <div className="set-card">{children}</div>
+    </div>
+  );
+}
+
+function Row({ icon: Icon, label, sub, right, onClick, danger }) {
+  const Tag = onClick ? 'button' : 'div';
+  return (
+    <Tag className={'set-row' + (danger ? ' danger' : '')} onClick={onClick} type={onClick ? 'button' : undefined}>
+      {Icon && (
+        <span className="set-row-icon">
+          <Icon size={17} color={danger ? '#DC2626' : 'var(--primary)'} />
+        </span>
+      )}
+      <div className="set-row-label">
+        <div className="set-row-title">{label}</div>
+        {sub && <div className="set-row-sub">{sub}</div>}
+      </div>
+      {right ?? (onClick && <ChevronRight size={16} color="var(--muted)" />)}
+    </Tag>
+  );
+}
+
+function Toggle({ value, onChange }) {
+  return (
+    <button
+      className={'set-toggle' + (value ? ' on' : '')}
+      onClick={() => onChange(!value)}
+      role="switch"
+      aria-checked={value}
+      type="button"
+    >
+      <span className="set-toggle-knob" />
+    </button>
+  );
+}
 
 export default function SettingsPage() {
   const { user } = useAuth() || {};
   const navigate = useNavigate();
+  const { show: showToast } = useToast();
+  const { theme, resolved, setTheme } = useTheme();
+
+  const [settings, setSettings] = useState(loadSettings);
   const [permission, setPermission] = useState(
     typeof Notification !== 'undefined' ? Notification.permission : 'default'
   );
   const [hasToken, setHasToken] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteInput, setDeleteInput] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   const supported = isPushSupported();
-  const { theme, resolved, setTheme } = useTheme();
+
+  // persist settings
+  useEffect(() => { saveSettings(settings); }, [settings]);
 
   useEffect(() => {
     if (!user) return;
@@ -36,195 +111,217 @@ export default function SettingsPage() {
     return () => { alive = false; };
   }, [user]);
 
-  const enable = async () => {
-    if (!user) {
-      setMsg({ type: 'error', text: 'Please sign in first.' });
-      return;
-    }
-    if (!supported) {
-      setMsg({ type: 'error', text: 'Push not supported on this device.' });
-      return;
-    }
+  const upd = (patch) => setSettings((s) => ({ ...s, ...patch }));
+
+  const enablePush = async () => {
+    if (!user) { showToast?.('Please sign in first'); return; }
+    if (!supported) { showToast?.('Push not supported here'); return; }
     setBusy(true);
-    setMsg(null);
     const res = await requestPushPermission({ userId: user.id });
     setBusy(false);
     setPermission(typeof Notification !== 'undefined' ? Notification.permission : 'default');
-
-    if (res.ok) {
-      setHasToken(true);
-      setMsg({ type: 'success', text: 'Notifications enabled. You\'ll get order updates.' });
-    } else {
-      setMsg({ type: 'error', text: res.error || 'Could not enable notifications.' });
-    }
+    if (res.ok) { setHasToken(true); showToast?.('Notifications enabled'); }
+    else showToast?.(res.error || 'Could not enable notifications');
   };
 
-  const disable = async () => {
-    if (!user) return;
-    if (!confirm('Disable notifications on this device? You can re-enable anytime.')) return;
-    setBusy(true);
+  const deleteAccount = async () => {
+    if (deleteInput !== 'DELETE') { showToast?.('Type DELETE to confirm'); return; }
+    setDeleting(true);
     try {
-      const token = await getCurrentPushToken();
-      if (token) {
-        await supabase.from('push_tokens').delete().eq('user_id', user.id).eq('token', token);
-      }
-      setHasToken(false);
-      setMsg({ type: 'success', text: 'Notifications disabled for this device.' });
-    } catch (e) {
-      setMsg({ type: 'error', text: e.message });
+      await supabase.from('profiles').update({ deleted_at: new Date().toISOString() }).eq('id', user.id);
+      await supabase.auth.signOut();
+      showToast?.('Account scheduled for deletion');
+      navigate('/');
+    } catch (err) {
+      showToast?.(err.message || 'Delete failed');
     } finally {
-      setBusy(false);
+      setDeleting(false);
+      setConfirmDelete(false);
     }
   };
 
   return (
-    <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <button onClick={() => navigate("/")} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "transparent", border: "none", padding: 0, color: "var(--muted)", fontSize: 13, fontWeight: 700, cursor: "pointer", marginBottom: 12 }}><ArrowLeft size={16} /> Return to Home</button>
-      <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Settings</h2>
+    <div className="page-enter" style={{ padding: 16, paddingBottom: 80 }}>
+      <button
+        onClick={() => navigate(-1)}
+        className="icon-btn"
+        style={{ marginBottom: 12 }}
+        aria-label="Back"
+      >
+        <ArrowLeft size={20} />
+      </button>
 
-      {/* ─── Appearance ─── */}
-      <div className="card" style={{ padding: 16, marginTop: 20, marginBottom: 12 }}>
-        <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4 }}>Appearance</div>
-        <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12 }}>
-          Currently: <b style={{ textTransform: 'capitalize' }}>{resolved}</b>
+      <h2 style={{ fontSize: 22, fontWeight: 900, marginBottom: 16 }}>Settings</h2>
+
+      {/* ── Appearance ── */}
+      <Section title="Appearance">
+        <div className="set-row">
+          <span className="set-row-icon"><Sun size={17} color="var(--primary)" /></span>
+          <div className="set-row-label">
+            <div className="set-row-title">Theme</div>
+            <div className="set-row-sub">Currently: {resolved || theme}</div>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="set-theme-toggle">
           {[
-            { id: 'light',  icon: Sun,                label: 'Light' },
-            { id: 'dark',   icon: Moon,               label: 'Dark' },
-            { id: 'system', icon: MonitorSmartphone,  label: 'Auto' },
-          ].map(({ id, icon: Icon, label }) => {
-            const active = theme === id;
-            return (
-              <button
-                key={id}
-                onClick={() => setTheme(id)}
-                className={'btn-ghost' + (active ? ' active' : '')}
-                style={{
-                  flex: 1,
-                  padding: '12px 8px',
-                  borderRadius: 12,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 6,
-                  fontSize: 12,
-                  fontWeight: 700,
-                  background: active ? 'linear-gradient(135deg,#6D8BFF,#8B5CF6)' : undefined,
-                  color: active ? '#fff' : undefined,
-                  border: '1px solid var(--border)',
-                }}
-              >
-                <Icon size={16} />
-                {label}
-              </button>
-            );
-          })}
+            { id: 'light', label: 'Light', Icon: Sun },
+            { id: 'dark', label: 'Dark', Icon: Moon },
+            { id: 'system', label: 'System', Icon: MonitorSmartphone },
+          ].map(({ id, label, Icon }) => (
+            <button
+              key={id}
+              className={'set-theme-btn' + (theme === id ? ' active' : '')}
+              onClick={() => setTheme(id)}
+              type="button"
+            >
+              <Icon size={15} /> {label}
+            </button>
+          ))}
         </div>
+      </Section>
+
+      {/* ── Preferences ── */}
+      <Section title="Preferences">
+        <Row
+          icon={Globe}
+          label="Language"
+          sub={settings.language === 'en' ? 'English' : 'Filipino'}
+          right={
+            <select
+              className="set-select"
+              value={settings.language}
+              onChange={(e) => upd({ language: e.target.value })}
+            >
+              <option value="en">English</option>
+              <option value="fil">Filipino</option>
+            </select>
+          }
+        />
+        <Row
+          icon={Coins}
+          label="Currency"
+          sub="Used to display prices"
+          right={
+            <select
+              className="set-select"
+              value={settings.currency}
+              onChange={(e) => upd({ currency: e.target.value })}
+            >
+              <option value="PHP">₱ PHP</option>
+              <option value="USD">$ USD</option>
+            </select>
+          }
+        />
+      </Section>
+
+      {/* ── Notifications ── */}
+      <Section title="Notifications">
+        <Row
+          icon={hasToken ? Bell : BellOff}
+          label="Push notifications"
+          sub={
+            permission === 'granted'
+              ? 'Enabled on this device'
+              : permission === 'denied'
+                ? 'Blocked — enable in browser settings'
+                : 'Not yet enabled'
+          }
+          right={
+            permission === 'granted'
+              ? <span className="set-badge-ok"><Check size={11} /> On</span>
+              : supported
+                ? <button className="set-mini-btn" onClick={enablePush} disabled={busy}>
+                    {busy ? '…' : 'Enable'}
+                  </button>
+                : <span className="set-badge-off"><X size={11} /> N/A</span>
+          }
+        />
+        <Row
+          label="Order updates"
+          sub="Status changes on your orders"
+          right={<Toggle value={settings.notif_orders} onChange={(v) => upd({ notif_orders: v })} />}
+        />
+        <Row
+          label="Promotions"
+          sub="Deals, flash sales, bundles"
+          right={<Toggle value={settings.notif_promos} onChange={(v) => upd({ notif_promos: v })} />}
+        />
+        <Row
+          label="Chat messages"
+          sub="Seller replies and questions"
+          right={<Toggle value={settings.notif_chat} onChange={(v) => upd({ notif_chat: v })} />}
+        />
+        <Row
+          label="Email"
+          sub="Send to {email}"
+          right={<Toggle value={settings.notif_email} onChange={(v) => upd({ notif_email: v })} />}
+        />
+      </Section>
+
+      {/* ── Security ── */}
+      <Section title="Security">
+        <Row
+          icon={ShieldCheck}
+          label="Change password"
+          sub="We'll email a reset link"
+          onClick={async () => {
+            if (!user?.email) { showToast?.('No email on file'); return; }
+            const { error } = await supabase.auth.resetPasswordForEmail(user.email);
+            showToast?.(error ? error.message : 'Reset link sent');
+          }}
+        />
+      </Section>
+
+      {/* ── Danger zone ── */}
+      <Section title="Danger zone">
+        <Row
+          icon={Trash2}
+          label="Delete account"
+          sub="Permanently schedules deletion"
+          danger
+          onClick={() => setConfirmDelete(true)}
+        />
+      </Section>
+
+      <div className="set-footer">
+        XMARKET · v1.0
       </div>
 
-      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20 }}>
-        Manage your account preferences
-      </p>
-
-      {/* PUSH NOTIFICATIONS CARD */}
-      <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
-          <div style={{
-            width: 40, height: 40, borderRadius: 10,
-            background: hasToken ? '#D1FAE5' : '#DBEAFE',
-            color: hasToken ? '#065F46' : '#2563EB',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-          }}>
-            {hasToken ? <Bell size={20} /> : <BellOff size={20} />}
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 15, fontWeight: 800 }}>Push notifications</div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
-              Get order updates, top-up alerts, and promos
+      {/* Confirm delete modal (typed confirmation) */}
+      {confirmDelete && (
+        <div className="set-confirm-backdrop" onClick={() => !deleting && setConfirmDelete(false)}>
+          <div className="set-confirm-card" onClick={(e) => e.stopPropagation()}>
+            <div className="set-confirm-icon"><AlertTriangle size={22} color="#DC2626" /></div>
+            <div className="set-confirm-title">Delete your account?</div>
+            <div className="set-confirm-msg">
+              This schedules your account for deletion. Type <b>DELETE</b> to confirm.
+            </div>
+            <input
+              autoFocus
+              className="set-confirm-input"
+              value={deleteInput}
+              onChange={(e) => setDeleteInput(e.target.value)}
+              placeholder="Type DELETE"
+            />
+            <div className="set-confirm-actions">
+              <button
+                className="set-confirm-cancel"
+                onClick={() => setConfirmDelete(false)}
+                disabled={deleting}
+              >
+                Cancel
+              </button>
+              <button
+                className="set-confirm-danger"
+                onClick={deleteAccount}
+                disabled={deleting || deleteInput !== 'DELETE'}
+              >
+                {deleting ? 'Deleting…' : 'Delete account'}
+              </button>
             </div>
           </div>
         </div>
-
-        {/* Status */}
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px',
-          borderRadius: 10, background: 'var(--surface-2, #F7F9FC)',
-          fontSize: 12.5, fontWeight: 700, marginBottom: 12,
-        }}>
-          <span>Status:</span>
-          {hasToken ? (
-            <span style={{ color: '#065F46', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <Check size={14} /> Enabled
-            </span>
-          ) : permission === 'denied' ? (
-            <span style={{ color: '#991B1B', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <X size={14} /> Blocked in browser
-            </span>
-          ) : (
-            <span style={{ color: '#92400E' }}>Not enabled</span>
-          )}
-        </div>
-
-        {msg && (
-          <div style={{
-            padding: '10px 12px', borderRadius: 10, marginBottom: 12, fontSize: 12.5, fontWeight: 600,
-            background: msg.type === 'success' ? '#D1FAE5' : '#FEE2E2',
-            color: msg.type === 'success' ? '#065F46' : '#991B1B',
-          }}>
-            {msg.text}
-          </div>
-        )}
-
-        {!hasToken && permission !== 'denied' && (
-          <button
-            onClick={enable}
-            disabled={busy || !supported}
-            className="btn-primary"
-            style={{
-              width: '100%', padding: 13, fontSize: 14, fontWeight: 800,
-              borderRadius: 12, display: 'flex', alignItems: 'center',
-              justifyContent: 'center', gap: 8,
-              opacity: (busy || !supported) ? 0.6 : 1,
-            }}
-          >
-            <Bell size={16} /> {busy ? 'Enabling…' : 'Enable notifications'}
-          </button>
-        )}
-
-        {hasToken && (
-          <button
-            onClick={disable}
-            disabled={busy}
-            style={{
-              width: '100%', padding: 13, fontSize: 14, fontWeight: 800,
-              borderRadius: 12, background: '#FEE2E2', color: '#991B1B',
-              border: '1px solid #FCA5A5', cursor: busy ? 'wait' : 'pointer',
-            }}
-          >
-            {busy ? '…' : 'Disable on this device'}
-          </button>
-        )}
-
-        {permission === 'denied' && (
-          <div style={{
-            padding: 12, borderRadius: 10, background: '#FEF3C7',
-            color: '#92400E', fontSize: 12, lineHeight: 1.6,
-          }}>
-            You've blocked notifications for this site.
-            To enable, open your browser settings, find this site, and allow notifications.
-          </div>
-        )}
-      </div>
-
-      {/* Placeholder for future settings */}
-      <div className="card" style={{ padding: 16, opacity: 0.5 }}>
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>More settings coming soon</div>
-        <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>
-          Dark mode · Language · Currency
-        </div>
-      </div>
+      )}
     </div>
   );
 }
