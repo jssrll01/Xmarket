@@ -36,16 +36,15 @@ export function comboLabel(selection) {
 /** Look up the price for a combo, or fall back to base price. */
 export function priceFor(product, selection) {
   if (!product) return 0;
-  const base = Number(product.price) || 0;
   const prices = product.variant_prices;
-  if (!prices || typeof prices !== 'object') return base;
+  if (!prices || typeof prices !== 'object') return 0;
   const label = comboLabel(selection);
   const byLabel = prices[label];
   if (typeof byLabel === 'number') return byLabel;
   const key = comboKey(selection);
   const byKey = prices[key];
   if (typeof byKey === 'number') return byKey;
-  return base;
+  return 0;
 }
 
 /** Parse the `variant` text column stored on cart rows back into an object. */
@@ -62,11 +61,8 @@ export function serializeVariant(selection) {
 }
 
 /** Compute % off from price vs original_price. Returns null if no discount. */
-export function discountPct(product) {
-  const price = Number(product?.price) || 0;
-  const orig = Number(product?.original_price) || 0;
-  if (!orig || orig <= price) return null;
-  return Math.round(((orig - price) / orig) * 100);
+export function discountPct() {
+  return null;
 }
 
 /**
@@ -75,17 +71,16 @@ export function discountPct(product) {
  */
 export function stockFor(product, selection) {
   if (!product) return 0;
-  const fallback = Number(product.stock) || 0;
   const map = product.variant_stock;
-  if (!map || typeof map !== 'object') return fallback;
-  if (!selection || !Object.keys(selection).length) return fallback;
+  if (!map || typeof map !== 'object') return 0;
+  if (!selection || !Object.keys(selection).length) return 0;
   const label = comboLabel(selection);
   const byLabel = map[label];
   if (typeof byLabel === 'number') return byLabel;
   const key = comboKey(selection);
   const byKey = map[key];
   if (typeof byKey === 'number') return byKey;
-  return fallback;
+  return 0;
 }
 
 /**
@@ -95,10 +90,7 @@ export function stockFor(product, selection) {
 export function totalStock(product) {
   if (!product) return 0;
   const map = product.variant_stock;
-  const hasConfig = product.variant_config && Object.keys(product.variant_config).length > 0;
-  if (!hasConfig || !map || typeof map !== 'object' || Object.keys(map).length === 0) {
-    return Number(product.stock) || 0;
-  }
+  if (!map || typeof map !== 'object' || Object.keys(map).length === 0) return 0;
   let sum = 0;
   for (const k of Object.keys(map)) {
     const v = Number(map[k]) || 0;
@@ -118,12 +110,9 @@ export function priceRange(product) {
   const values = (hasConfig && prices && typeof prices === 'object')
     ? Object.values(prices).map(Number).filter(n => n > 0)
     : [];
-  const base = Number(product.price) || 0;
-
   if (values.length === 0) {
-    return { min: base, max: base, isRange: false, display: '₱' + base.toLocaleString() };
+    return { min: 0, max: 0, isRange: false, display: '—' };
   }
-
   const min = Math.min(...values);
   const max = Math.max(...values);
   const isRange = min !== max;

@@ -288,16 +288,14 @@ export default function Home() {
     if (!p.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (category !== 'All' && p.category !== category) return false;
     if (minRating > 0 && (stats[p.uuid]?.avgRating || 0) < minRating) return false;
-    if (p.price > maxPrice) return false;
     if (storeFilter && !(p.store || '').toLowerCase().includes(storeFilter.toLowerCase())) return false;
     return true;
   });
-  if (sort === 'priceLow' || sort === 'price') filtered.sort((a,b) => a.price - b.price);
-  if (sort === 'priceHigh')                   filtered.sort((a,b) => b.price - a.price);
+  if (sort === 'priceLow' || sort === 'price') filtered.sort((a,b) => priceRange(a).min - priceRange(b).min);
+  if (sort === 'priceHigh')                   filtered.sort((a,b) => priceRange(b).max - priceRange(a).max);
   if (sort === 'best' || sort === 'popularity' || sort === 'sales') {
     filtered.sort((a,b) => (b.sold || 0) - (a.sold || 0));
   }
-  if (sort === 'discount') filtered.sort((a,b) => (b.discount || 0) - (a.discount || 0));
   if (sort === 'rating')   filtered.sort((a,b) => ((stats[b.uuid]?.avgRating || 0) - (stats[a.uuid]?.avgRating || 0)));
   if (sort === 'newest')   filtered.sort((a,b) => (b.created_at || '') > (a.created_at || '') ? 1 : -1);
   if (sort === 'relevance') { /* no sort override — natural order */ }

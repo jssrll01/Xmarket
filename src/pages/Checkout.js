@@ -126,10 +126,9 @@ export default function Checkout() {
   }, [allInstant]);
 
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
-  const itemDiscount = items.reduce((sum, i) => sum + Math.max(0, (Number(i.originalPrice) || 0) - (Number(i.price) || 0)) * (Number(i.quantity) || 1), 0);
   const promoDiscount = computeDiscount(promo, subtotal);
-  const xcardDiscount = Math.min(xcardValue, Math.max(0, subtotal - promoDiscount - itemDiscount));
-  const discount = itemDiscount + promoDiscount + xcardDiscount;
+  const xcardDiscount = Math.min(xcardValue, Math.max(0, subtotal - promoDiscount));
+  const discount = promoDiscount + xcardDiscount;
   const total = Math.max(0, subtotal - promoDiscount - xcardDiscount);
 
   const autofill = () => {

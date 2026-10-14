@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { parseCartVariant, comboLabel, priceFor, stockFor } from './variants';
 
 try { localStorage.removeItem('xmarket_cart_v1'); } catch {}
 
@@ -12,7 +13,7 @@ export async function fetchCart(userId) {
   const productIds = [...new Set(rows.map(r => r.product_id))];
   const { data: products, error: e2 } = await supabase
     .from('products')
-    .select('id, legacy_id, name, price, original_price, images, store, verified, variants, instant, preorder, stock')
+    .select('id, legacy_id, name, images, store, verified, variant_config, variant_prices, variant_stock, variants, instant, preorder')
     .in('id', productIds);
   if (e2) return { error: e2, items: [] };
 
@@ -22,45 +23,52 @@ export async function fetchCart(userId) {
     error: null,
     items: rows.map(row => {
       const p = byId.get(row.product_id) || {};
-      const price = Number(p.price) || 0;
-      const original = Number(p.original_price) || price;
-      const stock = Number(p.stock || 0);
+      const selection = parseCartVariant(row.variant);
+      const variantPrice = priceFor(p, selection);
+      const variantStock = stockFor(p, selection);
+      // If variant price is 0 (shouldn't happen with valid data), fall back to min variant price
+      const fallbackPrice = (() => {
+        const prices = p.variant_prices || {};
+        const vals = Object.values(prices).map(Number).filter(n => n > 0);
+        return vals.length ? Math.min(...vals) : 0;
+      })();
+      const price = variantPrice > 0 ? variantPrice : fallbackPrice;
       return {
         id: p.legacy_id ?? row.product_id,
         rowId: row.id,
         product_id: row.product_id,
         name: p.name || 'Unknown product',
         price,
-        originalPrice: original,
         images: Array.isArray(p.images) ? p.images : [],
         store: p.store || '',
         verified: !!p.verified,
         variants: p.variants || [],
+        variant_config: p.variant_config || {},
+        variant_prices: p.variant_prices || {},
+        variant_stock: p.variant_stock || {},
         variant: row.variant || '',
+        variantLabel: comboLabel(selection),
         quantity: Number(row.quantity) || 1,
         instant: !!p.instant,
         preorder: !!p.preorder,
-        stock,
-        outOfStock: stock <= 0,
+        stock: variantStock,
+        outOfStock: variantStock <= 0,
       };
     }),
   };
 }
 
-/**
- * Add to cart — with stock guard.
- * Returns { error } if the product is out of stock or the requested qty exceeds stock.
- */
 export async function addToCart(userId, productId, variant = '', quantity = 1) {
-  // ---- STOCK GUARD ----
+  // ---- STOCK GUARD (variant-aware) ----
   try {
     const { data: prod } = await supabase
       .from('products')
-      .select('id, name, stock')
+      .select('id, name, variant_config, variant_prices, variant_stock')
       .eq('id', productId)
       .maybeSingle();
 
-    const stock = Number(prod?.stock || 0);
+    const selection = parseCartVariant(variant);
+    const stock = stockFor(prod, selection);
     const name = prod?.name || 'This product';
 
     if (stock <= 0) {
@@ -70,7 +78,6 @@ export async function addToCart(userId, productId, variant = '', quantity = 1) {
       return { error: { message: `${name} is sold out.` } };
     }
 
-    // Check if adding would exceed stock
     const { data: existing } = await supabase
       .from('cart_items')
       .select('id, quantity')
@@ -94,7 +101,6 @@ export async function addToCart(userId, productId, variant = '', quantity = 1) {
       if (allowed <= 0) {
         return { error: { message: `You already have the maximum available stock (${stock}) in your cart.` } };
       }
-      // Cap at stock and proceed
       quantity = allowed;
     }
 
@@ -109,10 +115,9 @@ export async function addToCart(userId, productId, variant = '', quantity = 1) {
 
   } catch (e) {
     console.warn('addToCart guard error:', e);
-    // Fall through and try to add anyway (fail-open so users aren't blocked by transient errors)
   }
 
-  // Fallback path (guard failed to run cleanly)
+  // Fallback path
   const { data: existing } = await supabase
     .from('cart_items')
     .select('id, quantity')
@@ -132,20 +137,20 @@ export async function addToCart(userId, productId, variant = '', quantity = 1) {
 
 export async function updateQty(rowId, quantity) {
   if (quantity < 1) return removeItem(rowId);
-  // Guard against increasing beyond stock
   try {
     const { data: row } = await supabase
       .from('cart_items')
-      .select('product_id')
+      .select('product_id, variant')
       .eq('id', rowId)
       .maybeSingle();
     if (row) {
       const { data: prod } = await supabase
         .from('products')
-        .select('name, stock')
+        .select('name, variant_config, variant_prices, variant_stock')
         .eq('id', row.product_id)
         .maybeSingle();
-      const stock = Number(prod?.stock || 0);
+      const selection = parseCartVariant(row.variant);
+      const stock = stockFor(prod, selection);
       if (quantity > stock) {
         window.dispatchEvent(new CustomEvent('xmarket:out-of-stock', {
           detail: {

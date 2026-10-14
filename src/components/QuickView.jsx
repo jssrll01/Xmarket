@@ -22,7 +22,6 @@ export default function QuickView({ product, onClose, onAddToCart, onOpenFull })
   const config = getVariantConfig(product);
   const images = Array.isArray(product.images) && product.images.length ? product.images : [product.image].filter(Boolean);
   const price = priceFor(product, selection);
-  const orig = Number(product.original_price) || 0;
   const pct = discountPct(product);
   const complete = Object.keys(config).every(k => selection[k]);
   const rangeInfo = priceRange(product);
@@ -51,9 +50,6 @@ export default function QuickView({ product, onClose, onAddToCart, onOpenFull })
           <div className="qv-name">{product.name}</div>
           <div className="qv-price-row">
             <span className="qv-price money">{complete ? `₱${price.toLocaleString()}` : rangeInfo.display}</span>
-            {orig > price && (
-              <span className="qv-orig money">₱{orig.toLocaleString()}</span>
-            )}
             {stock <= 0 && <span className="qv-stock-out">Out of stock</span>}
             {stock > 0 && stock <= 5 && (
               <span className="stock-low-pulse">Only {stock} left</span>

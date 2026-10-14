@@ -27,7 +27,6 @@ export default function Cart() {
   }, []);
 
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
-  const discount = items.reduce((sum, i) => sum + Math.max(0, (Number(i.originalPrice) || 0) - (Number(i.price) || 0)) * (Number(i.quantity) || 1), 0);
   const total = subtotal;
 
   const handleCheckout = () => {
@@ -143,7 +142,6 @@ export default function Cart() {
 
       <div className="card" style={{ padding: 16, marginTop: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--primary)' }}><span>Discount</span><span>-₱{discount}</span></div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}><span>Shipping Fee</span><span>SF will be added on the order confirmation</span></div>
         <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>

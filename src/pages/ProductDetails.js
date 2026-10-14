@@ -260,11 +260,6 @@ export default function ProductDetails() {
         <h2>{product.name}</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
           <span style={{ fontSize: 24, fontWeight: 'bold' }}>{displayPrice}</span>
-          {product.originalPrice && (
-            <span style={{ color: 'var(--muted)', fontSize: 14, textDecoration: 'line-through' }}>
-              ₱{product.originalPrice}
-            </span>
-          )}
           
         </div>
         <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>

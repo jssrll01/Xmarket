@@ -84,7 +84,7 @@ export default function SellerProfile() {
               </div>
               <div style={{ padding: 12 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.35, marginBottom: 6 }}>{p.name}</div>
-                <div style={{ fontWeight: 800, fontSize: 15 }}>₱{p.price}</div>
+                <div style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(p).display}</div>
               </div>
             </Link>
           ))}

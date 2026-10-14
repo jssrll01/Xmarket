@@ -108,7 +108,7 @@ export default function Xmall() {
                 }}>
                   {p.name}
                 </div>
-                <div style={{ fontWeight: 800, fontSize: 15 }}>₱{p.price}</div>
+                <div style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(p).display}</div>
               </div>
             </Link>
           ))}
