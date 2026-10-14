@@ -3,7 +3,6 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './CartContext';
 import { ToastProvider } from './components/Toast';
 import SiteFooter from './components/SiteFooter';
-import BottomNav from './components/BottomNav';
 import useScrollTop from './hooks/useScrollTop';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
@@ -67,7 +66,6 @@ function Router() {
   }, []);
   const location = useLocation();
   const hideFooter = location.pathname === '/checkout';
-  const hideBottomNav = location.pathname === '/checkout' || location.pathname === '/signin' || location.pathname === '/signup';
 
   // Foreground FCM handler — safe here because this Router is inside AuthProvider
   React.useEffect(() => {
