@@ -46,3 +46,8 @@ server/xmarket-pwa-service-account.json
 *.preQV
 *.preQV2
 *.preFix
+
+# local backups
+*.preWS5a
+*.preWS5b
+*.preWS5c
