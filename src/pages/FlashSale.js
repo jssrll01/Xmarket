@@ -1,9 +1,91 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Zap, Timer } from 'lucide-react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Zap, Timer, TrendingUp, Flame } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Link } from 'react-router-dom';
 import SmartImage from '../components/SmartImage';
+import { discountPct } from '../lib/variants';
+
+/* ─── Countdown hook — ticks every second ─── */
+function useCountdown(targetMs) {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const diff = Math.max(0, targetMs - now);
+  const total = Math.floor(diff / 1000);
+  return {
+    expired: diff <= 0,
+    h: String(Math.floor(total / 3600)).padStart(2, '0'),
+    m: String(Math.floor((total % 3600) / 60)).padStart(2, '0'),
+    s: String(total % 60).padStart(2, '0'),
+    label: (() => {
+      if (diff <= 0) return 'Ended';
+      const h = Math.floor(total / 3600);
+      const m = Math.floor((total % 3600) / 60);
+      const s = total % 60;
+      if (h > 0) return `Ends in ${h}h ${m}m`;
+      if (m > 0) return `Ends in ${m}m ${s}s`;
+      return `Ends in ${s}s`;
+    })(),
+  };
+}
+
+/* ─── One product card with its own countdown ─── */
+function FlashCard({ product }) {
+  // Default: 24h window starting from created_at, unless flash_ends_at exists
+  const endsAt = useMemo(() => {
+    if (product.flash_ends_at) return new Date(product.flash_ends_at).getTime();
+    const created = product.created_at ? new Date(product.created_at).getTime() : Date.now();
+    return created + 24 * 3600 * 1000;
+  }, [product]);
+  const cd = useCountdown(endsAt);
+
+  const pct = discountPct(product);
+  const price = Number(product.price) || 0;
+  const orig = Number(product.original_price) || 0;
+  const stock = Number(product.stock) || 0;
+  const sold = Number(product.sold) || 0;
+  const totalEver = stock + sold;
+  const soldPct = totalEver > 0 ? Math.min(100, Math.round((sold / totalEver) * 100)) : 0;
+  const stockLabel = stock <= 0 ? 'Sold out' : stock <= 5 ? `${stock} left!` : `${stock} available`;
+
+  return (
+    <Link to={`/product/${product.legacy_id || product.id}`} className="flash-card">
+      <div className="flash-thumb">
+        <SmartImage src={(product.images && product.images[0]) || product.image} alt={product.name} />
+        {pct !== null && <span className="discount-badge flash-discount">-{pct}%</span>}
+        {product.instant && (
+          <span className="instant-badge flash-instant"><Zap size={10} /> Instant</span>
+        )}
+      </div>
+      <div className="flash-body">
+        <div className="flash-name">{product.name}</div>
+
+        <div className="flash-price-row">
+          <span className="flash-price money">₱{price.toLocaleString()}</span>
+          {orig > price && (
+            <span className="flash-orig money">₱{orig.toLocaleString()}</span>
+          )}
+        </div>
+
+        {/* Sold progress bar */}
+        <div className="flash-bar">
+          <div className="flash-bar-fill" style={{ width: soldPct + '%' }} />
+          <div className="flash-bar-glow" style={{ left: Math.max(0, soldPct - 6) + '%' }} />
+        </div>
+        <div className="flash-bar-labels">
+          <span><TrendingUp size={10} /> {sold} sold</span>
+          <span className={stock <= 5 && stock > 0 ? 'flash-stock-low' : ''}>{stockLabel}</span>
+        </div>
+
+        <div className={'flash-timer' + (cd.expired ? ' expired' : '')}>
+          <Timer size={11} /> {cd.label}
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export default function FlashSale() {
   const nav = useNavigate();
@@ -11,14 +93,27 @@ export default function FlashSale() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Products with discount >= 50%
     supabase.from('products')
       .select('*')
-      .gte('discount', 50)
+      .gte('discount', 30)
       .order('discount', { ascending: false })
-      .limit(50)
+      .limit(60)
       .then(({ data }) => { setProducts(data || []); setLoading(false); });
   }, []);
+
+  const endingSoon = useMemo(() => {
+    return [...products]
+      .map(p => ({
+        p,
+        endsAt: p.flash_ends_at
+          ? new Date(p.flash_ends_at).getTime()
+          : (p.created_at ? new Date(p.created_at).getTime() + 24 * 3600 * 1000 : 0),
+      }))
+      .filter(x => x.endsAt > Date.now())
+      .sort((a, b) => a.endsAt - b.endsAt)
+      .slice(0, 4)
+      .map(x => x.p);
+  }, [products]);
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
@@ -26,15 +121,17 @@ export default function FlashSale() {
         <ArrowLeft size={20} />
       </button>
 
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6,
-      }}>
-        <Zap size={24} color="#F59E0B" fill="#F59E0B" />
-        <h2 style={{ fontSize: 22, fontWeight: 900 }}>Flash Sale</h2>
+      {/* Hero */}
+      <div className="flash-hero">
+        <div className="flash-hero-glow" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
+          <Flame size={26} color="#F59E0B" fill="#F59E0B" />
+          <h2 style={{ fontSize: 24, fontWeight: 900, letterSpacing: -.4 }}>Flash Sale</h2>
+        </div>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', marginTop: 4, position: 'relative' }}>
+          {loading ? 'Loading deals…' : `${products.length} deals live right now — grab them before they’re gone.`}
+        </p>
       </div>
-      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
-        Grab the biggest discounts before they're gone.
-      </p>
 
       {loading ? (
         <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
@@ -47,36 +144,35 @@ export default function FlashSale() {
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          {products.map(p => (
-            <Link key={p.id} to={`/product/${p.legacy_id || p.id}`} className="card" style={{ padding: 0, textDecoration: 'none', color: 'inherit', overflow: 'hidden' }}>
-              <div className="product-thumb" style={{ position: 'relative' }}>
-                <SmartImage src={(p.images && p.images[0]) || ''} alt={p.name} />
-                <div style={{
-                  position: 'absolute', top: 8, left: 8,
-                  background: '#DC2626', color: '#fff',
-                  fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
-                  letterSpacing: 0.5,
-                }}>
-                  -{p.discount}%
-                </div>
+        <>
+          {/* Ending Soon */}
+          {endingSoon.length > 0 && (
+            <div style={{ marginBottom: 24 }}>
+              <div className="flash-section-head">
+                <Zap size={14} color="#F59E0B" />
+                <span>Ending soon</span>
               </div>
-              <div style={{ padding: 12 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.35, marginBottom: 6, height: '2.7em', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                  {p.name}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                  <span style={{ fontWeight: 800, fontSize: 15 }}>₱{p.price}</span>
-                  {p.original_price && (
-                    <span style={{ fontSize: 11, color: 'var(--muted)', textDecoration: 'line-through' }}>
-                      ₱{p.original_price}
-                    </span>
-                  )}
-                </div>
+              <div className="flash-hscroll">
+                {endingSoon.map(p => (
+                  <div key={p.id} style={{ minWidth: 168, maxWidth: 168 }}>
+                    <FlashCard product={p} />
+                  </div>
+                ))}
               </div>
-            </Link>
-          ))}
-        </div>
+            </div>
+          )}
+
+          {/* All deals */}
+          <div className="flash-section-head">
+            <TrendingUp size={14} color="#EF4444" />
+            <span>All deals</span>
+          </div>
+          <div className="flash-grid">
+            {products.map(p => (
+              <FlashCard key={p.id} product={p} />
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
