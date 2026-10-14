@@ -8,10 +8,9 @@ import SmartImage from '../components/SmartImage';
 import EmptyState from '../components/EmptyState';
 
 /* ─── Compute savings for a bundle ───
- * Priority:
- *   1. bundle.original_price vs bundle.bundle_price  (explicit)
- *   2. summed product prices vs bundle.bundle_price
- *   3. summed product original_price vs summed product price (products on sale)
+ * Confirmed schema: title, description, image_url, product_ids,
+ *                   bundle_price, original_price, active, starts_at, ends_at,
+ *                   created_at, variants
  */
 function computeSavings(bundle, productsById) {
   const items = (bundle.product_ids || [])
@@ -21,9 +20,7 @@ function computeSavings(bundle, productsById) {
   const sumPrice = items.reduce((s, p) => s + (Number(p.price) || 0), 0);
   const sumOrig  = items.reduce((s, p) => s + (Number(p.original_price) || Number(p.price) || 0), 0);
 
-  const bundlePrice = Number(
-    bundle.bundle_price ?? bundle.price ?? sumPrice
-  ) || 0;
+  const bundlePrice = Number(bundle.bundle_price ?? 0) || sumPrice;
 
   // explicit original price on the bundle takes precedence
   const explicitOrig = Number(bundle.original_price) || 0;
@@ -45,9 +42,10 @@ function BundleCard({ bundle, productsById, onAdd, adding, selectedVariant, onPi
   const variants = Array.isArray(bundle.variants) ? bundle.variants : [];
   const selected = selectedVariant[bundle.id] || '';
 
-  // preview up to 3 thumbs
+  // preview up to 3 product thumbs; if bundle has its own image_url, lead with it
   const preview = items.slice(0, 3);
   const more = Math.max(0, itemCount - preview.length);
+  const heroImage = bundle.image_url || null;
 
   return (
     <div className="bundle-card">
@@ -64,8 +62,15 @@ function BundleCard({ bundle, productsById, onAdd, adding, selectedVariant, onPi
         )}
       </div>
 
-      {/* title + item count */}
-      <div className="bundle-title">{bundle.name || 'Untitled bundle'}</div>
+      {/* optional bundle hero image */}
+      {heroImage && (
+        <div className="bundle-hero-img">
+          <SmartImage src={heroImage} alt={bundle.title || 'Bundle'} />
+        </div>
+      )}
+
+      {/* title + description */}
+      <div className="bundle-title">{bundle.title || 'Untitled bundle'}</div>
       {bundle.description && (
         <div className="bundle-sub">{bundle.description}</div>
       )}
@@ -173,7 +178,7 @@ export default function Bundles() {
       if (ids.length > 0) {
         const { data: ps } = await supabase
           .from('products')
-          .select('id, legacy_id, name, price, original_price, images, image')
+          .select('id, legacy_id, name, price, original_price, images')
           .in('id', ids);
         const map = {};
         (ps || []).forEach((p) => { map[p.id] = p; });
@@ -255,18 +260,11 @@ export default function Bundles() {
         </div>
       ) : bundles.length === 0 ? (
         <EmptyState
-          icon={<Package size={44} color="var(--muted)" />}
+          icon={Package}
           title="No bundles available"
           message="Bundle deals will appear here when they go live. Check back soon."
-          action={
-            <button
-              className="btn-brand"
-              style={{ padding: '12px 22px', borderRadius: 12 }}
-              onClick={() => nav('/')}
-            >
-              Browse products
-            </button>
-          }
+          action="Browse products"
+          onAction={() => nav('/')}
         />
       ) : (
         <div className="bundle-list">
