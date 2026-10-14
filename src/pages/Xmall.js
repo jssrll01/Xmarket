@@ -166,20 +166,23 @@ export default function Xmall() {
         <ArrowLeft size={20} />
       </button>
 
-      {/* Hero */}
-      <div className="xmall-hero">
-        <div className="xmall-hero-glow" />
-        <div className="xmall-hero-top">
-          <Store size={26} color="#fff" />
-          <h2 className="xmall-hero-title">XMALL</h2>
-          <span className="xmall-official-pill">Official</span>
-        </div>
-        <p className="xmall-hero-sub">
-          {loading
-            ? 'Loading catalog…'
-            : `${totalCount} product${totalCount === 1 ? '' : 's'} · curated from the XMARKET catalog`}
-        </p>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+        <Store size={24} color="var(--primary)" />
+        <h2 style={{ fontSize: 22, fontWeight: 900 }}>XMALL</h2>
+        <span style={{
+          marginLeft: 4, fontSize: 10, fontWeight: 800,
+          padding: '3px 8px', borderRadius: 20,
+          background: 'var(--bg)', color: 'var(--muted)',
+          border: '1px solid var(--border)',
+          letterSpacing: .4, textTransform: 'uppercase',
+        }}>Official</span>
       </div>
+      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
+        {loading
+          ? 'Loading catalog…'
+          : `${totalCount} product${totalCount === 1 ? '' : 's'} · curated from the XMARKET catalog`}
+      </p>
 
       {/* Search */}
       <div className="xmall-search">

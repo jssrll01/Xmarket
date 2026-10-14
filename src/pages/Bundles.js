@@ -236,21 +236,18 @@ export default function Bundles() {
         <ArrowLeft size={20} />
       </button>
 
-      {/* Hero */}
-      <div className="bundle-hero">
-        <div className="bundle-hero-glow" />
-        <div className="bundle-hero-top">
-          <Sparkles size={26} color="#C4B5FD" />
-          <h2 className="bundle-hero-title">Bundle Deals</h2>
-        </div>
-        <p className="bundle-hero-sub">
-          {loading
-            ? 'Loading bundles…'
-            : bundles.length === 0
-              ? 'Curated product sets — buy together and save.'
-              : `${bundles.length} bundle${bundles.length === 1 ? '' : 's'} live · up to ₱${totalSavings.toLocaleString()} in savings`}
-        </p>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+        <Sparkles size={24} color="var(--primary)" />
+        <h2 style={{ fontSize: 22, fontWeight: 900 }}>Bundle Deals</h2>
       </div>
+      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
+        {loading
+          ? 'Loading bundles…'
+          : bundles.length === 0
+            ? 'Curated product sets — buy together and save.'
+            : `${bundles.length} bundle${bundles.length === 1 ? '' : 's'} live · up to ₱${totalSavings.toLocaleString()} in savings`}
+      </p>
 
       {loading ? (
         <div className="bundle-skeleton-grid">

@@ -4214,3 +4214,10 @@ button.set-row { cursor: pointer; }
   text-decoration-color: currentColor;
 }
 .sf-legal-dot { opacity: .5; }
+
+/* ─── WS7-fix: neutralize dark hero backgrounds (kept for safety) ─── */
+.flash-hero,
+.bundle-hero,
+.xmall-hero {
+  display: none !important;
+}

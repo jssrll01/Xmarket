@@ -160,7 +160,7 @@ export default function Xwallet() {
           {profile?.updated_at && <span>Updated {formatDate(profile.updated_at)}</span>}
         </div>
         <div className="xw-hero-actions">
-          <button className="xw-hero-btn primary" onClick={() => nav('/topup')}>
+          <button className="xw-hero-btn primary" onClick={() => nav('/xwallet/topup')}>
             <Plus size={15} /> Top up
           </button>
           <button className="xw-hero-btn" onClick={() => nav('/xcards')}>
@@ -224,7 +224,7 @@ export default function Xwallet() {
               : 'Try a different filter.'
           }
           action={txns.length === 0 ? 'Top up now' : 'Show all'}
-          onAction={() => (txns.length === 0 ? nav('/topup') : setFilter('all'))}
+          onAction={() => (txns.length === 0 ? nav('/xwallet/topup') : setFilter('all'))}
         />
       ) : (
         <>

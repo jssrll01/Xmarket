@@ -121,17 +121,14 @@ export default function FlashSale() {
         <ArrowLeft size={20} />
       </button>
 
-      {/* Hero */}
-      <div className="flash-hero">
-        <div className="flash-hero-glow" />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
-          <Flame size={26} color="#F59E0B" fill="#F59E0B" />
-          <h2 style={{ fontSize: 24, fontWeight: 900, letterSpacing: -.4 }}>Flash Sale</h2>
-        </div>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.75)', marginTop: 4, position: 'relative' }}>
-          {loading ? 'Loading deals…' : `${products.length} deals live right now — grab them before they’re gone.`}
-        </p>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+        <Flame size={24} color="#F59E0B" fill="#F59E0B" />
+        <h2 style={{ fontSize: 22, fontWeight: 900 }}>Flash Sale</h2>
       </div>
+      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
+        {loading ? 'Loading deals…' : `${products.length} deals live right now — grab them before they're gone.`}
+      </p>
 
       {loading ? (
         <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>

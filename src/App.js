@@ -51,6 +51,8 @@ import ForgotPassword from './pages/ForgotPassword';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import NotFound from './pages/NotFound';
+import About from './pages/About';
+import Categories from './pages/Categories';
 import ErrorBoundary from './components/ErrorBoundary';
 import PushPrompt from './components/PushPrompt';
 import { setupForegroundHandler } from './lib/fcm';
@@ -130,10 +132,11 @@ function Router() {
         <Route path="/off-platform-ads" element={<OffPlatformAds />} />
         <Route path="/coins" element={<Coins />} />
         <Route path="/mega-voucher" element={<MegaVoucher />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/categories" element={<Categories />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideFooter && <SiteFooter />}
-      {!hideBottomNav && <BottomNav />}
     </>
   );
 }
