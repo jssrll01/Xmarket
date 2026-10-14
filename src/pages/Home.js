@@ -18,6 +18,15 @@ import EmptyState from '../components/EmptyState';
 import useRecentSearches from '../hooks/useRecentSearches';
 import UserMenu from '../components/UserMenu';
 
+
+// Banner copy — parallel to `banners` array in lib/products.js (index-aligned).
+// Keeps data layer untouched; edit here to change slide copy.
+const BANNER_META = [
+  { title: 'Mega Deals Week', sub: 'Up to 70% off across all categories', cta: 'Shop Now' },
+  { title: 'Free Shipping', sub: 'On orders over ₱500 nationwide', cta: 'Learn More' },
+  { title: 'New Arrivals', sub: 'Fresh drops every Friday', cta: 'Explore' },
+];
+
 function Dropdown({ value, options, onChange }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -174,6 +183,7 @@ export default function Home() {
   const [loadingId, setLoadingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
+  const [bannerHover, setBannerHover] = useState(false);
   const [variantProduct, setVariantProduct] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -345,9 +355,14 @@ export default function Home() {
       )}
       <div className={'sticky-header' + (scrolled ? ' scrolled' : '')}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 4px' }}>
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: -0.5 }}>XMARKET</div>
-            <div style={{ fontSize: 11, color: 'var(--muted)' }}>Your World of Great Deals</div>
+          <div className="brand-row">
+            <div className="brand-badge">
+              <img src="/icons/icon.svg" alt="XMARKET" />
+            </div>
+            <div className="brand-text">
+              <div className="brand-name">X<span className="accent">MARKET</span></div>
+              <div className="brand-tag">Your World of Great Deals</div>
+            </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <Link to="/settings" className="icon-btn" aria-label="Settings">
@@ -393,9 +408,52 @@ export default function Home() {
               </button>
             )}
           </div>
-                  <button className="icon-btn" onClick={() => setShowFilters(s => !s)}>
+          <button
+            className={'icon-btn' + (showFilters || minDiscount > 0 ? ' has-dot' : '')}
+            onClick={() => setShowFilters(s => !s)}
+            aria-label="Filters"
+          >
             <SlidersHorizontal size={18} />
+            {(showFilters || minDiscount > 0) && (
+              <span style={{
+                position: 'absolute', top: 6, right: 6,
+                width: 8, height: 8, borderRadius: '50%',
+                background: '#DC2626', boxShadow: '0 0 0 2px var(--neu-surface)',
+              }} />
+            )}
           </button>
+
+          {!searchFocus && (
+            <div className="search-tools">
+              <button
+                className={'search-tool' + (sort === 'priceLow' ? ' active' : '')}
+                onClick={() => setSort('priceLow')}
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
+                Lowest price
+              </button>
+              <button
+                className={'search-tool' + (sort === 'priceHigh' ? ' active' : '')}
+                onClick={() => setSort('priceHigh')}
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+                Highest price
+              </button>
+              <button
+                className={'search-tool' + (sort === 'best' ? ' active' : '')}
+                onClick={() => setSort('best')}
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15 8.5 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 9 8.5 12 2"/></svg>
+                Best seller
+              </button>
+              {minDiscount > 0 && (
+                <button className="search-tool active" onClick={() => setMinDiscount(0)}>
+                  {minDiscount}% off
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              )}
+            </div>
+          )}
 
           {searchFocus && (
             <div className="search-suggest" onMouseDown={e => e.preventDefault()}>
@@ -408,10 +466,13 @@ export default function Home() {
                   {recent.map(term => (
                     <div key={term} className="ss-item">
                       <button className="ss-term" onClick={() => { setSearch(term); addRecent(term); }}>
-                        <Search size={14} />
-                        <span>{term}</span>
+                        <span className="ss-icon-wrap"><Search size={13} /></span>
+                        <span className="ss-body">
+                          <span className="ss-primary">{term}</span>
+                          <span className="ss-hint">Recent search</span>
+                        </span>
                       </button>
-                      <button className="ss-x" onClick={() => removeRecent(term)}>
+                      <button className="ss-x" onClick={() => removeRecent(term)} aria-label="Remove">
                         <X size={14} />
                       </button>
                     </div>
@@ -421,14 +482,39 @@ export default function Home() {
               {search.length >= 2 && (
                 <>
                   <div className="ss-head"><span>Suggestions</span></div>
-                  {suggestions.map(n => (
-                    <button key={n} className="ss-term" onClick={() => { setSearch(n); addRecent(n); }}>
-                      <Search size={14} />
-                      <span>{n}</span>
-                    </button>
-                  ))}
+                  {suggestions.map(n => {
+                    const hit = products.find(pp => pp.name === n);
+                    const thumb = hit && hit.images && hit.images[0];
+                    const hint = hit && hit.category ? hit.category : 'Product';
+                    return (
+                      <button key={n} className="ss-term" onClick={() => { setSearch(n); addRecent(n); }}>
+                        <span className="ss-icon-wrap">
+                          {thumb ? <img src={thumb} alt="" /> : <Search size={13} />}
+                        </span>
+                        <span className="ss-body">
+                          <span className="ss-primary">{n}</span>
+                          <span className="ss-hint">{hint}</span>
+                        </span>
+                      </button>
+                    );
+                  })}
                   {suggestions.length === 0 && (
-                    <div className="ss-empty">No suggestions</div>
+                    <div className="ss-empty-wrap">
+                      <div className="ss-empty-icon">
+                        <PackageSearch size={20} />
+                      </div>
+                      <div className="ss-empty-title">No matches</div>
+                      <div className="ss-empty-sub">Try a different keyword or browse categories below</div>
+                    </div>
+                  )}
+                  {suggestions.length > 0 && (
+                    <button
+                      className="ss-cta"
+                      onClick={() => { addRecent(search); setSearchFocus(false); }}
+                    >
+                      Browse all results for &ldquo;{search}&rdquo;
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
                   )}
                 </>
               )}
@@ -448,19 +534,43 @@ export default function Home() {
           </div>
         )}
 <div className="banner-wrap" style={{ padding: '12px 16px 4px' }}>
-        <div style={{ overflow: 'hidden', borderRadius: 18 }}>
+        <div
+          className="banner-stage"
+          onMouseEnter={() => setBannerHover && setBannerHover(true)}
+          onMouseLeave={() => setBannerHover && setBannerHover(false)}
+        >
           <div className="banner-track" style={{ transform: `translateX(-${bannerIdx * 100}%)` }}>
-            {banners.map((b, i) => (
-              <div key={i} className="banner-slide-full">
-                <img src={b} alt={'Banner ' + (i+1)} />
-              </div>
+            {banners.map((b, i) => {
+              const meta = BANNER_META[i % BANNER_META.length];
+              const isActive = i === bannerIdx;
+              return (
+                <div key={i} className={'banner-slide-full' + (isActive ? ' active' : '')}>
+                  <img src={b} alt={meta.title} loading={i === 0 ? 'eager' : 'lazy'} />
+                  <div className="banner-overlay">
+                    <div className="banner-title">{meta.title}</div>
+                    <div className="banner-sub">{meta.sub}</div>
+                    {meta.cta && (
+                      <span className="banner-cta">
+                        {meta.cta}
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                      </span>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="banner-dots">
+            {banners.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={'Slide ' + (i+1)}
+                className={'banner-dot' + (i === bannerIdx ? ' active' : '')}
+                onClick={() => setBannerIdx(i)}
+              />
             ))}
           </div>
-        </div>
-        <div className="banner-dots">
-          {banners.map((_, i) => (
-            <span key={i} className={'banner-dot' + (i === bannerIdx ? ' active' : '')} />
-          ))}
         </div>
       </div>
 

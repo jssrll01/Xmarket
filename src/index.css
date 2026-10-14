@@ -1256,3 +1256,319 @@ body {
    is our GPU-only transform-based version from the C-PASS.
    Future cleanup: delete the two legacy shimmer blocks.
    ============================================================ */
+
+/* ============================================================
+   HERO PASS — branded header, banner polish, search tools
+   (all additive, cascade-safe)
+   ============================================================ */
+
+/* ---------- BRANDED HEADER ---------- */
+.brand-badge {
+  width: 42px; height: 42px;
+  border-radius: 13px;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-raised-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.brand-badge img,
+.brand-badge svg {
+  width: 26px; height: 26px;
+  display: block;
+}
+.brand-text {
+  display: flex; flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  line-height: 1.05;
+}
+.brand-name {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.4px;
+  color: var(--text);
+  white-space: nowrap;
+}
+.brand-name .accent {
+  background: linear-gradient(135deg, var(--primary), var(--purple));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.brand-tag {
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.brand-row {
+  display: flex; align-items: center; gap: 10px;
+  min-width: 0;
+}
+
+/* ---------- BANNER POLISH ---------- */
+.banner-wrap { position: relative; }
+.banner-stage {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  box-shadow: var(--neu-raised);
+  background: var(--neu-surface);
+}
+.banner-slide-full {
+  position: relative;
+  overflow: hidden;
+}
+.banner-slide-full img {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transform: scale(1);
+  transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.banner-slide-full.active img {
+  transform: scale(1.04);
+}
+.banner-overlay {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  padding: 28px 16px 16px;
+  background: linear-gradient(
+    to top,
+    rgba(15,23,42,0.85) 0%,
+    rgba(15,23,42,0.55) 45%,
+    rgba(15,23,42,0.0) 100%
+  );
+  color: #FFFFFF;
+  pointer-events: none;
+  border-radius: 0 0 18px 18px;
+}
+.banner-title {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+  color: #FFFFFF;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.35);
+  margin-bottom: 2px;
+}
+.banner-sub {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.92);
+  text-shadow: 0 1px 6px rgba(0,0,0,0.35);
+}
+.banner-cta {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.95);
+  color: var(--primary);
+  font-size: 11px; font-weight: 800;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  pointer-events: auto;
+}
+.banner-cta:active { transform: scale(0.97); }
+
+/* Active dot becomes a pill, others fade */
+.banner-dots {
+  position: absolute;
+  bottom: 12px; left: 50%;
+  transform: translateX(-50%);
+  display: flex; gap: 6px;
+  z-index: 3;
+}
+.banner-dot {
+  width: 6px; height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.5);
+  transition: width 260ms cubic-bezier(0.22,1,0.36,1),
+              background 260ms ease;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+.banner-dot.active {
+  width: 20px;
+  background: #FFFFFF;
+}
+
+/* ---------- SEARCH BAR TOOLS ---------- */
+.search-tools {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 0 16px 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.search-tools::-webkit-scrollbar { display: none; }
+.search-tool {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-raised-sm);
+  color: var(--text);
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  border: none;
+  position: relative;
+}
+.search-tool:active { box-shadow: var(--neu-inset-sm); transform: scale(0.98); }
+.search-tool.active {
+  background: var(--primary);
+  color: #FFFFFF;
+  box-shadow: 3px 3px 8px rgba(37,99,235,0.35), -2px -2px 6px rgba(255,255,255,0.9);
+}
+.search-tool.active svg { stroke: #FFFFFF; }
+.search-tool .dot-active {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #DC2626;
+  box-shadow: 0 0 0 2px var(--neu-surface);
+}
+
+.search-clear {
+  background: var(--neu-surface);
+  box-shadow: var(--neu-raised-sm);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  right: 8px;
+}
+.search-clear:active {
+  box-shadow: var(--neu-inset-sm);
+  transform: translateY(-50%) scale(0.94);
+}
+
+/* ---------- SEARCH SUGGESTIONS — refined ---------- */
+.search-suggest {
+  background: var(--neu-surface) !important;
+  border-radius: 16px !important;
+  box-shadow:
+    10px 10px 24px var(--neu-dark),
+    -10px -10px 24px var(--neu-light) !important;
+  padding: 6px !important;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.ss-head {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 12px 6px;
+  font-size: 10.5px; font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.ss-clear {
+  font-size: 11px; color: var(--primary);
+  background: none; padding: 4px 8px;
+  font-weight: 800;
+}
+.ss-item {
+  border-radius: 12px;
+  margin-bottom: 2px;
+  transition: background 140ms ease;
+}
+.ss-item:hover { background: rgba(148,163,184,0.08); }
+.ss-term {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; text-align: left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 13.5px;
+  color: var(--text);
+  background: none;
+  font-weight: 600;
+}
+.ss-term .ss-icon-wrap {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-inset-sm);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.ss-term .ss-icon-wrap img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.ss-term .ss-icon-wrap svg { color: var(--muted); stroke: var(--muted); }
+.ss-term .ss-body { min-width: 0; flex: 1; }
+.ss-term .ss-primary {
+  display: block;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ss-term .ss-hint {
+  display: block;
+  font-size: 10.5px;
+  color: var(--muted);
+  font-weight: 500;
+  margin-top: 1px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ss-x {
+  padding: 6px;
+  color: var(--muted);
+  background: none;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+.ss-x:active { background: rgba(148,163,184,0.12); }
+
+.ss-cta {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  width: 100%;
+  margin-top: 4px;
+  padding: 11px 14px;
+  border-radius: 12px;
+  background: var(--primary);
+  color: #FFFFFF;
+  font-size: 12.5px;
+  font-weight: 800;
+  box-shadow:
+    4px 4px 10px rgba(37,99,235,0.35),
+    -3px -3px 8px rgba(255,255,255,0.9);
+  border: none;
+}
+.ss-cta svg { stroke: #FFFFFF; }
+.ss-cta:active {
+  box-shadow:
+    inset 3px 3px 8px rgba(30,64,175,0.45),
+    inset -3px -3px 8px rgba(255,255,255,0.15);
+  transform: scale(0.98);
+}
+
+/* Empty suggestion state */
+.ss-empty-wrap {
+  padding: 20px 14px 18px;
+  text-align: center;
+}
+.ss-empty-wrap .ss-empty-icon {
+  width: 46px; height: 46px;
+  margin: 0 auto 10px;
+  border-radius: 14px;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-inset-sm);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+}
+.ss-empty-title {
+  font-size: 13px; font-weight: 700; color: var(--text);
+  margin-bottom: 3px;
+}
+.ss-empty-sub {
+  font-size: 11.5px; color: var(--muted); line-height: 1.5;
+}
