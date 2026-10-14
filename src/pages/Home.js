@@ -176,7 +176,7 @@ export default function Home() {
   const [minRating, setMinRating] = useState(0);
   const [storeFilter, setStoreFilter] = useState('');
   const [category, setCategory] = useState('All');
-  const [sort, setSort] = useState('priceLow');
+  const [sort, setSort] = useState('best');
   const [loadingId, setLoadingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
@@ -285,12 +285,20 @@ export default function Home() {
     if (!p.name.toLowerCase().includes(search.toLowerCase())) return false;
     if (category !== 'All' && p.category !== category) return false;
     if (minRating > 0 && (stats[p.uuid]?.avgRating || 0) < minRating) return false;
+    if (p.price > maxPrice) return false;
+    if ((p.discount || 0) < minDiscount) return false;
     if (storeFilter && !(p.store || '').toLowerCase().includes(storeFilter.toLowerCase())) return false;
     return true;
   });
-  if (sort === 'priceLow') filtered.sort((a,b) => a.price - b.price);
-  if (sort === 'priceHigh') filtered.sort((a,b) => b.price - a.price);
-  if (sort === 'best') filtered.sort((a,b) => b.sold - a.sold);
+  if (sort === 'priceLow' || sort === 'price') filtered.sort((a,b) => a.price - b.price);
+  if (sort === 'priceHigh')                   filtered.sort((a,b) => b.price - a.price);
+  if (sort === 'best' || sort === 'popularity' || sort === 'sales') {
+    filtered.sort((a,b) => (b.sold || 0) - (a.sold || 0));
+  }
+  if (sort === 'discount') filtered.sort((a,b) => (b.discount || 0) - (a.discount || 0));
+  if (sort === 'rating')   filtered.sort((a,b) => ((stats[b.uuid]?.avgRating || 0) - (stats[a.uuid]?.avgRating || 0)));
+  if (sort === 'newest')   filtered.sort((a,b) => (b.created_at || '') > (a.created_at || '') ? 1 : -1);
+  if (sort === 'relevance') { /* no sort override — natural order */ }
   filtered = sortByStock(filtered);
 
   const cartCount = items.reduce((s, i) => s + i.quantity, 0);
@@ -325,6 +333,9 @@ export default function Home() {
     setSearch('');
     setCategory('All');
     setSort('best');
+    setMinRating(0);
+    setMaxPrice(1000000);
+    setMinDiscount(0);
   };
 
   const suggestions = search.length >= 2
@@ -618,13 +629,75 @@ export default function Home() {
         ))}
       </div>
 
+      <div className="filter-card">
+        <div className="filter-card-head">
+          <div className="filter-card-title">Filters</div>
+          {(minRating > 0 || maxPrice < 1000000 || minDiscount > 0) && (
+            <button
+              className="filter-reset"
+              onClick={() => { setMinRating(0); setMaxPrice(1000000); setMinDiscount(0); }}
+            >Reset</button>
+          )}
+        </div>
+
+        <div className="filter-row">
+          <div className="filter-label">
+            <span>Min rating</span>
+            <span className="filter-value">
+              {minRating > 0 ? minRating.toFixed(1) + '★' : 'Any'}
+            </span>
+          </div>
+          <input
+            type="range" min="0" max="5" step="0.5"
+            value={minRating}
+            onChange={(e) => setMinRating(+e.target.value)}
+          />
+          <div className="filter-stars">
+            {[1,2,3,4,5].map(s => (
+              <span key={s} style={{ opacity: s <= minRating ? 1 : 0.25 }}>★</span>
+            ))}
+          </div>
+        </div>
+
+        <div className="filter-row">
+          <div className="filter-label">
+            <span>Max price</span>
+            <span className="filter-value">₱{maxPrice.toLocaleString()}</span>
+          </div>
+          <input
+            type="range" min="0" max="1000000" step="1000"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(+e.target.value)}
+          />
+        </div>
+
+        <div className="filter-row">
+          <div className="filter-label">
+            <span>Min discount</span>
+            <span className="filter-value">{minDiscount}%</span>
+          </div>
+          <input
+            type="range" min="0" max="100" step="5"
+            value={minDiscount}
+            onChange={(e) => setMinDiscount(+e.target.value)}
+          />
+        </div>
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 16px 12px' }}>
         <div style={{ fontSize: 16, fontWeight: 800 }}>Featured Products</div>
         <Dropdown value={sort} onChange={setSort}
           options={[
-            { value: 'priceLow', label: 'Price: Low to High' },
-            { value: 'priceHigh', label: 'Price: High to Low' },
-            { value: 'best', label: 'Best Seller' },
+            { value: 'relevance',  label: 'Sort by relevance' },
+            { value: 'newest',     label: 'Sort by newest' },
+            { value: 'price',      label: 'Sort by price' },
+            { value: 'popularity', label: 'Sort by popularity' },
+            { value: 'rating',     label: 'Sort by rating' },
+            { value: 'discount',   label: 'Sort by discount' },
+            { value: 'sales',      label: 'Sort by sales' },
+            { value: 'priceLow',   label: 'Price: Low to High' },
+            { value: 'priceHigh',  label: 'Price: High to Low' },
+            { value: 'best',       label: 'Best Seller' },
           ]} />
       </div>
 

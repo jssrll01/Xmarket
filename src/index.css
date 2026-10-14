@@ -2172,3 +2172,91 @@ body {
   line-height: 1.5;
   max-width: 260px;
 }
+
+/* ============================================================
+   HOME FILTER CARD — always-visible below chips
+   ============================================================ */
+.filter-card {
+  margin: 4px 16px 12px;
+  padding: 14px 16px 4px;
+  border-radius: 18px;
+  background: var(--neu-surface);
+  box-shadow: var(--neu-raised);
+}
+.filter-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.filter-card-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  color: var(--text);
+}
+.filter-reset {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--primary);
+  background: none;
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+.filter-reset:active { background: rgba(37,99,235,0.08); }
+
+.filter-row { margin-bottom: 12px; }
+.filter-label {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.filter-value {
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--primary);
+  background: rgba(37,99,235,0.08);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.filter-stars {
+  display: flex; gap: 3px;
+  margin-top: 6px;
+  font-size: 14px;
+  color: #F59E0B;
+}
+
+/* Neumorphic range slider */
+input[type="range"].filter-range,
+.filter-card input[type="range"] {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  background: var(--neu-surface);
+  border-radius: 999px;
+  box-shadow: var(--neu-inset-sm);
+  outline: none;
+  padding: 0 !important;
+  border: none !important;
+}
+.filter-card input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow:
+    3px 3px 8px rgba(37,99,235,0.35),
+    -2px -2px 6px rgba(255,255,255,0.9);
+  cursor: pointer;
+  border: none;
+}
+.filter-card input[type="range"]::-moz-range-thumb {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 3px 3px 8px rgba(37,99,235,0.35);
+  cursor: pointer;
+  border: none;
+}
