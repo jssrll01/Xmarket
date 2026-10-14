@@ -71,6 +71,9 @@ export function discountPct() {
  */
 export function stockFor(product, selection) {
   if (!product) return 0;
+  const hasConfig = product.variant_config && Object.keys(product.variant_config).length > 0;
+  // No variants configured → not stock-tracked → always available
+  if (!hasConfig) return Infinity;
   const map = product.variant_stock;
   if (!map || typeof map !== 'object') return 0;
   if (!selection || !Object.keys(selection).length) return 0;
@@ -89,6 +92,8 @@ export function stockFor(product, selection) {
  */
 export function totalStock(product) {
   if (!product) return 0;
+  const hasConfig = product.variant_config && Object.keys(product.variant_config).length > 0;
+  if (!hasConfig) return Infinity;
   const map = product.variant_stock;
   if (!map || typeof map !== 'object' || Object.keys(map).length === 0) return 0;
   let sum = 0;
@@ -111,7 +116,7 @@ export function priceRange(product) {
     ? Object.values(prices).map(Number).filter(n => n > 0)
     : [];
   if (values.length === 0) {
-    return { min: 0, max: 0, isRange: false, display: '—' };
+    return { min: 0, max: 0, isRange: false, display: '₱0' };
   }
   const min = Math.min(...values);
   const max = Math.max(...values);
