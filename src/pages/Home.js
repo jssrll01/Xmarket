@@ -486,12 +486,6 @@ export default function Home() {
                   <div className="banner-overlay">
                     <div className="banner-title">{meta.title}</div>
                     <div className="banner-sub">{meta.sub}</div>
-                    {meta.cta && (
-                      <span className="banner-cta">
-                        {meta.cta}
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-                      </span>
-                    )}
                   </div>
                 </div>
               );

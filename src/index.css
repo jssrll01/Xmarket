@@ -1363,7 +1363,8 @@ body {
   color: rgba(255,255,255,0.92);
   text-shadow: 0 1px 6px rgba(0,0,0,0.35);
 }
-.banner-cta {
+/* deprecated — removed from JSX in banner-cta-removal pass */
+.banner-cta-disabled {
   display: inline-flex; align-items: center; gap: 4px;
   margin-top: 8px;
   padding: 6px 12px;
@@ -1374,7 +1375,7 @@ body {
   box-shadow: 0 4px 14px rgba(0,0,0,0.25);
   pointer-events: auto;
 }
-.banner-cta:active { transform: scale(0.97); }
+.banner-cta-disabled:active { transform: scale(0.97); }
 
 /* Active dot becomes a pill, others fade */
 .banner-dots {

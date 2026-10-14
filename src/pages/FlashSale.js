@@ -4,26 +4,11 @@ import { ArrowLeft, Zap, Timer } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import SmartImage from '../components/SmartImage';
 
-function useCountdown(hoursFromNow = 6) {
-  const [end] = useState(() => Date.now() + hoursFromNow * 3600 * 1000);
-  const [now, setNow] = useState(Date.now());
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  const diff = Math.max(0, end - now);
-  return {
-    hours: String(Math.floor(diff / 3600000)).padStart(2, '0'),
-    minutes: String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
-    seconds: String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
-  };
-}
 
 export default function FlashSale() {
   const nav = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { hours, minutes, seconds } = useCountdown(6);
 
   useEffect(() => {
     supabase.from('products')
@@ -47,20 +32,6 @@ export default function FlashSale() {
         </div>
         <div className="fs-hero-sub">
           Up to 50% off. Ends soon — grab them before the timer runs out.
-        </div>
-        <div className="fs-countdown">
-          <div className="fs-unit">
-            <div className="fs-unit-num">{hours}</div>
-            <div className="fs-unit-lab">Hours</div>
-          </div>
-          <div className="fs-unit">
-            <div className="fs-unit-num">{minutes}</div>
-            <div className="fs-unit-lab">Min</div>
-          </div>
-          <div className="fs-unit">
-            <div className="fs-unit-num">{seconds}</div>
-            <div className="fs-unit-lab">Sec</div>
-          </div>
         </div>
       </div>
 
