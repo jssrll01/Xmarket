@@ -73,19 +73,22 @@ export function stockFor(product, selection) {
   if (!product) return 0;
   const cfg = product.variant_config;
   const dims = (cfg && typeof cfg === 'object') ? Object.keys(cfg) : [];
-  // Has at least one dimension WITH at least one option
   const hasRealVariants = dims.some(d => Array.isArray(cfg[d]) && cfg[d].length > 0);
+  // No real variants → not stock-tracked → always available
   if (!hasRealVariants) return Infinity;
   const map = product.variant_stock;
-  if (!map || typeof map !== 'object') return 0;
-  if (!selection || !Object.keys(selection).length) return 0;
+  // Has variants but no stock data entered → treat as unlimited
+  if (!map || typeof map !== 'object' || Object.keys(map).length === 0) return Infinity;
+  // Has variants AND stock data → check specific combo
+  if (!selection || !Object.keys(selection).length) return Infinity;
   const label = comboLabel(selection);
   const byLabel = map[label];
   if (typeof byLabel === 'number') return byLabel;
   const key = comboKey(selection);
   const byKey = map[key];
   if (typeof byKey === 'number') return byKey;
-  return 0;
+  // Selection doesn't match any stock entry → treat as unlimited
+  return Infinity;
 }
 
 /**
@@ -97,9 +100,11 @@ export function totalStock(product) {
   const cfg = product.variant_config;
   const dims = (cfg && typeof cfg === 'object') ? Object.keys(cfg) : [];
   const hasRealVariants = dims.some(d => Array.isArray(cfg[d]) && cfg[d].length > 0);
+  // No real variants → not stock-tracked
   if (!hasRealVariants) return Infinity;
   const map = product.variant_stock;
-  if (!map || typeof map !== 'object' || Object.keys(map).length === 0) return 0;
+  // Has variants but no stock data → unlimited
+  if (!map || typeof map !== 'object' || Object.keys(map).length === 0) return Infinity;
   let sum = 0;
   for (const k of Object.keys(map)) {
     const v = Number(map[k]) || 0;
