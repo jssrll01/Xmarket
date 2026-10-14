@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { X, ShoppingCart, Zap, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import SmartImage from './SmartImage';
-import { getVariantConfig, comboLabel, priceFor, discountPct, stockFor, totalStock } from '../lib/variants';
+import { getVariantConfig, comboLabel, priceFor, discountPct, stockFor, totalStock, priceRange } from '../lib/variants';
 
 export default function QuickView({ product, onClose, onAddToCart, onOpenFull }) {
   const [selection, setSelection] = useState({});
@@ -25,6 +25,7 @@ export default function QuickView({ product, onClose, onAddToCart, onOpenFull })
   const orig = Number(product.original_price) || 0;
   const pct = discountPct(product);
   const complete = Object.keys(config).every(k => selection[k]);
+  const rangeInfo = priceRange(product);
   // Effective stock: per-variant when selection complete, else total rollup
   const stock = complete ? stockFor(product, selection) : totalStock(product);
 
@@ -41,7 +42,6 @@ export default function QuickView({ product, onClose, onAddToCart, onOpenFull })
             </>
           )}
           <SmartImage src={images[imageIdx]} alt={product.name} className="qv-img" />
-          {pct !== null && <span className="discount-badge qv-discount">-{pct}%</span>}
           {product.instant && (
             <span className="instant-badge qv-instant"><Zap size={11} /> Instant</span>
           )}
@@ -50,7 +50,7 @@ export default function QuickView({ product, onClose, onAddToCart, onOpenFull })
         <div className="qv-body">
           <div className="qv-name">{product.name}</div>
           <div className="qv-price-row">
-            <span className="qv-price money">₱{price.toLocaleString()}</span>
+            <span className="qv-price money">{complete ? `₱${price.toLocaleString()}` : rangeInfo.display}</span>
             {orig > price && (
               <span className="qv-orig money">₱{orig.toLocaleString()}</span>
             )}

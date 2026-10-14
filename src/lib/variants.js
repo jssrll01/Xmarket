@@ -106,3 +106,31 @@ export function totalStock(product) {
   }
   return sum;
 }
+
+/**
+ * Compute a price range across all variant prices, or fall back to base price.
+ * Returns { min, max, isRange, display } where display is '₱60' or '₱60–₱90'
+ */
+export function priceRange(product) {
+  if (!product) return { min: 0, max: 0, isRange: false, display: '₱0' };
+  const prices = product.variant_prices;
+  const hasConfig = product.variant_config && Object.keys(product.variant_config).length > 0;
+  const values = (hasConfig && prices && typeof prices === 'object')
+    ? Object.values(prices).map(Number).filter(n => n > 0)
+    : [];
+  const base = Number(product.price) || 0;
+
+  if (values.length === 0) {
+    return { min: base, max: base, isRange: false, display: '₱' + base.toLocaleString() };
+  }
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const isRange = min !== max;
+  return {
+    min, max, isRange,
+    display: isRange
+      ? `₱${min.toLocaleString()}–₱${max.toLocaleString()}`
+      : `₱${min.toLocaleString()}`,
+  };
+}

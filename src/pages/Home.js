@@ -6,6 +6,7 @@ import {
 , Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal} from 'lucide-react';
 import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { sortByStock, isOutOfStock } from '../lib/stock';
+import { priceRange } from '../lib/variants';
 import { supabase } from '../lib/supabase';
 import { unreadCount } from '../lib/notifications';
 import { Star } from 'lucide-react';
@@ -801,10 +802,7 @@ export default function Home() {
                     {p.verified && <BadgeCheck size={12} color="#2563EB" />}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 800, fontSize: 15 }}>₱{p.price}</span>
-                    {p.originalPrice && (
-                      <span style={{ color: 'var(--muted)', fontSize: 11, textDecoration: 'line-through' }}>₱{p.originalPrice}</span>
-                    )}
+                    <span style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(p).display}</span>
                     {p.discount > 0 && (
                       <span style={{ fontSize: 10, fontWeight: 800, color: '#DC2626', background: '#FEE2E2', padding: '2px 6px', borderRadius: 6, lineHeight: 1 }}>
                         -{p.discount}%

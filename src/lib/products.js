@@ -1,4 +1,4 @@
-import { totalStock } from './variants';
+import { totalStock, priceRange } from './variants';
 import { supabase } from './supabase';
 
 export async function fetchProducts() {
@@ -37,6 +37,13 @@ export async function fetchProducts() {
       variant_config: p.variant_config,
       variant_stock: p.variant_stock,
     }),
+    priceRange: priceRange({
+      price: p.price,
+      variant_config: p.variant_config,
+      variant_prices: p.variant_prices,
+    }),
+    save_more: !!p.save_more,
+    flash_sale: !!p.flash_sale,
   }));
 }
 
@@ -98,6 +105,13 @@ function mapProduct(p) {
       variant_config: p.variant_config,
       variant_stock: p.variant_stock,
     }),
+    priceRange: priceRange({
+      price: p.price,
+      variant_config: p.variant_config,
+      variant_prices: p.variant_prices,
+    }),
+    save_more: !!p.save_more,
+    flash_sale: !!p.flash_sale,
   };
 }
 

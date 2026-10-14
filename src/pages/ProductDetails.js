@@ -4,7 +4,7 @@ import {
   ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store, Heart
 } from 'lucide-react';
 import { fetchProductById, fetchRelatedProducts } from '../lib/products';
-import { stockFor, comboLabel, totalStock } from '../lib/variants';
+import { stockFor, comboLabel, totalStock, priceRange } from '../lib/variants';
 import { getVariantConfig } from '../lib/variants';
 import VariantPicker from '../components/VariantPicker';
 import { useCart } from '../CartContext';
@@ -77,6 +77,15 @@ export default function ProductDetails() {
   const effStock = selComplete
     ? stockFor(product, variant)
     : totalStock(product);
+
+  // Display price: specific variant price when complete, else the min/max range
+  const priceInfo = product ? priceRange(product) : { display: '₱0', min: 0, max: 0, isRange: false };
+  let displayPrice = priceInfo.display;
+  if (selComplete && product?.variant_prices) {
+    const label = Object.keys(variant).sort().map(k => variant[k]).join(' / ');
+    const specific = product.variant_prices[label];
+    if (typeof specific === 'number') displayPrice = '₱' + specific.toLocaleString();
+  }
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const [buying, setBuying] = useState(false);
@@ -250,7 +259,7 @@ export default function ProductDetails() {
         </div>
         <h2>{product.name}</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 24, fontWeight: 'bold' }}>₱{product.price}</span>
+          <span style={{ fontSize: 24, fontWeight: 'bold' }}>{displayPrice}</span>
           {product.originalPrice && (
             <span style={{ color: 'var(--muted)', fontSize: 14, textDecoration: 'line-through' }}>
               ₱{product.originalPrice}
