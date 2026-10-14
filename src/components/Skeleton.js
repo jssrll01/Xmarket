@@ -1,6 +1,6 @@
 import React from 'react';
 
-const stagger = (i) => ({ animationDelay: `${Math.min(i * 40, 240)}ms` });
+const stagger = (i) => ({ animationDelay: `${Math.min(i * 40, 400)}ms` });
 
 export function ProductCardSkeleton({ index = 0 }) {
   return (
