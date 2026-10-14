@@ -18,13 +18,18 @@ export function AuthProvider({ children }) {
       setSession(s);
       if (event === 'SIGNED_IN' && s?.user) {
         try {
-          const key = 'xmarket.last-fingerprint';
-          const fp = `${navigator.userAgent}|${navigator.language}|${screen.width}x${screen.height}`;
-          const last = localStorage.getItem(key);
-          if (last && last !== fp) {
-            // Fire the in-app toast
+          const KEY_FP = 'xmarket.device-fingerprint';
+          const KEY_LAST = 'xmarket.last-device-alert';
+          // Stable fingerprint — userAgent + language only.
+          // Do NOT include screen dimensions — they change on mobile (URL bar, orientation).
+          const fp = `${navigator.userAgent}|${navigator.language}`;
+          const last = localStorage.getItem(KEY_FP);
+          const lastAlertAt = Number(localStorage.getItem(KEY_LAST) || 0);
+          const now = Date.now();
+          const ONE_DAY = 24 * 60 * 60 * 1000;
+
+          if (last && last !== fp && (now - lastAlertAt) > ONE_DAY) {
             setTimeout(() => window.dispatchEvent(new CustomEvent('xmarket:new-device')), 100);
-            // Also persist as a notification row so it shows in the bell
             try {
               await supabase.from('notifications').insert({
                 user_id: s.user.id,
@@ -34,8 +39,9 @@ export function AuthProvider({ children }) {
                 read: false,
               });
             } catch (e) {}
+            localStorage.setItem(KEY_LAST, String(now));
           }
-          localStorage.setItem(key, fp);
+          localStorage.setItem(KEY_FP, fp);
         } catch {}
       }
     });
