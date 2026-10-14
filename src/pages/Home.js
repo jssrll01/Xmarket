@@ -576,7 +576,6 @@ export default function Home() {
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '12px 14px', borderRadius: 14,
           background: 'var(--neu-surface)',
-          boxShadow: 'var(--neu-raised-sm)',
           textDecoration: 'none', color: 'inherit',
           minWidth: 0,
         }}>
@@ -585,7 +584,6 @@ export default function Home() {
             background: 'linear-gradient(135deg, #10B981, #059669)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             flexShrink: 0,
-            boxShadow: '2px 2px 6px rgba(16,185,129,0.35)',
           }}>
             <Percent size={16} color="#fff" />
           </div>
