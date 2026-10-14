@@ -39,3 +39,6 @@ server/firebase-service-account.json
 *-firebase-adminsdk-*.json
 
 server/xmarket-pwa-service-account.json
+*.pre*
+*.bak
+*.ws2bak
