@@ -68,15 +68,27 @@ export default function Bundles() {
           const chosen = selectedVariant[b.id] || (hasVariants ? variants[0] : null);
 
           return (
-            <div key={b.id} className="card" style={{ padding: 14, marginBottom: 12 }}>
-              {b.image_url && (
-                <img src={b.image_url} alt={b.title}
-                  style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 10, marginBottom: 10 }} />
-              )}
-              <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>{b.title}</div>
-              <div style={{ fontSize: 12.5, color: 'var(--muted)', lineHeight: 1.5, marginBottom: 10 }}>
-                {b.description}
+            <div key={b.id} className="bn-card">
+              <div className="bn-image">
+                {b.image_url ? (
+                  <img src={b.image_url} alt={b.title} />
+                ) : (
+                  <div className="bn-image-placeholder">
+                    <Package size={32} />
+                    <span>Bundle</span>
+                  </div>
+                )}
+                {b.save_amount > 0 && (
+                  <span className="bn-save-badge">SAVE ₱{b.save_amount}</span>
+                )}
+                <span className="bn-count-badge">
+                  <Package size={11} />
+                  {b.product_ids ? b.product_ids.length : 0} items
+                </span>
               </div>
+              <div className="bn-body">
+                <div className="bn-title">{b.title}</div>
+                <div className="bn-desc">{b.description}</div>
 
               {/* Variants picker */}
               {hasVariants && (
@@ -125,7 +137,7 @@ export default function Bundles() {
               <button
                 onClick={() => addBundle(b)}
                 disabled={adding === b.id}
-                className="btn-primary"
+                className="bn-add-btn"
                 style={{
                   width: '100%', padding: 11, fontSize: 13, display: 'flex',
                   alignItems: 'center', justifyContent: 'center', gap: 6,
@@ -134,6 +146,7 @@ export default function Bundles() {
                 <ShoppingCart size={14} />
                 {adding === b.id ? 'Adding…' : 'Add bundle to cart'}
               </button>
+              </div>
             </div>
           );
         })

@@ -1,17 +1,31 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Zap, Timer } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { Link } from 'react-router-dom';
 import SmartImage from '../components/SmartImage';
+
+function useCountdown(hoursFromNow = 6) {
+  const [end] = useState(() => Date.now() + hoursFromNow * 3600 * 1000);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const diff = Math.max(0, end - now);
+  return {
+    hours: String(Math.floor(diff / 3600000)).padStart(2, '0'),
+    minutes: String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'),
+    seconds: String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'),
+  };
+}
 
 export default function FlashSale() {
   const nav = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { hours, minutes, seconds } = useCountdown(6);
 
   useEffect(() => {
-    // Products with discount >= 50%
     supabase.from('products')
       .select('*')
       .gte('discount', 50)
@@ -26,15 +40,29 @@ export default function FlashSale() {
         <ArrowLeft size={20} />
       </button>
 
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6,
-      }}>
-        <Zap size={24} color="#F59E0B" fill="#F59E0B" />
-        <h2 style={{ fontSize: 22, fontWeight: 900 }}>Flash Sale</h2>
+      <div className="fs-hero">
+        <div className="fs-hero-title">
+          <Zap size={22} color="#FFFFFF" fill="#FFFFFF" />
+          Flash Sale
+        </div>
+        <div className="fs-hero-sub">
+          Up to 50% off. Ends soon — grab them before the timer runs out.
+        </div>
+        <div className="fs-countdown">
+          <div className="fs-unit">
+            <div className="fs-unit-num">{hours}</div>
+            <div className="fs-unit-lab">Hours</div>
+          </div>
+          <div className="fs-unit">
+            <div className="fs-unit-num">{minutes}</div>
+            <div className="fs-unit-lab">Min</div>
+          </div>
+          <div className="fs-unit">
+            <div className="fs-unit-num">{seconds}</div>
+            <div className="fs-unit-lab">Sec</div>
+          </div>
+        </div>
       </div>
-      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
-        Grab the biggest discounts before they're gone.
-      </p>
 
       {loading ? (
         <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
@@ -48,34 +76,54 @@ export default function FlashSale() {
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          {products.map(p => (
-            <Link key={p.id} to={`/product/${p.legacy_id || p.id}`} className="card" style={{ padding: 0, textDecoration: 'none', color: 'inherit', overflow: 'hidden' }}>
-              <div className="product-thumb" style={{ position: 'relative' }}>
-                <SmartImage src={(p.images && p.images[0]) || ''} alt={p.name} />
-                <div style={{
-                  position: 'absolute', top: 8, left: 8,
-                  background: '#DC2626', color: '#fff',
-                  fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
-                  letterSpacing: 0.5,
-                }}>
-                  -{p.discount}%
+          {products.map((p, i) => {
+            const stockPct = typeof p.stock === 'number'
+              ? Math.max(15, Math.min(100, Math.round((p.stock / Math.max(p.stock, 50)) * 100)))
+              : null;
+            return (
+              <Link
+                key={p.id}
+                to={`/product/${p.legacy_id || p.id}`}
+                className="fs-card fade-up"
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  animationDelay: Math.min(i * 40, 400) + 'ms',
+                }}
+              >
+                <div className="product-thumb" style={{ position: 'relative' }}>
+                  <SmartImage src={(p.images && p.images[0]) || ''} alt={p.name} />
+                  <span className="fs-ribbon">-{p.discount}%</span>
                 </div>
-              </div>
-              <div style={{ padding: 12 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.35, marginBottom: 6, height: '2.7em', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                  {p.name}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                  <span style={{ fontWeight: 800, fontSize: 15 }}>₱{p.price}</span>
-                  {p.original_price && (
-                    <span style={{ fontSize: 11, color: 'var(--muted)', textDecoration: 'line-through' }}>
-                      ₱{p.original_price}
-                    </span>
+                <div style={{ padding: 12 }}>
+                  <div style={{
+                    fontSize: 13, fontWeight: 700, lineHeight: 1.35,
+                    marginBottom: 6, height: '2.7em', overflow: 'hidden',
+                    display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
+                  }}>
+                    {p.name}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                    <span style={{ fontWeight: 800, fontSize: 15 }}>₱{p.price}</span>
+                    {p.original_price && (
+                      <span style={{ fontSize: 11, color: 'var(--muted)', textDecoration: 'line-through' }}>
+                        ₱{p.original_price}
+                      </span>
+                    )}
+                  </div>
+                  {stockPct !== null && (
+                    <div className="fs-stock-bar">
+                      <div className="fs-stock-fill" style={{ width: stockPct + '%' }} />
+                    </div>
                   )}
+                  <span className="fs-cta">
+                    Grab it now
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </span>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

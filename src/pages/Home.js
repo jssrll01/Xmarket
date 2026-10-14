@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Search, X, SlidersHorizontal, ShoppingCart, Bell, ChevronDown, Check, Menu,
+  Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
 , Gift, Settings, LogOut , Zap } from 'lucide-react';
 import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
@@ -175,10 +175,7 @@ export default function Home() {
   const [trending, setTrending] = useState([]);
   const [minRating, setMinRating] = useState(0);
   const [storeFilter, setStoreFilter] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
-  const [maxPrice, setMaxPrice] = useState(1000000);
   const [category, setCategory] = useState('All');
-  const [minDiscount, setMinDiscount] = useState(0);
   const [sort, setSort] = useState('priceLow');
   const [loadingId, setLoadingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -286,9 +283,7 @@ export default function Home() {
 
   let filtered = sortByStock(products).filter(p => {
     if (!p.name.toLowerCase().includes(search.toLowerCase())) return false;
-    if (p.price > maxPrice) return false;
     if (category !== 'All' && p.category !== category) return false;
-    if (p.discount < minDiscount) return false;
     if (minRating > 0 && (stats[p.uuid]?.avgRating || 0) < minRating) return false;
     if (storeFilter && !(p.store || '').toLowerCase().includes(storeFilter.toLowerCase())) return false;
     return true;
@@ -329,8 +324,7 @@ export default function Home() {
   const clearFilters = () => {
     setSearch('');
     setCategory('All');
-    setMinDiscount(0);
-    setMaxPrice(1000000);
+    setSort('best');
   };
 
   const suggestions = search.length >= 2
@@ -408,52 +402,6 @@ export default function Home() {
               </button>
             )}
           </div>
-          <button
-            className={'icon-btn' + (showFilters || minDiscount > 0 ? ' has-dot' : '')}
-            onClick={() => setShowFilters(s => !s)}
-            aria-label="Filters"
-          >
-            <SlidersHorizontal size={18} />
-            {(showFilters || minDiscount > 0) && (
-              <span style={{
-                position: 'absolute', top: 6, right: 6,
-                width: 8, height: 8, borderRadius: '50%',
-                background: '#DC2626', boxShadow: '0 0 0 2px var(--neu-surface)',
-              }} />
-            )}
-          </button>
-
-          {!searchFocus && (
-            <div className="search-tools">
-              <button
-                className={'search-tool' + (sort === 'priceLow' ? ' active' : '')}
-                onClick={() => setSort('priceLow')}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
-                Lowest price
-              </button>
-              <button
-                className={'search-tool' + (sort === 'priceHigh' ? ' active' : '')}
-                onClick={() => setSort('priceHigh')}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
-                Highest price
-              </button>
-              <button
-                className={'search-tool' + (sort === 'best' ? ' active' : '')}
-                onClick={() => setSort('best')}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15 8.5 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 9 8.5 12 2"/></svg>
-                Best seller
-              </button>
-              {minDiscount > 0 && (
-                <button className="search-tool active" onClick={() => setMinDiscount(0)}>
-                  {minDiscount}% off
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-              )}
-            </div>
-          )}
 
           {searchFocus && (
             <div className="search-suggest" onMouseDown={e => e.preventDefault()}>
@@ -522,17 +470,6 @@ export default function Home() {
           )}
         </div>
 
-        {showFilters && (
-          <div className="card" style={{ margin: '4px 16px 12px', padding: 14 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Filters</div>
-            <label>Max Price: ₱{maxPrice}</label>
-            <input type="range" min="0" max="1000000" step="1000" value={maxPrice}
-              onChange={e => setMaxPrice(+e.target.value)} style={{ width: '100%' }} />
-            <label style={{ display: 'block', marginTop: 6 }}>Min Discount: {minDiscount}%</label>
-            <input type="range" min="0" max="100" value={minDiscount}
-              onChange={e => setMinDiscount(+e.target.value)} style={{ width: '100%' }} />
-          </div>
-        )}
 <div className="banner-wrap" style={{ padding: '12px 16px 4px' }}>
         <div
           className="banner-stage"
