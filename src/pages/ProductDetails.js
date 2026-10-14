@@ -265,11 +265,7 @@ export default function ProductDetails() {
               ₱{product.originalPrice}
             </span>
           )}
-          {product.discount > 0 && (
-            <span style={{ fontSize: 12, fontWeight: 800, color: '#DC2626', background: '#FEE2E2', padding: '3px 8px', borderRadius: 6 }}>
-              -{product.discount}%
-            </span>
-          )}
+          
         </div>
         <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>
           <span>{product.sold} sold</span>

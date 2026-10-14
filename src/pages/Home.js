@@ -289,7 +289,6 @@ export default function Home() {
     if (category !== 'All' && p.category !== category) return false;
     if (minRating > 0 && (stats[p.uuid]?.avgRating || 0) < minRating) return false;
     if (p.price > maxPrice) return false;
-    if ((p.discount || 0) < minDiscount) return false;
     if (storeFilter && !(p.store || '').toLowerCase().includes(storeFilter.toLowerCase())) return false;
     return true;
   });
@@ -803,11 +802,7 @@ export default function Home() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                     <span style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(p).display}</span>
-                    {p.discount > 0 && (
-                      <span style={{ fontSize: 10, fontWeight: 800, color: '#DC2626', background: '#FEE2E2', padding: '2px 6px', borderRadius: 6, lineHeight: 1 }}>
-                        -{p.discount}%
-                      </span>
-                    )}
+                    
                   </div>
                 </div>
               </Link>
