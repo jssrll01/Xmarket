@@ -51,3 +51,8 @@ server/xmarket-pwa-service-account.json
 *.preWS5a
 *.preWS5b
 *.preWS5c
+
+# local backups — never commit these
+*.pre*
+*.preWS*
+*.preSocialFix
