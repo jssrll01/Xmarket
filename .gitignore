@@ -12,6 +12,7 @@ yarn-debug.log*
 yarn-error.log*
 start.log
 run.log
+*.log
 
 # editor
 .vscode/
@@ -20,25 +21,25 @@ run.log
 # env
 .env
 .env.local
+.env.*.local
 
-# backups
-*.bak
-
-# Service accounts
+# service accounts / secrets
 service-account.json
-server/service-account.json
-firebase-service-account.json
-server/firebase-service-account.json
-
-
-# Firebase service accounts
-server/xmarket-pwa-service-account.json
-server/service-account.json
-server/firebase-service-account.json
 *-service-account.json
 *-firebase-adminsdk-*.json
-
+server/service-account.json
+server/firebase-service-account.json
 server/xmarket-pwa-service-account.json
-*.pre*
+
+# backup / scratch file patterns (never commit these)
 *.bak
+*.pre*
+*.preWS*
+*.preFix*
+*.preQV*
+*.preSchemaFix
 *.ws2bak
+*.removed
+*.orig
+*.rej
+*~
