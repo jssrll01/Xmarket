@@ -74,7 +74,6 @@ export default function Xwallet() {
   useEffect(() => {
     if (!user) { nav('/signin', { replace: true }); return; }
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const filtered = useMemo(() => {

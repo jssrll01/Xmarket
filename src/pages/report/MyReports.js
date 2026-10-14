@@ -4,9 +4,9 @@ import {
   ArrowLeft, FileText, X as XIcon, Clock, Tag, MessageSquare,
   CheckCircle2, AlertCircle, Loader2,
 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
-import { useAuth } from '../context/AuthContext';
-import EmptyState from '../components/EmptyState';
+import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../context/AuthContext';
+import EmptyState from '../../components/EmptyState';
 
 const CATEGORY_LABEL = {
   product: 'Product',

@@ -50,7 +50,6 @@ export default function Xcards() {
   useEffect(() => {
     if (!user) { nav('/signin', { replace: true }); return; }
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const totalValue = useMemo(() => {

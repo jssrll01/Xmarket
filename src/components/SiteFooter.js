@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Facebook, Twitter, Instagram, Youtube,
-  Mail, Download, Check, Loader2, ShieldCheck,
+  Mail, Download, Check, Loader2, ShieldCheck, Link2, Send, Camera, Video,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from './Toast';
@@ -60,10 +59,10 @@ const PAYMENTS = [
 ];
 
 const SOCIALS = [
-  { id: 'fb',  icon: Facebook,  href: 'https://facebook.com',  label: 'Facebook' },
-  { id: 'tw',  icon: Twitter,   href: 'https://twitter.com',   label: 'Twitter / X' },
-  { id: 'ig',  icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-  { id: 'yt',  icon: Youtube,   href: 'https://youtube.com',   label: 'YouTube' },
+  { id: 'fb',  icon: Link2,  href: 'https://facebook.com',  label: 'Facebook' },
+  { id: 'tw',  icon: Send,   href: 'https://twitter.com',   label: 'Twitter / X' },
+  { id: 'ig',  icon: Camera, href: 'https://instagram.com', label: 'Instagram' },
+  { id: 'yt',  icon: Video,  href: 'https://youtube.com',   label: 'YouTube' },
 ];
 
 export default function SiteFooter() {
