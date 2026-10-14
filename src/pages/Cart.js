@@ -71,7 +71,7 @@ export default function Cart() {
                 </div>
                 <div className="meta">
                   <div className="name">{r.name}</div>
-                  <div className="price">₱{r.price}</div>
+                  <div className="price">{priceRange(r).display}</div>
                 </div>
               </button>
             ))}
@@ -171,7 +171,7 @@ export default function Cart() {
                 </div>
                 <div className="meta">
                   <div className="name">{r.name}</div>
-                  <div className="price">₱{r.price}</div>
+                  <div className="price">{priceRange(r).display}</div>
                 </div>
               </button>
             ))}
