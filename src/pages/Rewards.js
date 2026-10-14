@@ -1,179 +1,174 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  ArrowLeft, Sparkles, Trophy, Gift, History, ChevronRight,
-  Star, Coins,
-} from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { ArrowLeft, Gift, Award, Sparkles, Copy, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import EmptyState from '../components/EmptyState';
+import { useToast } from '../components/Toast';
+import { fetchLoyalty, fetchLoyaltyLedger, fetchLoyaltyVouchers } from '../lib/promos';
 
-// Tiers and how many points each requires
 const TIERS = [
-  { id: 'Starter', min: 0,     color: '#94A3B8', Icon: Star },
-  { id: 'Silver',  min: 500,   color: '#94A3B8', Icon: Star },
-  { id: 'Gold',    min: 2000,  color: '#F59E0B', Icon: Star },
-  { id: 'Platinum',min: 5000,  color: '#8B5CF6', Icon: Trophy },
+  { name: 'Bronze', min: 300,  discount: 50,  color: '#B45309' },
+  { name: 'Silver', min: 700,  discount: 75,  color: '#9CA3AF' },
+  { name: 'Gold',   min: 1000, discount: 100, color: '#F59E0B' },
 ];
-
-const REDEEM_CATALOG = [
-  { id: 'v50',   cost: 500,  label: '₱50 XWallet credit',  desc: 'Adds ₱50 to your XWallet',   Icon: Coins },
-  { id: 'v100',  cost: 950,  label: '₱100 XWallet credit', desc: 'Save 5% vs two ₱50 credits', Icon: Coins },
-  { id: 'ship',  cost: 300,  label: 'Free shipping voucher', desc: 'Waives delivery fee on one order', Icon: Gift },
-  { id: 'dis5',  cost: 700,  label: '5% off voucher',      desc: 'Cap ₱100 · one order',       Icon: Gift },
-];
-
-function tierFor(points) {
-  let current = TIERS[0];
-  for (const t of TIERS) if (points >= t.min) current = t;
-  const next = TIERS.find((t) => t.min > points);
-  const span = next ? (next.min - current.min) : 0;
-  const progress = next ? Math.min(100, Math.round(((points - current.min) / span) * 100)) : 100;
-  return { current, next, progress };
-}
 
 export default function Rewards() {
   const nav = useNavigate();
   const { user } = useAuth();
-
-  const [profile, setProfile] = useState(null);
-  const [history, setHistory] = useState([]);
+  const { show: showToast } = useToast();
+  const [points, setPoints] = useState(0);
+  const [ledger, setLedger] = useState([]);
+  const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(null);
 
   useEffect(() => {
-    if (!user) { nav('/signin', { replace: true }); return; }
-    let alive = true;
-    (async () => {
-      setLoading(true);
-      const [{ data: p }, { data: h }] = await Promise.all([
-        supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-        supabase
-          .from('xwallet_txns')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(20),
-      ]);
-      if (!alive) return;
-      setProfile(p || null);
-      setHistory(h || []);
-      setLoading(false);
-    })();
-    return () => { alive = false; };
-  }, [user, nav]);
+    if (!user) { setLoading(false); return; }
+    Promise.all([
+      fetchLoyalty(user.id),
+      fetchLoyaltyLedger(user.id),
+      fetchLoyaltyVouchers(user.id),
+    ]).then(([p, l, v]) => {
+      setPoints(p); setLedger(l); setVouchers(v); setLoading(false);
+    });
+  }, [user]);
 
-  const points = Number(profile?.loyalty_points) || 0;
-  const { current, next, progress } = useMemo(() => tierFor(points), [points]);
+  if (!user) return (
+    <div style={{ padding: 24, textAlign: 'center' }}>
+      <p style={{ color: 'var(--muted)' }}>Sign in to see your loyalty points.</p>
+      <button className="btn-primary" onClick={() => nav('/signin')} style={{ marginTop: 12, padding: '10px 24px' }}>Sign in</button>
+    </div>
+  );
 
-  const goBackSafe = () => {
-    const idx = window.history.state?.idx ?? 0;
-    if (idx > 0) nav(-1);
-    else nav('/');
+  const tier = points >= 1000 ? 'Gold' : points >= 700 ? 'Silver' : 'Bronze';
+  const tierMeta = TIERS.find(t => t.name === tier);
+  const nextTier = TIERS.find(t => t.min > points);
+  const progress = nextTier ? Math.min(100, (points / nextTier.min) * 100) : 100;
+
+  const copyCode = async (code) => {
+    try {
+      await navigator.clipboard.writeText(code);
+      setCopied(code);
+      showToast('Code copied');
+      setTimeout(() => setCopied(null), 2000);
+    } catch { showToast('Copy failed'); }
   };
 
-  if (!user) return null;
-
   return (
-    <div className="page-enter" style={{ padding: 16, paddingBottom: 80 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-        <button onClick={goBackSafe} className="icon-btn"><ArrowLeft size={20} /></button>
-        <h2 style={{ fontSize: 22, fontWeight: 900, flex: 1 }}>Rewards</h2>
+    <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
+      <button onClick={() => nav(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+        <ArrowLeft size={20} />
+      </button>
+
+      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Loyalty Points</h2>
+      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
+        Earn 1 point for every ₱10 spent. Unlock tier vouchers as you go.
+      </p>
+
+      <div style={{
+        padding: 24, marginBottom: 16,
+        background: 'linear-gradient(135deg, #2563EB 0%, #7C3AED 100%)',
+        color: '#ffffff',
+        borderRadius: 16,
+        position: 'relative',
+        overflow: 'hidden',
+        boxShadow: '0 10px 30px rgba(37, 99, 235, 0.25)',
+        WebkitTapHighlightColor: 'transparent',
+      }}>
+        <Sparkles size={80} style={{ position: 'absolute', top: -10, right: -20, opacity: 0.15 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <Award size={18} color={tierMeta.color} fill={tierMeta.color} />
+          <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', opacity: 0.9 }}>
+            {tier} Member
+          </span>
+        </div>
+        <div style={{ fontSize: 48, fontWeight: 900, lineHeight: 1 }}>{points}</div>
+        <div style={{ fontSize: 12, opacity: 0.85, marginTop: 6 }}>points earned</div>
+
+        {nextTier && (
+          <>
+            <div style={{ marginTop: 16, fontSize: 11, opacity: 0.85 }}>
+              {nextTier.min - points} points to {nextTier.name}
+            </div>
+            <div style={{ marginTop: 6, height: 6, borderRadius: 3, background: 'rgba(255,255,255,0.25)' }}>
+              <div style={{ width: `${progress}%`, height: '100%', background: '#fff', borderRadius: 3 }} />
+            </div>
+          </>
+        )}
       </div>
 
-      {/* Hero: points + tier */}
-      <div className="rw-hero">
-        <div className="rw-hero-glow" />
-        <div className="rw-hero-label">
-          <Sparkles size={14} /> Your points
+      <div className="card" style={{ padding: 14, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+          <Gift size={16} color="var(--primary)" />
+          <span style={{ fontWeight: 700, fontSize: 13 }}>How it works</span>
         </div>
-        <div className="rw-hero-points">{points.toLocaleString()}</div>
-        <div className="rw-hero-tier">
-          <current.Icon size={13} color={current.color} />
-          <span>{current.id}</span>
-          {next && <span className="rw-hero-tier-next">· {Math.max(0, next.min - points)} to {next.id}</span>}
-        </div>
-        <div className="rw-hero-progress">
-          <div className="rw-hero-progress-fill" style={{ width: `${progress}%` }} />
-        </div>
-        <div className="rw-hero-progress-labels">
-          <span>{current.id}</span>
-          <span>{next ? next.id : 'Max tier'}</span>
+        <div style={{ fontSize: 12.5, lineHeight: 1.7, color: 'var(--muted)' }}>
+          • Earn <b style={{ color: 'var(--text)' }}>1 point per ₱10</b> spent<br />
+          • <b style={{ color: 'var(--text)' }}>Bronze</b> (300 pts) → ₱50 off voucher<br />
+          • <b style={{ color: 'var(--text)' }}>Silver</b> (700 pts) → ₱75 off voucher<br />
+          • <b style={{ color: 'var(--text)' }}>Gold</b> (1000 pts) → ₱100 off voucher<br />
+          • Vouchers are one-time use, sent to your account on tier unlock
         </div>
       </div>
 
-      {/* Redeem catalog */}
-      <div className="rw-section-head">
-        <Gift size={14} color="var(--primary)" />
-        <span>Redeem your points</span>
-      </div>
-
-      <div className="rw-catalog">
-        {REDEEM_CATALOG.map((r) => {
-          const canAfford = points >= r.cost;
-          return (
-            <button
-              key={r.id}
-              className={'rw-item' + (canAfford ? '' : ' disabled')}
-              onClick={() => {
-                if (!canAfford) return;
-                // placeholder: real redemption would call an RPC
-                alert(`Redeeming "${r.label}" for ${r.cost} points.\n\n(Redemption RPC not wired yet.)`);
-              }}
-              type="button"
-            >
-              <div className="rw-item-icon">
-                <r.Icon size={18} color="var(--primary)" />
+      {vouchers.length > 0 && (
+        <>
+          <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 10 }}>Your Vouchers</h3>
+          {vouchers.map(v => (
+            <div key={v.id} className="card" style={{
+              padding: 12, marginBottom: 8,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              border: v.redeemed ? '1px dashed var(--border)' : '1px solid var(--primary)',
+              opacity: v.redeemed ? 0.5 : 1,
+            }}>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 14, letterSpacing: 1 }}>
+                  {v.code}
+                </div>
+                <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
+                  ₱{v.discount_amount} off · min spend ₱{v.min_spend} · {v.redeemed ? 'Used' : 'Available'}
+                </div>
               </div>
-              <div className="rw-item-body">
-                <div className="rw-item-title">{r.label}</div>
-                <div className="rw-item-desc">{r.desc}</div>
-              </div>
-              <div className="rw-item-cost">
-                <span className="rw-item-cost-num">{r.cost}</span>
-                <span className="rw-item-cost-label">pts</span>
-              </div>
-            </button>
-          );
-        })}
-      </div>
+              {!v.redeemed && (
+                <button onClick={() => copyCode(v.code)} className="btn-ghost"
+                  style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  {copied === v.code ? <Check size={12} /> : <Copy size={12} />}
+                  {copied === v.code ? 'Copied' : 'Copy'}
+                </button>
+              )}
+            </div>
+          ))}
+        </>
+      )}
 
-      {/* Points history */}
-      <div className="rw-section-head">
-        <History size={14} color="var(--primary)" />
-        <span>Recent activity</span>
-      </div>
-
+      <h3 style={{ fontSize: 15, fontWeight: 800, margin: '16px 0 10px' }}>Activity</h3>
       {loading ? (
-        <div className="rw-history">
-          {[0, 1, 2].map((i) => <div key={i} className="rw-history-skel" />)}
+        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20 }}>Loading…</p>
+      ) : ledger.length === 0 ? (
+        <div className="card" style={{ padding: 24, textAlign: 'center' }}>
+          <p style={{ color: 'var(--muted)', fontSize: 13 }}>
+            No activity yet.<br />Place an order to start earning points.
+          </p>
         </div>
-      ) : history.length === 0 ? (
-        <EmptyState
-          icon={History}
-          title="No activity yet"
-          message="Points you earn from purchases will show up here."
-        />
       ) : (
-        <div className="rw-history">
-          {history.slice(0, 10).map((h) => {
-            const isEarn = String(h.type).toLowerCase() === 'topup';
-            const amt = Number(h.amount) || 0;
-            return (
-              <div key={h.id} className="rw-history-row">
-                <div className={'rw-history-dot' + (isEarn ? ' earn' : ' spend')} />
-                <div className="rw-history-info">
-                  <div className="rw-history-title">{h.description || (isEarn ? 'Points earned' : 'Points spent')}</div>
-                  <div className="rw-history-date">
-                    {h.created_at ? new Date(h.created_at).toLocaleDateString() : ''}
-                  </div>
-                </div>
-                <div className={'rw-history-amt' + (isEarn ? ' earn' : ' spend')}>
-                  {isEarn ? '+' : '−'}{amt} pts
-                </div>
+        ledger.map(l => (
+          <div key={l.id} className="card" style={{
+            padding: 14, marginBottom: 8,
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          }}>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 700 }}>{l.reason || 'Reward'}</div>
+              <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
+                {new Date(l.created_at).toLocaleDateString()}
               </div>
-            );
-          })}
-        </div>
+            </div>
+            <div style={{
+              fontWeight: 800, fontSize: 15,
+              color: l.delta > 0 ? '#10B981' : '#DC2626',
+            }}>
+              {l.delta > 0 ? '+' : ''}{l.delta}
+            </div>
+          </div>
+        ))
       )}
     </div>
   );

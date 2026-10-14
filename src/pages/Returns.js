@@ -1,202 +1,145 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import {
-  ArrowLeft, Package, Truck, CheckCircle2, XCircle, Clock,
-  ChevronDown, RotateCcw, CircleDot,
-} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, Package, AlertCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import EmptyState from '../components/EmptyState';
-import SmartImage from '../components/SmartImage';
+import { useToast } from '../components/Toast';
 
-const STEPS = [
-  { id: 'requested', label: 'Requested', Icon: CircleDot },
-  { id: 'approved',  label: 'Approved',  Icon: CheckCircle2 },
-  { id: 'shipped',   label: 'Shipped',   Icon: Truck },
-  { id: 'refunded',  label: 'Refunded',  Icon: Package },
+const REASONS = [
+  'Item is damaged / defective',
+  'Item is not as described',
+  'Received wrong item',
+  'Missing parts or accessories',
+  'Changed my mind',
+  'Other',
 ];
-
-const STATUS_FILTERS = [
-  { id: 'all',       label: 'All' },
-  { id: 'pending',   label: 'Pending' },
-  { id: 'approved',  label: 'Approved' },
-  { id: 'shipped',   label: 'Shipped' },
-  { id: 'refunded',  label: 'Refunded' },
-  { id: 'rejected',  label: 'Rejected' },
-];
-
-function statusIndex(status) {
-  const s = String(status || '').toLowerCase();
-  if (s === 'pending' || s === 'requested') return 0;
-  if (s === 'approved') return 1;
-  if (s === 'shipped' || s === 'in_transit') return 2;
-  if (s === 'refunded' || s === 'completed') return 3;
-  return -1;
-}
-
-function Stepper({ status }) {
-  const s = String(status || '').toLowerCase();
-  const rejected = s === 'rejected' || s === 'denied';
-  const idx = statusIndex(status);
-
-  return (
-    <div className="ret-stepper">
-      {STEPS.map((step, i) => {
-        const done = !rejected && i <= idx;
-        const active = !rejected && i === idx;
-        return (
-          <React.Fragment key={step.id}>
-            <div className={'ret-step' + (done ? ' done' : '') + (active ? ' active' : '')}>
-              <div className="ret-step-dot">
-                <step.Icon size={12} />
-              </div>
-              <div className="ret-step-label">{step.label}</div>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div className={'ret-step-line' + (done && i < idx ? ' done' : '')} />
-            )}
-          </React.Fragment>
-        );
-      })}
-      {rejected && (
-        <div className="ret-rejected">
-          <XCircle size={12} /> Rejected
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function Returns() {
   const nav = useNavigate();
   const { user } = useAuth();
-  const [rows, setRows] = useState([]);
+  const { show: showToast } = useToast();
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState('all');
+  const [activeOrder, setActiveOrder] = useState(null);
+  const [reason, setReason] = useState(REASONS[0]);
+  const [note, setNote] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [existingReturns, setExistingReturns] = useState({});
 
   useEffect(() => {
-    if (!user) { nav('/signin', { replace: true }); return; }
-    supabase
-      .from('return_requests')
-      .select('*, order:orders(id, order_code), product:products(id, legacy_id, name, images)')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .then(({ data }) => { setRows(data || []); setLoading(false); });
-  }, [user, nav]);
-
-  if (!user) return null;
-
-  const filtered = useMemo(() => {
-    if (filter === 'all') return rows;
-    return rows.filter((r) => {
-      const s = String(r.status || '').toLowerCase();
-      if (filter === 'pending') return s === 'pending' || s === 'requested';
-      return s === filter;
+    if (!user) { setLoading(false); return; }
+    Promise.all([
+      supabase.from('orders').select('id, order_code, total, status, created_at').eq('buyer_id', user.id).order('created_at', { ascending: false }),
+      supabase.from('return_requests').select('order_id, status').eq('buyer_id', user.id),
+    ]).then(([o, r]) => {
+      setOrders((o.data || []).filter(x => x.status === 'delivered' || x.status === 'completed'));
+      const map = {};
+      (r.data || []).forEach(x => { map[x.order_id] = x.status; });
+      setExistingReturns(map);
+      setLoading(false);
     });
-  }, [rows, filter]);
+  }, [user]);
 
-  const goBackSafe = () => {
-    const idx = window.history.state?.idx ?? 0;
-    if (idx > 0) nav(-1);
-    else nav('/');
+  const submit = async () => {
+    if (!activeOrder) return;
+    setSubmitting(true);
+    const { error } = await supabase.from('return_requests').insert({
+      order_id: activeOrder.id,
+      buyer_id: user.id,
+      reason,
+      note: note.trim() || null,
+      refund_amount: activeOrder.total,
+    });
+    setSubmitting(false);
+    if (error) { showToast(error.message); return; }
+    showToast('Return request submitted');
+    setExistingReturns(prev => ({ ...prev, [activeOrder.id]: 'pending' }));
+    setActiveOrder(null);
+    setNote('');
+    setReason(REASONS[0]);
   };
 
   return (
-    <div className="page-enter" style={{ padding: 16, paddingBottom: 80 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-        <button onClick={goBackSafe} className="icon-btn"><ArrowLeft size={20} /></button>
-        <h2 style={{ fontSize: 22, fontWeight: 900, flex: 1 }}>Returns</h2>
-      </div>
+    <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
+      <button onClick={() => nav(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+        <ArrowLeft size={20} />
+      </button>
 
-      {/* Filter chips */}
-      {rows.length > 0 && (
-        <div className="ret-chips">
-          {STATUS_FILTERS.map((f) => (
-            <button
-              key={f.id}
-              className={'ret-chip' + (filter === f.id ? ' active' : '')}
-              onClick={() => setFilter(f.id)}
-            >
-              {f.label}
-              {f.id !== 'all' && (
-                <span className="ret-chip-count">
-                  {rows.filter((r) => {
-                    const s = String(r.status || '').toLowerCase();
-                    if (f.id === 'pending') return s === 'pending' || s === 'requested';
-                    return s === f.id;
-                  }).length}
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
+      <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Returns & Refunds</h2>
+      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
+        Request a return or refund for a delivered order.
+      </p>
 
       {loading ? (
-        <div className="ret-list">
-          {[0, 1, 2].map((i) => <div key={i} className="ret-skel" />)}
+        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
+      ) : orders.length === 0 ? (
+        <div className="card" style={{ padding: 24, textAlign: 'center' }}>
+          <Package size={40} color="var(--muted)" style={{ marginBottom: 12 }} />
+          <p style={{ color: 'var(--muted)', fontSize: 13 }}>
+            No delivered orders eligible for return.
+          </p>
         </div>
-      ) : rows.length === 0 ? (
-        <EmptyState
-          icon={RotateCcw}
-          title="No returns yet"
-          message="Request a return on any delivered order and track it here."
-          action="View orders"
-          onAction={() => nav('/orders')}
-        />
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          icon={RotateCcw}
-          title="No returns match"
-          message="Try a different status filter."
-          action="Show all"
-          onAction={() => setFilter('all')}
-        />
       ) : (
-        <div className="ret-list">
-          {filtered.map((r) => {
-            const prod = r.product || {};
-            const img = (prod.images && prod.images[0]) || '';
-            const created = r.created_at ? new Date(r.created_at) : null;
-            return (
-              <div key={r.id} className="ret-card">
-                <div className="ret-head">
-                  <div className="ret-head-left">
-                    <div className="ret-order-code">
-                      #{r.order?.order_code || r.order_id || '—'}
-                    </div>
-                    {created && (
-                      <div className="ret-date">
-                        <Clock size={11} /> {created.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                      </div>
-                    )}
-                  </div>
-                  <div className={'ret-status ret-status-' + String(r.status || 'pending').toLowerCase()}>
-                    {String(r.status || 'pending').replace(/_/g, ' ')}
-                  </div>
-                </div>
-
-                <div className="ret-body">
-                  {img && (
-                    <Link to={`/product/${prod.legacy_id || prod.id}`} className="ret-thumb">
-                      <SmartImage src={img} alt={prod.name || 'Item'} />
-                    </Link>
-                  )}
-                  <div className="ret-info">
-                    <div className="ret-name">{prod.name || r.product_name || 'Item'}</div>
-                    {r.reason && <div className="ret-reason">Reason: {r.reason}</div>}
-                    {r.refund_amount != null && (
-                      <div className="ret-refund money">
-                        Refund: ₱{Number(r.refund_amount).toLocaleString()}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <Stepper status={r.status} />
+        orders.map(o => (
+          <div key={o.id} className="card" style={{ padding: 14, marginBottom: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+              <div style={{ fontWeight: 700, fontSize: 14 }}>#{o.order_code}</div>
+              <div style={{ fontWeight: 800, fontSize: 14 }}>₱{o.total}</div>
+            </div>
+            <div style={{ fontSize: 11.5, color: 'var(--muted)', marginBottom: 10 }}>
+              {new Date(o.created_at).toLocaleDateString()}
+            </div>
+            {existingReturns[o.id] ? (
+              <div style={{
+                padding: 10, borderRadius: 10,
+                background: 'var(--card)', border: '1px solid var(--border)',
+                fontSize: 12, color: 'var(--text)',
+              }}>
+                Return status: <b>{existingReturns[o.id]}</b>
               </div>
-            );
-          })}
+            ) : (
+              <button onClick={() => setActiveOrder(o)} className="btn-primary"
+                style={{ width: '100%', padding: 10, fontSize: 13 }}>
+                Request return / refund
+              </button>
+            )}
+          </div>
+        ))
+      )}
+
+      {activeOrder && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 500,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex', alignItems: 'flex-end',
+        }} onClick={() => setActiveOrder(null)}>
+          <div onClick={e => e.stopPropagation()}
+            style={{
+              width: '100%', background: 'var(--bg, #fff)',
+              padding: 20, borderRadius: '20px 20px 0 0',
+              maxHeight: '85vh', overflowY: 'auto',
+            }}>
+            <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>
+              Return #{activeOrder.order_code}
+            </h3>
+            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Reason</label>
+            <select value={reason} onChange={e => setReason(e.target.value)}
+              style={{ width: '100%', padding: 10, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 }}>
+              {REASONS.map(r => <option key={r}>{r}</option>)}
+            </select>
+            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Note (optional)</label>
+            <textarea value={note} onChange={e => setNote(e.target.value)}
+              placeholder="Any extra details…"
+              style={{ width: '100%', padding: 10, marginTop: 6, marginBottom: 12, minHeight: 80, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 }} />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={() => setActiveOrder(null)} className="btn-ghost" style={{ flex: 1, padding: 12 }}>
+                Cancel
+              </button>
+              <button onClick={submit} disabled={submitting} className="btn-primary" style={{ flex: 1, padding: 12 }}>
+                {submitting ? 'Submitting…' : 'Submit'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

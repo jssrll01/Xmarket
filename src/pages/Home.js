@@ -17,8 +17,6 @@ import { ProductGridSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import useRecentSearches from '../hooks/useRecentSearches';
 import UserMenu from '../components/UserMenu';
-import QuickView from '../components/QuickView';
-import { discountPct } from '../lib/variants';
 
 function Dropdown({ value, options, onChange }) {
   const [open, setOpen] = useState(false);
@@ -158,7 +156,6 @@ function Drawer({ open, onClose }) {
 
 export default function Home() {
   const navigate = useNavigate();
-  const [qvProduct, setQvProduct] = useState(null);
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
@@ -691,13 +688,6 @@ export default function Home() {
           ))}
         </div>
       )}
-
-      <QuickView
-        product={qvProduct}
-        onClose={() => setQvProduct(null)}
-        onAddToCart={(p, sel) => dispatch({ type: 'ADD', payload: { product_id: p.id, variant: JSON.stringify(sel), quantity: 1 } })}
-        onOpenFull={(p) => navigate(`/product/${p.legacy_id || p.id}`)}
-      />
     </div>
   );
 }

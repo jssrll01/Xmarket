@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import { parseCartVariant, comboLabel, priceFor } from './variants';
 
 try { localStorage.removeItem('xmarket_cart_v1'); } catch {}
 
@@ -23,8 +22,7 @@ export async function fetchCart(userId) {
     error: null,
     items: rows.map(row => {
       const p = byId.get(row.product_id) || {};
-      const sel = parseCartVariant(row.variant);
-      const price = priceFor(p, sel);
+      const price = Number(p.price) || 0;
       const original = Number(p.original_price) || price;
       const stock = Number(p.stock || 0);
       return {
@@ -39,8 +37,6 @@ export async function fetchCart(userId) {
         verified: !!p.verified,
         variants: p.variants || [],
         variant: row.variant || '',
-        variantObj: parseCartVariant(row.variant),
-        variantLabel: comboLabel(parseCartVariant(row.variant)),
         quantity: Number(row.quantity) || 1,
         instant: !!p.instant,
         preorder: !!p.preorder,

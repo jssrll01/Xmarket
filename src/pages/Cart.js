@@ -1,35 +1,37 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart, Zap } from 'lucide-react';
+import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
+import { fetchProducts } from '../lib/products';
 import SmartImage from '../components/SmartImage';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
-import { parseCartVariant, comboLabel } from '../lib/variants';
 
 export default function Cart() {
-  const { items, dispatch, loading } = useCart();
+  const { items, dispatch } = useCart();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { show: showToast } = useToast();
   const [going, setGoing] = useState(false);
-  const [confirmClear, setConfirmClear] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(null);
+  const [allProducts, setAllProducts] = useState([]);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/signin', { replace: true });
   }, [user, authLoading, navigate]);
 
-  const subtotal = items.reduce((s, i) => s + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
-  const originalTotal = items.reduce((s, i) => s + (Number(i.originalPrice) || Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
-  const savings = Math.max(0, originalTotal - subtotal);
-  const itemCount = items.reduce((s, i) => s + (Number(i.quantity) || 0), 0);
+  useEffect(() => {
+    fetchProducts().then(list => setAllProducts(list));
+  }, []);
+
+  const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
+  const discount = items.reduce((sum, i) => sum + Math.max(0, (Number(i.originalPrice) || 0) - (Number(i.price) || 0)) * (Number(i.quantity) || 1), 0);
+  const total = subtotal;
 
   const handleCheckout = () => {
-    if (!items.length) return;
     setGoing(true);
-    setTimeout(() => navigate('/checkout'), 300);
+    setTimeout(() => navigate('/checkout'), 500);
   };
 
   const goBackSafe = () => {
@@ -38,193 +40,165 @@ export default function Cart() {
     else navigate('/', { replace: true });
   };
 
-  if (!user) return null;
+  if (items.length === 0) {
 
-  return (
-    <div className="page-enter" style={{ padding: 16, paddingBottom: 120 }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-        <button onClick={goBackSafe} className="icon-btn"><ArrowLeft size={20} /></button>
-        <h2 style={{ fontSize: 20, fontWeight: 800, flex: 1 }}>
-          Cart {itemCount > 0 && <span style={{ color: 'var(--muted)', fontWeight: 500 }}>· {itemCount}</span>}
-        </h2>
-        {items.length > 0 && (
-          <button onClick={() => setConfirmClear(true)} className="icon-btn" title="Clear cart">
-            <Trash2 size={16} color="#DC2626" />
-          </button>
-        )}
-      </div>
-
-      {items.length === 0 ? (
-        <div className="card" style={{ padding: 40, textAlign: 'center' }}>
-          <ShoppingCart size={36} color="var(--muted)" style={{ marginBottom: 10 }} />
-          <div style={{ fontWeight: 800, marginBottom: 4 }}>Your cart is empty</div>
-          <div style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 16 }}>
-            Add items to get started
+    return (
+      <div style={{ padding: 16 }}>
+        <button onClick={goBackSafe} className="icon-btn" style={{ marginBottom: 12 }}>
+          <ArrowLeft size={20} />
+        </button>
+        <div className="empty-state">
+          <div className="icon-badge">
+            <ShoppingCart size={48} />
           </div>
-          <button className="btn-brand" style={{ padding: '12px 20px', borderRadius: 12 }}
-            onClick={() => navigate('/')}>
-            Browse products
+          <h3>Your cart is empty</h3>
+          <p>Looks like you haven't added anything yet. Explore our products and find something you love.</p>
+          <button onClick={() => navigate('/')} className="btn-primary" style={{ padding: '12px 28px' }}>
+            Start Shopping
           </button>
         </div>
-      ) : (
-        <>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
-            {items.map((it) => (
-              <CartRow
-                key={it.rowId}
-                item={it}
-                onInc={() => dispatch({ type: 'INCREASE', payload: it.rowId })}
-                onDec={() => dispatch({ type: 'DECREASE', payload: it.rowId })}
-                onRemove={() => setConfirmRemove(it)}
-                onOpen={() => navigate(`/product/${it.id || it.product_id}`)}
-              />
+
+        <div style={{ marginTop: 24 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>You may also like</h3>
+          <div className="related-scroll" style={{ padding: 0 }}>
+            {allProducts.slice(0, 8).map(r => (
+              <button key={r.uuid}
+                onClick={() => navigate('/product/' + r.id)}
+                className="related-card"
+                style={{ cursor: 'pointer', textAlign: 'left' }}>
+                <div className="thumb">
+                  <SmartImage src={(r.images && r.images[0]) || 'https://via.placeholder.com/120?text=X'} alt={r.name} />
+                </div>
+                <div className="meta">
+                  <div className="name">{r.name}</div>
+                  <div className="price">₱{r.price}</div>
+                </div>
+              </button>
             ))}
           </div>
+        </div>
+      </div>
+    );
+  }
 
-          {/* Summary */}
-          <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-            <Row label="Subtotal" value={`₱${subtotal.toLocaleString()}`} />
-            {savings > 0 && (
-              <Row label="You save" value={`-₱${savings.toLocaleString()}`} green />
-            )}
-            <div style={{ height: 1, background: 'var(--border)', margin: '10px 0' }} />
-            <Row label="Total" value={`₱${subtotal.toLocaleString()}`} bold money />
+  const cartIds = new Set(items.map(i => i.product_id));
+  const cartCats = new Set(items.map(i => i.category).filter(Boolean));
+  const recommended = allProducts
+    .filter(p => !cartIds.has(p.uuid))
+    .sort((a, b) => {
+      const aMatch = cartCats.has(a.category) ? 0 : 1;
+      const bMatch = cartCats.has(b.category) ? 0 : 1;
+      return aMatch - bMatch;
+    })
+    .slice(0, 8);
+
+  return (
+    <div style={{ padding: 16, paddingBottom: 60 }}>
+      <button onClick={goBackSafe} className="icon-btn" style={{ marginBottom: 12 }}>
+        <ArrowLeft size={20} />
+      </button>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <h2>Shopping Cart</h2>
+        <button
+          onClick={() => setConfirmRemove({ all: true })}
+          className="btn-ghost"
+          style={{ padding: '8px 14px', fontSize: 12, color: '#DC2626' }}>
+          Clear All
+        </button>
+      </div>
+
+      {items.map(i => (
+        <div key={i.rowId} className="card"
+          style={{ padding: 12, marginBottom: 10, display: 'flex', gap: 12 }}>
+          <SmartImage src={(i.images && i.images[0]) || 'https://via.placeholder.com/64?text=X'} alt={i.name}
+            style={{ width: 64, height: 64, borderRadius: 12, flexShrink: 0, background: "var(--card)" }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700 }}>{i.name}</div>
+            {i.variant && <div style={{ fontSize: 12, color: 'var(--muted)' }}>Variant: {i.variant}</div>}
+            <div style={{ fontWeight: 800, marginTop: 4 }}>₱{i.price}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+              <button onClick={() => dispatch({ type: 'DECREASE', payload: i.rowId })} className="btn-ghost" style={{ padding: 7 }}>
+                <Minus size={14} />
+              </button>
+              <span>{i.quantity}</span>
+              <button onClick={() => dispatch({ type: 'INCREASE', payload: i.rowId })} className="btn-ghost" style={{ padding: 7 }}>
+                <Plus size={14} />
+              </button>
+              <button
+                onClick={() => setConfirmRemove({ item: i })}
+                className="btn-ghost"
+                style={{
+                  marginLeft: 'auto', padding: '8px 12px',
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  color: '#DC2626', fontSize: 12, fontWeight: 700
+                }}>
+                <Trash2 size={14} /> Remove
+              </button>
+            </div>
           </div>
+        </div>
+      ))}
 
-          <button onClick={handleCheckout} disabled={going} className="btn-brand"
-            style={{ width: '100%', padding: 16, borderRadius: 14, fontSize: 15, marginBottom: 20 }}>
-            {going ? 'Going to checkout…' : `Checkout · ₱${subtotal.toLocaleString()}`}
-          </button>
-        </>
+      <div className="card" style={{ padding: 16, marginTop: 12 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--primary)' }}><span>Discount</span><span>-₱{discount}</span></div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}><span>Shipping Fee</span><span>SF will be added on the order confirmation</span></div>
+        <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>
+          <span>Total</span><span>₱{total}</span>
+        </div>
+      </div>
+
+      <button onClick={handleCheckout} disabled={going} className="btn-primary"
+        style={{
+          width: '100%', padding: 14, marginTop: 12, fontSize: 16,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8
+        }}>
+        {going ? (<><span className="spinner" /> Proceeding...</>) : 'Proceed to Checkout'}
+      </button>
+
+      {recommended.length > 0 && (
+        <div style={{ marginTop: 28 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>You may also like</h3>
+          <div className="related-scroll" style={{ padding: 0 }}>
+            {recommended.map(r => (
+              <button key={r.uuid}
+                onClick={() => navigate('/product/' + r.id)}
+                className="related-card"
+                style={{ cursor: 'pointer', textAlign: 'left' }}>
+                <div className="thumb">
+                  <SmartImage src={(r.images && r.images[0]) || 'https://via.placeholder.com/120?text=X'} alt={r.name} />
+                </div>
+                <div className="meta">
+                  <div className="name">{r.name}</div>
+                  <div className="price">₱{r.price}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       <ConfirmDialog
         open={!!confirmRemove}
-        title="Remove item?"
-        message={confirmRemove ? `Remove "${confirmRemove.name}" from your cart?` : ''}
-        confirmLabel="Remove"
-        danger
+        title={confirmRemove?.all ? 'Clear cart?' : 'Remove item?'}
+        message={confirmRemove?.all
+          ? 'Are you sure you want to remove all items from your cart?'
+          : `Remove "${confirmRemove?.item?.name}" from your cart?`}
+        confirmLabel={confirmRemove?.all ? 'Clear All' : 'Remove'}
         onCancel={() => setConfirmRemove(null)}
-        onConfirm={() => {
-          dispatch({ type: 'REMOVE', payload: confirmRemove.rowId });
-          showToast?.('Item removed');
+        onConfirm={async () => {
+          if (confirmRemove?.all) {
+            await dispatch({ type: 'CLEAR' });
+            showToast('Cart cleared');
+          } else {
+            await dispatch({ type: 'REMOVE', payload: confirmRemove.item.rowId });
+            showToast('Item removed');
+          }
           setConfirmRemove(null);
         }}
       />
-
-      <ConfirmDialog
-        open={confirmClear}
-        title="Clear cart?"
-        message="Remove all items from your cart?"
-        confirmLabel="Clear"
-        danger
-        onCancel={() => setConfirmClear(false)}
-        onConfirm={() => {
-          dispatch({ type: 'CLEAR' });
-          showToast?.('Cart cleared');
-          setConfirmClear(false);
-        }}
-      />
-    </div>
-  );
-}
-
-/* ─── Row with swipe-to-delete ─── */
-function CartRow({ item, onInc, onDec, onRemove, onOpen }) {
-  const startX = useRef(0);
-  const startY = useRef(0);
-  const [dx, setDx] = useState(0);
-  const [swiping, setSwiping] = useState(false);
-  const threshold = 80;
-  const maxSwipe = 110;
-
-  const variantObj = parseCartVariant(item.variant);
-  const variantLabel = comboLabel(variantObj);
-
-  const handleTouchStart = (e) => {
-    startX.current = e.touches[0].clientX;
-    startY.current = e.touches[0].clientY;
-    setSwiping(false);
-  };
-  const handleTouchMove = (e) => {
-    const x = e.touches[0].clientX - startX.current;
-    const y = e.touches[0].clientY - startY.current;
-    if (!swiping && Math.abs(y) > Math.abs(x)) return; // vertical scroll wins
-    setSwiping(true);
-    // left swipe only
-    const clamped = Math.min(0, Math.max(-maxSwipe, x));
-    setDx(clamped);
-  };
-  const handleTouchEnd = () => {
-    if (dx <= -threshold) {
-      onRemove();
-    }
-    setDx(0);
-    setSwiping(false);
-  };
-
-  const qty = Number(item.quantity) || 1;
-  const line = (Number(item.price) || 0) * qty;
-
-  return (
-    <div className="cart-row-wrap">
-      {/* swipe background */}
-      <div className="cart-row-swipe-bg" aria-hidden="true">
-        <Trash2 size={20} />
-      </div>
-
-      <div
-        className="cart-row"
-        style={{ transform: `translateX(${dx}px)`, transition: swiping ? 'none' : 'transform .28s cubic-bezier(.4,0,.2,1)' }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {/* thumbnail */}
-        <button onClick={onOpen} className="cart-thumb" aria-label={item.name}>
-          <SmartImage src={(item.images && item.images[0]) || item.image} alt={item.name} />
-          {item.instant && (
-            <span className="instant-badge cart-instant"><Zap size={10} /> Instant</span>
-          )}
-        </button>
-
-        {/* info */}
-        <div className="cart-info">
-          <button onClick={onOpen} className="cart-name">{item.name}</button>
-          {variantLabel && (
-            <div className="cart-variant">{variantLabel}</div>
-          )}
-          <div className="cart-unit money">₱{Number(item.price || 0).toLocaleString()} each</div>
-
-          <div className="cart-qty">
-            <button onClick={onDec} className="cart-qty-btn" aria-label="Decrease">
-              <Minus size={13} />
-            </button>
-            <span className="cart-qty-val">{qty}</span>
-            <button onClick={onInc} className="cart-qty-btn" aria-label="Increase">
-              <Plus size={13} />
-            </button>
-          </div>
-        </div>
-
-        {/* line total + delete */}
-        <div className="cart-right">
-          <div className="cart-line money">₱{line.toLocaleString()}</div>
-          <button onClick={onRemove} className="cart-del" aria-label="Remove">
-            <Trash2 size={14} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function Row({ label, value, bold, green, money }) {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', fontWeight: bold ? 800 : 600, fontSize: bold ? 16 : 13 }}>
-      <span style={{ color: bold ? 'var(--text)' : 'var(--muted)' }}>{label}</span>
-      <span className={money ? 'money' : ''} style={{ color: green ? '#10B981' : undefined }}>{value}</span>
     </div>
   );
 }

@@ -1,98 +1,71 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import {
-  ArrowLeft, UserPlus, Users, Star, Store, ShoppingBag, ChevronRight,
-} from 'lucide-react';
+import { ArrowLeft, Store, Heart } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
-import EmptyState from '../components/EmptyState';
-import SmartImage from '../components/SmartImage';
 
 export default function Following() {
   const nav = useNavigate();
   const { user } = useAuth();
-  const [rows, setRows] = useState([]);
+  const [sellers, setSellers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) { nav('/signin', { replace: true }); return; }
-    // follows table shape is uncertain; assume { user_id, seller_id, created_at }
-    // and join sellers via profiles
-    supabase
-      .from('follows')
-      .select('id, seller_id, created_at, seller:profiles!follows_seller_id_fkey(id, username, first_name, last_name, avatar_url)')
+    if (!user) { setLoading(false); return; }
+    supabase.from('seller_follows')
+      .select('seller_name, created_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
-      .then(({ data }) => { setRows(data || []); setLoading(false); });
-  }, [user, nav]);
+      .then(({ data }) => { setSellers(data || []); setLoading(false); });
+  }, [user]);
 
-  if (!user) return null;
-
-  const goBackSafe = () => {
-    const idx = window.history.state?.idx ?? 0;
-    if (idx > 0) nav(-1);
-    else nav('/');
-  };
+  if (!user) return (
+    <div style={{ padding: 24, textAlign: 'center' }}>
+      <p style={{ color: 'var(--muted)' }}>Sign in to see who you follow.</p>
+      <button className="btn-primary" onClick={() => nav('/signin')} style={{ marginTop: 12, padding: '10px 24px' }}>Sign in</button>
+    </div>
+  );
 
   return (
-    <div className="page-enter" style={{ padding: 16, paddingBottom: 80 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-        <button onClick={goBackSafe} className="icon-btn"><ArrowLeft size={20} /></button>
-        <h2 style={{ fontSize: 22, fontWeight: 900, flex: 1 }}>
-          Following {rows.length > 0 && (
-            <span style={{ color: 'var(--muted)', fontWeight: 500, fontSize: 16 }}>· {rows.length}</span>
-          )}
-        </h2>
-      </div>
+    <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
+      <button onClick={() => nav(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+        <ArrowLeft size={20} />
+      </button>
+
+      <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>Following</h2>
 
       {loading ? (
-        <div className="fl-list">
-          {[0, 1, 2].map((i) => <div key={i} className="fl-skel" />)}
+        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
+      ) : sellers.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: 40 }}>
+          <Heart size={40} color="var(--muted)" style={{ marginBottom: 12 }} />
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>You're not following any sellers yet.</p>
         </div>
-      ) : rows.length === 0 ? (
-        <EmptyState
-          icon={Users}
-          title="You're not following anyone"
-          message="Follow sellers to see their new products first."
-          action="Discover sellers"
-          onAction={() => nav('/')}
-        />
       ) : (
-        <div className="fl-list">
-          {rows.map((r) => {
-            const s = r.seller || {};
-            const displayName =
-              s.username ||
-              `${s.first_name || ''} ${s.last_name || ''}`.trim() ||
-              'Seller';
-            const initials = displayName.trim()[0]?.toUpperCase() || 'S';
-            return (
-              <Link
-                key={r.id}
-                to={`/seller/${r.seller_id}`}
-                className="fl-card"
-              >
-                <div className="fl-avatar">
-                  {s.avatar_url ? (
-                    <SmartImage src={s.avatar_url} alt={displayName} />
-                  ) : (
-                    <span className="fl-avatar-initials">{initials}</span>
-                  )}
+        sellers.map(s => (
+          <Link key={s.seller_name} to={`/store/${encodeURIComponent(s.seller_name)}`}
+            className="card" style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: 14, marginBottom: 10, textDecoration: 'none', color: 'inherit',
+            }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{
+                width: 44, height: 44, borderRadius: '50%',
+                background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Store size={20} color="#fff" />
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700 }}>{s.seller_name}</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
+                  Followed {new Date(s.created_at).toLocaleDateString()}
                 </div>
-                <div className="fl-info">
-                  <div className="fl-name">{displayName}</div>
-                  <div className="fl-sub">
-                    <Store size={11} /> Seller
-                  </div>
-                  <div className="fl-meta">
-                    <span><ShoppingBag size={11} /> View shop</span>
-                  </div>
-                </div>
-                <ChevronRight size={16} color="var(--muted)" />
-              </Link>
-            );
-          })}
-        </div>
+              </div>
+            </div>
+            <span style={{ color: 'var(--muted)', fontSize: 13 }}>→</span>
+          </Link>
+        ))
       )}
     </div>
   );

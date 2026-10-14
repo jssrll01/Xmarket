@@ -39,20 +39,3 @@ server/firebase-service-account.json
 *-firebase-adminsdk-*.json
 
 server/xmarket-pwa-service-account.json
-
-# local backups
-*.bak
-*.ws2bak
-*.preQV
-*.preQV2
-*.preFix
-
-# local backups
-*.preWS5a
-*.preWS5b
-*.preWS5c
-
-# local backups — never commit these
-*.pre*
-*.preWS*
-*.preSocialFix

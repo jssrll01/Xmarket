@@ -48,22 +48,13 @@ import Wishlist from './pages/Wishlist';
 import SignIn from './pages/SignIn';
 import ForgotPassword from './pages/ForgotPassword';
 import { AuthProvider } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
 import NotFound from './pages/NotFound';
-import About from './pages/About';
-import Categories from './pages/Categories';
 import ErrorBoundary from './components/ErrorBoundary';
 import PushPrompt from './components/PushPrompt';
 import { setupForegroundHandler } from './lib/fcm';
 
 function Router() {
   useScrollTop();
-  React.useEffect(() => {
-    const path = window.location.pathname;
-    const hidden = path === '/checkout' || path === '/signin' || path === '/signup';
-    document.body.classList.toggle('has-bottom-nav', !hidden);
-    return () => {};
-  }, []);
   const location = useLocation();
   const hideFooter = location.pathname === '/checkout';
 
@@ -130,8 +121,6 @@ function Router() {
         <Route path="/off-platform-ads" element={<OffPlatformAds />} />
         <Route path="/coins" element={<Coins />} />
         <Route path="/mega-voucher" element={<MegaVoucher />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/categories" element={<Categories />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideFooter && <SiteFooter />}
@@ -161,7 +150,6 @@ function NewDeviceAlert() {
 
 export default function App() {
   return (
-    <ThemeProvider>
     <AuthProvider>
       <CartProvider>
         <ToastProvider>
@@ -172,6 +160,5 @@ export default function App() {
         </ToastProvider>
       </CartProvider>
     </AuthProvider>
-    </ThemeProvider>
   );
 }

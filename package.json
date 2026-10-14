@@ -13,7 +13,7 @@
   },
   "scripts": {
     "start": "HOST=127.0.0.1 react-scripts start",
-    "build": "CI=false react-scripts build",
+    "build": "react-scripts build",
     "dev": "HOST=127.0.0.1 react-scripts start"
   },
   "browserslist": {
