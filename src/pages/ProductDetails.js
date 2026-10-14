@@ -4,14 +4,13 @@ import {
   ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store, Heart
 } from 'lucide-react';
 import { fetchProductById, fetchRelatedProducts } from '../lib/products';
-import { stockFor, comboLabel } from '../lib/variants';
+import { stockFor, comboLabel, totalStock } from '../lib/variants';
 import { getVariantConfig } from '../lib/variants';
 import VariantPicker from '../components/VariantPicker';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { supabase } from '../lib/supabase';
-import { isOutOfStock } from '../lib/stock';
 import SmartImage from '../components/SmartImage';
 import { ProductDetailSkeleton } from '../components/Skeleton';
 import ProductReviews from '../components/ProductReviews';
@@ -70,6 +69,14 @@ export default function ProductDetails() {
   const hasVariants = Object.keys(variantConfig).length > 0;
   const [variant, setVariant] = useState({});
   const [variantError, setVariantError] = useState(false);
+
+  // Effective stock: per-variant if all dims picked, else total rollup.
+  // Falls back to product.stock when no variants exist.
+  const selComplete = Object.keys(variantConfig).length > 0
+    && Object.keys(variantConfig).every(d => variant[d]);
+  const effStock = selComplete
+    ? stockFor(product, variant)
+    : totalStock(product);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
   const [buying, setBuying] = useState(false);
@@ -259,14 +266,14 @@ export default function ProductDetails() {
           <span>{product.sold} sold</span>
           <span style={{ margin: '0 6px', color: '#CBD5E1' }}>·</span>
           <span style={{
-            color: Number(product.stock || 0) <= 0 ? '#DC2626'
-                 : Number(product.stock || 0) <= 5 ? '#F59E0B'
+            color: effStock <= 0 ? '#DC2626'
+                 : effStock <= 5 ? '#F59E0B'
                  : 'inherit',
             fontWeight: 700,
           }}>
-            {Number(product.stock || 0) <= 0
+            {effStock <= 0
               ? 'Out of stock'
-              : `${product.stock} in stock`}
+              : `${effStock} in stock`}
           </span>
         </div>
       </div>
@@ -297,7 +304,7 @@ export default function ProductDetails() {
       </div>
 
       <div style={{ display: 'flex', gap: 8, padding: '0 16px' }}>
-        {product && Number(product.stock || 0) <= 0 && (
+        {product && effStock <= 0 && (
           <div style={{
             padding: 10, marginBottom: 10,
             background: '#FEE2E2', color: '#991B1B',
@@ -307,21 +314,21 @@ export default function ProductDetails() {
             SOLD OUT — check back soon
           </div>
         )}
-        {product && Number(product.stock || 0) > 0 && Number(product.stock || 0) <= 5 && (
+        {product && effStock > 0 && effStock <= 5 && (
           <div style={{
             padding: 8, marginBottom: 10,
             background: '#FEF3C7', color: '#92400E',
             borderRadius: 10, fontSize: 12.5, fontWeight: 700,
             textAlign: 'center',
           }}>
-            Only {product.stock} left in stock
+            Only {effStock} left in stock
           </div>
         )}
-        <button onClick={() => doAdd(setAdding, false)} disabled={adding || isOutOfStock(product)}
+        <button onClick={() => doAdd(setAdding, false)} disabled={adding || effStock <= 0}
           className="btn-outline" style={{ flex: 1, padding: 12 }}>
           {adding ? <span className="spinner" /> : 'Add to Cart'}
         </button>
-        <button onClick={() => doAdd(setBuying, true)} disabled={buying || isOutOfStock(product)}
+        <button onClick={() => doAdd(setBuying, true)} disabled={buying || effStock <= 0}
           className="btn-primary" style={{ flex: 1, padding: 12 }}>
           {buying ? <span className="spinner" /> : 'Buy Now'}
         </button>
