@@ -625,19 +625,6 @@ export default function Home() {
             onClick={() => setCategory(c)}>{c}</button>
         ))}
       </div>
-      <div className="filters-trigger-row">
-        <button
-          className={'filters-trigger' + ((minRating > 0 || maxPrice < 1000000 || minDiscount > 0) ? ' active' : '')}
-          onClick={() => setShowFilters(s => !s)}
-        >
-          <SlidersHorizontal size={14} />
-          <span>Filters</span>
-          {(minRating > 0 || maxPrice < 1000000 || minDiscount > 0) && (
-            <span className="filters-dot" />
-          )}
-        </button>
-      </div>
-
 
 
       {showFilters && (
@@ -697,8 +684,20 @@ export default function Home() {
       </div>
       )}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 16px 12px' }}>
-        <div style={{ fontSize: 16, fontWeight: 800 }}>Featured Products</div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 16px 12px', gap: 8 }}>
+        <div style={{ fontSize: 16, fontWeight: 800, flexShrink: 0 }}>Featured Products</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <button
+            className={'filters-trigger' + ((minRating > 0 || maxPrice < 1000000 || minDiscount > 0) ? ' active' : '')}
+            onClick={() => setShowFilters(s => !s)}
+            aria-label="Filters"
+          >
+            <SlidersHorizontal size={14} />
+            <span>Filters</span>
+            {(minRating > 0 || maxPrice < 1000000 || minDiscount > 0) && (
+              <span className="filters-dot" />
+            )}
+          </button>
         <Dropdown value={sort} onChange={setSort}
           options={[
             { value: 'relevance',  label: 'Sort by relevance' },
@@ -712,6 +711,7 @@ export default function Home() {
             { value: 'priceHigh',  label: 'Price: High to Low' },
             { value: 'best',       label: 'Best Seller' },
           ]} />
+        </div>
       </div>
 
       {loadError ? (
