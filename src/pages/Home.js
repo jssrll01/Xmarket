@@ -174,6 +174,8 @@ export default function Home() {
   const [unread, setUnread] = useState(0);
   const [trending, setTrending] = useState([]);
   const [minRating, setMinRating] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(1000000);
+  const [minDiscount, setMinDiscount] = useState(0);
   const [storeFilter, setStoreFilter] = useState('');
   const [category, setCategory] = useState('All');
   const [sort, setSort] = useState('best');
