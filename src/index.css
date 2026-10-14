@@ -1250,7 +1250,7 @@ body {
 
 /* ============================================================
    SHIMMER KEYFRAME — AUTHORITATIVE
-   Note: there are 3 @keyframes shimmer definitions above this
+   Note: 3 real @keyframes shimmer defs exist above (lines 340, 836, 1140)
    block (legacy). This note does not override them; the last
    definition in the file wins at parse time, and the last one
    is our GPU-only transform-based version from the C-PASS.
