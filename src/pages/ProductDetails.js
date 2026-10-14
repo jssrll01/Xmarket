@@ -282,8 +282,6 @@ export default function ProductDetails() {
           />
         </div>
       )}
-        </div>
-      )}
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Quantity</div>
