@@ -19,6 +19,7 @@ import Refund from './pages/Refund';
 import Returns from './pages/Returns';
 import Bundles from './pages/Bundles';
 import FlashSale from './pages/FlashSale';
+import SaveMore from './pages/SaveMore';
 import Xmall from './pages/Xmall';
 import Xwallet from './pages/Xwallet';
 import XwalletTopup from './pages/XwalletTopup';
@@ -98,6 +99,7 @@ function Router() {
         <Route path="/bundles" element={<Bundles />} />
         <Route path="/flash-sale" element={<FlashSale />} />
         <Route path="/xmall" element={<Xmall />} />
+        <Route path="/savemore" element={<SaveMore />} />
         <Route path="/xwallet" element={<Xwallet />} />
         <Route path="/xwallet/topup" element={<XwalletTopup />} />
         <Route path="/xcards" element={<Xcards />} />

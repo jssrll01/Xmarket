@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
-, Gift, Settings, LogOut , Zap } from 'lucide-react';
+, Gift, Settings, LogOut , Zap , Percent} from 'lucide-react';
 import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { sortByStock, isOutOfStock } from '../lib/stock';
 import { supabase } from '../lib/supabase';
@@ -507,7 +507,7 @@ export default function Home() {
 
       {/* Quick-access buttons */}
       <div style={{
-        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8,
+        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8,
         padding: '4px 16px 12px',
       }}>
         <Link to="/bundles" style={{
@@ -562,6 +562,28 @@ export default function Home() {
           </div>
         </Link>
 
+        <Link to="/savemore" style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '12px 14px', borderRadius: 14,
+          background: 'var(--neu-surface)',
+          boxShadow: 'var(--neu-raised-sm)',
+          textDecoration: 'none', color: 'inherit',
+          minWidth: 0,
+        }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #10B981, #059669)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+            boxShadow: '2px 2px 6px rgba(16,185,129,0.35)',
+          }}>
+            <Percent size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800 }}>Save More</div>
+            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 500 }}>80% off</div>
+          </div>
+        </Link>
         <Link to="/xmall" style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '12px 14px', borderRadius: 14,
