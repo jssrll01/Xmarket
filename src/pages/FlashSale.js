@@ -31,7 +31,7 @@ export default function FlashSale() {
           Flash Sale
         </div>
         <div className="fs-hero-sub">
-          Up to 50% off. Ends soon — grab them before the timer runs out.
+          Up to 50% off. Ends soon — grab them before the stocks runs out.
         </div>
       </div>
 

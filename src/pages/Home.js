@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
-, Gift, Settings, LogOut , Zap , Percent} from 'lucide-react';
+, Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal} from 'lucide-react';
 import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { sortByStock, isOutOfStock } from '../lib/stock';
 import { supabase } from '../lib/supabase';
@@ -176,6 +176,7 @@ export default function Home() {
   const [minRating, setMinRating] = useState(0);
   const [maxPrice, setMaxPrice] = useState(1000000);
   const [minDiscount, setMinDiscount] = useState(0);
+  const [showFilters, setShowFilters] = useState(false);
   const [storeFilter, setStoreFilter] = useState('');
   const [category, setCategory] = useState('All');
   const [sort, setSort] = useState('best');
@@ -496,10 +497,6 @@ export default function Home() {
               return (
                 <div key={i} className={'banner-slide-full' + (isActive ? ' active' : '')}>
                   <img src={b} alt={meta.title} loading={i === 0 ? 'eager' : 'lazy'} />
-                  <div className="banner-overlay">
-                    <div className="banner-title">{meta.title}</div>
-                    <div className="banner-sub">{meta.sub}</div>
-                  </div>
                 </div>
               );
             })}
@@ -630,7 +627,22 @@ export default function Home() {
             onClick={() => setCategory(c)}>{c}</button>
         ))}
       </div>
+      <div className="filters-trigger-row">
+        <button
+          className={'filters-trigger' + ((minRating > 0 || maxPrice < 1000000 || minDiscount > 0) ? ' active' : '')}
+          onClick={() => setShowFilters(s => !s)}
+        >
+          <SlidersHorizontal size={14} />
+          <span>Filters</span>
+          {(minRating > 0 || maxPrice < 1000000 || minDiscount > 0) && (
+            <span className="filters-dot" />
+          )}
+        </button>
+      </div>
 
+
+
+      {showFilters && (
       <div className="filter-card">
         <div className="filter-card-head">
           <div className="filter-card-title">Filters</div>
@@ -685,6 +697,7 @@ export default function Home() {
           />
         </div>
       </div>
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 16px 12px' }}>
         <div style={{ fontSize: 16, fontWeight: 800 }}>Featured Products</div>
