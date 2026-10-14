@@ -13,6 +13,7 @@ import SmartImage from '../components/SmartImage';
 import { ProductDetailSkeleton } from '../components/Skeleton';
 import ProductReviews from '../components/ProductReviews';
 
+import { getVariantConfig, comboLabel, priceFor, serializeVariant, discountPct, hasVariants } from '../lib/variants';
 function Description({ text }) {
   const HEADINGS = [
     'What You Get',
@@ -62,7 +63,7 @@ export default function ProductDetails() {
   const [wishlisted, setWishlisted] = useState(false);
 
   const hasVariants = product?.variants && product.variants.length > 0;
-  const [variant, setVariant] = useState(null);
+  const [selection, setSelection] = useState({});   // { Color: 'Red', Size: 'M' }
   const [variantError, setVariantError] = useState(false);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
@@ -78,7 +79,7 @@ export default function ProductDetails() {
       setProduct(p);
       setLoading(false);
       if (p) {
-        setVariant(p.variants && p.variants.length > 0 ? null : '');
+        setSelection({});
         fetchRelatedProducts(p.category, p.id, 8).then(list => {
           if (alive) setRelated(list);
         });
@@ -153,7 +154,9 @@ export default function ProductDetails() {
   };
 
   const validateVariant = () => {
-    if (hasVariants && !variant) { setVariantError(true); return false; }
+    const cfg = getVariantConfig(product || {});
+    const missing = Object.keys(cfg).some(k => !selection[k]);
+    if (Object.keys(cfg).length > 0 && missing) { setVariantError(true); return false; }
     return true;
   };
 
@@ -165,7 +168,7 @@ export default function ProductDetails() {
       for (let i = 0; i < qty; i++) {
         await dispatch({ type: 'ADD', payload: {
           product_id: product.uuid,
-          variant: variant || '',
+          variant: serializeVariant(selection),
           quantity: 1,
         }});
       }
@@ -261,26 +264,32 @@ export default function ProductDetails() {
         </div>
       </div>
 
-      {hasVariants && (
+      {hasVariants(product) && (
         <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Variant</div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {product.variants.map(v => (
-              <button key={v}
-                onClick={() => { setVariant(v); setVariantError(false); }}
-                className={'chip' + (variant === v ? ' active' : '')}
-                style={{ border: variantError && variant !== v ? '1px solid #DC2626' : undefined }}>
-                {v}
-              </button>
-            ))}
-          </div>
+          {Object.entries(getVariantConfig(product)).map(([dim, opts]) => (
+            <div key={dim} style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: .4, marginBottom: 6 }}>
+                {dim}
+              </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {(opts || []).map(v => (
+                  <button key={v}
+                    onClick={() => { setSelection(s => ({ ...s, [dim]: v })); setVariantError(false); }}
+                    className={'chip' + (selection[dim] === v ? ' active' : '')}>
+                    {v}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
           {variantError && (
-            <div style={{ color: '#DC2626', fontSize: 12, marginTop: 8 }}>
-              Please select a variant
+            <div style={{ color: '#DC2626', fontSize: 12, marginTop: 4 }}>
+              Please select every option
             </div>
           )}
         </div>
       )}
+
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Quantity</div>

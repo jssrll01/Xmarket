@@ -17,6 +17,8 @@ import { ProductGridSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import useRecentSearches from '../hooks/useRecentSearches';
 import UserMenu from '../components/UserMenu';
+import QuickView from '../components/QuickView';
+import { discountPct } from '../lib/variants';
 
 function Dropdown({ value, options, onChange }) {
   const [open, setOpen] = useState(false);
@@ -156,6 +158,7 @@ function Drawer({ open, onClose }) {
 
 export default function Home() {
   const navigate = useNavigate();
+  const [qvProduct, setQvProduct] = useState(null);
   const [search, setSearch] = useState('');
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
