@@ -59,6 +59,16 @@ function InfoNote({ text }) {
   );
 }
 
+
+/* ─── Idempotency key — one per checkout attempt, survives re-renders ─── */
+function generateIdempotencyKey() {
+  try {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  } catch {}
+  // Fallback for older browsers
+  return 'idem_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 10);
+}
+
 export default function Checkout() {
   const { items, dispatch } = useCart();
   const { user, loading: authLoading, profile } = useAuth();
@@ -75,6 +85,8 @@ export default function Checkout() {
   });
   const [missing, setMissing] = useState([]);
   const [sending, setSending] = useState(false);
+  const [idempotencyKey, setIdempotencyKey] = useState(() => generateIdempotencyKey());
+  const [orderLocked, setOrderLocked] = useState(false);
   const [xwalletBalance, setXwalletBalance] = useState(0);
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
@@ -333,6 +345,7 @@ export default function Checkout() {
           .insert({
             buyer_id: user.id,
             order_code: newOrderId,
+            idempotency_key: (typeof idempotencyKey !== 'undefined' ? idempotencyKey : idempotencyKeyRef.current),
             name: form.fullName,
             mobile: form.mobile,
             email: form.email,
@@ -350,7 +363,19 @@ export default function Checkout() {
           .select()
           .single();
 
-        if (oErr) throw oErr;
+        if (oErr) {
+          // Duplicate idempotency key → the order already exists; treat as success.
+          if (String(oErr.code) === '23505' && /idempotency/.test(oErr.message || '')) {
+            console.warn('[checkout] duplicate idempotency key — order already exists');
+            setSending(false);
+            setOrderId(newOrderId);
+            setSuccess(true);
+            // Reset the key so the *next* checkout attempt is allowed
+            if (typeof setIdempotencyKey === 'function') setIdempotencyKey(generateIdempotencyKey());
+            return;
+          }
+          throw oErr;
+        }
 
         // Insert line items
         const orderItems = items.map(i => ({
@@ -418,6 +443,10 @@ export default function Checkout() {
       setSending(false);
       setOrderId(newOrderId);
       setSuccess(true);
+      // release the lock and roll a new idempotency key for the *next* checkout
+      if (typeof setOrderLocked === 'function') setOrderLocked(false);
+      else orderLockedRef.current = false;
+      if (typeof setIdempotencyKey === 'function') setIdempotencyKey(generateIdempotencyKey());
     } catch (err) {
       console.error('[placeOrder] error:', err);
       showToast(err?.message || 'Something went wrong. Please try again.');
