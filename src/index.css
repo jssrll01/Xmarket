@@ -2343,3 +2343,27 @@ input[type="range"].filter-range,
   min-height: 44px;
   font-size: 13.5px;
 }
+
+/* ============================================================
+   VARIANT PICKER — multi-dimension
+   ============================================================ */
+.variant-picker { display: flex; flex-direction: column; gap: 14px; }
+.variant-dim { display: flex; flex-direction: column; gap: 8px; }
+.variant-dim-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+.variant-dim-picked {
+  color: var(--primary);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 700;
+}
+.variant-dim-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

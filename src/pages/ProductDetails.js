@@ -4,6 +4,9 @@ import {
   ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store, Heart
 } from 'lucide-react';
 import { fetchProductById, fetchRelatedProducts } from '../lib/products';
+import { stockFor, comboLabel } from '../lib/variants';
+import { getVariantConfig } from '../lib/variants';
+import VariantPicker from '../components/VariantPicker';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -61,8 +64,11 @@ export default function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [wishlisted, setWishlisted] = useState(false);
 
-  const hasVariants = product?.variants && product.variants.length > 0;
-  const [variant, setVariant] = useState(null);
+  const variantConfig = product?.variant_config && Object.keys(product.variant_config).length > 0
+    ? product.variant_config
+    : (product?.variants && product.variants.length > 0 ? { Variant: product.variants } : {});
+  const hasVariants = Object.keys(variantConfig).length > 0;
+  const [variant, setVariant] = useState({});
   const [variantError, setVariantError] = useState(false);
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);
@@ -78,7 +84,7 @@ export default function ProductDetails() {
       setProduct(p);
       setLoading(false);
       if (p) {
-        setVariant(p.variants && p.variants.length > 0 ? null : '');
+        setVariant({});
         fetchRelatedProducts(p.category, p.id, 8).then(list => {
           if (alive) setRelated(list);
         });
@@ -153,7 +159,11 @@ export default function ProductDetails() {
   };
 
   const validateVariant = () => {
-    if (hasVariants && !variant) { setVariantError(true); return false; }
+    if (hasVariants) {
+    const dims = Object.keys(variantConfig);
+    const complete = dims.length > 0 && dims.every(d => variant[d]);
+    if (!complete) { setVariantError(true); return false; }
+  }
     return true;
   };
 
@@ -165,7 +175,7 @@ export default function ProductDetails() {
       for (let i = 0; i < qty; i++) {
         await dispatch({ type: 'ADD', payload: {
           product_id: product.uuid,
-          variant: variant || '',
+          variant: Object.keys(variant).length ? JSON.stringify(variant) : '',
           quantity: 1,
         }});
       }
@@ -264,21 +274,14 @@ export default function ProductDetails() {
       {hasVariants && (
         <div className="card" style={{ padding: 16, marginBottom: 12 }}>
           <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Variant</div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {product.variants.map(v => (
-              <button key={v}
-                onClick={() => { setVariant(v); setVariantError(false); }}
-                className={'chip' + (variant === v ? ' active' : '')}
-                style={{ border: variantError && variant !== v ? '1px solid #DC2626' : undefined }}>
-                {v}
-              </button>
-            ))}
-          </div>
-          {variantError && (
-            <div style={{ color: '#DC2626', fontSize: 12, marginTop: 8 }}>
-              Please select a variant
-            </div>
-          )}
+          <VariantPicker
+            product={product}
+            selection={variant}
+            onChange={(sel) => { setVariant(sel); setVariantError(false); }}
+            error={variantError}
+          />
+        </div>
+      )}
         </div>
       )}
 

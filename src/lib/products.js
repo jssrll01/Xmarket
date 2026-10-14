@@ -1,3 +1,4 @@
+import { totalStock } from './variants';
 import { supabase } from './supabase';
 
 export async function fetchProducts() {
@@ -28,6 +29,14 @@ export async function fetchProducts() {
     images: p.images || [],
     description: p.description,
     variants: p.variants || [],
+    variant_config: p.variant_config || {},
+    variant_prices: p.variant_prices || {},
+    variant_stock: p.variant_stock || {},
+    totalStock: totalStock({
+      stock: p.stock,
+      variant_config: p.variant_config,
+      variant_stock: p.variant_stock,
+    }),
   }));
 }
 
@@ -81,6 +90,14 @@ function mapProduct(p) {
     images: p.images || [],
     description: p.description,
     variants: p.variants || [],
+    variant_config: p.variant_config || {},
+    variant_prices: p.variant_prices || {},
+    variant_stock: p.variant_stock || {},
+    totalStock: totalStock({
+      stock: p.stock,
+      variant_config: p.variant_config,
+      variant_stock: p.variant_stock,
+    }),
   };
 }
 

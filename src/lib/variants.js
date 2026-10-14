@@ -68,3 +68,41 @@ export function discountPct(product) {
   if (!orig || orig <= price) return null;
   return Math.round(((orig - price) / orig) * 100);
 }
+
+/**
+ * Per-combo stock lookup. Falls back to product.stock if variant_stock
+ * is missing or the specific combo isn't listed.
+ */
+export function stockFor(product, selection) {
+  if (!product) return 0;
+  const fallback = Number(product.stock) || 0;
+  const map = product.variant_stock;
+  if (!map || typeof map !== 'object') return fallback;
+  if (!selection || !Object.keys(selection).length) return fallback;
+  const label = comboLabel(selection);
+  const byLabel = map[label];
+  if (typeof byLabel === 'number') return byLabel;
+  const key = comboKey(selection);
+  const byKey = map[key];
+  if (typeof byKey === 'number') return byKey;
+  return fallback;
+}
+
+/**
+ * Total stock across all variant combos. Falls back to product.stock
+ * when there are no variants defined.
+ */
+export function totalStock(product) {
+  if (!product) return 0;
+  const map = product.variant_stock;
+  const hasConfig = product.variant_config && Object.keys(product.variant_config).length > 0;
+  if (!hasConfig || !map || typeof map !== 'object' || Object.keys(map).length === 0) {
+    return Number(product.stock) || 0;
+  }
+  let sum = 0;
+  for (const k of Object.keys(map)) {
+    const v = Number(map[k]) || 0;
+    if (v > 0) sum += v;
+  }
+  return sum;
+}
