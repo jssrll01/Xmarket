@@ -2592,3 +2592,11 @@ input[type="range"].filter-range,
   cursor: not-allowed;
   box-shadow: none;
 }
+
+/* Quick-access pills: never shrink, scroll instead */
+.pill-scroll > a {
+  flex: 0 0 auto;
+  min-width: max-content;
+  white-space: nowrap;
+  scroll-snap-align: start;
+}

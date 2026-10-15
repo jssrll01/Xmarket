@@ -575,9 +575,8 @@ export default function Home() {
         <Link to="/savemore" style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '12px 14px', borderRadius: 14,
-          background: 'var(--neu-surface)',
+          background: 'var(--card)', border: '1px solid var(--border)', fontWeight: 700, fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap',
           textDecoration: 'none', color: 'inherit',
-          minWidth: 0,
         }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
@@ -588,7 +587,7 @@ export default function Home() {
             <Percent size={16} color="#fff" />
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800 }}>Save More</div>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Save More</div>
           </div>
         </Link>
         <Link to="/xmall" style={{
