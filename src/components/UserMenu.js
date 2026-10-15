@@ -86,6 +86,9 @@ export default function UserMenu() {
               <button style={row} onClick={() => go('/following')}>
                 <Users size={16} /> Following
               </button>
+              <button style={row} onClick={() => go('/settings')}>
+                <Settings size={16} /> Settings
+              </button>
               <button style={row} onClick={() => go('/account')}>
                 <Settings size={16} /> Account settings
               </button>

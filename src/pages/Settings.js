@@ -158,7 +158,7 @@ export default function SettingsPage() {
       </Section>
 
       <Section title="About">
-        <Row icon={Info} label="XMARKET" hint="Your trusted online marketplace" right={badge('v1.0')} last />
+        <Row icon={Info} label="XMARKET" hint="Your trusted online marketplace" right={badge('v2.5.0')} last />
       </Section>
     </div>
   );

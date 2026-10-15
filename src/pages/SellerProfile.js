@@ -40,7 +40,6 @@ export default function SellerProfile() {
       if (!alive) return;
       setInfo(data || null);
       setInfoLoading(false);
-      setInfoLoading(false);
       if (data) {
         const nowIso = new Date().toISOString();
         const { data: v } = await supabase.from('store_vouchers').select('*')
@@ -68,17 +67,32 @@ export default function SellerProfile() {
     else nav('/', { replace: true });
   };
 
-  const toggleFollow = async () => {
+  const toggleFollow = () => {
     if (!user) { showToast('Please sign in'); nav('/signin'); return; }
-    if (following) {
-      await supabase.from('seller_follows').delete().eq('user_id', user.id).eq('seller_name', decodedStore);
-      setFollowing(false); setFollowers(n => Math.max(0, n - 1));
-      showToast('Unfollowed');
-    } else {
-      await supabase.from('seller_follows').insert({ user_id: user.id, seller_name: decodedStore });
-      setFollowing(true); setFollowers(n => n + 1);
-      showToast('Following ' + decodedStore);
-    }
+    const wasFollowing = following;
+    // Optimistic flip — UI updates instantly
+    setFollowing(!wasFollowing);
+    setFollowers(n => wasFollowing ? Math.max(0, n - 1) : n + 1);
+    showToast(wasFollowing ? 'Unfollowed' : 'Following ' + decodedStore);
+
+    // Fire-and-forget; revert on error
+    (async () => {
+      try {
+        if (wasFollowing) {
+          const { error } = await supabase.from('seller_follows').delete()
+            .eq('user_id', user.id).eq('seller_name', decodedStore);
+          if (error) throw error;
+        } else {
+          const { error } = await supabase.from('seller_follows').insert({ user_id: user.id, seller_name: decodedStore });
+          if (error) throw error;
+        }
+      } catch (err) {
+        // revert
+        setFollowing(wasFollowing);
+        setFollowers(n => wasFollowing ? n + 1 : Math.max(0, n - 1));
+        showToast(err?.message || 'Something went wrong');
+      }
+    })();
   };
 
   const share = async () => {
