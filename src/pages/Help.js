@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, X, ChevronDown, MessageCircle, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Search, X, ChevronDown, MessageCircle, HelpCircle, Package, Wallet, RotateCcw, Ticket, Flag, Bug } from 'lucide-react';
 
 const CATEGORIES = [
   { name: 'Shop on XMARKET', items: [
@@ -261,6 +261,37 @@ export default function Help() {
         )}
       </div>
 
+      {!search.trim() && (
+        <>
+          <div style={{ fontSize: 12.5, color: 'var(--text-dim)', marginBottom: 14 }}>
+            {CATEGORIES.reduce((n, c) => n + c.items.length, 0)} articles in {CATEGORIES.length} categories
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
+            {[['My orders', '/orders', Package], ['Xwallet', '/xwallet', Wallet], ['Returns', '/returns', RotateCcw], ['Vouchers', '/vouchers', Ticket]].map(([label, to, Icon]) => (
+              <button key={label} className="card" onClick={() => navigate(to)}
+                style={{ padding: 14, display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)', fontWeight: 700, fontSize: 13.5, textAlign: 'left' }}>
+                <Icon size={18} color="var(--primary)" /> {label}
+              </button>
+            ))}
+          </div>
+
+          <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 10 }}>Popular questions</h3>
+          <div style={{ marginBottom: 20 }}>
+            {[['track-order', 'How do I track my order?'], ['cancel-order', 'Can I cancel my order?'], ['request-refund', 'How do I request a refund?'],
+              ['voucher-claim', 'How do I claim a voucher?'], ['payment-failed', 'Why did my payment fail?'], ['tech-cant-login', "Why can't I log in?"]].map(([slug, label]) => (
+              <button key={slug} className="card" onClick={() => navigate('/help/' + slug)}
+                style={{ width: '100%', padding: 13, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 12, textAlign: 'left', color: 'var(--text)', fontSize: 13 }}>
+                <HelpCircle size={15} color="var(--primary)" style={{ flexShrink: 0 }} />
+                <span style={{ flex: 1 }}>{label}</span>
+              </button>
+            ))}
+          </div>
+
+          <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 10 }}>Browse by topic</h3>
+        </>
+      )}
+
       {CATEGORIES.map((c, i) => (
         <CategoryBlock
           key={i}
@@ -271,7 +302,16 @@ export default function Help() {
         />
       ))}
 
-      <div className="card" style={{ padding: 22, marginTop: 24, textAlign: 'center' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 20 }}>
+        <button className="card" onClick={() => navigate('/my-reports')} style={{ padding: 14, display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)', fontWeight: 700, fontSize: 13 }}>
+          <Flag size={16} color="var(--primary)" /> My reports
+        </button>
+        <button className="card" onClick={() => navigate('/report/bug')} style={{ padding: 14, display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)', fontWeight: 700, fontSize: 13 }}>
+          <Bug size={16} color="var(--primary)" /> Report a bug
+        </button>
+      </div>
+
+      <div className="card" style={{ padding: 22, marginTop: 14, textAlign: 'center' }}>
         <h3 style={{ fontSize: 17, marginBottom: 6 }}>Need More Help?</h3>
         <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>
           Do You Have Any Other Questions?
