@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PillRow, { pillStyle } from '../components/PillRow';
-import { Wallet as WalletIcon, CreditCard as CardIcon } from 'lucide-react';
+import WalletBar from '../components/WalletBar';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
@@ -516,20 +516,10 @@ export default function Home() {
         </div>
       </div>
 
+      <WalletBar />
+
       {/* Quick-access buttons */}
       <PillRow>
-        <Link to="/xwallet" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #14B8A6, #0F766E)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <WalletIcon size={16} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Xwallet</div>
-          </div>
-        </Link>
         <Link to="/xmall" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
@@ -540,18 +530,6 @@ export default function Home() {
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>XMALL</div>
-          </div>
-        </Link>
-        <Link to="/xcards" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #6366F1, #06B6D4)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <CardIcon size={16} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Xcards</div>
           </div>
         </Link>
         <Link to="/flash-sale" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
