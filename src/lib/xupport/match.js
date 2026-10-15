@@ -14,7 +14,6 @@ const STOPWORDS = new Set([
   'have','has','had','get','got','please','need','want',
 ]);
 
-const TOP_K = 5;
 const THRESHOLD = 2;
 const TRIGGER_BONUS = 2;
 
@@ -55,17 +54,15 @@ export function pickBest(rawText) {
   const tokens = tokenize(rawText);
   if (!tokens.length) return { intent: FALLBACK, score: 0, fallback: true };
 
-  const ranked = categoryMap
-    .map((c) => ({ c, s: scoreTriggers(rawText, c.triggers) }))
-    .sort((a, b) => b.s - a.s);
-
-  const shortlist = ranked.slice(0, TOP_K);
-
+  // Score EVERY intent. Category triggers only add a bonus; they no longer gate.
   let best = null, bestScore = 0;
-  for (const { c } of shortlist) {
+  for (const c of categoryMap) {
+    const bonus = scoreTriggers(rawText, c.triggers) > 0 ? TRIGGER_BONUS : 0;
     for (const intent of c.intents) {
-      const s = scoreKeywords(rawText, tokens, intent.keywords);
-      if (s > bestScore) { bestScore = s; best = intent; }
+      const base = scoreKeywords(rawText, tokens, intent.keywords);
+      if (base <= 0) continue;
+      const total = base + bonus;
+      if (total > bestScore) { bestScore = total; best = intent; }
     }
   }
 
