@@ -541,7 +541,6 @@ export default function Home() {
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 800 }}>Bundle Deals</div>
-            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 500 }}>Save more</div>
           </div>
         </Link>
 
@@ -567,7 +566,6 @@ export default function Home() {
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 800 }}>Flash Sale</div>
-            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 500 }}>Limited time</div>
           </div>
         </Link>
 
@@ -588,7 +586,6 @@ export default function Home() {
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 800 }}>Save More</div>
-            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 500 }}>80% off</div>
           </div>
         </Link>
         <Link to="/xmall" style={{
@@ -613,7 +610,6 @@ export default function Home() {
           </div>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 800 }}>XMALL</div>
-            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 500 }}>Official store</div>
           </div>
         </Link>
       </div>

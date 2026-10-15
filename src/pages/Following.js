@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Store, Heart } from 'lucide-react';
+import { ArrowLeft, Store, Heart, BadgeCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 
@@ -8,16 +8,45 @@ export default function Following() {
   const nav = useNavigate();
   const { user } = useAuth();
   const [sellers, setSellers] = useState([]);
+  const [counts, setCounts] = useState({});
+  const [verified, setVerified] = useState({});
+  const [suggested, setSuggested] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState('');
 
   useEffect(() => {
     if (!user) { setLoading(false); return; }
-    supabase.from('seller_follows')
-      .select('seller_name, created_at')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .then(({ data }) => { setSellers(data || []); setLoading(false); });
+    let alive = true;
+    (async () => {
+      const { data } = await supabase.from('seller_follows')
+        .select('seller_name, created_at')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      if (!alive) return;
+      const list = data || [];
+      setSellers(list);
+      const names = list.map(s => s.seller_name);
+      const { data: prods } = await supabase.from('products').select('store, verified').limit(500);
+      if (!alive) return;
+      const c = {}; const v = {}; const all = new Set();
+      (prods || []).forEach(p => {
+        if (!p.store) return;
+        all.add(p.store);
+        if (names.includes(p.store)) { c[p.store] = (c[p.store] || 0) + 1; if (p.verified) v[p.store] = true; }
+      });
+      setCounts(c); setVerified(v);
+      setSuggested([...all].filter(n => !names.includes(n)).slice(0, 6));
+      setLoading(false);
+    })();
+    return () => { alive = false; };
   }, [user]);
+
+  const unfollow = async (name) => {
+    setErr('');
+    const { error } = await supabase.from('seller_follows').delete().eq('user_id', user.id).eq('seller_name', name);
+    if (error) { setErr(error.message); return; }
+    setSellers(prev => prev.filter(s => s.seller_name !== name));
+  };
 
   if (!user) return (
     <div style={{ padding: 24, textAlign: 'center' }}>
@@ -32,40 +61,61 @@ export default function Following() {
         <ArrowLeft size={20} />
       </button>
 
-      <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 16 }}>Following</h2>
+      <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Following</h2>
+      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
+        {loading ? 'Loading…' : `${sellers.length} ${sellers.length === 1 ? 'shop' : 'shops'} you follow`}
+      </p>
+
+      {err && <div style={{ padding: '10px 12px', borderRadius: 10, marginBottom: 12, fontSize: 12.5, fontWeight: 600, background: '#FEE2E2', color: '#991B1B' }}>{err}</div>}
 
       {loading ? (
         <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
       ) : sellers.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 40 }}>
           <Heart size={40} color="var(--muted)" style={{ marginBottom: 12 }} />
-          <p style={{ color: 'var(--muted)', fontSize: 14 }}>You're not following any sellers yet.</p>
+          <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 14 }}>You're not following any shops yet.</p>
+          <button className="btn-primary" onClick={() => nav('/')} style={{ padding: '10px 24px' }}>Discover shops</button>
         </div>
       ) : (
         sellers.map(s => (
-          <Link key={s.seller_name} to={`/store/${encodeURIComponent(s.seller_name)}`}
-            className="card" style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: 14, marginBottom: 10, textDecoration: 'none', color: 'inherit',
-            }}>
+          <div key={s.seller_name} className="card" style={{ padding: 14, marginBottom: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{
-                width: 44, height: 44, borderRadius: '50%',
-                background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
+              <div style={{ width: 46, height: 46, borderRadius: '50%', background: 'linear-gradient(135deg, #2563EB, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Store size={20} color="#fff" />
               </div>
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700 }}>{s.seller_name}</div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-                  Followed {new Date(s.created_at).toLocaleDateString()}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 14, fontWeight: 800 }}>
+                  <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.seller_name}</span>
+                  {verified[s.seller_name] && <BadgeCheck size={15} color="#2563EB" />}
+                </div>
+                <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
+                  {counts[s.seller_name] || 0} products · Followed {new Date(s.created_at).toLocaleDateString()}
                 </div>
               </div>
             </div>
-            <span style={{ color: 'var(--muted)', fontSize: 13 }}>→</span>
-          </Link>
+            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+              <Link to={`/store/${encodeURIComponent(s.seller_name)}`} className="btn-primary" style={{ flex: 1, padding: '9px 0', borderRadius: 10, fontSize: 13, fontWeight: 800, textAlign: 'center', textDecoration: 'none' }}>
+                Visit shop
+              </Link>
+              <button onClick={() => unfollow(s.seller_name)} style={{ flex: 1, padding: '9px 0', borderRadius: 10, fontSize: 13, fontWeight: 800, background: 'transparent', border: '1px solid var(--border, #E2E8F0)', color: 'var(--muted)', cursor: 'pointer' }}>
+                Unfollow
+              </button>
+            </div>
+          </div>
         ))
+      )}
+
+      {!loading && suggested.length > 0 && (
+        <div style={{ marginTop: 24 }}>
+          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 10 }}>Shops you may like</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {suggested.map(n => (
+              <Link key={n} to={`/store/${encodeURIComponent(n)}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 999, fontSize: 12.5, fontWeight: 700, background: 'var(--card)', textDecoration: 'none', color: 'inherit' }}>
+                <Store size={13} /> {n}
+              </Link>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

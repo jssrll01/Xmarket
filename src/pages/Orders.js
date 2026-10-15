@@ -4,6 +4,7 @@ import { ArrowLeft, Package } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import EmptyState from '../components/EmptyState';
+import YouMayAlsoLike from '../components/YouMayAlsoLike';
 
 export default function Orders() {
   const nav = useNavigate();
@@ -71,6 +72,7 @@ export default function Orders() {
           </div>
         ))
       )}
+      <YouMayAlsoLike />
     </div>
   );
 }
