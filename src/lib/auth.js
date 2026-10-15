@@ -77,7 +77,7 @@ export async function signUp(form) {
 }
 
 export async function signIn(email, password) {
-  return supabase.auth.signInWithPassword({ email, password });
+  return supabase.auth.signInWithPassword({ email: String(email || '').trim().toLowerCase(), password });
 }
 
 export async function signOut() {
