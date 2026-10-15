@@ -36,6 +36,7 @@ import Advertising from './pages/Advertising';
 import OffPlatformAds from './pages/OffPlatformAds';
 import Coins from './pages/Coins';
 import MegaVoucher from './pages/MegaVoucher';
+import Xupport from './pages/Xupport';
 import Settings from './pages/Settings';
 import SignUp from './pages/SignUp';
 import Profile from './pages/Profile';
@@ -123,6 +124,7 @@ function Router() {
         <Route path="/off-platform-ads" element={<OffPlatformAds />} />
         <Route path="/coins" element={<Coins />} />
         <Route path="/mega-voucher" element={<MegaVoucher />} />
+        <Route path="/support" element={<Xupport />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       {!hideFooter && <SiteFooter />}

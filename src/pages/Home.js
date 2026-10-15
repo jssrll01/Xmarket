@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
-, Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal, Ticket} from 'lucide-react';
+, Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal, Ticket, Sparkles} from 'lucide-react';
 import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { sortByStock, isOutOfStock } from '../lib/stock';
 import { priceRange, hasRealVariants } from '../lib/variants';
@@ -151,6 +151,9 @@ function Drawer({ open, onClose }) {
           <button onClick={onClose} className="icon-btn"><X size={20} /></button>
         </div>
 
+        <button style={row} onClick={() => go('/support')}>
+          <Sparkles size={20} color="var(--primary)" /> Xautomated Support
+        </button>
         <button style={row} onClick={() => go('/help')}>
           <HelpCircle size={20} color="var(--primary)" /> Help
         </button>
