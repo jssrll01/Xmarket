@@ -65,7 +65,7 @@ export default function ProductDetails() {
 
   const variantConfig = product?.variant_config && Object.keys(product.variant_config).length > 0
     ? product.variant_config
-    : (product?.variants && product.variants.length > 0 ? { Variant: product.variants } : {});
+    : {};
   const hasVariants = Object.keys(variantConfig).length > 0;
   const [variant, setVariant] = useState({});
   const [variantError, setVariantError] = useState(false);

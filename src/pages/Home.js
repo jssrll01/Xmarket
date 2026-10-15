@@ -6,7 +6,7 @@ import {
 , Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal} from 'lucide-react';
 import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { sortByStock, isOutOfStock } from '../lib/stock';
-import { priceRange } from '../lib/variants';
+import { priceRange, hasRealVariants } from '../lib/variants';
 import { supabase } from '../lib/supabase';
 import { unreadCount } from '../lib/notifications';
 import { Star } from 'lucide-react';
@@ -322,7 +322,7 @@ export default function Home() {
       navigate('/signin');
       return;
     }
-    if (p.variants && p.variants.length > 0) {
+    if (hasRealVariants(p)) {
       setVariantProduct(p);
       return;
     }
