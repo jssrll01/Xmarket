@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Send, Sparkles, Mail, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Send, Sparkles, Mail, HelpCircle, Trash2 } from 'lucide-react';
 import { GREETING, QUICK_CHIPS } from '../lib/xupport';
 import { pickBest } from '../lib/xupport/match';
 
@@ -17,6 +17,10 @@ function loadHistory() {
 
 function uid() { return Math.random().toString(36).slice(2, 10); }
 
+function freshGreeting() {
+  return { id: uid(), role: 'bot', text: GREETING, at: Date.now() };
+}
+
 export default function Xupport() {
   const nav = useNavigate();
   const listRef = useRef(null);
@@ -24,17 +28,28 @@ export default function Xupport() {
   const [messages, setMessages] = useState(() => {
     const saved = loadHistory();
     if (saved && saved.length) return saved;
-    return [{ id: uid(), role: 'bot', text: GREETING, at: Date.now() }];
+    return [freshGreeting()];
   });
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
 
+  // Persist during the session
   useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-20))); } catch {}
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-30))); } catch {}
   }, [messages]);
 
+  // AUTO-CLEAR: when component unmounts (user leaves /support), wipe storage
   useEffect(() => {
-    if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
+    return () => {
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    };
+  }, []);
+
+  // Auto-scroll
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
   }, [messages, typing]);
 
   const goBackSafe = () => {
@@ -52,7 +67,6 @@ export default function Xupport() {
     setInput('');
     setTyping(true);
 
-    // tiny delay so it feels like it's thinking
     setTimeout(() => {
       const { intent } = pickBest(t);
       const botMsg = {
@@ -64,61 +78,84 @@ export default function Xupport() {
       };
       setMessages(m => [...m, botMsg]);
       setTyping(false);
-    }, 380);
+    }, 320);
   };
 
   const onSubmit = (e) => { e.preventDefault(); ask(input); };
 
   const clear = () => {
-    setMessages([{ id: uid(), role: 'bot', text: GREETING, at: Date.now() }]);
+    setMessages([freshGreeting()]);
     try { localStorage.removeItem(STORAGE_KEY); } catch {}
   };
 
   return (
     <div className="xu-root">
+      {/* Header */}
       <div className="xu-header">
-        <button onClick={goBackSafe} className="icon-btn" aria-label="Back">
+        <button onClick={goBackSafe} className="xu-icon-btn" aria-label="Back">
           <ArrowLeft size={20} />
         </button>
         <div className="xu-header-title">
-          <Sparkles size={16} color="#2563EB" />
-          <span>Xautomated Support</span>
+          <div className="xu-avatar">
+            <Sparkles size={15} color="#fff" />
+          </div>
+          <div>
+            <div className="xu-name">Xautomated Support</div>
+            <div className="xu-status">
+              <span className="xu-dot" /> Online
+            </div>
+          </div>
         </div>
-        <button onClick={clear} className="xu-clear" aria-label="New chat">New</button>
+        <button onClick={clear} className="xu-icon-btn" aria-label="Clear chat">
+          <Trash2 size={18} />
+        </button>
       </div>
 
+      {/* Messages */}
       <div className="xu-list" ref={listRef}>
-        {messages.map(m => (
-          <div key={m.id} className={'xu-msg xu-' + m.role}>
-            <div className="xu-bubble">
-              {m.text}
+        {messages.map((m, i) => (
+          <div key={m.id} className={'xu-row xu-' + m.role}>
+            {m.role === 'bot' && (
+              <div className="xu-bot-avatar">
+                <Sparkles size={13} color="#fff" />
+              </div>
+            )}
+            <div className={'xu-bubble xu-' + m.role + '-bubble'}>
+              <div className="xu-text">{m.text}</div>
               {m.links && m.links.length > 0 && (
                 <div className="xu-links">
-                  {m.links.map((l, i) => (
-                    l.href
-                      ? <a key={i} className="xu-link" href={l.href}>
-                          {l.href.startsWith('mailto:') ? <Mail size={14} /> : <HelpCircle size={14} />}
-                          {l.label}
-                        </a>
-                      : <Link key={i} className="xu-link" to={l.to}>
-                          <HelpCircle size={14} />
-                          {l.label}
-                        </Link>
-                  ))}
+                  {m.links.map((l, k) =>
+                    l.href ? (
+                      <a key={k} className="xu-link" href={l.href}>
+                        {l.href.startsWith('mailto:') ? <Mail size={13} /> : <HelpCircle size={13} />}
+                        {l.label}
+                      </a>
+                    ) : (
+                      <Link key={k} className="xu-link" to={l.to}>
+                        <HelpCircle size={13} />
+                        {l.label}
+                      </Link>
+                    )
+                  )}
                 </div>
               )}
             </div>
           </div>
         ))}
+
         {typing && (
-          <div className="xu-msg xu-bot">
-            <div className="xu-bubble xu-typing">
+          <div className="xu-row xu-bot">
+            <div className="xu-bot-avatar">
+              <Sparkles size={13} color="#fff" />
+            </div>
+            <div className="xu-bubble xu-bot-bubble xu-typing">
               <span /><span /><span />
             </div>
           </div>
         )}
       </div>
 
+      {/* Quick chips — only show on first screen */}
       {messages.length <= 1 && (
         <div className="xu-chips">
           {QUICK_CHIPS.map(c => (
@@ -129,6 +166,7 @@ export default function Xupport() {
         </div>
       )}
 
+      {/* Input */}
       <form className="xu-inputbar" onSubmit={onSubmit}>
         <input
           className="xu-input"
@@ -138,7 +176,7 @@ export default function Xupport() {
           aria-label="Message"
         />
         <button type="submit" className="xu-send" disabled={!input.trim() || typing} aria-label="Send">
-          <Send size={18} />
+          <Send size={17} />
         </button>
       </form>
     </div>

@@ -14,8 +14,8 @@ const STOPWORDS = new Set([
   'have','has','had','get','got','please','need','want',
 ]);
 
-const TOP_K = 3;
-const THRESHOLD = 3;
+const TOP_K = 5;
+const THRESHOLD = 2;
 const TRIGGER_BONUS = 2;
 
 export function tokenize(text) {
@@ -35,7 +35,7 @@ function scoreKeywords(rawText, tokens, keywords) {
     if (k.includes(' ')) {
       if (lower.includes(k)) score += 6;
     } else {
-      if (tokens.includes(k)) score += 3;
+      if (tokens.includes(k)) score += 4;
       else if (tokens.some(t => t.startsWith(k) || k.startsWith(t))) score += 1;
     }
   }

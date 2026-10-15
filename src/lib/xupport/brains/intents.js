@@ -2,6 +2,93 @@ export const topic = 'intents';
 export const triggers = ['shop', 'shopping', 'search', 'hanap', 'magkano', 'bayad', 'order ko', 'kumusta', 'salamat', 'tanong'];
 
 export default [
+
+  // ---- Generic single-word intents (added to fix fallbacks) ----
+  {
+    id: 'generic_order',
+    keywords: ['order', 'orders', 'my order', 'my orders', 'order status', 'order help'],
+    answer: "You can view and manage your orders from My Orders. Open any order to see its status, products, payment, and delivery information.",
+    links: [{ label: 'My Orders', to: '/orders' }],
+  },
+  {
+    id: 'generic_account',
+    keywords: ['account', 'my account', 'account settings', 'account help', 'profile'],
+    answer: "You can manage your XMARKET account from the Account page. From there you can review your profile, addresses, security settings, and other account options.",
+    links: [{ label: 'My Account', to: '/account' }],
+  },
+  {
+    id: 'generic_shipping',
+    keywords: ['shipping', 'delivery', 'shipping help', 'delivery help'],
+    answer: "Shipping information, delivery options, tracking, and applicable fees are handled through the checkout and order pages. Open an order to view its current shipping status.",
+    links: [{ label: 'My Orders', to: '/orders' }],
+  },
+  {
+    id: 'generic_payment',
+    keywords: ['payment', 'pay', 'payment help', 'payment methods'],
+    answer: "Available payment methods are shown during checkout. Select a supported method and complete the payment steps shown.",
+    links: [{ label: 'My Orders', to: '/orders' }],
+  },
+  {
+    id: 'generic_refund',
+    keywords: ['refund', 'refunds', 'money back', 'refund help'],
+    answer: "Refund eligibility depends on the order status and reason. Open the affected order to see the available return or refund options.",
+    links: [{ label: 'Returns & Refunds', to: '/returns' }],
+  },
+  {
+    id: 'generic_return',
+    keywords: ['return', 'returns', 'return item', 'return help'],
+    answer: "To return an item, open the order in My Orders and select the available Return / Refund option. Follow the instructions shown for your specific order.",
+    links: [{ label: 'Returns & Refunds', to: '/returns' }],
+  },
+  {
+    id: 'generic_voucher',
+    keywords: ['voucher', 'vouchers', 'promo', 'promotion', 'discount'],
+    answer: "Available vouchers and promotions are shown in the Vouchers section and during checkout when they apply to your order.",
+    links: [{ label: 'Vouchers', to: '/vouchers' }],
+  },
+  {
+    id: 'generic_cart',
+    keywords: ['cart', 'shopping cart', 'my cart'],
+    answer: "Your Cart contains the products you have selected before checkout. Open your Cart to review or update the items.",
+    links: [{ label: 'Cart', to: '/cart' }],
+  },
+  {
+    id: 'generic_checkout',
+    keywords: ['checkout', 'place order', 'buy'],
+    answer: "At checkout, review your items, delivery address, shipping option, and payment method before confirming the order.",
+    links: [{ label: 'Cart', to: '/cart' }],
+  },
+  {
+    id: 'generic_help',
+    keywords: ['help', 'support', 'need help', 'assistance'],
+    answer: "I can help with orders, shipping, returns, payments, vouchers, account issues, and more. Ask a specific question or open the Help Center for topics.",
+    links: [{ label: 'Help Center', to: '/help' }],
+  },
+  {
+    id: 'generic_hello',
+    keywords: ['hello', 'hi', 'hey', 'kumusta', 'good morning', 'good afternoon', 'good evening'],
+    answer: "Hello! Welcome to XMARKET Support. Ask me about orders, shipping, returns, payments, vouchers, or your account.",
+    links: [{ label: 'Help Center', to: '/help' }],
+  },
+  {
+    id: 'generic_thanks',
+    keywords: ['thanks', 'thank you', 'salamat', 'salamat po'],
+    answer: "You're welcome! If you need anything else with XMARKET, just ask.",
+    links: [],
+  },
+  {
+    id: 'generic_xmarket',
+    keywords: ['xmarket', 'what is xmarket', 'about xmarket', 'xmarket help'],
+    answer: "XMARKET is an online marketplace where you can shop, sell, and manage orders. Ask me about orders, shipping, returns, payments, vouchers, or your account.",
+    links: [{ label: 'Help Center', to: '/help' }],
+  },
+  {
+    id: 'generic_xwallet',
+    keywords: ['xwallet', 'wallet', 'top up', 'balance'],
+    answer: "Xwallet is your in-app balance. Top up via GCash, Maya, or card, and use it to pay instantly at checkout. Refunds can also be sent here for faster access.",
+    links: [{ label: 'My Account', to: '/account' }],
+  },
+
   {
     id: 'intent_shop',
     keywords: ['shop', 'shopping', 'browse products', 'find products', 'look for products', 'hanap ng product', 'maghanap ng item', 'saan makikita products', 'where can I shop'],
