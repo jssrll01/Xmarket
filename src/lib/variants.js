@@ -37,15 +37,8 @@ export function comboLabel(selection) {
 /** Look up the price for a combo, or fall back to base price. */
 export function priceFor(product, selection) {
   if (!product) return 0;
-  const prices = product.variant_prices;
-  if (!prices || typeof prices !== 'object') return 0;
-  const label = comboLabel(selection);
-  const byLabel = prices[label];
-  if (typeof byLabel === 'number') return byLabel;
-  const key = comboKey(selection);
-  const byKey = prices[key];
-  if (typeof byKey === 'number') return byKey;
-  return 0;
+  const v = lookupCombo(product.variant_prices, selection);
+  return typeof v === 'number' ? v : 0;
 }
 
 /** Parse the `variant` text column stored on cart rows back into an object. */
@@ -148,4 +141,39 @@ export function hasRealVariants(product) {
   const cfg = product.variant_config;
   if (!cfg || typeof cfg !== 'object') return false;
   return Object.keys(cfg).some(d => Array.isArray(cfg[d]) && cfg[d].length > 0);
+}
+
+function _num(v) {
+  if (v === null || v === undefined || v === '') return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+function _norm(str) {
+  return String(str).toLowerCase().replace(/\u00d7/g, 'x').replace(/\s+/g, ' ').trim();
+}
+function _perms(arr) {
+  if (arr.length <= 1) return [arr];
+  const out = [];
+  arr.forEach((v, i) => {
+    _perms(arr.slice(0, i).concat(arr.slice(i + 1))).forEach(q => out.push([v].concat(q)));
+  });
+  return out;
+}
+
+/** Tolerant lookup of a variant combo in a price/stock map. */
+export function lookupCombo(map, selection) {
+  if (!map || typeof map !== 'object' || !selection || typeof selection !== 'object') return undefined;
+  for (const k of [comboLabel(selection), comboKey(selection)]) {
+    if (k && _num(map[k]) !== undefined) return _num(map[k]);
+  }
+  const parts = [];
+  Object.keys(selection).forEach(d => String(selection[d]).split(' / ').forEach(x => parts.push(x)));
+  if (!parts.length || parts.length > 5) return undefined;
+  const normMap = {};
+  Object.keys(map).forEach(k => { if (_num(map[k]) !== undefined) normMap[_norm(k)] = _num(map[k]); });
+  for (const q of _perms(parts)) {
+    const v = normMap[_norm(q.join(' / '))];
+    if (v !== undefined) return v;
+  }
+  return undefined;
 }
