@@ -372,9 +372,6 @@ export default function Home() {
             </div>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
-            <Link to="/settings" className="icon-btn" aria-label="Settings">
-              <Settings size={20} />
-            </Link>
             <Link to="/notifications" className="icon-btn" aria-label="Notifications">
               <Bell size={20} />
               {unread > 0 && (
