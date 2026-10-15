@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Send, Sparkles, Mail, HelpCircle, Trash2 } from 'lucide-react';
-import { GREETING, QUICK_CHIPS } from '../lib/xupport';
+import { GREETING, QUICK_CHIPS, BRAIN_DEBUG } from '../lib/xupport';
+
+// eslint-disable-next-line no-console
+console.log('[Xupport] brain debug:', BRAIN_DEBUG);
+
 import { pickBest } from '../lib/xupport/match';
 
 const STORAGE_KEY = 'xmarket.xupport.history.v1';

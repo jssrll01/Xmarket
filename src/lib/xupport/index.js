@@ -37,4 +37,10 @@ export const FALLBACK = {
   ],
 };
 
+export const BRAIN_DEBUG = {
+  fileCount: ctx.keys().length,
+  intentCount: intents.length,
+  categoryCount: categoryMap.length,
+};
+
 export { intents, categoryMap };
