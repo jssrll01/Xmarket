@@ -518,67 +518,59 @@ export default function Home() {
 
       {/* Quick-access buttons */}
       <PillRow>
-        <Link to="/bundles" style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '12px 14px', borderRadius: 14,
-          background: 'var(--card)', border: '1px solid var(--border)',
-          textDecoration: 'none', color: 'var(--text)',
-          fontWeight: 700, fontSize: 13,
-          WebkitTapHighlightColor: 'transparent',
-          WebkitTouchCallout: 'none',
-          userSelect: 'none',
-          touchAction: 'manipulation',
-          outline: 'none',
-        }}>
+        <Link to="/xwallet" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
+            background: 'linear-gradient(135deg, #14B8A6, #0F766E)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>
-            <Gift size={16} color="#fff" />
+            <WalletIcon size={16} color="#fff" />
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800 }}>Bundle Deals</div>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Xwallet</div>
           </div>
         </Link>
-
-        <Link to="/flash-sale" style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '12px 14px', borderRadius: 14,
-          background: 'var(--card)', border: '1px solid var(--border)',
-          textDecoration: 'none', color: 'var(--text)',
-          fontWeight: 700, fontSize: 13,
-          WebkitTapHighlightColor: 'transparent',
-          WebkitTouchCallout: 'none',
-          userSelect: 'none',
-          touchAction: 'manipulation',
-          outline: 'none',
-        }}>
+        <Link to="/xmall" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #DC2626, #F59E0B)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <Store size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>XMALL</div>
+          </div>
+        </Link>
+        <Link to="/xcards" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #6366F1, #06B6D4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <CardIcon size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Xcards</div>
+          </div>
+        </Link>
+        <Link to="/flash-sale" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
             background: 'linear-gradient(135deg, #F59E0B, #DC2626)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>
             <Zap size={16} color="#fff" />
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800 }}>Flash Sale</div>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Flash Sale</div>
           </div>
         </Link>
-
-        <Link to="/savemore" style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '12px 14px', borderRadius: 14,
-          background: 'var(--card)', border: '1px solid var(--border)', fontWeight: 700, fontSize: 13, flexShrink: 0, whiteSpace: 'nowrap',
-          textDecoration: 'none', color: 'inherit',
-        }}>
+        <Link to="/savemore" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
             background: 'linear-gradient(135deg, #10B981, #059669)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>
             <Percent size={16} color="#fff" />
           </div>
@@ -586,55 +578,30 @@ export default function Home() {
             <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Save More</div>
           </div>
         </Link>
-        <Link to="/xmall" style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '12px 14px', borderRadius: 14,
-          background: 'var(--card)', border: '1px solid var(--border)',
-          textDecoration: 'none', color: 'var(--text)',
-          fontWeight: 700, fontSize: 13,
-          WebkitTapHighlightColor: 'transparent',
-          WebkitTouchCallout: 'none',
-          userSelect: 'none',
-          touchAction: 'manipulation',
-          outline: 'none',
-        }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #DC2626, #F59E0B)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
-          }}>
-            <Store size={16} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800 }}>XMALL</div>
-          </div>
-        </Link>
-      </PillRow>
-      <PillRow>
-        <Link to="/xwallet" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #10B981, #059669)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <WalletIcon size={16} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800 }}>Xwallet</div>
-          </div>
-        </Link>
-        <Link to="/xcards" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+        <Link to="/bundles" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
             background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>
-            <CardIcon size={16} color="#fff" />
+            <Gift size={16} color="#fff" />
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800 }}>Xcards</div>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Bundle Deals</div>
           </div>
+        </Link>
+        <Link to="/vouchers" className="pill pill-vouchers" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start', position: 'relative', overflow: 'hidden' }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #7C3AED, #EC4899)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <Ticket size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Vouchers</div>
+          </div>
+          <span className="pill-shine" />
         </Link>
       </PillRow>
       <div className="chips">
