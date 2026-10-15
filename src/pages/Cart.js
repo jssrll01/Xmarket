@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
-import { fetchProducts } from '../lib/products';
-import { parseCartVariant, comboLabel, priceRange } from '../lib/variants';
+import { parseCartVariant, comboLabel } from '../lib/variants';
+import YouMayAlsoLike from '../components/YouMayAlsoLike';
 import SmartImage from '../components/SmartImage';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
@@ -16,15 +16,10 @@ export default function Cart() {
   const { show: showToast } = useToast();
   const [going, setGoing] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(null);
-  const [allProducts, setAllProducts] = useState([]);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/signin', { replace: true });
   }, [user, authLoading, navigate]);
-
-  useEffect(() => {
-    fetchProducts().then(list => setAllProducts(list));
-  }, []);
 
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
   const total = subtotal;
@@ -58,39 +53,12 @@ export default function Cart() {
           </button>
         </div>
 
-        <div style={{ marginTop: 24 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>You may also like</h3>
-          <div className="related-scroll" style={{ padding: 0 }}>
-            {allProducts.slice(0, 8).map(r => (
-              <button key={r.uuid}
-                onClick={() => navigate('/product/' + r.id)}
-                className="related-card"
-                style={{ cursor: 'pointer', textAlign: 'left' }}>
-                <div className="thumb">
-                  <SmartImage src={(r.images && r.images[0]) || 'https://via.placeholder.com/120?text=X'} alt={r.name} />
-                </div>
-                <div className="meta">
-                  <div className="name">{r.name}</div>
-                  <div className="price">{priceRange(r).display}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
+        <YouMayAlsoLike />
       </div>
     );
   }
 
-  const cartIds = new Set(items.map(i => i.product_id));
-  const cartCats = new Set(items.map(i => i.category).filter(Boolean));
-  const recommended = allProducts
-    .filter(p => !cartIds.has(p.uuid))
-    .sort((a, b) => {
-      const aMatch = cartCats.has(a.category) ? 0 : 1;
-      const bMatch = cartCats.has(b.category) ? 0 : 1;
-      return aMatch - bMatch;
-    })
-    .slice(0, 8);
+  const cartIds = items.map(i => i.product_id);
 
   return (
     <div style={{ padding: 16, paddingBottom: 60 }}>
@@ -157,27 +125,7 @@ export default function Cart() {
         {going ? (<><span className="spinner" /> Proceeding...</>) : 'Proceed to Checkout'}
       </button>
 
-      {recommended.length > 0 && (
-        <div style={{ marginTop: 28 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 12 }}>You may also like</h3>
-          <div className="related-scroll" style={{ padding: 0 }}>
-            {recommended.map(r => (
-              <button key={r.uuid}
-                onClick={() => navigate('/product/' + r.id)}
-                className="related-card"
-                style={{ cursor: 'pointer', textAlign: 'left' }}>
-                <div className="thumb">
-                  <SmartImage src={(r.images && r.images[0]) || 'https://via.placeholder.com/120?text=X'} alt={r.name} />
-                </div>
-                <div className="meta">
-                  <div className="name">{r.name}</div>
-                  <div className="price">{priceRange(r).display}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      <YouMayAlsoLike excludeIds={cartIds} />
 
       <ConfirmDialog
         open={!!confirmRemove}
