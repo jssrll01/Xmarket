@@ -2600,3 +2600,5 @@ input[type="range"].filter-range,
   white-space: nowrap;
   scroll-snap-align: start;
 }
+
+.pill-scroll::-webkit-scrollbar { display: none; }

@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import PillRow, { pillStyle } from '../components/PillRow';
+import { Wallet as WalletIcon, CreditCard as CardIcon } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
@@ -515,13 +517,7 @@ export default function Home() {
       </div>
 
       {/* Quick-access buttons */}
-      <div className="pill-scroll" style={{
-        display: 'flex', gap: 8, padding: '4px 16px 12px',
-        overflowX: 'auto', overflowY: 'hidden',
-        scrollSnapType: 'x mandatory',
-        WebkitOverflowScrolling: 'touch',
-        scrollbarWidth: 'none', msOverflowStyle: 'none',
-      }}>
+      <PillRow>
         <Link to="/bundles" style={{
           display: 'flex', alignItems: 'center', gap: 10,
           padding: '12px 14px', borderRadius: 14,
@@ -614,35 +610,33 @@ export default function Home() {
             <div style={{ fontSize: 13, fontWeight: 800 }}>XMALL</div>
           </div>
         </Link>
-
-        <Link to="/vouchers" className="pill pill-vouchers" style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '12px 14px', borderRadius: 14,
-          background: 'var(--card)', border: '1px solid var(--border)',
-          textDecoration: 'none', color: 'var(--text)',
-          fontWeight: 700, fontSize: 13,
-          WebkitTapHighlightColor: 'transparent',
-          WebkitTouchCallout: 'none',
-          userSelect: 'none',
-          touchAction: 'manipulation',
-          outline: 'none',
-          flexShrink: 0, scrollSnapAlign: 'start',
-          position: 'relative', overflow: 'hidden',
-        }}>
+      </PillRow>
+      <PillRow>
+        <Link to="/xwallet" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #7C3AED, #EC4899)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flexShrink: 0,
+            background: 'linear-gradient(135deg, #10B981, #059669)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>
-            <Ticket size={16} color="#fff" />
+            <WalletIcon size={16} color="#fff" />
           </div>
           <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800 }}>Vouchers</div>
+            <div style={{ fontSize: 13, fontWeight: 800 }}>Xwallet</div>
           </div>
-          <span className="pill-shine" />
         </Link>
-      </div>
+        <Link to="/xcards" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <CardIcon size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800 }}>Xcards</div>
+          </div>
+        </Link>
+      </PillRow>
       <div className="chips">
         {categories.map(c => (
           <button key={c}
