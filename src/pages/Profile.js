@@ -1,14 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone, MapPin, Building, Map, Flag,
   Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft, Ticket
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { supabase } from '../lib/supabase';
 
 export default function Profile() {
   const nav = useNavigate();
   const { user, profile } = useAuth();
+  const [stats, setStats] = useState({ orders: 0, wishlist: 0, following: 0, extra: null });
+
+  useEffect(() => {
+    if (!user) return;
+    let alive = true;
+    const count = (t, col) => supabase.from(t).select('id', { count: 'exact', head: true }).eq(col, user.id).then(r => r.count || 0);
+    Promise.all([
+      count('orders', 'buyer_id'), count('wishlists', 'user_id'), count('seller_follows', 'user_id'),
+      supabase.from('profiles').select('loyalty_points, loyalty_tier, xwallet_balance, created_at').eq('id', user.id).maybeSingle(),
+    ]).then(([orders, wishlist, following, p]) => {
+      if (alive) setStats({ orders, wishlist, following, extra: p.data });
+    }).catch(() => {});
+    return () => { alive = false; };
+  }, [user]);
 
   if (!user) {
     return (
@@ -86,6 +101,27 @@ export default function Profile() {
         </button>
       </div>
 
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
+        {[['Orders', stats.orders, '/orders'], ['Wishlist', stats.wishlist, '/wishlist'], ['Following', stats.following, '/following']].map(([k, v, to]) => (
+          <Link key={k} to={to} className="card" style={{ padding: '12px 8px', textAlign: 'center', textDecoration: 'none', color: 'inherit' }}>
+            <div style={{ fontSize: 18, fontWeight: 900 }}>{v}</div>
+            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>{k}</div>
+          </Link>
+        ))}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 24 }}>
+        <Link to="/rewards" className="card" style={{ padding: 14, textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase' }}>Loyalty points</div>
+          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 4 }}>{stats.extra?.loyalty_points ?? 0}</div>
+          {stats.extra?.loyalty_tier && <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2, textTransform: 'capitalize' }}>{stats.extra.loyalty_tier} tier</div>}
+        </Link>
+        <Link to="/xwallet" className="card" style={{ padding: 14, textDecoration: 'none', color: 'inherit' }}>
+          <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase' }}>Xwallet</div>
+          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 4 }}>₱{Number(stats.extra?.xwallet_balance || 0).toFixed(2)}</div>
+          {stats.extra?.created_at && <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>Member since {new Date(stats.extra.created_at).toLocaleDateString()}</div>}
+        </Link>
+      </div>
+
       {/* Account info */}
       <h3 style={{ fontSize: 12, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.5, margin: '0 0 10px 4px' }}>
         Account
@@ -123,6 +159,18 @@ export default function Profile() {
       <Link to="/following" style={menuRow}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <User size={18} color="var(--primary)" /> Following
+        </span>
+        <ChevronRight size={16} color="var(--muted)" />
+      </Link>
+      <Link to="/orders" style={menuRow}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Package size={18} color="var(--primary)" /> My orders
+        </span>
+        <ChevronRight size={16} color="var(--muted)" />
+      </Link>
+      <Link to="/vouchers" style={menuRow}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Ticket size={18} color="var(--primary)" /> Vouchers
         </span>
         <ChevronRight size={16} color="var(--muted)" />
       </Link>
