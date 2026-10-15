@@ -1,8 +1,8 @@
-// Xautomated Support — matching engine
-// Tokenizes the user message and scores each intent in xupportBrain.js.
-// Higher score = better match. Below THRESHOLD => fallback.
+// Xautomated Support — two-stage matcher.
+// Stage 1: score each category by its `triggers`.
+// Stage 2: score only the top-K categories' intents with full keyword matching.
 
-import { intents, FALLBACK } from './xupportBrain';
+import { categoryMap, FALLBACK } from './index';
 
 const STOPWORDS = new Set([
   'a','an','the','is','are','am','was','were','be','been','being',
@@ -11,8 +11,12 @@ const STOPWORDS = new Set([
   'to','of','in','on','at','for','with','from','by','about','as','into','onto',
   'and','or','but','if','then','so','than','that','this','these','those',
   'how','what','when','where','why','who','which','whom',
-  'have','has','had','get','got','please','help','need','want',
+  'have','has','had','get','got','please','need','want',
 ]);
+
+const TOP_K = 3;
+const THRESHOLD = 3;
+const TRIGGER_BONUS = 2;
 
 export function tokenize(text) {
   return (text || '')
@@ -22,15 +26,13 @@ export function tokenize(text) {
     .filter(t => t && !STOPWORDS.has(t));
 }
 
-function scoreIntent(rawText, tokens, intent) {
+function scoreKeywords(rawText, tokens, keywords) {
   let score = 0;
   const lower = (rawText || '').toLowerCase();
-
-  for (const kw of intent.keywords) {
+  for (const kw of keywords || []) {
     if (!kw) continue;
     const k = kw.toLowerCase();
     if (k.includes(' ')) {
-      // phrase — big weight if present verbatim
       if (lower.includes(k)) score += 6;
     } else {
       if (tokens.includes(k)) score += 3;
@@ -40,17 +42,31 @@ function scoreIntent(rawText, tokens, intent) {
   return score;
 }
 
-export const THRESHOLD = 3;
+function scoreTriggers(rawText, triggers) {
+  let score = 0;
+  const lower = (rawText || '').toLowerCase();
+  for (const t of triggers || []) {
+    if (t && lower.includes(t.toLowerCase())) score += TRIGGER_BONUS;
+  }
+  return score;
+}
 
 export function pickBest(rawText) {
   const tokens = tokenize(rawText);
-  if (!tokens.length) return { intent: null, score: 0, fallback: true };
+  if (!tokens.length) return { intent: FALLBACK, score: 0, fallback: true };
 
-  let best = null;
-  let bestScore = 0;
-  for (const intent of intents) {
-    const s = scoreIntent(rawText, tokens, intent);
-    if (s > bestScore) { bestScore = s; best = intent; }
+  const ranked = categoryMap
+    .map((c) => ({ c, s: scoreTriggers(rawText, c.triggers) }))
+    .sort((a, b) => b.s - a.s);
+
+  const shortlist = ranked.slice(0, TOP_K);
+
+  let best = null, bestScore = 0;
+  for (const { c } of shortlist) {
+    for (const intent of c.intents) {
+      const s = scoreKeywords(rawText, tokens, intent.keywords);
+      if (s > bestScore) { bestScore = s; best = intent; }
+    }
   }
 
   if (!best || bestScore < THRESHOLD) {
