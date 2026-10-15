@@ -38,10 +38,26 @@ export default function Xupport() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-30))); } catch {}
   }, [messages]);
 
-  // AUTO-CLEAR: when component unmounts (user leaves /support), wipe storage
+  // AUTO-CLEAR: wipe storage when the user leaves the page.
+  // Handles: React Router unmount, tab close, browser back, and reload.
   useEffect(() => {
-    return () => {
+    const wipe = () => {
       try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    };
+
+    // Clear immediately on mount so the previous session never shows up
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
+
+    // Clear on unmount (React Router navigation away)
+    // Clear on pagehide (tab close / bfcache)
+    // Clear on beforeunload (hard reload / browser nav)
+    window.addEventListener('pagehide', wipe);
+    window.addEventListener('beforeunload', wipe);
+
+    return () => {
+      wipe();
+      window.removeEventListener('pagehide', wipe);
+      window.removeEventListener('beforeunload', wipe);
     };
   }, []);
 

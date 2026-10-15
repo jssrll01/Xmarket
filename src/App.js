@@ -58,7 +58,7 @@ import { setupForegroundHandler } from './lib/fcm';
 function Router() {
   useScrollTop();
   const location = useLocation();
-  const hideFooter = location.pathname === '/checkout';
+  const hideFooter = location.pathname === '/checkout' || location.pathname === '/support';
 
   // Foreground FCM handler — safe here because this Router is inside AuthProvider
   React.useEffect(() => {
