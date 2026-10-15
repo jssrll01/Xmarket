@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
-, Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal} from 'lucide-react';
+, Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal, Ticket} from 'lucide-react';
 import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { sortByStock, isOutOfStock } from '../lib/stock';
 import { priceRange, hasRealVariants } from '../lib/variants';
@@ -512,9 +512,12 @@ export default function Home() {
       </div>
 
       {/* Quick-access buttons */}
-      <div style={{
-        display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 8,
-        padding: '4px 16px 12px',
+      <div className="pill-scroll" style={{
+        display: 'flex', gap: 8, padding: '4px 16px 12px',
+        overflowX: 'auto', overflowY: 'hidden',
+        scrollSnapType: 'x mandatory',
+        WebkitOverflowScrolling: 'touch',
+        scrollbarWidth: 'none', msOverflowStyle: 'none',
       }}>
         <Link to="/bundles" style={{
           display: 'flex', alignItems: 'center', gap: 10,
@@ -608,6 +611,34 @@ export default function Home() {
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 800 }}>XMALL</div>
           </div>
+        </Link>
+
+        <Link to="/vouchers" className="pill pill-vouchers" style={{
+          display: 'flex', alignItems: 'center', gap: 10,
+          padding: '12px 14px', borderRadius: 14,
+          background: 'var(--card)', border: '1px solid var(--border)',
+          textDecoration: 'none', color: 'var(--text)',
+          fontWeight: 700, fontSize: 13,
+          WebkitTapHighlightColor: 'transparent',
+          WebkitTouchCallout: 'none',
+          userSelect: 'none',
+          touchAction: 'manipulation',
+          outline: 'none',
+          flexShrink: 0, scrollSnapAlign: 'start',
+          position: 'relative', overflow: 'hidden',
+        }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #7C3AED, #EC4899)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+          }}>
+            <Ticket size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800 }}>Vouchers</div>
+          </div>
+          <span className="pill-shine" />
         </Link>
       </div>
       <div className="chips">
