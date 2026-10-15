@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Send, Sparkles, Mail, HelpCircle } from 'lucide-react';
-import { GREETING, QUICK_CHIPS } from '../lib/xupport';
-import { pickBest } from '../lib/xupport/match';
+import { GREETING, QUICK_CHIPS } from '../lib/xupportBrain';
+import { pickBest } from '../lib/xupportMatch';
 
 const STORAGE_KEY = 'xmarket.xupport.history.v1';
 
