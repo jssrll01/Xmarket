@@ -75,12 +75,8 @@ export function stockFor(product, selection) {
   if (!map || typeof map !== 'object' || Object.keys(map).length === 0) return Infinity;
   // Has variants AND stock data → check specific combo
   if (!selection || !Object.keys(selection).length) return Infinity;
-  const label = comboLabel(selection);
-  const byLabel = map[label];
-  if (typeof byLabel === 'number') return byLabel;
-  const key = comboKey(selection);
-  const byKey = map[key];
-  if (typeof byKey === 'number') return byKey;
+  const found = lookupCombo(map, selection);
+  if (typeof found === 'number') return found;
   // Selection doesn't match any stock entry → treat as unlimited
   return Infinity;
 }
