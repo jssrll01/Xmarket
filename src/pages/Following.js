@@ -10,7 +10,6 @@ export default function Following() {
   const [sellers, setSellers] = useState([]);
   const [counts, setCounts] = useState({});
   const [verified, setVerified] = useState({});
-  const [suggested, setSuggested] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState('');
 
@@ -28,14 +27,12 @@ export default function Following() {
       const names = list.map(s => s.seller_name);
       const { data: prods } = await supabase.from('products').select('store, verified').limit(500);
       if (!alive) return;
-      const c = {}; const v = {}; const all = new Set();
+      const c = {}; const v = {};
       (prods || []).forEach(p => {
         if (!p.store) return;
-        all.add(p.store);
         if (names.includes(p.store)) { c[p.store] = (c[p.store] || 0) + 1; if (p.verified) v[p.store] = true; }
       });
       setCounts(c); setVerified(v);
-      setSuggested([...all].filter(n => !names.includes(n)).slice(0, 6));
       setLoading(false);
     })();
     return () => { alive = false; };
@@ -105,18 +102,6 @@ export default function Following() {
         ))
       )}
 
-      {!loading && suggested.length > 0 && (
-        <div style={{ marginTop: 24 }}>
-          <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 10 }}>Shops you may like</h3>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-            {suggested.map(n => (
-              <Link key={n} to={`/store/${encodeURIComponent(n)}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 999, fontSize: 12.5, fontWeight: 700, background: 'var(--card)', textDecoration: 'none', color: 'inherit' }}>
-                <Store size={13} /> {n}
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
