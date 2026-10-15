@@ -1,16 +1,5 @@
 /**
 
-/**
- * True if the product has at least one variant dimension with options.
- * Checks `variant_config` only — the legacy `variants` array is ignored.
- */
-export function hasRealVariants(product) {
-  if (!product) return false;
-  const cfg = product.variant_config;
-  if (!cfg || typeof cfg !== 'object') return false;
-  return Object.keys(cfg).some(d => Array.isArray(cfg[d]) && cfg[d].length > 0);
-}
-
  * Variant model
  * -------------
  * product.variants        — legacy: flat array of strings (still supported)
@@ -148,4 +137,15 @@ export function priceRange(product) {
       ? `₱${min.toLocaleString()}–₱${max.toLocaleString()}`
       : `₱${min.toLocaleString()}`,
   };
+}
+
+/**
+ * True if the product has at least one variant dimension with options.
+ * Checks `variant_config` only; the legacy `variants` array is ignored.
+ */
+export function hasRealVariants(product) {
+  if (!product) return false;
+  const cfg = product.variant_config;
+  if (!cfg || typeof cfg !== 'object') return false;
+  return Object.keys(cfg).some(d => Array.isArray(cfg[d]) && cfg[d].length > 0);
 }
