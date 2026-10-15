@@ -257,20 +257,22 @@ export default function Xwallet() {
             <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>Buy prepaid load</h3>
 
             <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Network</label>
-            <select value={loadNetwork} onChange={e => setLoadNetwork(e.target.value)}
-              style={{
-                width: '100%', padding: '12px 40px 12px 14px', marginTop: 6, marginBottom: 12,
-                borderRadius: 10, border: '1px solid var(--border)',
-                fontSize: 14, fontWeight: 600,
-                background: 'var(--card)', color: 'var(--text)',
-                appearance: 'none', WebkitAppearance: 'none',
-                backgroundImage: 'url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2.5\'><polyline points=\'6 9 12 15 18 9\'/></svg>")',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'right 14px center',
-                backgroundSize: '14px',
-              }}>
-              {NETWORKS.map(n => <option key={n} value={n}>{n}</option>)}
-            </select>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 6, marginBottom: 12 }}>
+              {NETWORKS.map(n => {
+                const on = loadNetwork === n;
+                return (
+                  <button key={n} type="button" onClick={() => setLoadNetwork(n)}
+                    style={{
+                      padding: '12px 0', borderRadius: 12, cursor: 'pointer', fontWeight: 800, fontSize: 13,
+                      border: on ? '2px solid var(--primary)' : '1px solid var(--border)',
+                      background: on ? 'var(--primary)' : 'var(--card)',
+                      color: on ? '#fff' : 'var(--text)',
+                    }}>
+                    {n}
+                  </button>
+                );
+              })}
+            </div>
 
             <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Mobile number</label>
             <input value={loadNumber} onChange={e => setLoadNumber(e.target.value)}
