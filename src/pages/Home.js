@@ -306,13 +306,15 @@ export default function Home() {
   const addToCart = (p, variant = '') => {
     setLoadingId(p.id);
     setTimeout(async () => {
-      await dispatch({ type: 'ADD', payload: {
+      const v = typeof variant === 'string' ? variant : (variant && Object.keys(variant).length ? JSON.stringify(variant) : '');
+      const res = await dispatch({ type: 'ADD', payload: {
         product_id: p.uuid,
-        variant: variant || '',
+        variant: v,
         quantity: 1,
       }});
       setLoadingId(null);
-      showToast('Added to cart');
+      if (res && res.ok === false) showToast((res.error && res.error.message) || 'Could not add to cart');
+      else showToast('Added to cart');
     }, 500);
   };
 

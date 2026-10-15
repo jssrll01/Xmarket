@@ -61,14 +61,15 @@ export async function fetchCart(userId) {
 export async function addToCart(userId, productId, variant = '', quantity = 1) {
   // ---- STOCK GUARD (variant-aware) ----
   try {
-    const { data: prod } = await supabase
+    const { data: prod, error: prodErr } = await supabase
       .from('products')
       .select('id, name, variant_config, variant_prices, variant_stock')
       .eq('id', productId)
       .maybeSingle();
 
     const selection = parseCartVariant(variant);
-    const stock = stockFor(prod, selection);
+    if (prodErr || !prod) console.warn('[cart] product lookup failed:', prodErr, productId);
+    const stock = prod ? stockFor(prod, selection) : Infinity;
     const name = prod?.name || 'This product';
 
     if (stock <= 0) {

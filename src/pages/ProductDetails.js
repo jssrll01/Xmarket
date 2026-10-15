@@ -188,14 +188,17 @@ export default function ProductDetails() {
     if (!validateVariant()) return;
     setFn(true);
     setTimeout(async () => {
+      let failed = null;
       for (let i = 0; i < qty; i++) {
-        await dispatch({ type: 'ADD', payload: {
+        const r = await dispatch({ type: 'ADD', payload: {
           product_id: product.uuid,
           variant: Object.keys(variant).length ? JSON.stringify(variant) : '',
           quantity: 1,
         }});
+        if (r && r.ok === false) { failed = r.error; break; }
       }
       setFn(false);
+      if (failed) { showToast(failed.message || 'Could not add to cart'); return; }
       showToast(isBuy ? 'Proceeding to checkout' : 'Added to cart');
       navigate(isBuy ? '/checkout' : '/cart');
     }, 400);

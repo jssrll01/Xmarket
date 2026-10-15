@@ -28,7 +28,12 @@ export function CartProvider({ children }) {
     switch (action.type) {
       case 'ADD': {
       const p = action.payload;
-        await addToCart(user.id, p.product_id, p.variant || '', p.quantity || 1);
+        const res = await addToCart(user.id, p.product_id, p.variant || '', p.quantity || 1);
+        if (res && res.error) {
+          console.error('[cart] add failed:', res.error);
+          await reload();
+          return { ok: false, error: res.error };
+        }
       break;
     }
       case 'REMOVE':
