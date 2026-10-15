@@ -103,6 +103,10 @@ export default function Xwallet() {
     refresh();
   };
 
+  const pendingTotal = topups.filter(t => t.status === 'pending').reduce((n, t) => n + (Number(t.amount) || 0), 0);
+  const moneyIn = txns.filter(t => t.amount > 0).reduce((n, t) => n + Number(t.amount), 0);
+  const moneyOut = txns.filter(t => t.amount < 0).reduce((n, t) => n + Math.abs(Number(t.amount)), 0);
+
   const TABS = [
     { id: 'topup', label: 'Top-up', icon: Plus },
     { id: 'transfer', label: 'Send', icon: Send },
@@ -130,6 +134,16 @@ export default function Xwallet() {
         <Wallet size={80} style={{ position: 'absolute', top: -10, right: -20, opacity: 0.15 }} />
         <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.85, letterSpacing: 1, textTransform: 'uppercase' }}>Balance</div>
         <div style={{ fontSize: 42, fontWeight: 900, lineHeight: 1.1, marginTop: 4 }}>₱{balance.toFixed(2)}</div>
+        <div style={{ fontSize: 11.5, opacity: 0.85, marginTop: 6 }}>{user.email}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 16 }}>
+          {[['Pending', pendingTotal], ['Money in', moneyIn], ['Money out', moneyOut]].map(([k, v]) => (
+            <div key={k} style={{ background: 'rgba(255,255,255,0.16)', borderRadius: 12, padding: '8px 10px' }}>
+              <div style={{ fontSize: 10, opacity: 0.85, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.6 }}>{k}</div>
+              <div style={{ fontSize: 14, fontWeight: 800, marginTop: 2 }}>₱{Number(v).toFixed(2)}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontSize: 10.5, opacity: 0.7, marginTop: 8 }}>Totals are based on your recent transactions.</div>
       </div>
 
       {/* Tabs */}
@@ -331,6 +345,40 @@ export default function Xwallet() {
           </div>
         ))
       )}
+
+      <div className="card" style={{ padding: 16, marginTop: 20 }}>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>About Xwallet</div>
+        {[
+          ['Minimum top-up', '₱10'],
+          ['Minimum load purchase', '₱10'],
+          ['Top-up review', 'Within 24 hours'],
+          ['Load networks', NETWORKS.join(', ')],
+          ['Currency', 'Philippine Peso (PHP)'],
+        ].map(([k, v], i, arr) => (
+          <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '10px 0', borderBottom: i === arr.length - 1 ? 'none' : '1px solid var(--border, #EEF2F7)', fontSize: 13 }}>
+            <span style={{ color: 'var(--muted)' }}>{k}</span>
+            <span style={{ fontWeight: 700, textAlign: 'right' }}>{v}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="card" style={{ padding: 16, marginTop: 12 }}>
+        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>Keep your wallet safe</div>
+        <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'var(--muted)' }}>
+          • Never share your password or account codes with anyone<br />
+          • Double-check the recipient email before sending money<br />
+          • Only top up through the official payment details shown in the app<br />
+          • Report anything suspicious from Settings → Security reports
+        </div>
+      </div>
+
+      <div onClick={() => nav('/xcards')} className="card" style={{ padding: 14, marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 800 }}>Xcards gift cards</div>
+          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Use your balance to buy a gift card for anyone</div>
+        </div>
+        <span style={{ color: 'var(--muted)' }}>→</span>
+      </div>
 
       {/* TRANSFER CONFIRM */}
       {showTransferConfirm && (
