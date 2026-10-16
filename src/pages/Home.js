@@ -7,7 +7,8 @@ import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
 , Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal, Ticket, Sparkles} from 'lucide-react';
-import { banners, fetchProducts, fetchProductStatsMap } from '../lib/products';
+import { banners as staticBanners, fetchProducts, fetchProductStatsMap } from '../lib/products';
+import { supabase as bannerDb } from '../lib/supabase';
 import { sortByStock, isOutOfStock } from '../lib/stock';
 import { priceRange, hasRealVariants } from '../lib/variants';
 import { supabase } from '../lib/supabase';
@@ -189,6 +190,20 @@ export default function Home() {
   const [loadingId, setLoadingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
+  const [banners, setBanners] = useState(staticBanners);
+  const [bannerRows, setBannerRows] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    bannerDb.from('banners').select('*').eq('active', true).order('sort_order')
+      .then(({ data }) => {
+        if (!alive || !data) return;
+        const now = new Date().toISOString();
+        const ok = data.filter(b => b.image_url && (!b.starts_at || b.starts_at <= now) && (!b.ends_at || b.ends_at > now));
+        if (ok.length) { setBanners(ok.map(b => b.image_url)); setBannerRows(ok); setBannerIdx(0); }
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
   const [bannerHover, setBannerHover] = useState(false);
   const [variantProduct, setVariantProduct] = useState(null);
   const [scrolled, setScrolled] = useState(false);
@@ -503,6 +518,15 @@ export default function Home() {
               );
             })}
           </div>
+          {bannerRows[bannerIdx] && bannerRows[bannerIdx].cta_link && (
+            /^https?:/i.test(bannerRows[bannerIdx].cta_link)
+              ? <a href={bannerRows[bannerIdx].cta_link} target="_blank" rel="noreferrer" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 12, textDecoration: 'none' }}>
+                  {bannerRows[bannerIdx].cta_text && <span style={{ background: '#fff', color: '#2563EB', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 999, boxShadow: '0 4px 12px rgba(0,0,0,.2)' }}>{bannerRows[bannerIdx].cta_text}</span>}
+                </a>
+              : <Link to={bannerRows[bannerIdx].cta_link} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 12, textDecoration: 'none' }}>
+                  {bannerRows[bannerIdx].cta_text && <span style={{ background: '#fff', color: '#2563EB', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 999, boxShadow: '0 4px 12px rgba(0,0,0,.2)' }}>{bannerRows[bannerIdx].cta_text}</span>}
+                </Link>
+          )}
           <div className="banner-dots">
             {banners.map((_, i) => (
               <button
