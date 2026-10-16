@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Gamepad2 } from 'lucide-react';
 import PillRow, { pillStyle } from '../components/PillRow';
 import WalletBar from '../components/WalletBar';
 import { Link, useNavigate } from 'react-router-dom';
@@ -580,6 +581,18 @@ export default function Home() {
             <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Vouchers</div>
           </div>
           <span className="pill-shine" />
+        </Link>
+        <Link to="/play-time" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #F59E0B, #EF4444)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <Gamepad2 size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Play Time</div>
+          </div>
         </Link>
       </PillRow>
       <div className="chips">

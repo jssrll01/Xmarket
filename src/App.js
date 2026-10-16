@@ -20,6 +20,11 @@ import Returns from './pages/Returns';
 import Bundles from './pages/Bundles';
 import FlashSale from './pages/FlashSale';
 import SaveMore from './pages/SaveMore';
+import PlayTime from './pages/playtime/PlayTime';
+import PlaySpin from './pages/playtime/Spin';
+import PlayBox from './pages/playtime/MysteryBox';
+import PlayExchange from './pages/playtime/Exchange';
+import PlayHistory from './pages/playtime/History';
 import Xmall from './pages/Xmall';
 import Xwallet from './pages/Xwallet';
 import XwalletTopup from './pages/XwalletTopup';
@@ -101,6 +106,11 @@ function Router() {
         <Route path="/flash-sale" element={<FlashSale />} />
         <Route path="/xmall" element={<Xmall />} />
         <Route path="/savemore" element={<SaveMore />} />
+        <Route path="/play-time" element={<PlayTime />} />
+        <Route path="/play-time/spin" element={<PlaySpin />} />
+        <Route path="/play-time/mystery-box" element={<PlayBox />} />
+        <Route path="/play-time/exchange" element={<PlayExchange />} />
+        <Route path="/play-time/history" element={<PlayHistory />} />
         <Route path="/xwallet" element={<Xwallet />} />
         <Route path="/xwallet/topup" element={<XwalletTopup />} />
         <Route path="/xcards" element={<Xcards />} />

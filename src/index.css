@@ -2602,3 +2602,9 @@ input[type="range"].filter-range,
 }
 
 .pill-scroll::-webkit-scrollbar { display: none; }
+
+/* Play Time */
+@keyframes pt-shake { 0%,100%{transform:rotate(0)} 20%{transform:rotate(-9deg) scale(1.06)} 40%{transform:rotate(9deg) scale(1.06)} 60%{transform:rotate(-6deg)} 80%{transform:rotate(6deg)} }
+@keyframes pt-pop { 0%{transform:scale(.6);opacity:0} 70%{transform:scale(1.06)} 100%{transform:scale(1);opacity:1} }
+.pt-shake { animation: pt-shake .5s ease-in-out infinite; }
+.pt-pop { animation: pt-pop .4s ease-out both; }
