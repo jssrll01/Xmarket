@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { exchange, fmt, peso } from '../../lib/playtime';
 import { useToast } from '../../components/Toast';
 import ConfirmDialog from '../../components/ConfirmDialog';
-import { usePlay, PlayHeader, Balances, Notice, ProgressBar } from './common';
+import { usePlay, PlayHeader, Balances, Notice } from './common';
 
 export default function Exchange() {
   const { status, setStatus, error, reload } = usePlay();
@@ -40,7 +40,7 @@ export default function Exchange() {
       {status && (
         <>
           <div className="card" style={{ padding: 14, margin: '18px 0 14px' }}>
-            <ProgressBar label="Exchanged today" value={Number(status.exchanged_today_php)} max={cfg.max_daily_php} text={`${peso(status.exchanged_today_php)} / ${peso(cfg.max_daily_php)}`} />
+            <div style={{ fontSize: 13, fontWeight: 700 }}>Exchanged today: {peso(status.exchanged_today_php)} <span style={{ color: 'var(--muted)', fontWeight: 600 }}>· No daily limit</span></div>
           </div>
           {cfg.denominations.map(p => {
             const reason = reasonFor(p); const off = !!reason;

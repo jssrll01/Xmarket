@@ -25,3 +25,6 @@ export async function fetchHistory(limit = 50) {
   const { data } = await supabase.from('playtime_txns').select('*').order('created_at', { ascending: false }).limit(limit);
   return data || [];
 }
+
+export const playMini = (game, choice) => call('playtime_mini', { p_game: game, p_choice: choice, p_idem: newKey() });
+

@@ -112,7 +112,7 @@ export function ResultModal({ title, big, sub, actionLabel, onAction, onClose })
 
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
 export function HistoryRow({ t }) {
-  const title = t.game === 'spin' ? 'Spin the Wheel' : t.game === 'box' ? `${cap(t.tier)} Mystery Box` : 'Coin Exchange';
+  const title = ({ coinflip: 'Coin Flip', color: 'Color Game', hilo: 'Hi-Lo', redblack: 'Red or Black', adjust: 'Admin adjustment' })[t.game] || (t.game === 'spin' ? 'Spin the Wheel' : t.game === 'box' ? `${cap(t.tier)} Mystery Box` : 'Coin Exchange');
   const parts = [];
   if (t.spent > 0) parts.push([`-${fmt(t.spent)} Loyalty Points`, '#DC2626']);
   if (t.earned > 0) parts.push([`+${fmt(t.earned)} Loyalty Points`, '#059669']);
