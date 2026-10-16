@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Copy, Check, Ticket, ShoppingBag, Clock } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Ticket, ShoppingBag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -127,7 +127,7 @@ export default function Vouchers() {
         <ArrowLeft size={20} />
       </button>
 
-      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>My Vouchers</h2>
+      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Vouchers</h2>
       <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
         Collect and use codes to save on your next order.
       </p>
@@ -180,20 +180,7 @@ export default function Vouchers() {
 
           {/* Empty state */}
           {availableLoyalty.length === 0 && activePromos.length === 0 && usedLoyalty.length === 0 && (
-            <div className="card" style={{ padding: 32, textAlign: 'center' }}>
-              <Ticket size={44} color="var(--muted)" style={{ marginBottom: 12 }} />
-              <p style={{ fontWeight: 700, fontSize: 14, marginBottom: 6 }}>
-                No vouchers yet
-              </p>
-              <p style={{ color: 'var(--muted)', fontSize: 12.5, lineHeight: 1.6, marginBottom: 16 }}>
-                Earn <b>300 points</b> to unlock your first <b>Bronze</b> voucher (₱50 off).<br />
-                <b>700 points</b> for Silver (₱75 off) · <b>1000 points</b> for Gold (₱100 off).
-              </p>
-              <button onClick={() => nav('/rewards')} className="btn-primary"
-                style={{ padding: '10px 24px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                <Clock size={14} /> View my points
-              </button>
-            </div>
+            <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40, fontSize: 14, fontWeight: 700 }}>No vouchers yet</p>
           )}
         </>
       )}

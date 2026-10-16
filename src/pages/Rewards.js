@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Gift, Award, Sparkles, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Award, Sparkles, Copy, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { fetchLoyalty, fetchLoyaltyLedger, fetchLoyaltyVouchers } from '../lib/promos';
@@ -59,10 +59,7 @@ export default function Rewards() {
         <ArrowLeft size={20} />
       </button>
 
-      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Loyalty Points</h2>
-      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
-        Earn 1 point for every ₱10 spent. Unlock tier vouchers as you go.
-      </p>
+      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 16 }}>Loyalty Points</h2>
 
       <div style={{
         padding: 24, marginBottom: 16,
@@ -94,20 +91,6 @@ export default function Rewards() {
             </div>
           </>
         )}
-      </div>
-
-      <div className="card" style={{ padding: 14, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <Gift size={16} color="var(--primary)" />
-          <span style={{ fontWeight: 700, fontSize: 13 }}>How it works</span>
-        </div>
-        <div style={{ fontSize: 12.5, lineHeight: 1.7, color: 'var(--muted)' }}>
-          • Earn <b style={{ color: 'var(--text)' }}>1 point per ₱10</b> spent<br />
-          • <b style={{ color: 'var(--text)' }}>Bronze</b> (300 pts) → ₱50 off voucher<br />
-          • <b style={{ color: 'var(--text)' }}>Silver</b> (700 pts) → ₱75 off voucher<br />
-          • <b style={{ color: 'var(--text)' }}>Gold</b> (1000 pts) → ₱100 off voucher<br />
-          • Vouchers are one-time use, sent to your account on tier unlock
-        </div>
       </div>
 
       {vouchers.length > 0 && (

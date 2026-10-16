@@ -2621,3 +2621,7 @@ input[type="range"].filter-range,
 
 .pill-thumb { background: linear-gradient(90deg, var(--primary), #93C5FD, var(--primary)); background-size: 200% 100%; animation: pill-glow 2.4s linear infinite; box-shadow: 0 0 8px rgba(37,99,235,.45); }
 @keyframes pill-glow { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* banner-fullimg: show the entire banner image, no cropping */
+.banner-stage, .banner-track, .banner-slide-full { height: auto !important; aspect-ratio: auto !important; }
+.banner-slide-full img { width: 100% !important; height: auto !important; max-height: none !important; aspect-ratio: auto !important; object-fit: contain !important; display: block; }
