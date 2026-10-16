@@ -5,7 +5,7 @@ import {
 } from 'lucide-react';
 
 const CHANNELS = [
-  { icon: Mail,   label: 'Email us',        sub: 'support@xmarket.ph',   href: 'mailto:support@xmarket.ph',    color: '#2563EB' },
+  { icon: Mail,   label: 'Email us',        sub: 'xmarket.official.marketplace@gmail.com.ph',   href: 'mailto:xmarket.official.marketplace@gmail.com.ph',    color: '#2563EB' },
   { icon: Phone,  label: 'Call us',         sub: 'Mon–Sat · 9AM–6PM',    href: 'tel:+639454408496',            color: '#10B981' },
   { icon: MessageCircle, label: 'Live chat', sub: 'Coming soon',         href: null,                            color: '#7C3AED' },
 ];

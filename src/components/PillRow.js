@@ -55,7 +55,7 @@ export default function PillRow({ children }) {
       </div>
       {m.show && (
         <div style={{ position: 'relative', height: 3, width: 64, margin: '6px auto 8px', borderRadius: 999, background: 'var(--border)' }}>
-          <div style={{ position: 'absolute', top: 0, bottom: 0, left: m.left + '%', width: m.width + '%', borderRadius: 999, background: 'var(--primary)' }} />
+          <div className="pill-thumb" style={{ position: 'absolute', top: 0, bottom: 0, left: m.left + '%', width: m.width + '%', borderRadius: 999, transition: 'left .12s ease-out' }} />
         </div>
       )}
     </div>

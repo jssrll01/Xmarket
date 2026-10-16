@@ -30,10 +30,10 @@ export const QUICK_CHIPS = [
 
 export const FALLBACK = {
   answer:
-    "I'm not sure about that one. You can browse our Help Center or email support@xmarket — a human will get back to you within 24 hours.",
+    "I'm not sure about that one. You can browse our Help Center or email xmarket.official.marketplace@gmail.com — a human will get back to you within 24 hours.",
   links: [
     { label: 'Help Center', to: '/help' },
-    { label: 'Email support', href: 'mailto:support@xmarket.app' },
+    { label: 'Email support', href: 'mailto:xmarket.official.marketplace@gmail.com' },
   ],
 };
 

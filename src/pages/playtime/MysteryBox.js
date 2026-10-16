@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gift } from 'lucide-react';
+import { BoxIcon } from './GameIcons';
 import { play, fmt } from '../../lib/playtime';
 import { usePlay, gateReason, PlayHeader, Balances, BigButton, Notice, ResultModal, GameInfo } from './common';
 
@@ -36,7 +36,7 @@ export default function MysteryBox() {
         <>
           <div className="card" style={{ padding: 20, textAlign: 'center', marginTop: 20 }}>
             <div className={opening ? 'pt-shake' : ''} style={{ display: 'inline-flex', width: 96, height: 96, borderRadius: 28, alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#F59E0B,#EF4444)', boxShadow: '0 10px 24px rgba(239,68,68,.3)' }}>
-              <Gift size={50} color="#fff" />
+              <BoxIcon size={50} color="#fff" />
             </div>
             <h3 style={{ fontSize: 18, fontWeight: 800, margin: '14px 0 8px' }}>Mystery Box</h3>
             <div style={{ fontSize: 13.5, lineHeight: 1.9 }}>
