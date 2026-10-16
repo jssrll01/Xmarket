@@ -19,12 +19,14 @@ async function call(name, args) {
 
 export const fetchStatus = () => call('playtime_status', {});
 export const play = (game, tier) => call('playtime_play', { p_game: game, p_tier: tier || null, p_idem: newKey() });
+export const playMini = (game, choice, bet) => call('playtime_mini', { p_game: game, p_choice: choice, p_bet: bet, p_idem: newKey() });
 export const exchange = (points) => call('playtime_exchange', { p_points: points, p_idem: newKey() });
 
 export async function fetchHistory(limit = 50) {
   const { data } = await supabase.from('playtime_txns').select('*').order('created_at', { ascending: false }).limit(limit);
   return data || [];
 }
-
-export const playMini = (game, choice) => call('playtime_mini', { p_game: game, p_choice: choice, p_idem: newKey() });
-
+export async function fetchGameHistory(game, limit = 5) {
+  const { data } = await supabase.from('playtime_txns').select('*').eq('game', game).order('created_at', { ascending: false }).limit(limit);
+  return data || [];
+}

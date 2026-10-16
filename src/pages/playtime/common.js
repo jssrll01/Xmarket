@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Coins, Wallet } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { fetchStatus, fmt, peso } from '../../lib/playtime';
+import { fetchStatus, fetchGameHistory, fmt, peso } from '../../lib/playtime';
 
 export function usePlay() {
   const { user, loading: authLoading } = useAuth();
@@ -24,11 +24,7 @@ export function usePlay() {
 
 export function gateReason(status, game, cost) {
   if (!status) return 'Loading…';
-  const L = status.config.limits;
   if (status.loyalty_points < cost) return `You need ${fmt(cost)} Loyalty Points to play.`;
-  if (game === 'spin' && status.spins_today >= L.daily_spins) return "You've used all of today's spins. Come back tomorrow.";
-  if (game === 'box' && status.boxes_today >= L.daily_boxes) return "You've opened all of today's boxes. Come back tomorrow.";
-  if (status.earned_today >= L.daily_earn_limit) return 'Daily reward limit reached. Come back tomorrow.';
   return '';
 }
 
@@ -58,7 +54,7 @@ export function Balances({ status }) {
           <div style={{ fontSize: 24, fontWeight: 900, marginTop: 6 }}>{status ? peso(status.xwallet_balance) : '…'}</div>
         </div>
       </div>
-      <div style={{ fontSize: 11.5, color: 'var(--muted)', textAlign: 'center', marginTop: 8 }}>100 Loyalty Points = ₱1 XWallet balance</div>
+      <div style={{ fontSize: 11.5, color: 'var(--muted)', textAlign: 'center', marginTop: 8 }}>1 Loyalty Point = ₱1 XWallet balance</div>
     </>
   );
 }
@@ -82,20 +78,6 @@ export function Notice({ children, tone }) {
   );
 }
 
-export function ProgressBar({ label, value, max, text }) {
-  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
-  return (
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12.5, fontWeight: 700, marginBottom: 5 }}>
-        <span>{label}</span><span style={{ color: 'var(--muted)' }}>{text}</span>
-      </div>
-      <div style={{ height: 7, borderRadius: 999, background: 'var(--border)' }}>
-        <div style={{ height: '100%', width: pct + '%', borderRadius: 999, background: 'var(--primary)', transition: 'width .4s' }} />
-      </div>
-    </div>
-  );
-}
-
 export function ResultModal({ title, big, sub, actionLabel, onAction, onClose }) {
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
@@ -110,9 +92,10 @@ export function ResultModal({ title, big, sub, actionLabel, onAction, onClose })
   );
 }
 
-const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
+const TITLES = { spin: 'Spin the Wheel', box: 'Mystery Box', exchange: 'Coin Exchange', coinflip: 'Coin Flip', color: 'Color Game', hilo: 'Hi-Lo', redblack: 'Red or Black', adjust: 'Admin adjustment' };
+
 export function HistoryRow({ t }) {
-  const title = ({ coinflip: 'Coin Flip', color: 'Color Game', hilo: 'Hi-Lo', redblack: 'Red or Black', adjust: 'Admin adjustment' })[t.game] || (t.game === 'spin' ? 'Spin the Wheel' : t.game === 'box' ? `${cap(t.tier)} Mystery Box` : 'Coin Exchange');
+  const title = TITLES[t.game] || t.game;
   const parts = [];
   if (t.spent > 0) parts.push([`-${fmt(t.spent)} Loyalty Points`, '#DC2626']);
   if (t.earned > 0) parts.push([`+${fmt(t.earned)} Loyalty Points`, '#059669']);
@@ -130,5 +113,31 @@ export function HistoryRow({ t }) {
         Balance {fmt(t.prev_balance)} → {fmt(t.new_balance)} · <span title={t.id}>ID {String(t.id).slice(0, 8).toUpperCase()}</span>
       </div>
     </div>
+  );
+}
+
+export function GameInfo({ game, steps, refresh }) {
+  const [rows, setRows] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    fetchGameHistory(game, 5).then(r => { if (alive) setRows(r); });
+    return () => { alive = false; };
+  }, [game, refresh]);
+  return (
+    <>
+      <h3 style={{ fontSize: 15, fontWeight: 800, margin: '24px 0 8px' }}>How to play</h3>
+      <div className="card" style={{ padding: '6px 14px' }}>
+        {(steps || []).map((s, i) => (
+          <div key={i} style={{ display: 'flex', gap: 10, padding: '9px 0', fontSize: 13, lineHeight: 1.5, borderBottom: i === steps.length - 1 ? 'none' : '1px solid var(--border)' }}>
+            <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#EFF6FF', color: '#2563EB', fontSize: 12, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
+            <span>{s}</span>
+          </div>
+        ))}
+      </div>
+      <h3 style={{ fontSize: 15, fontWeight: 800, margin: '22px 0 8px' }}>Your recent plays</h3>
+      {rows.length === 0
+        ? <p style={{ color: 'var(--muted)', fontSize: 13, textAlign: 'center', padding: 14 }}>No plays yet.</p>
+        : rows.map(t => <HistoryRow key={t.id} t={t} />)}
+    </>
   );
 }

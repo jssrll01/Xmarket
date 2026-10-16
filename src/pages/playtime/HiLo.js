@@ -17,7 +17,7 @@ export default function HiLo() {
   const m = useMini('hilo');
   const done = m.res && !m.busy;
   return (
-    <MiniFrame m={m} title="Hi-Lo">
+    <MiniFrame m={m} title="Hi-Lo" howTo={["A card is drawn. Ace is the lowest and King is the highest.", "Choose whether the next card will be Higher or Lower.", "Enter your bet and press Play.", "A correct guess returns 1.8x your bet."]}>
       <div style={{ textAlign: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16 }}>
           <Card text={done ? rank(m.res.cur) : '?'} pulse={m.busy} />

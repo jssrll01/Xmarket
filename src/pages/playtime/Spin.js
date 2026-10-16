@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { play, fmt } from '../../lib/playtime';
-import { usePlay, gateReason, PlayHeader, Balances, BigButton, Notice, ResultModal } from './common';
+import { usePlay, gateReason, PlayHeader, Balances, BigButton, Notice, ResultModal, GameInfo } from './common';
 
 const COLORS = ['#2563EB', '#7C3AED', '#0EA5E9', '#6366F1'];
 
@@ -40,6 +40,7 @@ export default function Spin() {
   const rewards = cfg ? cfg.rewards : [];
   const cost = cfg ? cfg.cost : 5;
   const reason = status ? gateReason(status, 'spin', cost) : 'Loading…';
+  const amounts = rewards.map(r => r.amount);
 
   const spin = async () => {
     if (busy || reason) return;
@@ -54,13 +55,10 @@ export default function Spin() {
     setSpinning(true); setRotation(next);
     setTimeout(() => {
       setSpinning(false); setResult(res); setBusy(false);
-      setStatus(s => s && { ...s, loyalty_points: res.balance, earned_today: s.earned_today + res.earned, spins_today: s.spins_today + 1 });
+      setStatus(s => s && { ...s, loyalty_points: res.balance });
       reload();
     }, 4400);
   };
-
-  const total = rewards.reduce((n, r) => n + r.weight, 0);
-  const pct = (w) => { const p = (w / total) * 100; return (p < 1 ? p.toFixed(2) : p.toFixed(1)) + '%'; };
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
@@ -70,19 +68,19 @@ export default function Spin() {
       {status && (
         <>
           <div style={{ margin: '26px 0 20px' }}><Wheel rewards={rewards} rotation={rotation} spinning={spinning} /></div>
+          <div className="card" style={{ padding: 14, marginBottom: 12, fontSize: 13, lineHeight: 1.9 }}>
+            <div>Cost per spin: <b>{fmt(cost)} Loyalty Points</b></div>
+            <div>Rewards: <b>{fmt(Math.min(...amounts))} to {fmt(Math.max(...amounts))} Loyalty Points</b></div>
+            <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>Results are decided securely on our servers.</div>
+          </div>
           {(msg || reason) && <Notice>{msg || reason}</Notice>}
           <BigButton disabled={busy || !!reason} onClick={spin}>{busy ? 'Spinning…' : `Spin · ${fmt(cost)} Loyalty Points`}</BigButton>
-          <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', marginTop: 8 }}>Spins today: {status.spins_today} / {status.config.limits.daily_spins}</p>
-
-          <h3 style={{ fontSize: 15, fontWeight: 800, margin: '22px 0 8px' }}>Reward chances</h3>
-          <div className="card" style={{ padding: '4px 14px' }}>
-            {rewards.map((r, i) => (
-              <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 0', fontSize: 13, borderBottom: i === rewards.length - 1 ? 'none' : '1px solid var(--border)' }}>
-                <span style={{ fontWeight: 700 }}>{fmt(r.amount)} Loyalty Points</span><span style={{ color: 'var(--muted)' }}>{pct(r.weight)}</span>
-              </div>
-            ))}
-          </div>
-          <p style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 8 }}>Chances are calculated from each reward's weight and always add up to 100%. Results are decided securely on our servers.</p>
+          <GameInfo game="spin" refresh={status.loyalty_points} steps={[
+            `Each spin costs ${fmt(cost)} Loyalty Points.`,
+            'Press Spin. The wheel stops on your prize.',
+            'The prize is added to your balance instantly.',
+            'Exchange your points for XWallet any time at 1 point = ₱1.',
+          ]} />
         </>
       )}
       {result && (

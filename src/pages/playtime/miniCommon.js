@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { playMini, fmt } from '../../lib/playtime';
-import { usePlay, PlayHeader, Balances, BigButton, Notice, ResultModal } from './common';
+import { usePlay, PlayHeader, Balances, BigButton, Notice, ResultModal, GameInfo } from './common';
 
-export function miniGate(status, key) {
+export function miniGate(status, key, bet) {
   if (!status) return 'Loading…';
   const cfg = status.config.mini && status.config.mini[key];
   if (!cfg) return 'This game is not available right now.';
-  if (status.loyalty_points < cfg.cost) return `You need ${fmt(cfg.cost)} Loyalty Points to play.`;
-  const used = (status.mini_today && status.mini_today[key]) || 0;
-  if (used >= (status.config.limits.daily_mini || 15)) return "You've reached today's limit for this game. Come back tomorrow.";
+  const min = cfg.min_bet || 1;
+  if (status.loyalty_points < min) return `You need at least ${fmt(min)} Loyalty Points to play.`;
+  if (bet !== undefined) {
+    if (!bet || bet < min) return `Minimum bet is ${fmt(min)} Loyalty Points.`;
+    if (bet > status.loyalty_points) return `Your bet is more than your balance (${fmt(status.loyalty_points)} points).`;
+  }
   return '';
 }
 
@@ -16,28 +19,31 @@ export function useMini(key) {
   const base = usePlay();
   const { status, setStatus, reload } = base;
   const [choice, setChoice] = useState(null);
+  const [bet, setBetText] = useState('10');
   const [busy, setBusy] = useState(false);
   const [res, setRes] = useState(null);
   const [modal, setModal] = useState(false);
   const [msg, setMsg] = useState('');
   const cfg = status && status.config.mini ? status.config.mini[key] : null;
-  const reason = status ? miniGate(status, key) : 'Loading…';
+  const betNum = parseInt(bet, 10) || 0;
+  const reason = status ? miniGate(status, key, betNum) : 'Loading…';
+  const setBet = (v) => setBetText(String(v).replace(/[^0-9]/g, '').slice(0, 9));
 
   const go = async () => {
     if (busy || reason || !choice) return;
     setBusy(true); setMsg(''); setRes(null); setModal(false);
     const t0 = Date.now();
-    const r = await playMini(key, choice);
+    const r = await playMini(key, choice, betNum);
     if (!r.ok) { setMsg(r.message || 'Could not play.'); setBusy(false); reload(); return; }
     // The result is already final on the server; the screen only animates it.
     setStatus(s => s && { ...s, loyalty_points: r.previous_balance - r.spent });
     setTimeout(() => {
       setBusy(false); setRes(r); setModal(true);
-      setStatus(s => s && { ...s, loyalty_points: r.balance, mini_today: { ...(s.mini_today || {}), [key]: ((s.mini_today || {})[key] || 0) + 1 } });
+      setStatus(s => s && { ...s, loyalty_points: r.balance });
       reload();
     }, Math.max(0, 1500 - (Date.now() - t0)));
   };
-  return { ...base, gameKey: key, cfg, choice, setChoice, busy, res, modal, setModal, msg, reason, go };
+  return { ...base, gameKey: key, cfg, choice, setChoice, bet, betNum, setBet, busy, res, modal, setModal, msg, reason, go };
 }
 
 export function Choices({ options, value, onChange, disabled, cols }) {
@@ -60,34 +66,50 @@ export function Choices({ options, value, onChange, disabled, cols }) {
   );
 }
 
-export function MiniFrame({ m, title, children }) {
-  const { status, error, cfg, reason, busy, res, msg, modal, setModal, go, choice, gameKey } = m;
-  const used = status && status.mini_today ? (status.mini_today[gameKey] || 0) : 0;
+export function MiniFrame({ m, title, howTo, children }) {
+  const { status, error, cfg, reason, busy, res, msg, modal, setModal, go, choice, gameKey, bet, betNum, setBet } = m;
+  const payout = cfg ? cfg.payout : 1.8;
+  const win = Math.floor(betNum * payout + 1e-9);
+  const min = cfg ? cfg.min_bet || 1 : 1;
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <PlayHeader title={title} subtitle={cfg ? `Cost: ${fmt(cfg.cost)} Loyalty Points / Play` : ''} />
+      <PlayHeader title={title} subtitle="Choose a side, set your bet, and play." />
       <Balances status={status} />
       {error && <Notice>{error}</Notice>}
       {status && cfg && (
         <>
           <div style={{ margin: '22px 0 6px' }}>{children}</div>
-          <div className="card" style={{ padding: 14, margin: '16px 0', fontSize: 13, lineHeight: 1.9 }}>
-            <div>Win chance: <b>{cfg.win_rate}%</b></div>
-            <div>A win pays: <b>{fmt(Math.round(cfg.cost * cfg.payout))} Loyalty Points</b> (net +{fmt(Math.round(cfg.cost * cfg.payout) - cfg.cost)})</div>
-            <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>Results are decided securely on our servers.</div>
+
+          <div className="card" style={{ padding: 14, margin: '16px 0 12px' }}>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6 }}>Your bet (Loyalty Points)</div>
+            <input value={bet} inputMode="numeric" disabled={busy} onChange={e => setBet(e.target.value)}
+              style={{ width: '100%', padding: 12, borderRadius: 12, border: '1px solid var(--border)', fontSize: 20, fontWeight: 800 }} />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+              {[5, 10, 20, 50, 100].map(v => (
+                <button key={v} disabled={busy} onClick={() => setBet(v)} style={{ padding: '7px 13px', borderRadius: 999, border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--text)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>{v}</button>
+              ))}
+              <button disabled={busy} onClick={() => setBet(status.loyalty_points)} style={{ padding: '7px 13px', borderRadius: 999, border: '1px solid var(--primary)', background: 'var(--card)', color: 'var(--primary)', fontWeight: 800, fontSize: 13, cursor: 'pointer' }}>Max</button>
+            </div>
+            <div style={{ marginTop: 12, fontSize: 13, lineHeight: 1.8 }}>
+              <div>A win returns <b>{payout}x</b> your bet.</div>
+              {betNum >= min && <div>If you win: get back <b>{fmt(win)}</b> (net <b style={{ color: '#059669' }}>+{fmt(win - betNum)}</b>)</div>}
+              {betNum >= min && <div>If you lose: <b style={{ color: '#DC2626' }}>-{fmt(betNum)}</b></div>}
+              <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>Minimum bet {fmt(min)}. Results are decided securely on our servers.</div>
+            </div>
           </div>
+
           {(msg || reason) && <Notice>{msg || reason}</Notice>}
           <BigButton disabled={busy || !!reason || !choice} onClick={go}>
-            {busy ? 'Playing…' : !choice ? 'Pick your side first' : `Play · ${fmt(cfg.cost)} Loyalty Points`}
+            {busy ? 'Playing…' : !choice ? 'Pick your side first' : `Play · Bet ${fmt(betNum)}`}
           </BigButton>
-          <p style={{ fontSize: 12, color: 'var(--muted)', textAlign: 'center', marginTop: 8 }}>Played today: {used} / {status.config.limits.daily_mini || 15}</p>
+          <GameInfo game={gameKey} refresh={status.loyalty_points} steps={howTo} />
         </>
       )}
       {modal && res && (
         <ResultModal
           title={res.win ? 'You won' : 'Not this time'}
-          big={res.win ? `+${fmt(res.earned)}` : 'No win'}
-          sub={res.win ? `Loyalty Points · Net +${fmt(res.earned - res.spent)} after the ${fmt(res.spent)} entry` : `You spent ${fmt(res.spent)} Loyalty Points. Better luck next time!`}
+          big={res.win ? `+${fmt(res.earned - res.spent)}` : `-${fmt(res.spent)}`}
+          sub={res.win ? `You bet ${fmt(res.spent)} and got back ${fmt(res.earned)} Loyalty Points` : `You bet ${fmt(res.spent)} Loyalty Points. Better luck next time!`}
           actionLabel="Play again" onAction={() => setModal(false)} onClose={() => setModal(false)} />
       )}
     </div>

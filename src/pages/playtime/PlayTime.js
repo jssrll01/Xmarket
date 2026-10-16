@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { RotateCw, Gift, Repeat, History as HistoryIcon, ChevronRight, Coins, Palette, ArrowUpDown, Spade } from 'lucide-react';
 import { fetchHistory, fmt } from '../../lib/playtime';
-import { usePlay, gateReason, PlayHeader, Balances, ProgressBar, HistoryRow } from './common';
+import { usePlay, gateReason, PlayHeader, Balances, HistoryRow } from './common';
 import { miniGate } from './miniCommon';
 
 export default function PlayTime() {
@@ -13,28 +13,26 @@ export default function PlayTime() {
 
   let games = [];
   if (status) {
-    const boxes = Object.values(status.config.boxes);
-    const minBox = Math.min(...boxes.map(b => b.cost));
-    games = [
-      { to: '/play-time/spin', title: 'Spin the Wheel', desc: 'Spin for Loyalty Points', cost: status.config.spin.cost, game: 'spin', Icon: RotateCw, grad: 'linear-gradient(135deg,#2563EB,#7C3AED)' },
-      { to: '/play-time/mystery-box', title: 'Mystery Box', desc: '5 boxes, from Common to Mythical', cost: minBox, game: 'box', Icon: Gift, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)', from: true },
-    ];
     const mini = status.config.mini || {};
-    const minis = [
+    const box = status.config.boxes && status.config.boxes.mystery;
+    games = [
+      { to: '/play-time/spin', title: 'Spin the Wheel', desc: 'Spin for Loyalty Points', note: `Cost: ${fmt(status.config.spin.cost)} Loyalty Points / draw`, cost: status.config.spin.cost, game: 'spin', Icon: RotateCw, grad: 'linear-gradient(135deg,#2563EB,#7C3AED)' },
+    ];
+    if (box) games.push({ to: '/play-time/mystery-box', title: 'Mystery Box', desc: 'Open the box and see what is inside', note: `Cost: ${fmt(box.cost)} Loyalty Points / box`, cost: box.cost, game: 'box', Icon: Gift, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' });
+    [
       ['coinflip', '/play-time/coin-flip', 'Coin Flip', 'Call heads or tails', Coins, 'linear-gradient(135deg,#F59E0B,#D97706)'],
       ['color', '/play-time/color-game', 'Color Game', 'Pick the winning color', Palette, 'linear-gradient(135deg,#EC4899,#8B5CF6)'],
       ['hilo', '/play-time/hi-lo', 'Hi-Lo', 'Higher or lower card', ArrowUpDown, 'linear-gradient(135deg,#06B6D4,#2563EB)'],
       ['redblack', '/play-time/red-or-black', 'Red or Black', 'Guess the card color', Spade, 'linear-gradient(135deg,#475569,#EF4444)'],
-    ].filter(x => mini[x[0]]).map(x => ({
-      to: x[1], title: x[2], desc: x[3] + ' · ' + mini[x[0]].win_rate + '% win chance', cost: mini[x[0]].cost,
+    ].filter(x => mini[x[0]]).forEach(x => games.push({
+      to: x[1], title: x[2], desc: x[3], note: `Your bet · from ${fmt(mini[x[0]].min_bet || 1)} Loyalty Points`,
       game: 'mini', key: x[0], Icon: x[4], grad: x[5],
     }));
-    games = games.concat(minis);
   }
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <PlayHeader title="Play Time" subtitle="Play daily, earn Loyalty Points, exchange them for XWallet." back="/" />
+      <PlayHeader title="Play Time" subtitle="Play, earn Loyalty Points, exchange them for XWallet." back="/" />
       <Balances status={status} />
       {error && <div style={{ color: '#991B1B', fontSize: 13, marginTop: 12 }}>{error}</div>}
 
@@ -52,9 +50,7 @@ export default function PlayTime() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 15, fontWeight: 800 }}>{g.title}</div>
                   <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{g.desc}</div>
-                  <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4, color: off ? '#92400E' : 'var(--primary)' }}>
-                    {off ? reason : `${g.from ? 'From ' : 'Cost: '}${fmt(g.cost)} Loyalty Points${g.from ? '' : ' / draw'}`}
-                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4, color: off ? '#92400E' : 'var(--primary)' }}>{off ? reason : g.note}</div>
                 </div>
                 {!off && <ChevronRight size={18} color="var(--muted)" />}
               </div>
@@ -69,11 +65,19 @@ export default function PlayTime() {
             <Repeat size={16} /> Exchange Loyalty Points
           </button>
 
-          <h3 style={{ fontSize: 16, fontWeight: 800, margin: '24px 0 10px' }}>Today</h3>
-          <div className="card" style={{ padding: 14 }}>
-            <ProgressBar label="Rewards earned" value={status.earned_today} max={status.config.limits.daily_earn_limit} text={`${fmt(status.earned_today)} / ${fmt(status.config.limits.daily_earn_limit)}`} />
-            <ProgressBar label="Spins" value={status.spins_today} max={status.config.limits.daily_spins} text={`${status.spins_today} / ${status.config.limits.daily_spins}`} />
-            <ProgressBar label="Boxes opened" value={status.boxes_today} max={status.config.limits.daily_boxes} text={`${status.boxes_today} / ${status.config.limits.daily_boxes}`} />
+          <h3 style={{ fontSize: 16, fontWeight: 800, margin: '24px 0 10px' }}>How it works</h3>
+          <div className="card" style={{ padding: '6px 14px' }}>
+            {[
+              'Pick a game and play with your Loyalty Points.',
+              'Winnings are added to your balance right away.',
+              'Exchange points for XWallet any time: 1 point = ₱1.',
+              'Use your XWallet balance for XMARKET purchases.',
+            ].map((s, i, a) => (
+              <div key={i} style={{ display: 'flex', gap: 10, padding: '9px 0', fontSize: 13, borderBottom: i === a.length - 1 ? 'none' : '1px solid var(--border)' }}>
+                <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#EFF6FF', color: '#2563EB', fontSize: 12, fontWeight: 900, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</span>
+                <span>{s}</span>
+              </div>
+            ))}
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '24px 0 10px' }}>

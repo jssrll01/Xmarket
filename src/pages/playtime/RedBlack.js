@@ -9,7 +9,7 @@ export default function RedBlack() {
   const done = m.res && !m.busy;
   const red = done && (m.res.suit === 'hearts' || m.res.suit === 'diamonds');
   return (
-    <MiniFrame m={m} title="Red or Black">
+    <MiniFrame m={m} title="Red or Black" howTo={["Choose Red or Black.", "Enter your bet, or tap a quick amount.", "Press Play. A card is drawn from a standard deck.", "If the card color matches, you get back 1.8x your bet."]}>
       <div style={{ textAlign: 'center' }}>
         <div className={m.busy ? 'pt-pulse' : ''} style={{
           width: 96, height: 134, borderRadius: 14, margin: '0 auto', background: '#fff', border: '1px solid var(--border)',
