@@ -6,35 +6,18 @@ import { supabase } from './supabase';
  */
 export async function precheckDuplicates({ email, phone }) {
   try {
-    if (email) {
-      const { data: byEmail } = await supabase
-        .from('profiles')
-        .select('id')
-        .ilike('email', email.trim())
-        .limit(1);
-      if (byEmail && byEmail.length > 0) {
-        return { error: { message: 'An account with this email already exists. Try signing in instead.' } };
-      }
+    const { data, error } = await supabase.rpc('check_duplicate_account', {
+      p_email: email || '', p_phone: phone || '',
+    });
+    if (error || !data) return { error: null };
+    if (data.email) {
+      return { error: { message: 'An account with this email already exists. Try signing in instead.' } };
     }
-    if (phone) {
-      const cleaned = String(phone).replace(/[^0-9]/g, '').slice(-10);
-      if (cleaned.length >= 10) {
-        const { data: all } = await supabase
-          .from('profiles')
-          .select('id, phone')
-          .not('phone', 'is', null);
-        const dup = (all || []).find((p) => {
-          const c = String(p.phone || '').replace(/[^0-9]/g, '').slice(-10);
-          return c === cleaned;
-        });
-        if (dup) {
-          return { error: { message: 'An account with this phone number already exists.' } };
-        }
-      }
+    if (data.phone) {
+      return { error: { message: 'An account with this phone number already exists.' } };
     }
     return { error: null };
   } catch (e) {
-    // Network issue — let signUp run and its own checks handle it
     return { error: null };
   }
 }
