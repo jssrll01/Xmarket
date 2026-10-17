@@ -29,6 +29,7 @@ import PlayCoinFlip from './pages/playtime/CoinFlip';
 import PlayColor from './pages/playtime/ColorGame';
 import PlayHiLo from './pages/playtime/HiLo';
 import PlayRedBlack from './pages/playtime/RedBlack';
+import PlayAirdrop, { AirdropList } from './pages/playtime/Airdrop';
 import Xmall from './pages/Xmall';
 import Xwallet from './pages/Xwallet';
 import XwalletTopup from './pages/XwalletTopup';
@@ -111,6 +112,8 @@ function Router() {
         <Route path="/xmall" element={<Xmall />} />
         <Route path="/savemore" element={<SaveMore />} />
         <Route path="/play-time" element={<PlayTime />} />
+        <Route path="/play-time/airdrop" element={<AirdropList />} />
+        <Route path="/play-time/airdrop/:tier" element={<PlayAirdrop />} />
         <Route path="/play-time/spin" element={<PlaySpin />} />
         <Route path="/play-time/mystery-box" element={<PlayBox />} />
         <Route path="/play-time/exchange" element={<PlayExchange />} />

@@ -20,6 +20,7 @@ export default function PlayTime() {
       { to: '/play-time/spin', title: 'Wheel of Fortune Ultra', desc: 'Spin for Loyalty Points', note: `Cost: ${fmt(status.config.spin.cost)} Loyalty Points / draw`, cost: status.config.spin.cost, game: 'spin', Icon: WheelIcon, grad: 'linear-gradient(135deg,#2563EB,#7C3AED)' },
     ];
     if (box) games.push({ to: '/play-time/mystery-box', title: 'Box of Mystery', desc: 'Open the box and see what is inside', note: `Cost: ${fmt(box.cost)} Loyalty Points / box`, cost: box.cost, game: 'box', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' });
+    games.push({ to: '/play-time/airdrop', title: 'Airdrop 88', desc: 'Pick a number, draw every 10 minutes', note: 'Free play credits, no cash value', cost: 0, game: 'airdrop', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' });
     [
       ['coinflip', '/play-time/coin-flip', 'Head or Tails', 'Call heads or tails', CoinIcon, 'linear-gradient(135deg,#F59E0B,#D97706)'],
       ['color', '/play-time/color-game', 'Color Game Extreme', 'Pick the winning color', PaletteIcon, 'linear-gradient(135deg,#EC4899,#8B5CF6)'],
