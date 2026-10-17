@@ -28,7 +28,6 @@ export default function Chat() {
 
   const fetchRooms = async (userId) => {
     setLoading(true);
-    // Fetch all room IDs where user participates
     const { data: participations, error } = await supabase
       .from('chat_participants')
       .select('room_id')
@@ -47,7 +46,6 @@ export default function Chat() {
       return;
     }
 
-    // Fetch all participants across these rooms
     const { data: allParticipants, error: partError } = await supabase
       .from('chat_participants')
       .select('room_id, user_id, profiles(id, email, full_name, role)')
@@ -142,7 +140,6 @@ export default function Chat() {
       return;
     }
 
-    // Refresh rooms list and open active room
     await fetchRooms(user.id);
 
     const roomObj = {
@@ -168,6 +165,7 @@ export default function Chat() {
     const tempMsg = {
       id: 'temp-' + Date.now(),
       room_id: activeRoom.id,
+      thread_id: activeRoom.id,
       sender_id: user.id,
       content: content,
       created_at: new Date().toISOString()
@@ -176,6 +174,7 @@ export default function Chat() {
 
     const { error } = await supabase.from('chat_messages').insert({
       room_id: activeRoom.id,
+      thread_id: activeRoom.id,
       sender_id: user.id,
       content: content
     });
@@ -215,7 +214,6 @@ export default function Chat() {
           </div>
         ) : (
           <div style={{ flex: 1, position: 'relative' }}>
-            {/* Flat Design Search Bar (Zero Neumorphism / Flat solid styling) */}
             <div style={{ display: 'flex', alignItems: 'center', background: '#ffffff', borderRadius: '4px', padding: '8px 12px', border: '1px solid #94a3b8' }}>
               <Search size={16} style={{ color: '#64748b', marginRight: '8px' }} />
               <input
