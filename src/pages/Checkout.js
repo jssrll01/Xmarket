@@ -325,72 +325,26 @@ export default function Checkout() {
         } catch (err) { console.log('Receipt send failed:', err); }
       }
 
-      // 2) Write the order to Supabase
+      // 2) Write the order securely via RPC
       try {
-        const { data: order, error: oErr } = await supabase
-          .from('orders')
-          .insert({
-            buyer_id: user.id,
-            order_code: newOrderId,
-            name: form.fullName,
-            mobile: form.mobile,
-            email: form.email,
-            address: form.address,
-            landmark: form.landmark,
-            province: form.province,
-            city: form.city,
-            barangay: form.barangay,
-            instructions: form.instructions,
-            subtotal, discount, total,
-            payment_method: paymentLabel,
-            delivery_method: deliveryLabel,
-            status: 'pending',
-          })
-          .select()
-          .single();
+        const payloadItems = items.map(i => ({
+          product_id: i.product_id,
+          quantity: Number(i.quantity) || 1,
+          variant: i.variant || ''
+        }));
+
+        const { data: res, error: oErr } = await supabase.rpc('create_order', {
+          p_order_code: newOrderId,
+          p_items: payloadItems,
+          p_shipping: form,
+          p_payment: form.payment === 'xwallet' ? 'xwallet' : paymentLabel,
+          p_delivery: deliveryLabel,
+          p_promo_code: promoInput || null,
+          p_xcard_code: xcardInput || null
+        });
 
         if (oErr) throw oErr;
-
-        // Insert line items
-        const orderItems = items.map(i => ({
-          order_id: order.id,
-          product_id: i.product_id,
-          name: i.name,
-          price: Number(i.price) || 0,
-          quantity: Number(i.quantity) || 1,
-          variant: i.variant || null,
-        }));
-        const { error: iErr } = await supabase.from('order_items').insert(orderItems);
-        if (iErr) console.log('order_items insert failed:', iErr.message);
-
-        // Increment sold count on each product
-        for (const it of items) {
-          const { data: prod } = await supabase
-            .from('products')
-            .select('sold')
-            .eq('id', it.product_id)
-            .maybeSingle();
-          if (prod) {
-            await supabase
-              .from('products')
-              .update({ sold: (prod.sold || 0) + it.quantity })
-              .eq('id', it.product_id);
-          }
-        }
-
-        // If paid with Xwallet, debit the balance
-        if (form.payment === 'xwallet') {
-          try {
-            const { error: wErr } = await supabase.rpc('xwallet_debit', {
-              uid: user.id,
-              amt: total,
-              ttype: 'purchase',
-              ref: newOrderId,
-              nt: 'Order ' + newOrderId,
-            });
-            if (wErr) console.log('[xwallet] debit failed:', wErr);
-          } catch (err) { console.log('[xwallet] debit error:', err); }
-        }
+        if (!res || !res.ok) throw new Error(res?.error || 'Failed to place order');
 
         // Clear the cart
         await dispatch({ type: 'CLEAR' });
