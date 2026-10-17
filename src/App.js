@@ -117,7 +117,7 @@ function Router() {
         <Route path="/play-time/history" element={<PlayHistory />} />
         <Route path="/play-time/coin-flip" element={<PlayCoinFlip />} />
         <Route path="/play-time/color-game" element={<PlayColor />} />
-        <Route path="/play-time/hi-lo" element={<PlayHiLo />} />
+        <Route path="/play-time/Hilo" element={<PlayHiLo />} />
         <Route path="/play-time/red-or-black" element={<PlayRedBlack />} />
         <Route path="/xwallet" element={<Xwallet />} />
         <Route path="/xwallet/topup" element={<XwalletTopup />} />

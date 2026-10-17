@@ -5,7 +5,7 @@ export default function CoinFlip() {
   const m = useMini('coinflip');
   const face = m.busy ? '?' : m.res ? (m.res.outcome === 'heads' ? 'H' : 'T') : 'X';
   return (
-    <MiniFrame m={m} title="Coin Flip" howTo={["Choose Heads or Tails.", "Enter your bet, or tap a quick amount.", "Press Play. The coin flips and the result is decided securely on our servers.", "Win and you get back 1.8x your bet. Lose and the bet is gone."]}>
+    <MiniFrame m={m} title="Head or Tails" howTo={["Choose Heads or Tails.", "Enter your bet, or tap a quick amount.", "Press Play. The head or tailss and the result is decided securely on our servers.", "Win and you get back 1.8x your bet. Lose and the bet is gone."]}>
       <div style={{ textAlign: 'center' }}>
         <div className={m.busy ? 'pt-flip' : ''} style={{
           width: 110, height: 110, borderRadius: '50%', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center',

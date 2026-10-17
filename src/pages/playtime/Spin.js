@@ -62,7 +62,7 @@ export default function Spin() {
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <PlayHeader title="Spin the Wheel" subtitle={`Cost: ${fmt(cost)} Loyalty Points / Draw`} />
+      <PlayHeader title="Wheel of Fortune Ultra" subtitle={`Cost: ${fmt(cost)} Loyalty Points / Draw`} />
       <Balances status={status} />
       {error && <Notice>{error}</Notice>}
       {status && (

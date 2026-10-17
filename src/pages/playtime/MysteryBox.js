@@ -29,7 +29,7 @@ export default function MysteryBox() {
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <PlayHeader title="Mystery Box" subtitle="Open the box and win Loyalty Points." />
+      <PlayHeader title="Box of Mystery" subtitle="Open the box and win Loyalty Points." />
       <Balances status={status} />
       {error && <Notice>{error}</Notice>}
       {status && box && (
@@ -38,7 +38,7 @@ export default function MysteryBox() {
             <div className={opening ? 'pt-shake' : ''} style={{ display: 'inline-flex', width: 96, height: 96, borderRadius: 28, alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg,#F59E0B,#EF4444)', boxShadow: '0 10px 24px rgba(239,68,68,.3)' }}>
               <BoxIcon size={50} color="#fff" />
             </div>
-            <h3 style={{ fontSize: 18, fontWeight: 800, margin: '14px 0 8px' }}>Mystery Box</h3>
+            <h3 style={{ fontSize: 18, fontWeight: 800, margin: '14px 0 8px' }}>Box of Mystery</h3>
             <div style={{ fontSize: 13.5, lineHeight: 1.9 }}>
               <div>Cost: <b>{fmt(box.cost)} Loyalty Points</b></div>
               <div>Reward: <b>{fmt(Math.min(...amounts))} to {fmt(Math.max(...amounts))} Loyalty Points</b></div>
@@ -59,7 +59,7 @@ export default function MysteryBox() {
         </>
       )}
       {result && (
-        <ResultModal title="Mystery Box opened" big={`+${fmt(result.reward)}`} sub={`Loyalty Points · Net ${result.reward - result.spent >= 0 ? '+' : ''}${fmt(result.reward - result.spent)} after the ${fmt(result.spent)} cost`}
+        <ResultModal title="Box of Mystery opened" big={`+${fmt(result.reward)}`} sub={`Loyalty Points · Net ${result.reward - result.spent >= 0 ? '+' : ''}${fmt(result.reward - result.spent)} after the ${fmt(result.spent)} cost`}
           actionLabel="Open another" onAction={() => setResult(null)} onClose={() => setResult(null)} />
       )}
     </div>

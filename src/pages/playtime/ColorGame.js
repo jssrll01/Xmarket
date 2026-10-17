@@ -14,7 +14,7 @@ export default function ColorGame() {
   const m = useMini('color');
   const shown = m.res && !m.busy ? COLORS.find(c => c.value === m.res.outcome) : null;
   return (
-    <MiniFrame m={m} title="Color Game" howTo={["Pick one of the six colors.", "Enter your bet, or tap a quick amount.", "Press Play. If the winning color matches yours, you win.", "A win returns 1.8x your bet, added to your balance instantly."]}>
+    <MiniFrame m={m} title="Color Game Extreme" howTo={["Pick one of the six colors.", "Enter your bet, or tap a quick amount.", "Press Play. If the winning color matches yours, you win.", "A win returns 1.8x your bet, added to your balance instantly."]}>
       <div style={{ textAlign: 'center' }}>
         <div className={m.busy ? 'pt-pulse' : ''} style={{
           width: 110, height: 110, borderRadius: 28, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center',
