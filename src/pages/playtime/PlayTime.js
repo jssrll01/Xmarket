@@ -17,9 +17,9 @@ export default function PlayTime() {
     const mini = status.config.mini || {};
     const box = status.config.boxes && status.config.boxes.mystery;
     games = [
-      { to: '/play-time/spin', title: 'Wheel of Fortune Ultra', desc: 'Spin for Loyalty Points', note: `Cost: ${fmt(status.config.spin.cost)} Loyalty Points / draw`, cost: status.config.spin.cost, game: 'spin', Icon: WheelIcon, grad: 'linear-gradient(135deg,#2563EB,#7C3AED)' },
+      { to: '/play-time/spin', title: 'Wheel of Fortune Ultra', note: `Cost: ${fmt(status.config.spin.cost)} Loyalty Points / draw`, cost: status.config.spin.cost, game: 'spin', Icon: WheelIcon, grad: 'linear-gradient(135deg,#2563EB,#7C3AED)' },
     ];
-    if (box) games.push({ to: '/play-time/mystery-box', title: 'Box of Mystery', desc: 'Open the box and see what is inside', note: `Cost: ${fmt(box.cost)} Loyalty Points / box`, cost: box.cost, game: 'box', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' });
+    if (box) games.push({ to: '/play-time/mystery-box', title: 'Box of Mystery', note: `Cost: ${fmt(box.cost)} Loyalty Points / box`, cost: box.cost, game: 'box', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' });
     [
       ['airdrop', 'Airdrop 88', 'Pick 1-20 · 4 winners · pays 4x'],
       ['mega', 'Mega Airdrop 88', 'Pick 1-35 · 5 winners · pays 6x'],
@@ -27,14 +27,14 @@ export default function PlayTime() {
       ['max', 'Max Airdrop 88', 'Pick 1-65 · 4 winners · pays 16x'],
       ['extreme', 'Extreme Airdrop 88', 'Pick 1-75 · 4 winners · pays 16x'],
       ['nightmare', 'Nightmare Airdrop 88', 'Pick 1-75 · 2 winners · pays 26x'],
-    ].forEach(a => games.push({ to: '/play-time/airdrop/' + a[0], title: a[1], desc: a[2], note: 'Draw every 10 min · free play credits', cost: 0, game: 'airdrop', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' }));
+    ].forEach(a => games.push({ to: '/play-time/airdrop/' + a[0], title: a[1], note: 'Draw every 10 min · free play credits', cost: 0, game: 'airdrop', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' }));
     [
       ['coinflip', '/play-time/coin-flip', 'Head or Tails', 'Call heads or tails', CoinIcon, 'linear-gradient(135deg,#F59E0B,#D97706)'],
       ['color', '/play-time/color-game', 'Color Game Extreme', 'Pick the winning color', PaletteIcon, 'linear-gradient(135deg,#EC4899,#8B5CF6)'],
       ['hilo', '/play-time/Hilo', 'Hilo', 'Higher or lower card', HiLoIcon, 'linear-gradient(135deg,#06B6D4,#2563EB)'],
       ['redblack', '/play-time/red-or-black', 'Red Black 88', 'Guess the card color', CardsIcon, 'linear-gradient(135deg,#475569,#EF4444)'],
     ].filter(x => mini[x[0]]).forEach(x => games.push({
-      to: x[1], title: x[2], desc: x[3], note: `Your bet · from ${fmt(mini[x[0]].min_bet || 1)} Loyalty Points`,
+      to: x[1], title: x[2], note: `Your bet · from ${fmt(mini[x[0]].min_bet || 1)} Loyalty Points`,
       game: 'mini', key: x[0], Icon: x[4], grad: x[5],
     }));
   }
@@ -54,11 +54,10 @@ export default function PlayTime() {
             const body = (
               <div className="card" style={{ padding: 14, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, opacity: off ? 0.75 : 1 }}>
                 <div style={{ width: 46, height: 46, borderRadius: 14, background: off ? '#CBD5E1' : g.grad, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span style={{ fontSize: 22, lineHeight: 1 }}></span>
+                  <span style={{ fontSize: 22, lineHeight: 1 }}>🎮</span>
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 15, fontWeight: 800 }}>{g.title}</div>
-                  <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{g.desc}</div>
                   <div style={{ fontSize: 12, fontWeight: 700, marginTop: 4, color: off ? '#92400E' : '#64748B' }}>{off ? reason : g.note}</div>
                 </div>
                 {!off && <ChevronRight size={18} color="var(--muted)" />}
