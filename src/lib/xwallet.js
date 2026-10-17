@@ -57,20 +57,11 @@ export async function fetchMyTopups(userId) {
 // BUY LOAD
 // ============================================================
 export async function buyLoad(userId, network, mobile, amount) {
-  // 1) Check balance
-  const balance = await fetchWallet(userId);
-  if (balance < amount) return { error: { message: 'Insufficient Xwallet balance' } };
-
-  // 2) Debit
-  const { error: dErr } = await debitWallet(userId, amount, 'load', mobile, `${network} load for ${mobile}`);
-  if (dErr) return { error: dErr };
-
-  // 3) Log
-  const { data, error } = await supabase.from('xwallet_loads').insert({
-    user_id: userId, network, mobile, amount, status: 'completed',
-  }).select().single();
-
-  return { load: data, error };
+  const { data, error } = await supabase.rpc('buy_load', {
+    p_network: network, p_mobile: mobile, p_amount: Number(amount),
+  });
+  if (error) return { error: { message: error.message } };
+  return { load: data, error: null };
 }
 
 export async function fetchMyLoads(userId) {
