@@ -7,7 +7,7 @@ import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
 , Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal, Ticket, Sparkles, MessageSquare } from 'lucide-react';
-import { banners as staticBanners, fetchProducts, fetchProductStatsMap } from '../lib/products';
+import { fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { supabase as bannerDb } from '../lib/supabase';
 import { sortByStock, isOutOfStock } from '../lib/stock';
 import { priceRange, hasRealVariants } from '../lib/variants';
@@ -170,6 +170,7 @@ function Drawer({ open, onClose }) {
 }
 
 
+const swipe = { x: null };
 export default function Home() {
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
@@ -190,7 +191,7 @@ export default function Home() {
   const [loadingId, setLoadingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
-  const [banners, setBanners] = useState(staticBanners);
+  const [banners, setBanners] = useState([]);
   const [bannerRows, setBannerRows] = useState([]);
   useEffect(() => {
     let alive = true;
@@ -205,6 +206,11 @@ export default function Home() {
     return () => { alive = false; };
   }, []);
   const [bannerHover, setBannerHover] = useState(false);
+  useEffect(() => {
+    if (banners.length < 2) return;
+    const t = setTimeout(() => setBannerIdx(i => (i + 1) % banners.length), 3500);
+    return () => clearTimeout(t);
+  }, [banners.length, bannerIdx]);
   const [variantProduct, setVariantProduct] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const [hydrated, setHydrated] = useState(false);
@@ -218,11 +224,7 @@ export default function Home() {
     const onScroll = () => setScrolled(window.scrollY > 8);
     const hyd = setTimeout(() => setHydrated(true), 300);
     window.addEventListener('scroll', onScroll, { passive: true });
-    const t = setInterval(() => {
-      setBannerIdx(i => (i + 1) % banners.length);
-    }, 3500);
     return () => {
-      clearInterval(t);
       window.removeEventListener('scroll', onScroll);
       clearTimeout(hyd);
     };
@@ -501,9 +503,12 @@ export default function Home() {
           )}
         </div>
 
-<div className="banner-wrap" style={{ padding: '12px 16px 4px' }}>
+<div className="banner-wrap" style={{ padding: '12px 16px 4px', display: banners.length ? undefined : 'none' }}>
         <div
           className="banner-stage"
+          style={{ touchAction: 'pan-y' }}
+          onTouchStart={e => { swipe.x = e.touches[0].clientX; }}
+          onTouchEnd={e => { if (swipe.x == null || banners.length < 2) return; const dx = e.changedTouches[0].clientX - swipe.x; swipe.x = null; if (Math.abs(dx) > 40) setBannerIdx(i => (i + (dx < 0 ? 1 : banners.length - 1)) % banners.length); }}
           onMouseEnter={() => setBannerHover && setBannerHover(true)}
           onMouseLeave={() => setBannerHover && setBannerHover(false)}
         >
@@ -527,7 +532,7 @@ export default function Home() {
                   {bannerRows[bannerIdx].cta_text && <span style={{ background: '#fff', color: '#2563EB', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 999, boxShadow: '0 4px 12px rgba(0,0,0,.2)' }}>{bannerRows[bannerIdx].cta_text}</span>}
                 </Link>
           )}
-          <div className="banner-dots">
+          <div className="banner-dots" style={{ display: banners.length > 1 ? undefined : 'none' }}>
             {banners.map((_, i) => (
               <button
                 key={i}

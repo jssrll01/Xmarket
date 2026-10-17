@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { fetchTiers, fetchCredits, fetchDraw, fetchMyBet, placeBet } from '../../lib/airdrop';
-import { usePlay, Balances } from './common';
+import { usePlay, Balances, GameInfo } from './common';
 
 const SLOT = 600000;
 const mmss = (ms) => {
@@ -86,18 +86,19 @@ export default function Airdrop() {
       <style>{CSS}</style>
       <button onClick={() => nav('/play-time')} className="icon-btn" style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
       <h2 style={{ margin: 0 }}>{t.label}</h2>
+      <p style={{ fontSize: 13, color: 'var(--muted)', margin: '2px 0 0' }}>{`Pick a number from 1 to ${t.max_n}. ${t.win_count} winning numbers are drawn every 10 minutes. Match one and win big! 🎁`}</p>
       
       <Balances status={status} />
 
       <div className="card" style={{ padding: 16, marginTop: 12, marginBottom: 12, textAlign: 'center', animation: drawing ? 'adGlow 0.8s infinite' : 'none' }}>
         {!drawing ? (
           <>
-            <div style={{ fontSize: 12, color: '#64748B' }}>Betting closes in</div>
+            <div style={{ fontSize: 12, color: '#64748B' }}>Airdrop closes in</div>
             <div style={{ fontSize: 40, fontWeight: 900 }}>{mmss(left - 10000)}</div>
           </>
         ) : (
           <>
-            <div style={{ fontWeight: 900, color: '#EF4444' }}>BETTING LOCKED · DRAWING {mmss(left)}</div>
+            <div style={{ fontWeight: 900, color: '#EF4444' }}>AIRDROP LOCKED · DRAWING {mmss(left)}</div>
             <div style={{ height: 90, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10, position: 'relative', overflow: 'hidden' }}>
               {Array.from({ length: t.win_count }).map((_, i) => (
                 <div key={i} style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg,#F59E0B,#EF4444)',
@@ -129,7 +130,7 @@ export default function Airdrop() {
 
       {bet && bet.end === end ? (
         <div className="card" style={{ padding: 14, textAlign: 'center', fontWeight: 800 }}>
-          Your bet: number {bet.pick} · {bet.amount} credits. Draw at the end of the timer.
+          Your airdrop: number {bet.pick} · {bet.amount} credits. Draw at the end of the timer.
         </div>
       ) : (
         <div className="card" style={{ padding: 14, opacity: locked ? 0.5 : 1 }}>
@@ -149,6 +150,13 @@ export default function Airdrop() {
         </div>
       )}
       {msg && <div style={{ marginTop: 10, textAlign: 'center', fontWeight: 700 }}>{msg}</div>}
+      <GameInfo game="airdrop" refresh={bet ? bet.end : 0} steps={[
+        `Pick your lucky number from 1 to ${t.max_n}.`,
+        'Enter your airdrop amount in credits.',
+        'Tap Place your airdrop before the timer closes.',
+        `A new draw happens every 10 minutes with ${t.win_count} winning numbers.`,
+        'If your number is drawn, your prize is added to your balance.',
+      ]} />
     </div>
   );
 }
