@@ -29,7 +29,7 @@ export default function MysteryBox() {
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <PlayHeader title="Box of Mystery" subtitle="Open the box and win Loyalty Points." />
+      <PlayHeader title="Box of Mystery" subtitle="Every box hides a prize. Open yours and win up to 10x! 🎁" />
       <Balances status={status} />
       {error && <Notice>{error}</Notice>}
       {status && box && (

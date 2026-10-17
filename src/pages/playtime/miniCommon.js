@@ -9,8 +9,8 @@ export function miniGate(status, key, bet) {
   const min = cfg.min_bet || 1;
   if (status.loyalty_points < min) return `You need at least ${fmt(min)} Loyalty Points to play.`;
   if (bet !== undefined) {
-    if (!bet || bet < min) return `Minimum bet is ${fmt(min)} Loyalty Points.`;
-    if (bet > status.loyalty_points) return `Your bet is more than your balance (${fmt(status.loyalty_points)} points).`;
+    if (!bet || bet < min) return `Minimum amount is ${fmt(min)} Loyalty Points.`;
+    if (bet > status.loyalty_points) return `Your amount is more than your balance (${fmt(status.loyalty_points)} points).`;
   }
   return '';
 }
@@ -66,6 +66,13 @@ export function Choices({ options, value, onChange, disabled, cols }) {
   );
 }
 
+const DESC = {
+  coinflip: 'Call it in the air! One toss, two sides, and a 1.8x win. 🪙',
+  color: 'Six colors, one roll. Match the winning color and win 1.8x. 🎨',
+  hilo: 'Higher or lower? Read the next card and win 1.8x. 🃏',
+  redblack: 'Red or black? Call the card and win 1.8x. ♥️♠️',
+};
+
 export function MiniFrame({ m, title, howTo, children }) {
   const { status, error, cfg, reason, busy, res, msg, modal, setModal, go, choice, gameKey, bet, betNum, setBet } = m;
   const payout = cfg ? cfg.payout : 1.8;
@@ -73,7 +80,7 @@ export function MiniFrame({ m, title, howTo, children }) {
   const min = cfg ? cfg.min_bet || 1 : 1;
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <PlayHeader title={title} subtitle="Choose a side, set your bet, and play." />
+      <PlayHeader title={title} subtitle={DESC[gameKey] || 'Choose a side and play.'} />
       <Balances status={status} />
       {error && <Notice>{error}</Notice>}
       {status && cfg && (
@@ -81,7 +88,7 @@ export function MiniFrame({ m, title, howTo, children }) {
           <div style={{ margin: '22px 0 6px' }}>{children}</div>
 
           <div className="card" style={{ padding: 14, margin: '16px 0 12px' }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6 }}>Your bet (Loyalty Points)</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 6 }}>{gameKey === 'coinflip' ? 'Your stake' : 'Your bet'} (Loyalty Points)</div>
             <input value={bet} inputMode="numeric" disabled={busy} onChange={e => setBet(e.target.value)}
               style={{ width: '100%', padding: 12, borderRadius: 12, border: '1px solid var(--border)', fontSize: 20, fontWeight: 800 }} />
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
@@ -94,13 +101,13 @@ export function MiniFrame({ m, title, howTo, children }) {
               <div>A win returns <b>{payout}x</b> your bet.</div>
               {betNum >= min && <div>If you win: get back <b>{fmt(win)}</b> (net <b style={{ color: '#059669' }}>+{fmt(win - betNum)}</b>)</div>}
               {betNum >= min && <div>If you lose: <b style={{ color: '#DC2626' }}>-{fmt(betNum)}</b></div>}
-              <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>Minimum bet {fmt(min)}. Results are decided securely on our servers.</div>
+              <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>Minimum {gameKey === 'coinflip' ? 'stake' : 'bet'} {fmt(min)}. Results are decided securely on our servers.</div>
             </div>
           </div>
 
           {(msg || reason) && <Notice>{msg || reason}</Notice>}
           <BigButton disabled={busy || !!reason || !choice} onClick={go}>
-            {busy ? 'Playing…' : !choice ? 'Pick your side first' : `Play · Bet ${fmt(betNum)}`}
+            {busy ? 'Playing…' : !choice ? 'Pick your side first' : ({coinflip:'Toss',color:'Roll the dice',hilo:'Deal',redblack:'Deal'})[gameKey] || 'Play'}
           </BigButton>
           <GameInfo game={gameKey} refresh={status.loyalty_points} steps={howTo} />
         </>
@@ -109,7 +116,7 @@ export function MiniFrame({ m, title, howTo, children }) {
         <ResultModal
           title={res.win ? 'You won' : 'Not this time'}
           big={res.win ? `+${fmt(res.earned - res.spent)}` : `-${fmt(res.spent)}`}
-          sub={res.win ? `You bet ${fmt(res.spent)} and got back ${fmt(res.earned)} Loyalty Points` : `You bet ${fmt(res.spent)} Loyalty Points. Better luck next time!`}
+          sub={res.win ? `You played ${fmt(res.spent)} and got back ${fmt(res.earned)} Loyalty Points` : `You played ${fmt(res.spent)} Loyalty Points. Better luck next time!`}
           actionLabel="Play again" onAction={() => setModal(false)} onClose={() => setModal(false)} />
       )}
     </div>

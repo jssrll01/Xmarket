@@ -62,7 +62,7 @@ export default function Spin() {
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <PlayHeader title="Wheel of Fortune Ultra" subtitle={`Cost: ${fmt(cost)} Loyalty Points / Draw`} />
+      <PlayHeader title="Wheels of Fortune" subtitle={`Win up to 20x! Each spin costs ${fmt(cost)} Loyalty Points. Feeling lucky?`} />
       <Balances status={status} />
       {error && <Notice>{error}</Notice>}
       {status && (
@@ -74,10 +74,10 @@ export default function Spin() {
             <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>Results are decided securely on our servers.</div>
           </div>
           {(msg || reason) && <Notice>{msg || reason}</Notice>}
-          <BigButton disabled={busy || !!reason} onClick={spin}>{busy ? 'Spinning…' : `Spin · ${fmt(cost)} Loyalty Points`}</BigButton>
+          <BigButton disabled={busy || !!reason} onClick={spin}>{busy ? 'Spinning…' : 'Spin Your Fortune'}</BigButton>
           <GameInfo game="spin" refresh={status.loyalty_points} steps={[
             `Each spin costs ${fmt(cost)} Loyalty Points.`,
-            'Press Spin. The wheel stops on your prize.',
+            'Press Spin Your Fortune. The wheel stops on your prize.',
             'The prize is added to your balance instantly.',
             'Exchange your points for XWallet any time at 1 point = ₱1.',
           ]} />

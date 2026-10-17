@@ -92,7 +92,7 @@ export function ResultModal({ title, big, sub, actionLabel, onAction, onClose })
   );
 }
 
-const TITLES = { spin: 'Wheel of Fortune Ultra', box: 'Box of Mystery', exchange: 'Points Exchange', airdrop: 'Airdrop 88', coinflip: 'Head or Tails', color: 'Color Game Extreme', hilo: 'Hilo', redblack: 'Red Black 88', adjust: 'Admin adjustment' };
+const TITLES = { spin: 'Wheels of Fortune', box: 'Box of Mystery', exchange: 'Points Exchange', airdrop: 'Airdrop', coinflip: 'Head or Tails', color: 'Color Game Extreme', hilo: 'Hilo', redblack: 'Red Black', adjust: 'Admin adjustment' };
 
 export function HistoryRow({ t }) {
   const title = TITLES[t.game] || t.game;

@@ -74,7 +74,7 @@ export default function Airdrop() {
     const r = await placeBet(tier, pick, parseInt(amount, 10));
     if (!r.ok) return setMsg(r.message || 'Could not place bet.');
     setBet({ end, pick, amount: parseInt(amount, 10) });
-    setMsg('Bet placed! Good luck.');
+    setMsg('Airdrop placed! Good luck.');
   };
 
   if (!t) return <div style={{ padding: 16 }}>Loading…</div>;
@@ -143,8 +143,8 @@ export default function Airdrop() {
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             <input type="number" min="1" value={amount} disabled={locked} onChange={(e) => setAmount(e.target.value)}
-              placeholder="Bet amount" style={{ flex: 1, padding: 10, borderRadius: 10, border: '1px solid #CBD5E1', fontSize: 16 }} />
-            <button className="btn" disabled={locked || !pick || !(parseInt(amount, 10) > 0)} onClick={submit} style={{ padding: '10px 16px' }}>Place bet</button>
+              placeholder="Airdrop amount" style={{ flex: 1, padding: 10, borderRadius: 10, border: '1px solid #CBD5E1', fontSize: 16 }} />
+            <button className="btn" disabled={locked || !pick || !(parseInt(amount, 10) > 0)} onClick={submit} style={{ padding: '10px 16px' }}>Place your airdrop</button>
           </div>
         </div>
       )}

@@ -17,24 +17,24 @@ export default function PlayTime() {
     const mini = status.config.mini || {};
     const box = status.config.boxes && status.config.boxes.mystery;
     games = [
-      { to: '/play-time/spin', title: 'Wheel of Fortune Ultra', note: `Cost: ${fmt(status.config.spin.cost)} Loyalty Points / draw`, cost: status.config.spin.cost, game: 'spin', Icon: WheelIcon, grad: 'linear-gradient(135deg,#2563EB,#7C3AED)' },
+      { to: '/play-time/spin', title: 'Wheels of Fortune', note: 'Win up to 20x', cost: status.config.spin.cost, game: 'spin', Icon: WheelIcon, grad: 'linear-gradient(135deg,#2563EB,#7C3AED)' },
     ];
-    if (box) games.push({ to: '/play-time/mystery-box', title: 'Box of Mystery', note: `Cost: ${fmt(box.cost)} Loyalty Points / box`, cost: box.cost, game: 'box', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' });
+    if (box) games.push({ to: '/play-time/mystery-box', title: 'Box of Mystery', note: 'Win up to 10x', cost: box.cost, game: 'box', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' });
     [
-      ['airdrop', 'Airdrop 88', 'Pick 1-20 · 4 winners · pays 4x'],
-      ['mega', 'Mega Airdrop 88', 'Pick 1-35 · 5 winners · pays 6x'],
-      ['ultra', 'Ultra Airdrop 88', 'Pick 1-50 · 4 winners · pays 11x'],
-      ['max', 'Max Airdrop 88', 'Pick 1-65 · 4 winners · pays 16x'],
-      ['extreme', 'Extreme Airdrop 88', 'Pick 1-75 · 4 winners · pays 16x'],
-      ['nightmare', 'Nightmare Airdrop 88', 'Pick 1-75 · 2 winners · pays 26x'],
-    ].forEach(a => games.push({ to: '/play-time/airdrop/' + a[0], title: a[1], note: 'Draw every 10 min · free play credits', cost: 0, game: 'airdrop', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' }));
+      ['airdrop', 'Airdrop', 'Pays 4x'],
+      ['mega', 'Mega Airdrop', 'Pays 6x'],
+      ['ultra', 'Ultra Airdrop', 'Pays 11x'],
+      ['max', 'Max Airdrop', 'Pays 16x'],
+      ['extreme', 'Extreme Airdrop', 'Pays 16x'],
+      ['nightmare', 'Nightmare Airdrop', 'Pays 26x'],
+    ].forEach(a => games.push({ to: '/play-time/airdrop/' + a[0], title: a[1], note: a[2], cost: 0, game: 'airdrop', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' }));
     [
       ['coinflip', '/play-time/coin-flip', 'Head or Tails', 'Call heads or tails', CoinIcon, 'linear-gradient(135deg,#F59E0B,#D97706)'],
       ['color', '/play-time/color-game', 'Color Game Extreme', 'Pick the winning color', PaletteIcon, 'linear-gradient(135deg,#EC4899,#8B5CF6)'],
       ['hilo', '/play-time/Hilo', 'Hilo', 'Higher or lower card', HiLoIcon, 'linear-gradient(135deg,#06B6D4,#2563EB)'],
-      ['redblack', '/play-time/red-or-black', 'Red Black 88', 'Guess the card color', CardsIcon, 'linear-gradient(135deg,#475569,#EF4444)'],
+      ['redblack', '/play-time/red-or-black', 'Red Black', 'Guess the card color', CardsIcon, 'linear-gradient(135deg,#475569,#EF4444)'],
     ].filter(x => mini[x[0]]).forEach(x => games.push({
-      to: x[1], title: x[2], note: `Your bet · from ${fmt(mini[x[0]].min_bet || 1)} Loyalty Points`,
+      to: x[1], title: x[2], note: `Win ${mini[x[0]].payout}x`,
       game: 'mini', key: x[0], Icon: x[4], grad: x[5],
     }));
   }
