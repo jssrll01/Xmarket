@@ -7,7 +7,6 @@ export async function validatePromo(code, subtotal, userId) {
   if (cleaned.startsWith('LOYAL')) {
     if (!userId) return { error: 'Sign in to use loyalty vouchers' };
     const { data: v, error } = await supabase
-      .from('loyalty_vouchers')
       .select('*')
       .eq('code', cleaned)
       .eq('user_id', userId)
@@ -71,7 +70,6 @@ export async function redeemPromo(code, userId, orderId, promoMeta) {
   // Loyalty voucher — mark redeemed
   if (promoMeta?.isVoucher && promoMeta.voucherId) {
     await supabase
-      .from('loyalty_vouchers')
       .update({ redeemed: true, redeemed_at: new Date().toISOString() })
       .eq('id', promoMeta.voucherId);
     return;
@@ -106,18 +104,14 @@ export async function fetchLoyaltyLedger(userId) {
 }
 
 
-export async function fetchLoyaltyVouchers(userId) {
   const { data } = await supabase
-    .from('loyalty_vouchers')
     .select('id, code, tier, discount_amount, min_spend, redeemed')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
   return data || [];
 }
 
-export async function redeemLoyaltyVoucher(code, userId) {
   const { error } = await supabase
-    .from('loyalty_vouchers')
     .update({ redeemed: true, redeemed_at: new Date().toISOString() })
     .eq('code', code)
     .eq('user_id', userId);

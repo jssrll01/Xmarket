@@ -4,7 +4,6 @@ import { ArrowLeft, Copy, Check, Ticket, ShoppingBag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
-import { fetchLoyaltyVouchers } from '../lib/promos';
 
 export default function Vouchers() {
   const nav = useNavigate();
@@ -19,7 +18,6 @@ export default function Vouchers() {
     let alive = true;
     (async () => {
       const [loyalRes, promoRes] = await Promise.all([
-        user ? fetchLoyaltyVouchers(user.id) : Promise.resolve([]),
         supabase.from('promo_codes').select('*').eq('active', true),
       ]);
       if (!alive) return;

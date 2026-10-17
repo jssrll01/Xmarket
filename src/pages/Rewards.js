@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Award, Sparkles, Copy, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
-import { fetchLoyalty, fetchLoyaltyLedger, fetchLoyaltyVouchers } from '../lib/promos';
 
 const TIERS = [
   { name: 'Bronze', min: 300,  discount: 50,  color: '#B45309' },
@@ -26,7 +25,6 @@ export default function Rewards() {
     Promise.all([
       fetchLoyalty(user.id),
       fetchLoyaltyLedger(user.id),
-      fetchLoyaltyVouchers(user.id),
     ]).then(([p, l, v]) => {
       setPoints(p); setLedger(l); setVouchers(v); setLoading(false);
     });
