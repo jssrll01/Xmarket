@@ -87,7 +87,10 @@ export default function Chat() {
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `room_id=eq.${activeRoom.id}` },
         (payload) => {
-          setMessages(prev => [...prev, payload.new]);
+          setMessages(prev => {
+            if (prev.some(m => m.id === payload.new.id)) return prev;
+            return [...prev, payload.new];
+          });
         }
       )
       .subscribe();
@@ -150,10 +153,20 @@ export default function Chat() {
 
   const sendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !activeRoom) return;
+    if (!newMessage.trim() || !activeRoom || !user) return;
 
     const content = newMessage.trim();
     setNewMessage('');
+
+    // Optimistic UI update for instant touch response
+    const tempMsg = {
+      id: 'temp-' + Date.now(),
+      room_id: activeRoom.id,
+      sender_id: user.id,
+      content: content,
+      created_at: new Date().toISOString()
+    };
+    setMessages(prev => [...prev, tempMsg]);
 
     const { error } = await supabase.from('chat_messages').insert({
       room_id: activeRoom.id,
@@ -163,6 +176,7 @@ export default function Chat() {
 
     if (error) {
       console.error('Send failed:', error);
+      alert('Failed to send message: ' + error.message);
     }
   };
 
@@ -172,68 +186,70 @@ export default function Chat() {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#f8fafc', fontFamily: 'sans-serif' }}>
-      {/* Top Bar with Search */}
-      <div style={{ padding: '12px 16px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px', position: 'sticky', top: 0, zIndex: 20 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', position: 'fixed', top: 0, left: 0, zIndex: 9999, background: '#f8fafc', fontFamily: 'sans-serif', overflow: 'hidden' }}>
+      {/* Top Bar: Shows Search Bar ONLY when NOT inside a chat conversation */}
+      <div style={{ padding: '12px 16px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
         <button onClick={() => activeRoom ? setActiveRoom(null) : navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}>
           <ArrowLeft size={22} />
         </button>
-        <div style={{ flex: 1, position: 'relative' }}>
-          <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '8px', padding: '8px 12px' }}>
-            <Search size={16} style={{ color: '#64748b', marginRight: '8px' }} />
-            <input
-              type="text"
-              placeholder="Search user or moderator by Gmail..."
-              value={searchQuery}
-              onChange={(e) => handleSearchUsers(e.target.value)}
-              style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '14px' }}
-            />
-          </div>
 
-          {searchResults.length > 0 && (
-            <div style={{ position: 'absolute', top: '48px', left: 0, right: 0, background: '#fff', border: '1px solid #cbd5e1', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 30, maxHeight: '250px', overflowY: 'auto' }}>
-              {searchResults.map(resUser => (
-                <div
-                  key={resUser.id}
-                  onClick={() => startChatWithUser(resUser)}
-                  style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'between', gap: '10px' }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
-                    <User size={18} style={{ color: '#64748b' }} />
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>{resUser.full_name || 'User'}</div>
-                      <div style={{ fontSize: '12px', color: '#64748b' }}>{resUser.email} {resUser.role === 'admin' ? '(Moderator)' : ''}</div>
-                    </div>
-                  </div>
-                  <ChevronRight size={16} style={{ color: '#94a3b8' }} />
-                </div>
-              ))}
+        {activeRoom ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+            <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#334155' }}>
+              {getOtherParticipant(activeRoom).email?.[0]?.toUpperCase() || 'U'}
             </div>
-          )}
-        </div>
+            <div>
+              <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1e293b' }}>
+                {getOtherParticipant(activeRoom).full_name || getOtherParticipant(activeRoom).email}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b' }}>
+                {getOtherParticipant(activeRoom).role === 'admin' ? 'Official Shop Moderator' : getOtherParticipant(activeRoom).email}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style={{ flex: 1, position: 'relative' }}>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '6px', padding: '8px 12px', border: '1px solid #e2e8f0' }}>
+              <Search size={16} style={{ color: '#64748b', marginRight: '8px' }} />
+              <input
+                type="text"
+                placeholder="Search user or moderator by Gmail..."
+                value={searchQuery}
+                onChange={(e) => handleSearchUsers(e.target.value)}
+                style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '14px' }}
+              />
+            </div>
+
+            {searchResults.length > 0 && (
+              <div style={{ position: 'absolute', top: '48px', left: 0, right: 0, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', zIndex: 30, maxHeight: '250px', overflowY: 'auto' }}>
+                {searchResults.map(resUser => (
+                  <div
+                    key={resUser.id}
+                    onClick={() => startChatWithUser(resUser)}
+                    style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                      <User size={18} style={{ color: '#64748b' }} />
+                      <div>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>{resUser.full_name || 'User'}</div>
+                        <div style={{ fontSize: '12px', color: '#64748b' }}>{resUser.email} {resUser.role === 'admin' ? '(Moderator)' : ''}</div>
+                      </div>
+                    </div>
+                    <ChevronRight size={16} style={{ color: '#94a3b8' }} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      {/* Content Area: Active Chat or Conversations List */}
+      {/* Main Content Area */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {activeRoom ? (
           <>
-            {/* Active Chat Header */}
-            <div style={{ padding: '10px 16px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#334155' }}>
-                {getOtherParticipant(activeRoom).email?.[0]?.toUpperCase() || 'U'}
-              </div>
-              <div>
-                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1e293b' }}>
-                  {getOtherParticipant(activeRoom).full_name || getOtherParticipant(activeRoom).email}
-                </div>
-                <div style={{ fontSize: '11px', color: '#64748b' }}>
-                  {getOtherParticipant(activeRoom).role === 'admin' ? 'Official Shop Moderator' : getOtherParticipant(activeRoom).email}
-                </div>
-              </div>
-            </div>
-
             {/* Messages Scroll Area */}
-            <div style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', WebkitOverflowScrolling: 'touch' }}>
               {messages.map(msg => {
                 const isMe = msg.sender_id === user?.id;
                 return (
@@ -272,7 +288,7 @@ export default function Chat() {
           </>
         ) : (
           /* Conversations List */
-          <div style={{ flex: 1, overflowY: 'auto', background: '#f8fafc' }}>
+          <div style={{ flex: 1, overflowY: 'auto', background: '#f8fafc', WebkitOverflowScrolling: 'touch' }}>
             <div style={{ padding: '16px 16px 8px 16px', fontSize: '14px', fontWeight: 'bold', color: '#64748b' }}>Recent Conversations</div>
             {loading ? (
               <div style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>Loading chats...</div>
