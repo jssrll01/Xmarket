@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
-import { ArrowLeft, Send, Search, MessageSquare, User } from 'lucide-react';
+import { ArrowLeft, Send, Search, MessageSquare, User, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Chat() {
@@ -101,7 +101,6 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Search users via Supabase RPC function
   const handleSearchUsers = async (query) => {
     setSearchQuery(query);
     if (!query || query.trim().length < 2) {
@@ -173,21 +172,18 @@ export default function Chat() {
   };
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: '#f8fafc', fontFamily: 'sans-serif' }}>
-      <div style={{ width: '350px', borderRight: '1px solid #e2e8f0', background: '#ffffff', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
-            <ArrowLeft size={20} />
-          </button>
-          <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>Messages</h2>
-        </div>
-
-        <div style={{ padding: '12px', position: 'relative' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', background: '#f8fafc', fontFamily: 'sans-serif' }}>
+      {/* Top Bar with Search */}
+      <div style={{ padding: '12px 16px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px', position: 'sticky', top: 0, zIndex: 20 }}>
+        <button onClick={() => activeRoom ? setActiveRoom(null) : navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}>
+          <ArrowLeft size={22} />
+        </button>
+        <div style={{ flex: 1, position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '8px', padding: '8px 12px' }}>
             <Search size={16} style={{ color: '#64748b', marginRight: '8px' }} />
             <input
               type="text"
-              placeholder="Search user by Gmail..."
+              placeholder="Search user or moderator by Gmail..."
               value={searchQuery}
               onChange={(e) => handleSearchUsers(e.target.value)}
               style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '14px' }}
@@ -195,89 +191,55 @@ export default function Chat() {
           </div>
 
           {searchResults.length > 0 && (
-            <div style={{ position: 'absolute', top: '60px', left: '12px', right: '12px', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)', zIndex: 10, maxHeight: '200px', overflowY: 'auto' }}>
+            <div style={{ position: 'absolute', top: '48px', left: 0, right: 0, background: '#fff', border: '1px solid #cbd5e1', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 30, maxHeight: '250px', overflowY: 'auto' }}>
               {searchResults.map(resUser => (
                 <div
                   key={resUser.id}
                   onClick={() => startChatWithUser(resUser)}
-                  style={{ padding: '10px 14px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: '10px' }}
+                  style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'between', gap: '10px' }}
                 >
-                  <User size={16} style={{ color: '#64748b' }} />
-                  <div>
-                    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{resUser.full_name || 'User'}</div>
-                    <div style={{ fontSize: '12px', color: '#64748b' }}>{resUser.email} {resUser.role === 'admin' ? '(Moderator)' : ''}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
+                    <User size={18} style={{ color: '#64748b' }} />
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>{resUser.full_name || 'User'}</div>
+                      <div style={{ fontSize: '12px', color: '#64748b' }}>{resUser.email} {resUser.role === 'admin' ? '(Moderator)' : ''}</div>
+                    </div>
                   </div>
+                  <ChevronRight size={16} style={{ color: '#94a3b8' }} />
                 </div>
               ))}
             </div>
           )}
         </div>
-
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          {loading ? (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Loading chats...</div>
-          ) : rooms.length === 0 ? (
-            <div style={{ padding: '20px', textAlign: 'center', color: '#64748b', fontSize: '14px' }}>
-              No conversations yet.<br />Search a Gmail above to start chatting!
-            </div>
-          ) : (
-            rooms.map(room => {
-              const other = getOtherParticipant(room);
-              const isActive = activeRoom?.id === room.id;
-              return (
-                <div
-                  key={room.id}
-                  onClick={() => setActiveRoom(room)}
-                  style={{
-                    padding: '14px 16px',
-                    cursor: 'pointer',
-                    background: isActive ? '#eff6ff' : 'transparent',
-                    borderBottom: '1px solid #f1f5f9',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px'
-                  }}
-                >
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#334155' }}>
-                    {other.email?.[0]?.toUpperCase() || 'U'}
-                  </div>
-                  <div style={{ overflow: 'hidden' }}>
-                    <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1e293b' }}>{other.full_name || other.email}</div>
-                    <div style={{ fontSize: '12px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {other.role === 'admin' ? 'Moderator / Shop' : other.email}
-                    </div>
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#f8fafc' }}>
+      {/* Content Area: Active Chat or Conversations List */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {activeRoom ? (
           <>
-            <div style={{ padding: '16px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* Active Chat Header */}
+            <div style={{ padding: '10px 16px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#334155' }}>
                 {getOtherParticipant(activeRoom).email?.[0]?.toUpperCase() || 'U'}
               </div>
               <div>
-                <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#1e293b' }}>
+                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1e293b' }}>
                   {getOtherParticipant(activeRoom).full_name || getOtherParticipant(activeRoom).email}
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748b' }}>
+                <div style={{ fontSize: '11px', color: '#64748b' }}>
                   {getOtherParticipant(activeRoom).role === 'admin' ? 'Official Shop Moderator' : getOtherParticipant(activeRoom).email}
                 </div>
               </div>
             </div>
 
-            <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Messages Scroll Area */}
+            <div style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {messages.map(msg => {
                 const isMe = msg.sender_id === user?.id;
                 return (
                   <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
                     <div style={{
-                      maxWidth: '60%',
+                      maxWidth: '75%',
                       padding: '10px 14px',
                       borderRadius: '12px',
                       background: isMe ? '#2563eb' : '#ffffff',
@@ -294,7 +256,8 @@ export default function Chat() {
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={sendMessage} style={{ padding: '16px', background: '#ffffff', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '12px' }}>
+            {/* Message Input */}
+            <form onSubmit={sendMessage} style={{ padding: '12px 16px', background: '#ffffff', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '10px' }}>
               <input
                 type="text"
                 placeholder="Type your message..."
@@ -302,16 +265,56 @@ export default function Chat() {
                 onChange={(e) => setNewMessage(e.target.value)}
                 style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
               />
-              <button type="submit" style={{ background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button type="submit" style={{ background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Send size={18} />
               </button>
             </form>
           </>
         ) : (
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-            <MessageSquare size={48} style={{ marginBottom: '12px', color: '#cbd5e1' }} />
-            <h3 style={{ margin: '0 0 6px 0', fontSize: '18px', color: '#334155' }}>Your Messages</h3>
-            <p style={{ margin: 0, fontSize: '14px' }}>Select a conversation from the sidebar or search by Gmail to start chatting.</p>
+          /* Conversations List */
+          <div style={{ flex: 1, overflowY: 'auto', background: '#f8fafc' }}>
+            <div style={{ padding: '16px 16px 8px 16px', fontSize: '14px', fontWeight: 'bold', color: '#64748b' }}>Recent Conversations</div>
+            {loading ? (
+              <div style={{ padding: '30px', textAlign: 'center', color: '#64748b' }}>Loading chats...</div>
+            ) : rooms.length === 0 ? (
+              <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b' }}>
+                <MessageSquare size={40} style={{ marginBottom: '10px', color: '#cbd5e1' }} />
+                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#334155' }}>No messages yet</div>
+                <div style={{ fontSize: '13px', marginTop: '4px' }}>Search a Gmail address above to start chatting with buyers or moderators.</div>
+              </div>
+            ) : (
+              rooms.map(room => {
+                const other = getOtherParticipant(room);
+                return (
+                  <div
+                    key={room.id}
+                    onClick={() => setActiveRoom(room)}
+                    style={{
+                      padding: '14px 16px',
+                      background: '#ffffff',
+                      borderBottom: '1px solid #f1f5f9',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#334155' }}>
+                        {other.email?.[0]?.toUpperCase() || 'U'}
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1e293b' }}>{other.full_name || other.email}</div>
+                        <div style={{ fontSize: '13px', color: '#64748b' }}>
+                          {other.role === 'admin' ? 'Moderator / Shop' : other.email}
+                        </div>
+                      </div>
+                    </div>
+                    <ChevronRight size={18} style={{ color: '#cbd5e1' }} />
+                  </div>
+                );
+              })
+            )}
           </div>
         )}
       </div>
