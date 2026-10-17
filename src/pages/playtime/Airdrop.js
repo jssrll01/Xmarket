@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { fetchTiers, fetchCredits, claimCredits, placeBet, fetchDraw, fetchMyBet } from '../../lib/airdrop';
+import { usePlay } from './common';
 
 const SLOT = 600000;
 const mmss = (ms) => {
@@ -15,31 +16,10 @@ const CSS = `
 @keyframes adFall{0%{transform:translateY(-20px);opacity:1}100%{transform:translateY(260px);opacity:0}}
 `;
 
-export function AirdropList() {
-  const nav = useNavigate();
-  const [tiers, setTiers] = useState([]);
-  useEffect(() => { fetchTiers().then(setTiers); }, []);
-  return (
-    <div style={{ padding: 16 }}>
-      <button onClick={() => nav('/play-time')} className="icon-btn" style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
-      <h2 style={{ margin: '0 0 4px' }}>🎮 Airdrop 88</h2>
-      <p style={{ color: '#64748B', fontSize: 13, marginTop: 0 }}>Draw every 10 minutes. Play credits only, no cash value.</p>
-      {tiers.map((t) => (
-        <div key={t.key} className="card" onClick={() => nav('/play-time/airdrop/' + t.key)}
-          style={{ padding: 14, marginBottom: 10, cursor: 'pointer' }}>
-          <div style={{ fontWeight: 800 }}>{t.label}</div>
-          <div style={{ fontSize: 12, color: '#64748B' }}>
-            Pick 1-{t.max_n} · {t.win_count} winning numbers ({((t.win_count / t.max_n) * 100).toFixed(1)}%) · pays {t.payout}x
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export default function Airdrop() {
   const nav = useNavigate();
   const { tier } = useParams();
+  const { status } = usePlay();
   const [t, setT] = useState(null);
   const [credits, setCredits] = useState(0);
   const [now, setNow] = useState(Date.now());
@@ -50,6 +30,9 @@ export default function Airdrop() {
   const [result, setResult] = useState(null);
   const [myResult, setMyResult] = useState(null);
   const betRef = useRef(null);
+
+  const loyaltyPoints = status?.loyalty_points || 0;
+  const xwalletBalance = status?.xwallet_balance || 0;
 
   const end = Math.floor(now / SLOT) * SLOT + SLOT;
   const left = end - now;
@@ -66,7 +49,6 @@ export default function Airdrop() {
     betRef.current = bet;
   }, [bet]);
 
-  // load my bet for the current draw
   useEffect(() => {
     let off = false;
     (async () => {
@@ -77,7 +59,6 @@ export default function Airdrop() {
     return () => { off = true; };
   }, [tier, end]);
 
-  // when a draw ends, poll for its result
   useEffect(() => {
     const prev = end - SLOT;
     let tries = 0, stop = false;
@@ -117,14 +98,23 @@ export default function Airdrop() {
   return (
     <div style={{ padding: 16 }}>
       <style>{CSS}</style>
-      <button onClick={() => nav('/play-time/airdrop')} className="icon-btn" style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
-      <h2 style={{ margin: 0 }}>🎮 {t.label}</h2>
+      <button onClick={() => nav('/play-time')} className="icon-btn" style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
+      <h2 style={{ margin: 0 }}>{t.label}</h2>
       <div style={{ fontSize: 12, color: '#64748B', marginBottom: 10 }}>
         Pick 1-{t.max_n} · {t.win_count} winning numbers drawn · win chance {((t.win_count / t.max_n) * 100).toFixed(1)}% · pays {t.payout}x total return. Play credits only, no cash value.
       </div>
 
       <div className="card" style={{ padding: 12, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div><div style={{ fontSize: 12, color: '#64748B' }}>Play credits</div><div style={{ fontWeight: 800, fontSize: 18 }}>{credits}</div></div>
+        <div style={{ display: 'flex', gap: 16 }}>
+          <div>
+            <div style={{ fontSize: 12, color: '#64748B' }}>Loyalty Points</div>
+            <div style={{ fontWeight: 800, fontSize: 18 }}>{loyaltyPoints}</div>
+          </div>
+          <div>
+            <div style={{ fontSize: 12, color: '#64748B' }}>XWallet</div>
+            <div style={{ fontWeight: 800, fontSize: 18 }}>₱{xwalletBalance}</div>
+          </div>
+        </div>
         <button className="btn" onClick={claim} style={{ padding: '8px 12px' }}>Claim daily 100</button>
       </div>
 
@@ -136,7 +126,7 @@ export default function Airdrop() {
           </>
         ) : (
           <>
-            <div style={{ fontWeight: 900, color: '#EF4444' }}>🔒 BETTING LOCKED · DRAWING {mmss(left)}</div>
+            <div style={{ fontWeight: 900, color: '#EF4444' }}>BETTING LOCKED · DRAWING {mmss(left)}</div>
             <div style={{ height: 90, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 10, position: 'relative', overflow: 'hidden' }}>
               {Array.from({ length: t.win_count }).map((_, i) => (
                 <div key={i} style={{ width: 38, height: 38, borderRadius: '50%', background: 'linear-gradient(135deg,#F59E0B,#EF4444)',
@@ -144,8 +134,6 @@ export default function Airdrop() {
                   animation: `adBounce ${0.5 + i * 0.1}s infinite` }}>?</div>
               ))}
             </div>
-            <div>{['✨', '🎉', '💥', '⭐', '🎊'].map((e, i) => (
-              <span key={i} style={{ display: 'inline-block', fontSize: 20, margin: '0 8px', animation: `adBounce ${0.6 + i * 0.12}s infinite` }}>{e}</span>))}</div>
           </>
         )}
       </div>
@@ -162,7 +150,7 @@ export default function Airdrop() {
           </div>
           {myResult && (
             <div style={{ fontWeight: 800, color: won ? '#16A34A' : '#64748B' }}>
-              {won ? `🎉 You won ${myResult.payout} credits! (picked ${myResult.pick})` : `You picked ${myResult.pick}. Better luck next draw!`}
+              {won ? `You won ${myResult.payout} credits! (picked ${myResult.pick})` : `You picked ${myResult.pick}. Better luck next draw!`}
             </div>
           )}
         </div>
@@ -170,7 +158,7 @@ export default function Airdrop() {
 
       {bet && bet.end === end ? (
         <div className="card" style={{ padding: 14, textAlign: 'center', fontWeight: 800 }}>
-          ✅ Your bet: number {bet.pick} · {bet.amount} credits. Draw at the end of the timer.
+          Your bet: number {bet.pick} · {bet.amount} credits. Draw at the end of the timer.
         </div>
       ) : (
         <div className="card" style={{ padding: 14, opacity: locked ? 0.5 : 1 }}>
