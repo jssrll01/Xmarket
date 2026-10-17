@@ -28,28 +28,36 @@ export default function Chat() {
 
   const fetchRooms = async (userId) => {
     setLoading(true);
+    // Fetch all room IDs where user participates
     const { data: participations, error } = await supabase
       .from('chat_participants')
       .select('room_id')
       .eq('user_id', userId);
 
     if (error) {
-      console.error('Error fetching rooms:', error);
+      console.error('Error fetching participations:', error);
       setLoading(false);
       return;
     }
 
-    const roomIds = participations.map(p => p.room_id);
+    const roomIds = participations?.map(p => p.room_id) || [];
     if (roomIds.length === 0) {
       setRooms([]);
       setLoading(false);
       return;
     }
 
-    const { data: allParticipants } = await supabase
+    // Fetch all participants across these rooms
+    const { data: allParticipants, error: partError } = await supabase
       .from('chat_participants')
-      .select('room_id, user_id, profiles(email, full_name, role)')
+      .select('room_id, user_id, profiles(id, email, full_name, role)')
       .in('room_id', roomIds);
+
+    if (partError) {
+      console.error('Error fetching room participants:', partError);
+      setLoading(false);
+      return;
+    }
 
     const roomMap = {};
     roomIds.forEach(id => {
@@ -134,17 +142,16 @@ export default function Chat() {
       return;
     }
 
-    let roomObj = rooms.find(r => r.id === roomId);
-    if (!roomObj) {
-      roomObj = {
-        id: roomId,
-        participants: [
-          { user_id: user.id, profiles: { email: user.email } },
-          { user_id: targetUser.id, profiles: targetUser }
-        ]
-      };
-      setRooms(prev => [roomObj, ...prev]);
-    }
+    // Refresh rooms list and open active room
+    await fetchRooms(user.id);
+
+    const roomObj = {
+      id: roomId,
+      participants: [
+        { user_id: user.id, profiles: { email: user.email } },
+        { user_id: targetUser.id, profiles: targetUser }
+      ]
+    };
 
     setActiveRoom(roomObj);
     setSearchQuery('');
@@ -158,7 +165,6 @@ export default function Chat() {
     const content = newMessage.trim();
     setNewMessage('');
 
-    // Optimistic UI update for instant touch response
     const tempMsg = {
       id: 'temp-' + Date.now(),
       room_id: activeRoom.id,
@@ -187,9 +193,9 @@ export default function Chat() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', position: 'fixed', top: 0, left: 0, zIndex: 9999, background: '#f8fafc', fontFamily: 'sans-serif', overflow: 'hidden' }}>
-      {/* Top Bar: Shows Search Bar ONLY when NOT inside a chat conversation */}
-      <div style={{ padding: '12px 16px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <button onClick={() => activeRoom ? setActiveRoom(null) : navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}>
+      {/* Top Bar */}
+      <div style={{ padding: '12px 16px', background: '#ffffff', borderBottom: '1px solid #cbd5e1', display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button onClick={() => { setActiveRoom(null); fetchRooms(user?.id); }} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', display: 'flex', alignItems: 'center' }}>
           <ArrowLeft size={22} />
         </button>
 
@@ -209,19 +215,20 @@ export default function Chat() {
           </div>
         ) : (
           <div style={{ flex: 1, position: 'relative' }}>
-            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '6px', padding: '8px 12px', border: '1px solid #e2e8f0' }}>
+            {/* Flat Design Search Bar (Zero Neumorphism / Flat solid styling) */}
+            <div style={{ display: 'flex', alignItems: 'center', background: '#ffffff', borderRadius: '4px', padding: '8px 12px', border: '1px solid #94a3b8' }}>
               <Search size={16} style={{ color: '#64748b', marginRight: '8px' }} />
               <input
                 type="text"
                 placeholder="Search user or moderator by Gmail..."
                 value={searchQuery}
                 onChange={(e) => handleSearchUsers(e.target.value)}
-                style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '14px' }}
+                style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '14px', boxShadow: 'none' }}
               />
             </div>
 
             {searchResults.length > 0 && (
-              <div style={{ position: 'absolute', top: '48px', left: 0, right: 0, background: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)', zIndex: 30, maxHeight: '250px', overflowY: 'auto' }}>
+              <div style={{ position: 'absolute', top: '46px', left: 0, right: 0, background: '#fff', border: '1px solid #cbd5e1', borderRadius: '4px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 30, maxHeight: '250px', overflowY: 'auto' }}>
                 {searchResults.map(resUser => (
                   <div
                     key={resUser.id}
@@ -248,7 +255,6 @@ export default function Chat() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {activeRoom ? (
           <>
-            {/* Messages Scroll Area */}
             <div style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', WebkitOverflowScrolling: 'touch' }}>
               {messages.map(msg => {
                 const isMe = msg.sender_id === user?.id;
@@ -257,10 +263,10 @@ export default function Chat() {
                     <div style={{
                       maxWidth: '75%',
                       padding: '10px 14px',
-                      borderRadius: '12px',
+                      borderRadius: '8px',
                       background: isMe ? '#2563eb' : '#ffffff',
                       color: isMe ? '#ffffff' : '#1e293b',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                      border: isMe ? 'none' : '1px solid #cbd5e1',
                       fontSize: '14px',
                       wordBreak: 'break-word'
                     }}>
@@ -272,22 +278,20 @@ export default function Chat() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Message Input */}
-            <form onSubmit={sendMessage} style={{ padding: '12px 16px', background: '#ffffff', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '10px' }}>
+            <form onSubmit={sendMessage} style={{ padding: '12px 16px', background: '#ffffff', borderTop: '1px solid #cbd5e1', display: 'flex', gap: '10px' }}>
               <input
                 type="text"
                 placeholder="Type your message..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                style={{ flex: 1, padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none', fontSize: '14px' }}
+                style={{ flex: 1, padding: '10px 14px', borderRadius: '4px', border: '1px solid #94a3b8', outline: 'none', fontSize: '14px' }}
               />
-              <button type="submit" style={{ background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '0 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <button type="submit" style={{ background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '4px', padding: '0 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Send size={18} />
               </button>
             </form>
           </>
         ) : (
-          /* Conversations List */
           <div style={{ flex: 1, overflowY: 'auto', background: '#f8fafc', WebkitOverflowScrolling: 'touch' }}>
             <div style={{ padding: '16px 16px 8px 16px', fontSize: '14px', fontWeight: 'bold', color: '#64748b' }}>Recent Conversations</div>
             {loading ? (
@@ -308,7 +312,7 @@ export default function Chat() {
                     style={{
                       padding: '14px 16px',
                       background: '#ffffff',
-                      borderBottom: '1px solid #f1f5f9',
+                      borderBottom: '1px solid #e2e8f0',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
