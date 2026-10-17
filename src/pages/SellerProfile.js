@@ -41,10 +41,7 @@ export default function SellerProfile() {
       setInfo(data || null);
       setInfoLoading(false);
       if (data) {
-        const nowIso = new Date().toISOString();
-        const { data: v } = await supabase.from('store_vouchers').select('*')
-          .eq('store_id', data.id).eq('active', true)
-          .or(`expires_at.is.null,expires_at.gt.${nowIso}`);
+        const { data: v } = await supabase.rpc('get_store_vouchers', { p_store_id: data.id });
         if (alive) setVouchers(v || []);
       }
     })();
