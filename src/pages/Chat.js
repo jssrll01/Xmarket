@@ -47,7 +47,6 @@ export default function Chat() {
       return;
     }
 
-    // Get all participants for these rooms to display names/emails
     const { data: allParticipants } = await supabase
       .from('chat_participants')
       .select('room_id, user_id, profiles(email, full_name, role)')
@@ -68,7 +67,7 @@ export default function Chat() {
     setLoading(false);
   };
 
-  // Fetch messages and subscribe to real-time updates for active room
+  // Real-time messages for active room
   useEffect(() => {
     if (!activeRoom) return;
 
@@ -119,69 +118,37 @@ export default function Chat() {
       .neq('id', user.id)
       .limit(5);
 
-    if (!error) {
+    if (error) {
+      console.error('Search error:', error);
+    } else {
       setSearchResults(data || []);
     }
   };
 
-  // Start or open a chat room with another user
+  // Start or open chat room using RPC
   const startChatWithUser = async (targetUser) => {
-    // Check if room already exists between user and targetUser
-    const { data: myRooms } = await supabase
-      .from('chat_participants')
-      .select('room_id')
-      .eq('user_id', user.id);
+    const { data: roomId, error } = await supabase.rpc('get_or_create_chat_room', {
+      target_user_id: targetUser.id
+    });
 
-    const myRoomIds = myRooms?.map(r => r.room_id) || [];
-
-    if (myRoomIds.length > 0) {
-      const { data: sharedRooms } = await supabase
-        .from('chat_participants')
-        .select('room_id')
-        .eq('user_id', targetUser.id)
-        .in('room_id', myRoomIds);
-
-      if (sharedRooms && sharedRooms.length > 0) {
-        // Room already exists
-        const existingRoomId = sharedRooms[0].room_id;
-        const existingRoom = rooms.find(r => r.id === existingRoomId) || {
-          id: existingRoomId,
-          participants: [{ user_id: targetUser.id, profiles: targetUser }]
-        };
-        setActiveRoom(existingRoom);
-        setSearchQuery('');
-        setSearchResults([]);
-        return;
-      }
-    }
-
-    // Create new room
-    const { data: newRoom, error: roomError } = await supabase
-      .from('chat_rooms')
-      .insert({})
-      .select()
-      .single();
-
-    if (roomError) {
-      alert('Failed to create chat room');
+    if (error) {
+      console.error('Error starting chat:', error);
+      alert('Failed to start chat: ' + error.message);
       return;
     }
 
-    // Add participants
-    await supabase.from('chat_participants').insert([
-      { room_id: newRoom.id, user_id: user.id },
-      { room_id: newRoom.id, user_id: targetUser.id }
-    ]);
+    let roomObj = rooms.find(r => r.id === roomId);
+    if (!roomObj) {
+      roomObj = {
+        id: roomId,
+        participants: [
+          { user_id: user.id, profiles: { email: user.email } },
+          { user_id: targetUser.id, profiles: targetUser }
+        ]
+      };
+      setRooms(prev => [roomObj, ...prev]);
+    }
 
-    const roomObj = {
-      id: newRoom.id,
-      participants: [
-        { user_id: user.id, profiles: { email: user.email } },
-        { user_id: targetUser.id, profiles: targetUser }
-      ]
-    };
-
-    setRooms(prev => [roomObj, ...prev]);
     setActiveRoom(roomObj);
     setSearchQuery('');
     setSearchResults([]);
@@ -213,7 +180,7 @@ export default function Chat() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', background: '#f8fafc', fontFamily: 'sans-serif' }}>
-      {/* Sidebar: Conversations & Search */}
+      {/* Sidebar */}
       <div style={{ width: '350px', borderRight: '1px solid #e2e8f0', background: '#ffffff', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
@@ -300,7 +267,6 @@ export default function Chat() {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#f8fafc' }}>
         {activeRoom ? (
           <>
-            {/* Header */}
             <div style={{ padding: '16px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#334155' }}>
                 {getOtherParticipant(activeRoom).email?.[0]?.toUpperCase() || 'U'}
@@ -315,14 +281,13 @@ export default function Chat() {
               </div>
             </div>
 
-            {/* Messages */}
             <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {messages.map(msg => {
                 const isMe = msg.sender_id === user?.id;
                 return (
                   <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
                     <div style={{
-                      maxWidt: '60%',
+                      maxWidth: '60%',
                       padding: '10px 14px',
                       borderRadius: '12px',
                       background: isMe ? '#2563eb' : '#ffffff',
@@ -339,7 +304,6 @@ export default function Chat() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Bar */}
             <form onSubmit={sendMessage} style={{ padding: '16px', background: '#ffffff', borderTop: '1px solid #e2e8f0', display: 'flex', gap: '12px' }}>
               <input
                 type="text"
