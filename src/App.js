@@ -1,3 +1,4 @@
+import Chat from './pages/Chat';
 import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './CartContext';
@@ -89,6 +90,7 @@ function Router() {
   return (
     <>
       <Routes>
+            <Route path="/chat" element={<Chat />} />
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
