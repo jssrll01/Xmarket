@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
-, Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal, Ticket, Sparkles} from 'lucide-react';
+, Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal, Ticket, Sparkles, MessageSquare } from 'lucide-react';
 import { banners as staticBanners, fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { supabase as bannerDb } from '../lib/supabase';
 import { sortByStock, isOutOfStock } from '../lib/stock';
@@ -408,6 +408,9 @@ export default function Home() {
               {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
             </Link>
             <UserMenu />
+            <Link to="/chat" className="icon-btn" aria-label="Customer Support">
+              <MessageSquare size={20} />
+            </Link>
             <button className="icon-btn" onClick={() => setDrawerOpen(true)}>
               <Menu size={20} />
             </button>
