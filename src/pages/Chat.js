@@ -166,6 +166,7 @@ export default function Chat() {
       id: 'temp-' + Date.now(),
       room_id: activeRoom.id,
       thread_id: activeRoom.id,
+      sender: user.id,
       sender_id: user.id,
       content: content,
       created_at: new Date().toISOString()
@@ -175,6 +176,7 @@ export default function Chat() {
     const { error } = await supabase.from('chat_messages').insert({
       room_id: activeRoom.id,
       thread_id: activeRoom.id,
+      sender: user.id,
       sender_id: user.id,
       content: content
     });
@@ -255,7 +257,7 @@ export default function Chat() {
           <>
             <div style={{ flex: 1, padding: '16px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px', WebkitOverflowScrolling: 'touch' }}>
               {messages.map(msg => {
-                const isMe = msg.sender_id === user?.id;
+                const isMe = (msg.sender_id === user?.id || msg.sender === user?.id);
                 return (
                   <div key={msg.id} style={{ display: 'flex', justifyContent: isMe ? 'flex-end' : 'flex-start' }}>
                     <div style={{
