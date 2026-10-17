@@ -26,7 +26,6 @@ export default function Chat() {
     });
   }, [navigate]);
 
-  // Fetch rooms the user participates in
   const fetchRooms = async (userId) => {
     setLoading(true);
     const { data: participations, error } = await supabase
@@ -67,7 +66,6 @@ export default function Chat() {
     setLoading(false);
   };
 
-  // Real-time messages for active room
   useEffect(() => {
     if (!activeRoom) return;
 
@@ -103,7 +101,7 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Search users by Gmail
+  // Search users via Supabase RPC function
   const handleSearchUsers = async (query) => {
     setSearchQuery(query);
     if (!query || query.trim().length < 2) {
@@ -111,21 +109,18 @@ export default function Chat() {
       return;
     }
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, email, full_name, role')
-      .ilike('email', `%${query.trim()}%`)
-      .neq('id', user.id)
-      .limit(5);
+    const { data, error } = await supabase.rpc('search_users_by_email', {
+      search_term: query.trim()
+    });
 
     if (error) {
       console.error('Search error:', error);
+      setSearchResults([]);
     } else {
       setSearchResults(data || []);
     }
   };
 
-  // Start or open chat room using RPC
   const startChatWithUser = async (targetUser) => {
     const { data: roomId, error } = await supabase.rpc('get_or_create_chat_room', {
       target_user_id: targetUser.id
@@ -154,7 +149,6 @@ export default function Chat() {
     setSearchResults([]);
   };
 
-  // Send message
   const sendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !activeRoom) return;
@@ -180,7 +174,6 @@ export default function Chat() {
 
   return (
     <div style={{ display: 'flex', height: '100vh', background: '#f8fafc', fontFamily: 'sans-serif' }}>
-      {/* Sidebar */}
       <div style={{ width: '350px', borderRight: '1px solid #e2e8f0', background: '#ffffff', display: 'flex', flexDirection: 'column' }}>
         <div style={{ padding: '16px', borderBottom: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
@@ -189,7 +182,6 @@ export default function Chat() {
           <h2 style={{ fontSize: '18px', fontWeight: 'bold', margin: 0 }}>Messages</h2>
         </div>
 
-        {/* Search Gmail */}
         <div style={{ padding: '12px', position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', borderRadius: '8px', padding: '8px 12px' }}>
             <Search size={16} style={{ color: '#64748b', marginRight: '8px' }} />
@@ -221,7 +213,6 @@ export default function Chat() {
           )}
         </div>
 
-        {/* Room List */}
         <div style={{ flex: 1, overflowY: 'auto' }}>
           {loading ? (
             <div style={{ padding: '20px', textAlign: 'center', color: '#64748b' }}>Loading chats...</div>
@@ -263,7 +254,6 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Main Chat Window */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#f8fafc' }}>
         {activeRoom ? (
           <>
