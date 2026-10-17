@@ -408,9 +408,6 @@ export default function Home() {
               {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
             </Link>
             <UserMenu />
-            <Link to="/chat" className="icon-btn" aria-label="Customer Support">
-              <MessageSquare size={20} />
-            </Link>
             <button className="icon-btn" onClick={() => setDrawerOpen(true)}>
               <Menu size={20} />
             </button>
