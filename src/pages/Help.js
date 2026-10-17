@@ -111,16 +111,6 @@ const CATEGORIES = [
     { t: '[Refunds] Where will my refund be sent?', slug: 'refund-destination' },
     { t: '[Refunds] Why have I not received my refund yet?', slug: 'refund-not-received' },
   ]},
-  { name: 'Chat & Communication', items: [
-    { t: '[Chat] How do I chat with a seller?', slug: 'chat-seller' },
-    { t: '[Chat] How do I send photos through XMARKET Chat?', slug: 'chat-photos' },
-    { t: '[Chat] Can I send videos through Chat?', slug: 'chat-videos' },
-    { t: '[Chat] What should I do if a seller is unresponsive?', slug: 'seller-unresponsive' },
-    { t: '[Chat] What should I do if a buyer is unresponsive?', slug: 'buyer-unresponsive' },
-    { t: '[Chat] How do I report inappropriate messages?', slug: 'report-messages' },
-    { t: '[Chat] How do I block another user?', slug: 'block-user' },
-    { t: "[Chat] Why can't I send a message?", slug: 'cant-send-message' },
-  ]},
   { name: 'Technical Support', items: [
     { t: '[Technical Issues] What should I do if XMARKET is not loading?', slug: 'tech-not-loading' },
     { t: '[Technical Issues] What should I do if I see a blank page?', slug: 'tech-blank-page' },
