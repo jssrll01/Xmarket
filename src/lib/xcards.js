@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import { debitWallet } from './xwallet';
 
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -9,26 +8,10 @@ function generateCode() {
 }
 
 export async function purchaseXcard(userId, value) {
-  // 1) Debit Xwallet
-  const { error: dErr } = await debitWallet(
-    userId, value, 'giftcard_purchase', null, `Purchased ₱${value} Xcard`
-  );
-  if (dErr) return { error: dErr };
-
-  // 2) Generate the Xcard
-  const code = generateCode();
-  const { data, error } = await supabase
-    .from('xcards')
-    .insert({
-      code,
-      value,
-      purchased_by: userId,
-      purchased_at: new Date().toISOString(),
-    })
-    .select()
-    .single();
-
-  return { card: data, error };
+  const { data, error } = await supabase.rpc('purchase_xcard', { p_value: value });
+  if (error) return { error };
+  if (!data || !data.ok) return { error: { message: (data && data.message) || 'Purchase failed' } };
+  return { card: data.card, error: null };
 }
 
 export async function fetchMyXcards(userId) {
