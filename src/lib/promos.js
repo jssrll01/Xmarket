@@ -1,33 +1,12 @@
 import { supabase } from './supabase';
 
 export async function validatePromo(code, subtotal, userId) {
-  const cleaned = code.trim().toUpperCase();
-
-  // Fall back to standard promo codes
-  const { data, error } = await supabase
-    .from('promo_codes')
-    .select('*')
-    .eq('code', cleaned)
-    .eq('active', true)
-    .maybeSingle();
+  const { data, error } = await supabase.rpc('validate_promo', {
+    p_code: String(code || ''), p_subtotal: Number(subtotal) || 0,
+  });
   if (error) return { error: error.message };
   if (!data) return { error: 'Invalid promo code' };
-  if (data.expires_at && new Date(data.expires_at) < new Date()) return { error: 'Code expired' };
-  if (data.max_uses && data.used_count >= data.max_uses) return { error: 'Code usage limit reached' };
-  if (data.min_spend && subtotal < Number(data.min_spend)) return { error: `Minimum spend ₱${data.min_spend}` };
-
-  if (userId) {
-    const { count } = await supabase
-      .from('promo_redemptions')
-      .select('id', { count: 'exact', head: true })
-      .eq('promo_code', cleaned)
-      .eq('user_id', userId);
-    const limit = data.per_user_limit || 1;
-    if ((count || 0) >= limit) {
-      return { error: 'You already used this code' };
-    }
-  }
-
+  if (data.error) return { error: data.error };
   return { promo: data };
 }
 
