@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Wallet, CreditCard, Gamepad2 } from 'lucide-react';
+import { Wallet, CreditCard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { fetchWallet } from '../lib/xwallet';
 
@@ -67,7 +67,7 @@ export default function WalletBar() {
       {divider}
 
       <Link to="/play-time" style={cell}>
-        <div style={iconBox('linear-gradient(135deg, #F59E0B, #EF4444)')}><Gamepad2 size={18} color="#fff" /></div>
+        <div style={iconBox('linear-gradient(135deg, #F59E0B, #EF4444)')}><span style={{ fontSize: 18, lineHeight: 1 }}>🎮</span></div>
         <div style={{ minWidth: 0, maxWidth: '100%' }}>
           <div style={label}>Play Time</div>
           <div style={sub}>Earn points</div>
