@@ -6,8 +6,8 @@ import { useAuth } from '../context/AuthContext';
 import { fetchLoyalty, fetchLoyaltyLedger } from '../lib/promos';
 
 const TIERS = [
-  { name: 'Bronze', min: 300,  discount: 50,  color: '#B45309' },
-  { name: 'Silver', min: 700,  discount: 75,  color: '#9CA3AF' },
+  { name: 'Bronze', min: 300,  color: '#B45309' },
+  { name: 'Silver', min: 700,  color: '#9CA3AF' },
   { name: 'Gold',   min: 1000, discount: 100, color: '#F59E0B' },
 ];
 
