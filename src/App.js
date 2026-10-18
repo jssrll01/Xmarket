@@ -20,6 +20,7 @@ import Returns from './pages/Returns';
 import Bundles from './pages/Bundles';
 import FlashSale from './pages/FlashSale';
 import SaveMore from './pages/SaveMore';
+import Showcase from './pages/Showcase';
 import PlayTime from './pages/playtime/PlayTime';
 import PlaySpin from './pages/playtime/Spin';
 import PlayBox from './pages/playtime/MysteryBox';
@@ -111,6 +112,20 @@ function Router() {
         <Route path="/flash-sale" element={<FlashSale />} />
         <Route path="/xmall" element={<Xmall />} />
         <Route path="/savemore" element={<SaveMore />} />
+        <Route path="/fashion" element={<Showcase page="fashion" />} />
+        <Route path="/electronics" element={<Showcase page="electronics" />} />
+        <Route path="/home-living" element={<Showcase page="home-living" />} />
+        <Route path="/beauty" element={<Showcase page="beauty" />} />
+        <Route path="/groceries" element={<Showcase page="groceries" />} />
+        <Route path="/baby-kids" element={<Showcase page="baby-kids" />} />
+        <Route path="/sports-outdoors" element={<Showcase page="sports-outdoors" />} />
+        <Route path="/pet-supplies" element={<Showcase page="pet-supplies" />} />
+        <Route path="/books-stationery" element={<Showcase page="books-stationery" />} />
+        <Route path="/automotive" element={<Showcase page="automotive" />} />
+        <Route path="/health-wellness" element={<Showcase page="health-wellness" />} />
+        <Route path="/toys-collectibles" element={<Showcase page="toys-collectibles" />} />
+        <Route path="/payday-sale" element={<Showcase page="payday-sale" />} />
+        <Route path="/pre-loved" element={<Showcase page="pre-loved" />} />
         <Route path="/play-time" element={<PlayTime />} />
         <Route path="/play-time/airdrop/:tier" element={<PlayAirdrop />} />
         <Route path="/play-time/spin" element={<PlaySpin />} />

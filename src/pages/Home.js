@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { CoinIcon } from './playtime/GameIcons';
 import PillRow, { pillStyle } from '../components/PillRow';
+import { SHOWCASE_PAGES } from './showcaseConfig';
 import WalletBar from '../components/WalletBar';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -586,6 +587,20 @@ export default function Home() {
             <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Save More</div>
           </div>
         </Link>
+        {SHOWCASE_PAGES.map(({ path, label, gradient, Icon }) => (
+          <Link key={path} to={path} className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: 10,
+              background: gradient,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <Icon size={16} color="#fff" />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>{label}</div>
+            </div>
+          </Link>
+        ))}
         <Link to="/bundles" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
           <div style={{
             width: 34, height: 34, borderRadius: 10,
