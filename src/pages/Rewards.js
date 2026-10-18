@@ -8,7 +8,7 @@ import { fetchLoyalty, fetchLoyaltyLedger } from '../lib/promos';
 const TIERS = [
   { name: 'Bronze', min: 300,  color: '#B45309' },
   { name: 'Silver', min: 700,  color: '#9CA3AF' },
-  { name: 'Gold',   min: 1000, discount: 100, color: '#F59E0B' },
+  { name: 'Gold',   min: 1000, color: '#F59E0B' },
 ];
 
 export default function Rewards() {
