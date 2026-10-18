@@ -1,3 +1,4 @@
+import { CardListSkeleton } from '../../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Ticket, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
@@ -66,7 +67,7 @@ export default function MyReports() {
       </p>
 
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
+        <CardListSkeleton />
       ) : items.length === 0 ? (
         <div className="card" style={{ padding: 32, textAlign: 'center' }}>
           <Ticket size={40} color="var(--muted)" style={{ marginBottom: 12 }} />

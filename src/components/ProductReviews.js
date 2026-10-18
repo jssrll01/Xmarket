@@ -1,3 +1,4 @@
+import { ListRowsSkeleton } from './Skeleton';
 import React, { useEffect, useState } from 'react';
 import { Star, ThumbsUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -158,7 +159,7 @@ export default function ProductReviews({ product }) {
       )}
 
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>Loading reviews…</p>
+        <ListRowsSkeleton compact />
       ) : reviews.length === 0 ? (
         <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>
           No reviews yet. Be the first after your order is delivered.

@@ -1,3 +1,4 @@
+import { ListRowsSkeleton } from '../../components/Skeleton';
 import React, { useState, useEffect, useCallback } from 'react';
 import { exchange, fetchGameHistory, fmt, peso } from '../../lib/playtime';
 import { useToast } from '../../components/Toast';
@@ -90,7 +91,7 @@ export default function Exchange() {
           </div>
 
           <h3 style={{ fontSize: 15, fontWeight: 800, margin: '24px 0 8px' }}>Exchange history</h3>
-          {hist === null ? <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 14, fontSize: 13 }}>Loading…</p>
+          {hist === null ? <ListRowsSkeleton compact />
             : hist.length === 0 ? <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 14, fontSize: 13 }}>No exchanges yet.</p>
             : (
               <>

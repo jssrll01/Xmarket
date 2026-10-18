@@ -1,3 +1,4 @@
+import { ListRowsSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Award, Sparkles, Copy, Check } from 'lucide-react';
@@ -123,7 +124,7 @@ export default function Rewards() {
 
       <h3 style={{ fontSize: 15, fontWeight: 800, margin: '16px 0 10px' }}>Activity</h3>
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20 }}>Loading…</p>
+        <ListRowsSkeleton />
       ) : ledger.length === 0 ? (
         <div className="card" style={{ padding: 24, textAlign: 'center' }}>
           <p style={{ color: 'var(--muted)', fontSize: 13 }}>

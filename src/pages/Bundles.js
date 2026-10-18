@@ -1,3 +1,4 @@
+import { CardListSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, ShoppingCart } from 'lucide-react';
@@ -55,7 +56,7 @@ export default function Bundles() {
       </p>
 
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
+        <CardListSkeleton />
       ) : bundles.length === 0 ? (
         <div className="card" style={{ padding: 24, textAlign: 'center' }}>
           <Package size={40} color="var(--muted)" style={{ marginBottom: 12 }} />

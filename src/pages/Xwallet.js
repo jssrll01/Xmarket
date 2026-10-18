@@ -1,3 +1,4 @@
+import { WalletSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { notifySendMoney, notifyBuyLoad } from '../lib/wallet-bots';
 import { useNavigate } from 'react-router-dom';
@@ -321,7 +322,7 @@ export default function Xwallet() {
       {/* TRANSACTIONS */}
       <h3 style={{ fontSize: 15, fontWeight: 800, margin: '20px 0 10px' }}>All transactions</h3>
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20 }}>Loading…</p>
+        <WalletSkeleton />
       ) : txns.length === 0 ? (
         <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No transactions yet.</p>
       ) : (

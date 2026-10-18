@@ -1,3 +1,4 @@
+import { WalletSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Gift, Copy, Check, Sparkles, Wallet, ShieldCheck, Ticket } from 'lucide-react';
@@ -147,7 +148,7 @@ export default function Xcards() {
       {/* My cards */}
       <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 10 }}>My Xcards</h3>
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20 }}>Loading…</p>
+        <WalletSkeleton />
       ) : cards.length === 0 ? (
         <div className="card" style={{ padding: 24, textAlign: 'center', marginBottom: 18 }}>
           <Ticket size={32} color="var(--muted)" style={{ marginBottom: 8 }} />

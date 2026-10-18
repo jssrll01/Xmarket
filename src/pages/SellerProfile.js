@@ -1,3 +1,4 @@
+import { ProductGridSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Store, BadgeCheck, Share2, MapPin, Phone, Mail, Search, Ticket, Users } from 'lucide-react';
@@ -186,7 +187,7 @@ export default function SellerProfile() {
         </div>
 
         {loading ? (
-          <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
+          <ProductGridSkeleton count={4} />
         ) : shown.length === 0 ? (
           <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>{q ? 'No products match your search.' : 'No products yet.'}</p>
         ) : (

@@ -1,3 +1,4 @@
+import { ListRowsSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Store, Heart, BadgeCheck } from 'lucide-react';
@@ -66,7 +67,7 @@ export default function Following() {
       {err && <div style={{ padding: '10px 12px', borderRadius: 10, marginBottom: 12, fontSize: 12.5, fontWeight: 600, background: '#FEE2E2', color: '#991B1B' }}>{err}</div>}
 
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
+        <ListRowsSkeleton />
       ) : sellers.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 40 }}>
           <Heart size={40} color="var(--muted)" style={{ marginBottom: 12 }} />

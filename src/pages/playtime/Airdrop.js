@@ -1,3 +1,4 @@
+import { GameLoadingSkeleton } from '../../components/Skeleton';
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -77,7 +78,7 @@ export default function Airdrop() {
     setMsg('Airdrop placed! Good luck.');
   };
 
-  if (!t) return <div style={{ padding: 16 }}>Loading…</div>;
+  if (!t) return <GameLoadingSkeleton />;
   const drawing = locked && left > 0;
   const won = myResult && myResult.win;
 
