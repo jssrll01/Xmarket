@@ -97,7 +97,7 @@ export default function Rewards() {
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700 }}>{l.reason || 'Reward'}</div>
+              <div style={{ fontSize: 13, fontWeight: 700 }}>{({ airdrop88_bet: 'airdrop_draw' })[l.reason] || l.reason || 'Reward'}</div>
               <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
                 {new Date(l.created_at).toLocaleDateString()}
               </div>
