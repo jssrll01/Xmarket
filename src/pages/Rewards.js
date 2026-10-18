@@ -1,9 +1,8 @@
 import { ListRowsSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Award, Sparkles, Copy, Check } from 'lucide-react';
+import { ArrowLeft, Award, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useToast } from '../components/Toast';
 import { fetchLoyalty, fetchLoyaltyLedger } from '../lib/promos';
 
 const TIERS = [
@@ -15,20 +14,17 @@ const TIERS = [
 export default function Rewards() {
   const nav = useNavigate();
   const { user } = useAuth();
-  const { show: showToast } = useToast();
   const [points, setPoints] = useState(0);
   const [ledger, setLedger] = useState([]);
-  const [vouchers, setVouchers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(null);
 
   useEffect(() => {
     if (!user) { setLoading(false); return; }
     Promise.all([
       fetchLoyalty(user.id),
       fetchLoyaltyLedger(user.id),
-    ]).then(([p, l, v]) => {
-      setPoints(p ?? 0); setLedger(Array.isArray(l) ? l : []); setVouchers(Array.isArray(v) ? v : []); setLoading(false);
+    ]).then(([p, l]) => {
+      setPoints(p ?? 0); setLedger(Array.isArray(l) ? l : []); setLoading(false);
     }).catch(() => setLoading(false));
   }, [user]);
 
@@ -43,15 +39,6 @@ export default function Rewards() {
   const tierMeta = TIERS.find(t => t.name === tier);
   const nextTier = TIERS.find(t => t.min > points);
   const progress = nextTier ? Math.min(100, (points / nextTier.min) * 100) : 100;
-
-  const copyCode = async (code) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(code);
-      showToast('Code copied');
-      setTimeout(() => setCopied(null), 2000);
-    } catch { showToast('Copy failed'); }
-  };
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
@@ -93,35 +80,6 @@ export default function Rewards() {
         )}
       </div>
 
-      {vouchers.length > 0 && (
-        <>
-          <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 10 }}>Your Vouchers</h3>
-          {vouchers.map(v => (
-            <div key={v.id} className="card" style={{
-              padding: 12, marginBottom: 8,
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              border: v.redeemed ? '1px dashed var(--border)' : '1px solid var(--primary)',
-              opacity: v.redeemed ? 0.5 : 1,
-            }}>
-              <div>
-                <div style={{ fontWeight: 800, fontSize: 14, letterSpacing: 1 }}>
-                  {v.code}
-                </div>
-                <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>
-                  ₱{v.discount_amount} off · min spend ₱{v.min_spend} · {v.redeemed ? 'Used' : 'Available'}
-                </div>
-              </div>
-              {!v.redeemed && (
-                <button onClick={() => copyCode(v.code)} className="btn-ghost"
-                  style={{ padding: '6px 12px', fontSize: 12, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  {copied === v.code ? <Check size={12} /> : <Copy size={12} />}
-                  {copied === v.code ? 'Copied' : 'Copy'}
-                </button>
-              )}
-            </div>
-          ))}
-        </>
-      )}
 
       <h3 style={{ fontSize: 15, fontWeight: 800, margin: '16px 0 10px' }}>Activity</h3>
       {loading ? (

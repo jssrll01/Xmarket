@@ -1,7 +1,7 @@
 import { VoucherListSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Copy, Check, Ticket, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Copy, Check, ShoppingBag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -10,7 +10,6 @@ export default function Vouchers() {
   const nav = useNavigate();
   const { user } = useAuth();
   const { show: showToast } = useToast();
-  const [loyalty, setLoyalty] = useState([]);
   const [promos, setPromos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(null);
@@ -43,8 +42,7 @@ export default function Vouchers() {
   };
 
   const renderVoucher = (v, kind) => {
-    const isLoyalty = kind === 'loyalty';
-    const disabled = isLoyalty ? v.redeemed : false;
+    const disabled = false;
     return (
       <div key={v.id || v.code} className="card" style={{
         padding: 14, marginBottom: 10,
@@ -60,12 +58,12 @@ export default function Vouchers() {
               display: 'inline-flex', alignItems: 'center', gap: 6,
               fontSize: 10, fontWeight: 800, letterSpacing: 1,
               textTransform: 'uppercase',
-              color: isLoyalty ? '#7C3AED' : '#2563EB',
-              background: isLoyalty ? '#EDE9FE' : '#DBEAFE',
+              color: '#2563EB',
+              background: '#DBEAFE',
               padding: '2px 8px', borderRadius: 20, marginBottom: 6,
             }}>
-              {isLoyalty ? <Ticket size={10} /> : <ShoppingBag size={10} />}
-              {isLoyalty ? `${v.tier || 'Loyalty'} Tier` : 'Promo'}
+              <ShoppingBag size={10} />
+              Promo
             </div>
             <div style={{
               fontWeight: 900, fontSize: 18, letterSpacing: 1.5,
@@ -81,8 +79,8 @@ export default function Vouchers() {
                   ? 'Free shipping'
                   : `₱${v.discount_value} off`}
               {v.min_spend > 0 && ` · min ₱${v.min_spend}`}
-              {isLoyalty && v.redeemed && ' · Used'}
-              {!isLoyalty && v.expires_at && ` · expires ${new Date(v.expires_at).toLocaleDateString()}`}
+              
+              {v.expires_at && ` · expires ${new Date(v.expires_at).toLocaleDateString()}`}
             </div>
           </div>
         </div>
@@ -103,15 +101,13 @@ export default function Vouchers() {
 
         {disabled && (
           <div style={{ marginTop: 10, fontSize: 11, color: 'var(--muted)', fontStyle: 'italic' }}>
-            {isLoyalty ? 'Already redeemed' : 'Expired'}
+            Expired
           </div>
         )}
       </div>
     );
   };
 
-  const availableLoyalty = loyalty.filter(v => !v.redeemed);
-  const usedLoyalty = loyalty.filter(v => v.redeemed);
   const activePromos = promos.filter(p => {
     if (p.expires_at && new Date(p.expires_at) < new Date()) return false;
     if (p.max_uses && p.used_count >= p.max_uses) return false;
@@ -133,27 +129,13 @@ export default function Vouchers() {
         <VoucherListSkeleton />
       ) : (
         <>
-          {/* Available loyalty vouchers */}
-          {availableLoyalty.length > 0 && (
-            <>
-              <h3 style={{
-                fontSize: 12, fontWeight: 800, color: 'var(--muted)',
-                textTransform: 'uppercase', letterSpacing: 1,
-                marginBottom: 10, marginTop: 4,
-              }}>
-                Loyalty Vouchers ({availableLoyalty.length})
-              </h3>
-              {availableLoyalty.map(v => renderVoucher(v, 'loyalty'))}
-            </>
-          )}
-
           {/* Active promo codes */}
           {activePromos.length > 0 && (
             <>
               <h3 style={{
                 fontSize: 12, fontWeight: 800, color: 'var(--muted)',
                 textTransform: 'uppercase', letterSpacing: 1,
-                marginBottom: 10, marginTop: availableLoyalty.length > 0 ? 20 : 4,
+                marginBottom: 10, marginTop: 4,
               }}>
                 Available Promos ({activePromos.length})
               </h3>
@@ -161,22 +143,7 @@ export default function Vouchers() {
             </>
           )}
 
-          {/* Used loyalty vouchers */}
-          {usedLoyalty.length > 0 && (
-            <>
-              <h3 style={{
-                fontSize: 12, fontWeight: 800, color: 'var(--muted)',
-                textTransform: 'uppercase', letterSpacing: 1,
-                marginBottom: 10, marginTop: 20,
-              }}>
-                Used ({usedLoyalty.length})
-              </h3>
-              {usedLoyalty.map(v => renderVoucher(v, 'loyalty'))}
-            </>
-          )}
-
-          {/* Empty state */}
-          {availableLoyalty.length === 0 && activePromos.length === 0 && usedLoyalty.length === 0 && (
+          {activePromos.length === 0 && (
             <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40, fontSize: 14, fontWeight: 700 }}>No vouchers yet</p>
           )}
         </>
