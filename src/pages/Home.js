@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { CoinIcon } from './playtime/GameIcons';
 import PillRow, { pillStyle } from '../components/PillRow';
 import { SHOWCASE_PAGES } from './showcaseConfig';
 import WalletBar from '../components/WalletBar';
@@ -7,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
-, Gift, Settings, LogOut , Zap , Percent, SlidersHorizontal, Ticket, Sparkles, MessageSquare } from 'lucide-react';
+, Settings, LogOut , Zap , Percent, SlidersHorizontal, Sparkles, MessageSquare } from 'lucide-react';
 import { fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { supabase as bannerDb } from '../lib/supabase';
 import { sortByStock, isOutOfStock } from '../lib/stock';
@@ -601,43 +600,6 @@ export default function Home() {
             </div>
           </Link>
         ))}
-        <Link to="/bundles" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <Gift size={16} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Bundle Deals</div>
-          </div>
-        </Link>
-        <Link to="/rewards" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #F59E0B, #D97706)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <CoinIcon size={18} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Loyalty Points</div>
-          </div>
-        </Link>
-        <Link to="/vouchers" className="pill pill-vouchers" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start', position: 'relative', overflow: 'hidden' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #7C3AED, #EC4899)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <Ticket size={16} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Vouchers</div>
-          </div>
-          <span className="pill-shine" />
-        </Link>
       </PillRow>
       <div className="chips">
         {categories.map(c => (
