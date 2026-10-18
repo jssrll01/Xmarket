@@ -11,6 +11,7 @@ export default function Profile() {
   const nav = useNavigate();
   const { user, profile } = useAuth();
   const [stats, setStats] = useState({ orders: 0, wishlist: 0, following: 0, extra: null });
+  const [statsLoaded, setStatsLoaded] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -20,8 +21,8 @@ export default function Profile() {
       count('orders', 'buyer_id'), count('wishlists', 'user_id'), count('seller_follows', 'user_id'),
       supabase.from('profiles').select('loyalty_points, loyalty_tier, xwallet_balance, created_at').eq('id', user.id).maybeSingle(),
     ]).then(([orders, wishlist, following, p]) => {
-      if (alive) setStats({ orders, wishlist, following, extra: p.data });
-    }).catch(() => {});
+      if (alive) { setStats({ orders, wishlist, following, extra: p.data }); setStatsLoaded(true); }
+    }).catch(() => { if (alive) setStatsLoaded(true); });
     return () => { alive = false; };
   }, [user]);
 
@@ -104,7 +105,7 @@ export default function Profile() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
         {[['Orders', stats.orders, '/orders'], ['Wishlist', stats.wishlist, '/wishlist'], ['Following', stats.following, '/following']].map(([k, v, to]) => (
           <Link key={k} to={to} className="card" style={{ padding: '12px 8px', textAlign: 'center', textDecoration: 'none', color: 'inherit' }}>
-            <div style={{ fontSize: 18, fontWeight: 900 }}>{v}</div>
+            <div style={{ fontSize: 18, fontWeight: 900 }}>{statsLoaded ? v : <span className="sk" style={{ display: 'inline-block', width: 28, height: 18 }} />}</div>
             <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 2 }}>{k}</div>
           </Link>
         ))}
@@ -112,12 +113,12 @@ export default function Profile() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 24 }}>
         <Link to="/rewards" className="card" style={{ padding: 14, textDecoration: 'none', color: 'inherit' }}>
           <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase' }}>Loyalty points</div>
-          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 4 }}>{stats.extra?.loyalty_points ?? 0}</div>
+          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 4 }}>{statsLoaded ? (stats.extra?.loyalty_points ?? 0) : <span className="sk" style={{ display: 'inline-block', width: 56, height: 18 }} />}</div>
           {stats.extra?.loyalty_tier && <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2, textTransform: 'capitalize' }}>{stats.extra.loyalty_tier} tier</div>}
         </Link>
         <Link to="/xwallet" className="card" style={{ padding: 14, textDecoration: 'none', color: 'inherit' }}>
           <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase' }}>Xwallet</div>
-          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 4 }}>₱{Number(stats.extra?.xwallet_balance || 0).toFixed(2)}</div>
+          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 4 }}>{statsLoaded ? '₱' + Number(stats.extra?.xwallet_balance || 0).toFixed(2) : <span className="sk" style={{ display: 'inline-block', width: 80, height: 18 }} />}</div>
           {stats.extra?.created_at && <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>Member since {new Date(stats.extra.created_at).toLocaleDateString()}</div>}
         </Link>
       </div>

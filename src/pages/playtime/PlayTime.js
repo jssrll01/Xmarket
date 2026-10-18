@@ -1,3 +1,4 @@
+import { GameListSkeleton } from '../../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Repeat, History as HistoryIcon, ChevronRight } from 'lucide-react';
@@ -44,6 +45,8 @@ export default function PlayTime() {
       <PlayHeader title="Play Time" subtitle="Play, earn Loyalty Points, exchange them for XWallet." back="/" />
       <Balances status={status} />
       {error && <div style={{ color: '#991B1B', fontSize: 13, marginTop: 12 }}>{error}</div>}
+
+      {!status && !error && <GameListSkeleton />}
 
       {status && (
         <>

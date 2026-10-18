@@ -152,3 +152,21 @@ export function GameLoadingSkeleton() {
     </div>
   );
 }
+
+export function GameListSkeleton({ count = 4 }) {
+  return (
+    <div className="fade-up">
+      <div className="sk sk-line" style={{ width: 70, height: 18, margin: '22px 0 10px' }} />
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="card" style={{ ...stagger(i), padding: 14, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="sk" style={{ width: 46, height: 46, borderRadius: 14, flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div className="sk sk-line" style={{ width: '55%', height: 15 }} />
+            <div className="sk sk-line" style={{ width: '35%', marginTop: 8 }} />
+          </div>
+        </div>
+      ))}
+      <div className="sk" style={{ width: '100%', height: 48, borderRadius: 14, marginTop: 4 }} />
+    </div>
+  );
+}
