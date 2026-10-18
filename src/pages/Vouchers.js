@@ -1,3 +1,4 @@
+import { VoucherListSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Copy, Check, Ticket, ShoppingBag } from 'lucide-react';
@@ -131,7 +132,7 @@ export default function Vouchers() {
       </p>
 
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
+        <VoucherListSkeleton />
       ) : (
         <>
           {/* Available loyalty vouchers */}

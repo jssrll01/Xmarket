@@ -1,3 +1,4 @@
+import { OrderDetailSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, XCircle, CheckCircle2, RotateCcw, AlertCircle, Star } from 'lucide-react';
@@ -102,7 +103,7 @@ export default function OrderDetail() {
     nav(`/product/${firstProduct}#review`);
   };;
 
-  if (loading) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--muted)' }}>Loading…</div>;
+  if (loading) return <OrderDetailSkeleton />;
   if (!order) return (
     <div style={{ padding: 24, textAlign: 'center' }}>
       <p>Order not found.</p>

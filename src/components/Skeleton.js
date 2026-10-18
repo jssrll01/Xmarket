@@ -37,3 +37,56 @@ export function ProductDetailSkeleton() {
     </div>
   );
 }
+
+export function NotificationListSkeleton({ count = 5 }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="card fade-up" style={{ ...stagger(i), padding: 14, marginBottom: 10, display: 'flex', gap: 12 }}>
+          <div className="sk" style={{ width: 36, height: 36, borderRadius: 10, flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div className="sk sk-line" style={{ width: '55%' }} />
+            <div className="sk sk-line" style={{ width: '90%', marginTop: 8 }} />
+            <div className="sk sk-line" style={{ width: '25%', marginTop: 8 }} />
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
+export function VoucherListSkeleton({ count = 3 }) {
+  return (
+    <>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="card fade-up" style={{ ...stagger(i), padding: 14, marginBottom: 10, display: 'flex', gap: 12, alignItems: 'center' }}>
+          <div className="sk" style={{ width: 56, height: 56, borderRadius: 12, flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div className="sk sk-line" style={{ width: '50%', height: 16 }} />
+            <div className="sk sk-line" style={{ width: '80%', marginTop: 8 }} />
+          </div>
+          <div className="sk" style={{ width: 64, height: 32, borderRadius: 10 }} />
+        </div>
+      ))}
+    </>
+  );
+}
+
+export function OrderDetailSkeleton() {
+  return (
+    <div style={{ padding: 16 }} className="fade-up">
+      <div className="sk sk-line" style={{ width: '45%', height: 22 }} />
+      <div className="sk sk-line" style={{ width: '30%', marginTop: 10 }} />
+      {[1, 2].map((i) => (
+        <div key={i} className="card" style={{ padding: 12, marginTop: 14, display: 'flex', gap: 12 }}>
+          <div className="sk" style={{ width: 64, height: 64, borderRadius: 12, flexShrink: 0 }} />
+          <div style={{ flex: 1 }}>
+            <div className="sk sk-line" style={{ width: '80%' }} />
+            <div className="sk sk-line" style={{ width: '40%', marginTop: 8 }} />
+          </div>
+        </div>
+      ))}
+      <div className="sk sk-line" style={{ width: '100%', height: 90, marginTop: 14, borderRadius: 12 }} />
+    </div>
+  );
+}

@@ -1,3 +1,4 @@
+import { NotificationListSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Bell, Package, Tag, Shield } from 'lucide-react';
@@ -76,7 +77,7 @@ export default function Notifications() {
       </div>
 
       {loading ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>Loading…</p>
+        <NotificationListSkeleton />
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={Bell}
