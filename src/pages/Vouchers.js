@@ -18,12 +18,10 @@ export default function Vouchers() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [loyalRes, promoRes] = await Promise.all([
-        supabase.from('promo_codes').select('*').eq('active', true),
-      ]);
+      let promoRes = { data: [] };
+      try { promoRes = await supabase.from('promo_codes').select('*').eq('active', true); } catch (e) {}
       if (!alive) return;
-      setLoyalty(loyalRes || []);
-      setPromos(promoRes.data || []);
+      setPromos(Array.isArray(promoRes && promoRes.data) ? promoRes.data : []);
       setLoading(false);
     })();
     return () => { alive = false; };
