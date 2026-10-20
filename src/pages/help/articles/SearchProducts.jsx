@@ -158,10 +158,7 @@ export default function SearchProducts() {
           <p style={{ marginBottom: 10 }}>
             For example:
           </p>
-          <p>• Electronics</p>
           <p>• Fashion</p>
-          <p>• Home &amp; Living</p>
-          <p>• Beauty</p>
           <p>• Food &amp; Grocery</p>
           <p>• Sports</p>
           <p>• Accessories</p>

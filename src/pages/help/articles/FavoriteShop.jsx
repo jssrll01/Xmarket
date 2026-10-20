@@ -119,9 +119,7 @@ export default function FavoriteShop() {
             For example, you can favorite:
           </p>
           <p>• Clothing shops</p>
-          <p>• Electronics shops</p>
           <p>• Food sellers</p>
-          <p>• Beauty and personal-care shops</p>
           <p>• Home and lifestyle shops</p>
           <p>• Digital-product sellers</p>
           <p>• Other shops available on XMARKET</p>
