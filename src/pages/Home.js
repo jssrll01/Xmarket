@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import PillRow, { pillStyle } from '../components/PillRow';
+import BackToTop from '../components/BackToTop';
 import { SHOWCASE_PAGES } from './showcaseConfig';
 import WalletBar from '../components/WalletBar';
 import { Link, useNavigate } from 'react-router-dom';
@@ -173,7 +174,7 @@ function Drawer({ open, onClose }) {
 const swipe = { x: null };
 export default function Home() {
   const navigate = useNavigate();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState((() => { try { return sessionStorage.getItem('xm_home_q') || ''; } catch (e) { return ''; } }));
   const [products, setProducts] = useState([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [stats, setStats] = useState({});
@@ -186,8 +187,8 @@ export default function Home() {
   const [minDiscount, setMinDiscount] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [storeFilter, setStoreFilter] = useState('');
-  const [category, setCategory] = useState('All');
-  const [sort, setSort] = useState('best');
+  const [category, setCategory] = useState((() => { try { return sessionStorage.getItem('xm_home_cat') || 'All'; } catch (e) { return 'All'; } }));
+  const [sort, setSort] = useState((() => { try { return sessionStorage.getItem('xm_home_sort') || 'price'; } catch (e) { return 'price'; } }));
   const [loadingId, setLoadingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
@@ -229,6 +230,54 @@ export default function Home() {
       clearTimeout(hyd);
     };
   }, []);
+
+  // ---- remember where the user was on Home: scroll, category, sort, search ----
+  const [startY] = React.useState(() => { try { return Number(sessionStorage.getItem('xm_home_y')) || 0; } catch (e) { return 0; } });
+  const savedY = React.useRef(startY);
+  const homeReady = React.useRef(startY === 0);
+  const homeRestored = React.useRef(false);
+  React.useEffect(() => {
+    try {
+      sessionStorage.setItem('xm_home_cat', category);
+      sessionStorage.setItem('xm_home_sort', sort);
+      sessionStorage.setItem('xm_home_q', search);
+    } catch (e) {}
+  }, [category, sort, search]);
+  React.useEffect(() => {
+    let raf = 0;
+    const onScrollSave = () => {
+      if (window.location.pathname !== '/' || !homeReady.current) return;
+      savedY.current = window.scrollY;
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        try { sessionStorage.setItem('xm_home_y', String(Math.round(savedY.current))); } catch (e) {}
+      });
+    };
+    window.addEventListener('scroll', onScrollSave, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScrollSave);
+      if (raf) cancelAnimationFrame(raf);
+      try { sessionStorage.setItem('xm_home_y', String(Math.round(savedY.current))); } catch (e) {}
+    };
+  }, []);
+  React.useEffect(() => {
+    if (homeRestored.current || startY === 0) return;
+    if (!hydrated || productsLoading || !products.length) return;
+    homeRestored.current = true;
+    let tries = 0;
+    const attempt = () => {
+      if (window.location.pathname !== '/') return;
+      if (document.documentElement.scrollHeight >= startY + window.innerHeight - 4 || tries > 60) {
+        window.scrollTo({ top: startY, behavior: 'instant' });
+        homeReady.current = true;
+        return;
+      }
+      tries += 1;
+      requestAnimationFrame(attempt);
+    };
+    requestAnimationFrame(attempt);
+  }, [hydrated, productsLoading, products.length, startY]);
 
   const loadProducts = React.useCallback(() => {
     let alive = true;
@@ -547,6 +596,7 @@ export default function Home() {
       </div>
 
       <WalletBar />
+      <BackToTop threshold={400} />
 
       {/* Quick-access buttons */}
       <PillRow>
