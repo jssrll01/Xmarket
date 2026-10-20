@@ -355,7 +355,7 @@ export default function Home() {
   const clearFilters = () => {
     setSearch('');
     setCategory('All');
-    setSort('best');
+    setSort('price');
     setMinRating(0);
     setMaxPrice(1000000);
     setMinDiscount(0);
