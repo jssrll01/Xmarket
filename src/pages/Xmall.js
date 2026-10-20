@@ -4,6 +4,7 @@ import { ArrowLeft, Store, Search, X, BadgeCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import SmartImage from '../components/SmartImage';
 import { priceRange } from '../lib/variants';
+import { useProductFilters } from '../components/ShopFilters';
 
 export default function Xmall() {
   const nav = useNavigate();
@@ -20,6 +21,7 @@ export default function Xmall() {
   const filtered = products.filter(p =>
     !q || (p.name || '').toLowerCase().includes(q.toLowerCase())
   );
+  const { shown, bar, filtersOn } = useProductFilters(filtered);
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
@@ -58,6 +60,8 @@ export default function Xmall() {
         )}
       </div>
 
+      {!loading && products.length > 0 && bar}
+
       {loading ? (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
           {Array.from({ length: 4 }).map((_, i) => (
@@ -70,19 +74,19 @@ export default function Xmall() {
             </div>
           ))}
         </div>
-      ) : filtered.length === 0 ? (
+      ) : shown.length === 0 ? (
         <div className="card" style={{ padding: 32, textAlign: 'center' }}>
           <Store size={40} color="var(--muted)" style={{ marginBottom: 12 }} />
           <p style={{ fontWeight: 700, marginBottom: 4 }}>
-            {q ? 'No matching products' : 'No products yet'}
+            {(q || filtersOn) && products.length ? 'No matching products' : 'No products yet'}
           </p>
           <p style={{ fontSize: 12.5, color: 'var(--muted)' }}>
-            {q ? 'Try a different search term.' : 'New arrivals coming soon.'}
+            {(q || filtersOn) && products.length ? 'Try a different search or filter.' : 'New arrivals coming soon.'}
           </p>
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-          {filtered.map((p, i) => (
+          {shown.map((p, i) => (
             <Link
               key={p.id}
               to={`/product/${p.legacy_id || p.id}`}

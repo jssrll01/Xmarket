@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import SmartImage from '../components/SmartImage';
 import { priceRange } from '../lib/variants';
+import { useProductFilters } from '../components/ShopFilters';
 
 export default function SellerProfile() {
   const { store } = useParams();
@@ -110,7 +111,8 @@ export default function SellerProfile() {
     showToast('Voucher collected');
   };
 
-  const shown = products.filter(p => (p.name || '').toLowerCase().includes(q.trim().toLowerCase()));
+  const searched = products.filter(p => (p.name || '').toLowerCase().includes(q.trim().toLowerCase()));
+  const { shown, bar, filtersOn } = useProductFilters(searched);
   const label = (v) => (v.discount_type === 'percent' ? `${Number(v.discount_value)}% off` : `₱${Number(v.discount_value)} off`);
 
   return (
@@ -186,10 +188,11 @@ export default function SellerProfile() {
             style={{ width: '100%', padding: '12px 12px 12px 36px', borderRadius: 12, border: '1px solid var(--border)', fontSize: 14 }} />
         </div>
 
+        {!loading && products.length > 0 && bar}
         {loading ? (
           <ProductGridSkeleton count={4} />
         ) : shown.length === 0 ? (
-          <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>{q ? 'No products match your search.' : 'No products yet.'}</p>
+          <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 40 }}>{(q || filtersOn) && products.length ? 'No products match your search or filters.' : 'No products yet.'}</p>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
             {shown.map(p => (
