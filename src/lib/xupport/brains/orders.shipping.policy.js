@@ -149,31 +149,31 @@ export default [
   {
     id: 'shipping_pickup',
     keywords: ['pickup package', 'self pickup', 'pick up order', 'pickup location', 'collect package'],
-    answer: "If pickup is offered for your order, the applicable pickup location and instructions will be shown during checkout or in the order details.",
+    answer: "XMARKET no longer offers Pick-up or Meet-up. Orders are delivered Door to door, by Express via Lalamove, or instantly for digital products. Your delivery method is shown at checkout.",
     links: [{ label: 'Checkout', to: '/checkout' }, { label: 'My Orders', to: '/orders' }],
   },
   {
     id: 'shipping_cod',
     keywords: ['cash on delivery', 'COD', 'pay cash delivery', 'cash payment delivery', 'cod payment'],
-    answer: "If Cash on Delivery is available for your destination and order, select it during checkout and prepare the required payment when the package arrives.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Checkout', to: '/checkout' }],
   },
   {
     id: 'shipping_cod_unavailable',
     keywords: ['COD unavailable', 'cash on delivery unavailable', 'why no COD', 'cannot use COD', 'cash payment unavailable'],
-    answer: "Cash on Delivery may not be available for every product, seller, destination, order amount, or shipping method. Check the payment options shown during checkout.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Checkout', to: '/checkout' }],
   },
   {
     id: 'shipping_cod_amount',
     keywords: ['COD amount', 'cash on delivery amount', 'how much cash prepare', 'cash payment amount', 'COD price'],
-    answer: "If you selected Cash on Delivery, prepare the amount shown as the final payable total at checkout unless the order details specify otherwise.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Checkout', to: '/checkout' }],
   },
   {
     id: 'shipping_delivery_fee_cod',
     keywords: ['COD shipping fee', 'delivery fee COD', 'COD delivery charge', 'cash delivery shipping fee', 'COD shipping cost'],
-    answer: "Any applicable shipping fee is included in the checkout total. Review the final order summary before confirming a Cash on Delivery purchase.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Checkout', to: '/checkout' }],
   },
   {
@@ -707,7 +707,7 @@ export default [
 {
     id: 'shipping_pickup_point',
     keywords: ['pickup point', 'collection point', 'pick up location', 'pickup station', 'collect parcel'],
-    answer: "Pickup-point availability depends on the supported courier and destination. If available, eligible pickup locations will be provided during the shipping selection process.",
+    answer: "XMARKET no longer offers Pick-up or Meet-up. Orders are delivered Door to door, by Express via Lalamove, or instantly for digital products. Your delivery method is shown at checkout.",
     links: [{ label: 'Shipping', to: '/shipping' }],
   },
 {
@@ -1247,7 +1247,7 @@ export default [
 {
     id: 'shipping_cod_recipient',
     keywords: ['COD recipient', 'someone else receive COD', 'cash delivery recipient', 'recipient pay COD', 'another person COD'],
-    answer: "If another person will receive a COD package, make sure they know the order details and expected amount. Courier procedures may require confirmation from the recipient.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Payments', to: '/payments' }, { label: 'My Orders', to: '/orders' }],
   },
 {
@@ -1265,7 +1265,7 @@ export default [
 {
     id: 'shipping_failed_cod',
     keywords: ['COD failed delivery', 'COD delivery failed', 'cash on delivery failed', 'COD parcel returned', 'failed COD delivery'],
-    answer: "If a COD delivery fails, check the courier tracking status for the reason and next steps. Repeated failed delivery attempts may result in the parcel being returned according to courier procedures.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Track Order', to: '/tracking' }, { label: 'My Orders', to: '/orders' }],
   },
 {
@@ -1451,13 +1451,13 @@ export default [
 {
     id: 'shipping_pickup_ready',
     keywords: ['pickup ready', 'ready for pickup', 'order ready collection', 'pickup available', 'collect package'],
-    answer: "If an order is marked ready for pickup, follow the pickup instructions shown in the order details and bring any required order or identification information.",
+    answer: "XMARKET no longer offers Pick-up or Meet-up. Orders are delivered Door to door, by Express via Lalamove, or instantly for digital products. Your delivery method is shown at checkout.",
     links: [{ label: 'My Orders', to: '/orders' }],
   },
 {
     id: 'shipping_pickup_deadline',
     keywords: ['pickup deadline', 'how long pickup', 'pickup expiration', 'collect by date', 'pickup time limit'],
-    answer: "Pickup deadlines depend on the seller or pickup location's rules. Check the order details for the required collection period.",
+    answer: "XMARKET no longer offers Pick-up or Meet-up. Orders are delivered Door to door, by Express via Lalamove, or instantly for digital products. Your delivery method is shown at checkout.",
     links: [{ label: 'My Orders', to: '/orders' }],
   },
 {
@@ -1493,13 +1493,13 @@ export default [
 {
     id: 'shipping_cash_delivery',
     keywords: ['cash on delivery shipping', 'cod delivery', 'pay on delivery', 'cash payment delivery', 'cod order delivery'],
-    answer: "For Cash on Delivery orders, payment is made according to the COD instructions when the parcel is delivered. Make sure the order amount and available payment method are clear before accepting the package.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Payments', to: '/payments' }, { label: 'Shipping & Delivery', to: '/shipping' }],
   },
 {
     id: 'shipping_cod_refuse',
     keywords: ['refuse cod', 'reject cod package', 'decline cash on delivery', 'refuse delivery', 'do not want cod order'],
-    answer: "If you no longer want a COD order, use the official cancellation process when available rather than repeatedly refusing deliveries. Repeated failed deliveries may affect marketplace access or seller operations.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Cancellations', to: '/cancellations' }, { label: 'My Orders', to: '/orders' }],
   },
 {
@@ -1775,13 +1775,13 @@ export default [
 {
     id: 'shipping_hold_at_branch',
     keywords: ['hold package at branch', 'pickup at courier branch', 'parcel branch pickup', 'self pickup parcel'],
-    answer: "Branch pickup or holding a parcel depends on the courier and shipment type. Check the tracking information or contact the courier to determine whether the option is available.",
+    answer: "XMARKET no longer offers Pick-up or Meet-up. Orders are delivered Door to door, by Express via Lalamove, or instantly for digital products. Your delivery method is shown at checkout.",
     links: [{ label: 'Order Tracking', to: '/help/orders/tracking' }],
   },
 {
     id: 'shipping_self_pickup',
     keywords: ['self pickup shipping', 'pick up parcel myself', 'collect package courier', 'self collect order'],
-    answer: "Self-pickup is only available when supported by the applicable courier or shipping service. Follow the pickup instructions shown in the shipment information.",
+    answer: "XMARKET no longer offers Pick-up or Meet-up. Orders are delivered Door to door, by Express via Lalamove, or instantly for digital products. Your delivery method is shown at checkout.",
     links: [{ label: 'Shipping Options', to: '/help/shipping/options' }],
   },
 {
@@ -1991,25 +1991,25 @@ export default [
 {
     id: 'shipping_cash_collection',
     keywords: ['cash on delivery shipping', 'COD delivery', 'cash payment courier', 'pay courier cash'],
-    answer: "For orders using Cash on Delivery, payment is collected according to the applicable courier and XMARKET checkout process. Prepare the exact or appropriate amount when possible and verify the order before accepting it.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Payments', to: '/help/payments' }],
   },
 {
     id: 'shipping_cod_not_available',
     keywords: ['COD unavailable', 'cash on delivery unavailable', 'why no COD', 'cannot use COD'],
-    answer: "Cash on Delivery availability can depend on the destination, seller, product, order value, courier, and marketplace rules. If COD is not shown at checkout, choose another available payment method.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Payments', to: '/help/payments' }],
   },
 {
     id: 'shipping_cod_wrong_amount',
     keywords: ['COD amount wrong', 'cash on delivery amount incorrect', 'courier asks wrong amount', 'wrong COD payment'],
-    answer: "Before paying COD, compare the amount requested with the order total shown in your XMARKET order details. If the amounts do not match, do not provide additional payment until the discrepancy is clarified.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Payments', to: '/help/payments' }, { label: 'Contact Support', to: '/help/contact' }],
   },
 {
     id: 'shipping_cod_payment_proof',
     keywords: ['COD payment proof', 'proof paid COD', 'cash payment receipt', 'COD receipt'],
-    answer: "Keep the courier receipt or other payment confirmation when available. It can help resolve disputes involving COD payment or delivery.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Payments', to: '/help/payments' }],
   },
 {

@@ -257,25 +257,25 @@ export default [
   {
     id: 'shipping_pickup',
     keywords: ['pickup order', 'parcel pickup', 'self pickup', 'pick up package', 'pickup option'],
-    answer: "If XMARKET offers a pickup option for the order, the available pickup instructions and location will be shown during the applicable order or shipping process.",
+    answer: "XMARKET no longer offers Pick-up or Meet-up. Orders are delivered Door to door, by Express via Lalamove, or instantly for digital products. Your delivery method is shown at checkout.",
     links: [{ label: 'My Orders', to: '/orders' }],
   },
   {
     id: 'shipping_pickup_location',
     keywords: ['pickup location', 'where to pick up', 'pickup address', 'parcel pickup location', 'collection point'],
-    answer: "If pickup is available for your XMARKET shipment, check the order or courier information for the designated pickup location and instructions.",
+    answer: "XMARKET no longer offers Pick-up or Meet-up. Orders are delivered Door to door, by Express via Lalamove, or instantly for digital products. Your delivery method is shown at checkout.",
     links: [{ label: 'My Orders', to: '/orders' }],
   },
   {
     id: 'shipping_pickup_deadline',
     keywords: ['pickup deadline', 'how long pickup parcel', 'pickup expiration', 'collection deadline', 'unclaimed pickup'],
-    answer: "If your shipment is available for pickup, follow the pickup deadline shown in the order or courier instructions. Contact support if you cannot collect it within the stated period.",
+    answer: "XMARKET no longer offers Pick-up or Meet-up. Orders are delivered Door to door, by Express via Lalamove, or instantly for digital products. Your delivery method is shown at checkout.",
     links: [{ label: 'My Orders', to: '/orders' }, { label: 'Help Center', to: '/help' }],
   },
   {
     id: 'shipping_cod_delivery',
     keywords: ['cash on delivery shipping', 'cod delivery', 'cash payment delivery', 'pay courier cash', 'cash upon delivery'],
-    answer: "If Cash on Delivery is available for your XMARKET order, the applicable payment option will appear during checkout. Follow the payment instructions shown for the order.",
+    answer: "XMARKET no longer offers Cash on Delivery. Pay at checkout with GCash, Maya, Bank Transfer (GoTyme) or Xwallet.",
     links: [{ label: 'Checkout', to: '/checkout' }],
   },
   {
