@@ -1,3 +1,4 @@
+import { ListRowsSkeleton } from '../components/Skeleton';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingCart } from 'lucide-react';
@@ -35,6 +36,7 @@ export default function Cart() {
     else navigate('/', { replace: true });
   };
 
+  if (authLoading) return <ListRowsSkeleton count={5} />;
   if (items.length === 0) {
 
     return (
