@@ -24,18 +24,13 @@ const PAYMENTS = [
   { id: 'gotyme', label: 'Bank Transfer [Gotyme]',
     note: 'Transfer to: Gotyme Bank | Account Name: Jessrell Custodio | Account No: 0152 4915 7462. Send us a screenshot of the transfer confirmation.',
     qr: 'https://res.cloudinary.com/bvw3okdf/image/upload/v1790592841/Screenshot_20260928_183617_GoTyme_PH.jpg' },
-  { id: 'cod', label: 'Cash on Delivery',
-    note: 'Pay in cash when you receive your order. Available only for Pick-up and Meet-up.',
-    codOnly: true },
   { id: 'xwallet', label: 'Xwallet Balance',
     note: 'Pay instantly with your Xwallet balance. Order will process immediately.' },
 ];
 
 const DELIVERIES = [
-  { id: 'pickup', label: 'Pick-up [anytime]',
-    note: 'Pick up at XMARKET, Poblacion, San Pascual, Batangas. Open anytime. Please bring your order number.' },
-  { id: 'meetup', label: 'Meet-up [3-7 days]',
-    note: 'Meet-Up with us within 3-7 days. Delivery fee is computed at ₱15 per kilometer from the warehouse.' },
+  { id: 'doortodoor', label: 'Door to door',
+    note: 'Delivered straight to your door. The delivery fee is confirmed with you after you place your order.' },
   { id: 'express', label: 'Express [Lalamove]',
     note: "Same-day or next-day delivery via Lalamove. Actual fee is charged based on Lalamove's live quotation at checkout. (Buyer will shoulder the delivery fee of Lalamove)" },
   { id: 'instant', label: 'Instant [Applicable for digital products only]',
@@ -71,7 +66,7 @@ export default function Checkout() {
     fullName: '', mobile: '', email: '', address: '', landmark: '', province: '',
     city: '', barangay: '', instructions: '', note: '',
     payment: 'gcash',
-    delivery: 'meetup'
+    delivery: 'doortodoor'
   });
   const [missing, setMissing] = useState([]);
   const [sending, setSending] = useState(false);
@@ -106,20 +101,13 @@ export default function Checkout() {
   useEffect(() => {
     if (allInstant) {
       if (form.delivery !== 'instant') {
-        setForm(f => ({ ...f, delivery: 'instant', payment: f.payment === 'cod' ? 'gcash' : f.payment }));
+        setForm(f => ({ ...f, delivery: 'instant', payment: f.payment }));
       }
     } else if (form.delivery === 'instant') {
-      setForm(f => ({ ...f, delivery: 'meetup' }));
+      setForm(f => ({ ...f, delivery: 'doortodoor' }));
     }
   }, [allInstant, form.delivery]);
 
-  // COD only valid for pickup/meetup
-  useEffect(() => {
-    const isCodEligible = form.delivery === 'pickup' || form.delivery === 'meetup';
-    if (form.payment === 'cod' && !isCodEligible) {
-      setForm(f => ({ ...f, payment: 'gcash' }));
-    }
-  }, [form.delivery, form.payment]);
 
   useEffect(() => {
     if (allInstant) setForm(f => ({ ...f, delivery: 'instant' }));
@@ -255,7 +243,7 @@ export default function Checkout() {
     try {
       // Base required fields
       const requiredFields = ['fullName', 'mobile', 'email'];
-      if (form.delivery === 'express' || form.delivery === 'meetup') {
+      if (form.delivery === 'express' || form.delivery === 'doortodoor') {
         requiredFields.push('address', 'province', 'city', 'barangay');
       }
       const missingFields = requiredFields.filter(k => !form[k] || !form[k].trim());
@@ -299,11 +287,9 @@ export default function Checkout() {
             promo: promo?.code || null,
             receipt: receipt ? { name: receipt.name, dataUrl: receipt.dataUrl } : null,
             xcard: xcardValue > 0 ? { code: xcardInput, amount: xcardValue } : null,
-            payment_status: form.payment === 'cod'
-              ? 'Cash on Delivery — collect on handover'
-              : form.payment === 'xwallet'
-                ? 'Paid via Xwallet'
-                : 'Awaiting receipt verification',
+            payment_status: form.payment === 'xwallet'
+              ? 'Paid via Xwallet'
+              : 'Awaiting receipt verification',
           }),
         });
       } catch (err) { console.log('Notify failed:', err); }
@@ -526,8 +512,8 @@ export default function Checkout() {
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Mode of Payment</h3>
-        {PAYMENTS.filter(p => !p.codOnly || (form.delivery === 'pickup' || form.delivery === 'meetup')).map(p => {
-          const isCodDisabled = p.codOnly && allInstant;
+        {PAYMENTS.map(p => {
+          const isCodDisabled = false;
           return (
             <label key={p.id} style={{
               display: 'block', marginBottom: 6, fontSize: 14,
