@@ -42,6 +42,7 @@ export default function SignUp() {
       footer={<>Already have an account? <Link to="/signin" style={{ color: 'var(--primary)', fontWeight: 700 }}>Sign in</Link></>}
     >
       <form onSubmit={onSubmit}>
+<fieldset disabled={busy} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
         <AuthField icon={User} label="Username" placeholder="Choose a username" value={form.username} onChange={set('username')} required />
         <AuthField icon={User} label="First Name" placeholder="Juan" value={form.firstName} onChange={set('firstName')} required />
         <AuthField icon={User} label="Last Name" placeholder="Dela Cruz" value={form.lastName} onChange={set('lastName')} required />
@@ -60,8 +61,9 @@ export default function SignUp() {
           disabled={busy}
           style={{ width: '100%', padding: 15, fontSize: 15, borderRadius: 14, marginTop: 6 }}
         >
-          {busy ? 'Creating account…' : 'Create account'}
+          {busy ? (<span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><style>{'@keyframes xmspin{to{transform:rotate(360deg)}}'}</style><span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'xmspin .7s linear infinite' }} />Creating account…</span>) : 'Create account'}
         </button>
+</fieldset>
       </form>
     </AuthShell>
   );

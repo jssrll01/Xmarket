@@ -354,7 +354,7 @@ export default function Home() {
 
   const order = ['All', 'MALL', 'Food', 'E-Book', 'Website', 'Device', 'Mobile', 'Accessories'];
   const found = Array.from(new Set(products.map(p => p.category)));
-  const categories = order.filter(c => c === 'All' || found.includes(c));
+  const categories = [...order.filter(c => c === 'All' || found.includes(c)), ...found.filter(c => c && !order.includes(c))];
 
   let filtered = sortByStock(products).filter(p => {
     if (!p.name.toLowerCase().includes(search.toLowerCase())) return false;
