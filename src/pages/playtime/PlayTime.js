@@ -1,3 +1,4 @@
+import { supabase } from '../../lib/supabase';
 import { GameListSkeleton } from '../../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,6 +13,8 @@ export default function PlayTime() {
   const { status, error } = usePlay();
   const [recent, setRecent] = useState([]);
   useEffect(() => { fetchHistory(5).then(setRecent); }, []);
+  const [airOn, setAirOn] = useState(null);
+  useEffect(() => { supabase.rpc('airdrop_enabled_tiers').then(r => setAirOn(Array.isArray(r.data) ? r.data : [])); }, []);
 
   let games = [];
   if (status) {
@@ -28,7 +31,7 @@ export default function PlayTime() {
       ['max', 'Max Airdrop', 'Pays 16x'],
       ['extreme', 'Extreme Airdrop', 'Pays 16x'],
       ['nightmare', 'Nightmare Airdrop', 'Pays 26x'],
-    ].forEach(a => games.push({ to: '/play-time/airdrop/' + a[0], title: a[1], note: a[2], cost: 0, game: 'airdrop', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' }));
+    ].filter(a => airOn && airOn.includes(a[0])).forEach(a => games.push({ to: '/play-time/airdrop/' + a[0], title: a[1], note: a[2], cost: 0, game: 'airdrop', Icon: BoxIcon, grad: 'linear-gradient(135deg,#F59E0B,#EF4444)' }));
     [
       ['coinflip', '/play-time/coin-flip', 'Head or Tails', 'Call heads or tails', CoinIcon, 'linear-gradient(135deg,#F59E0B,#D97706)'],
       ['color', '/play-time/color-game', 'Color Game Extreme', 'Pick the winning color', PaletteIcon, 'linear-gradient(135deg,#EC4899,#8B5CF6)'],
