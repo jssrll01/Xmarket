@@ -18,7 +18,7 @@ export default function Vouchers() {
     let alive = true;
     (async () => {
       let promoRes = { data: [] };
-      try { promoRes = await supabase.from('promo_codes').select('*').eq('active', true); } catch (e) {}
+      try { promoRes = await supabase.from('promo_codes').select('*').eq('active', true); if (promoRes.error) { console.error(promoRes.error); showToast('Vouchers: ' + promoRes.error.message); } } catch (e) { showToast('Vouchers: ' + e.message); }
       if (!alive) return;
       setPromos(Array.isArray(promoRes && promoRes.data) ? promoRes.data : []);
       setLoading(false);
