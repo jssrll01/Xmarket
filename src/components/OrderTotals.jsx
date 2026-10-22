@@ -36,7 +36,7 @@ export default function OrderTotals({ items = [], showItems = false, subtotal = 
 
       <div style={{ ...row, padding: '8px 0' }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ width: 28, height: 28, borderRadius: 8, background: 'linear-gradient(135deg,#2563EB,#7C3AED)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}><Truck size={15} color="#fff" /></span>
+          <Truck size={16} style={{ flexShrink: 0 }} />
           Shipping
         </span>
         {shipping === null

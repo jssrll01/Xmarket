@@ -1,4 +1,3 @@
-import { getIllustrativeReferencePrice } from '../lib/illustrativeReferencePrice';
 import DiscountTag from '../components/DiscountTag';
 import { firstNumber } from '../lib/discount';
 import React, { useState, useEffect, useRef } from 'react';
