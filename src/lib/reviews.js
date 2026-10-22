@@ -26,13 +26,14 @@ export async function getEligibleOrder(userId, productId) {
   return { eligibleOrderId: usable?.id || null };
 }
 
-export async function submitReview({ userId, productId, orderId, rating, comment }) {
+export async function submitReview({ userId, productId, orderId, rating, comment, photoUrl }) {
   return supabase.from('reviews').insert({
     user_id: userId,
     product_id: productId,
     order_id: orderId,
     rating,
     comment,
+    ...(photoUrl ? { photo_url: photoUrl } : {}),
   });
 }
 

@@ -1,12 +1,13 @@
 import { ListRowsSkeleton } from './Skeleton';
-import React, { useEffect, useState } from 'react';
-import { Star, ThumbsUp } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Star, ThumbsUp, ImagePlus, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from './Toast';
 import {
   fetchProductReviews, getEligibleOrder, submitReview,
   voteHelpful, unvoteHelpful, hasVoted,
 } from '../lib/reviews';
+import { uploadReviewPhoto, cld } from '../lib/cloudinary';
 
 function Stars({ value = 0, size = 14 }) {
   return (
@@ -31,6 +32,20 @@ export default function ProductReviews({ product }) {
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [votes, setVotes] = useState({});
+  const [photo, setPhoto] = useState(null);   // one photo at most: { file, preview }
+  const [zoom, setZoom] = useState(null);
+  const fileRef = useRef(null);
+  const clearPhoto = () => {
+    setPhoto((p) => { if (p && p.preview) URL.revokeObjectURL(p.preview); return null; });
+  };
+  const pickPhoto = (e) => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (!f) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(f.type)) { showToast('Please choose a JPG, PNG or WebP photo'); return; }
+    if (f.size > 15 * 1024 * 1024) { showToast('That photo is too large (max 15 MB)'); return; }
+    setPhoto((p) => { if (p && p.preview) URL.revokeObjectURL(p.preview); return { file: f, preview: URL.createObjectURL(f) }; });
+  };
 
   useEffect(() => {
     let alive = true;
@@ -70,18 +85,30 @@ export default function ProductReviews({ product }) {
     if (!eligibleOrderId) { showToast('Order not eligible'); return; }
     if (comment.trim().length < 3) { showToast('Add a few words'); return; }
     setSubmitting(true);
+    let photoUrl = null;
+    if (photo && photo.file) {
+      try {
+        photoUrl = await uploadReviewPhoto(photo.file);
+      } catch (err) {
+        setSubmitting(false);
+        showToast('Photo could not be uploaded. Try again or remove the photo.');
+        return;
+      }
+    }
     const { error } = await submitReview({
       userId: user.id,
       productId: product.uuid,
       orderId: eligibleOrderId,
       rating,
       comment: comment.trim(),
+      photoUrl,
     });
     setSubmitting(false);
     if (error) { showToast(error.message); return; }
     setWriting(false);
     setComment('');
     setRating(5);
+    clearPhoto();
     setEligibleOrderId(null);
     showToast('Review submitted');
     const { items } = await fetchProductReviews(product.uuid);
@@ -147,8 +174,23 @@ export default function ProductReviews({ product }) {
           <textarea value={comment} onChange={e => setComment(e.target.value)}
             placeholder="Share your experience with this product"
             style={{ width: '100%', padding: 10, minHeight: 80, fontSize: 13 }} />
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={pickPhoto} style={{ display: 'none' }} />
+          {photo ? (
+            <div style={{ position: 'relative', display: 'inline-block', marginTop: 8 }}>
+              <img src={photo.preview} alt="Your photo" style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 10, display: 'block' }} />
+              <button type="button" onClick={clearPhoto} aria-label="Remove photo"
+                style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: '#DC2626', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
+                <X size={14} />
+              </button>
+            </div>
+          ) : (
+            <button type="button" className="btn-ghost" onClick={() => fileRef.current && fileRef.current.click()}
+              style={{ marginTop: 8, padding: '8px 12px', fontSize: 12.5, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <ImagePlus size={15} /> Add a photo (1 max)
+            </button>
+          )}
           <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-            <button className="btn-ghost" onClick={() => { setWriting(false); setComment(''); }} style={{ flex: 1, padding: 10 }}>
+            <button className="btn-ghost" onClick={() => { setWriting(false); setComment(''); clearPhoto(); }} style={{ flex: 1, padding: 10 }}>
               Cancel
             </button>
             <button className="btn-primary" onClick={submit} disabled={submitting} style={{ flex: 1, padding: 10 }}>
@@ -176,6 +218,11 @@ export default function ProductReviews({ product }) {
             <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--text)', marginBottom: 8 }}>
               {r.comment}
             </div>
+            {cld(r.photo_url, 'w_300,c_limit,f_auto,q_auto') && (
+              <img src={cld(r.photo_url, 'w_300,c_limit,f_auto,q_auto')} alt="Review photo" loading="lazy"
+                onClick={() => setZoom(r.photo_url)}
+                style={{ maxWidth: 140, maxHeight: 140, borderRadius: 10, marginBottom: 8, cursor: 'zoom-in', display: 'block' }} />
+            )}
             <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>
               {new Date(r.created_at).toLocaleDateString()}
             </div>
@@ -202,6 +249,12 @@ export default function ProductReviews({ product }) {
             </div>
           </div>
         ))
+      )}
+      {zoom && (
+        <div onClick={() => setZoom(null)}
+          style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <img src={cld(zoom, 'w_1200,c_limit,f_auto,q_auto')} alt="Review photo" style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 12 }} />
+        </div>
       )}
     </div>
   );
