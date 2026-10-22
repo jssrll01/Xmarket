@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, X, ShoppingCart, Bell, ChevronDown, Check, Menu,
   Store, HelpCircle, MoreHorizontal, BadgeCheck, PackageSearch, User, Heart
-, Settings, LogOut , Zap , Percent, SlidersHorizontal, Sparkles, MessageSquare } from 'lucide-react';
+, Settings, LogOut , Zap , Percent, SlidersHorizontal, Sparkles, MessageSquare, Gift } from 'lucide-react';
 import { fetchProducts, fetchProductStatsMap } from '../lib/products';
 import { supabase as bannerDb } from '../lib/supabase';
 import { sortByStock, isOutOfStock } from '../lib/stock';
@@ -552,7 +552,21 @@ export default function Home() {
             <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Save More</div>
           </div>
         </Link>
-        {SHOWCASE_PAGES.map(({ path, label, gradient, Icon }) => (
+        <Link to="/bundles" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <Gift size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Bundle Deals</div>
+          </div>
+        </Link>
+        {['payday-sale','pre-loved','groceries','fashion','sports-outdoors','books-stationery']
+          .map(k => SHOWCASE_PAGES.find(x => x.key === k)).filter(Boolean)
+          .map(({ path, label, gradient, Icon }) => (
           <Link key={path} to={path} className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
             <div style={{
               width: 34, height: 34, borderRadius: 10,
