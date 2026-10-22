@@ -1,3 +1,4 @@
+import { getIllustrativeReferencePrice } from '../lib/illustrativeReferencePrice';
 import DiscountTag from '../components/DiscountTag';
 import React, { useState, useEffect, useRef } from 'react';
 import PillRow, { pillStyle } from '../components/PillRow';
@@ -854,8 +855,26 @@ export default function Home() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                     <span style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(p).display}</span>
                     <DiscountTag price={priceRange(p).min} />
-                    
                   </div>
+                  {!priceRange(p).isRange && priceRange(p).min > 0 && (() => {
+                    const illustrative = getIllustrativeReferencePrice(p, priceRange(p).min);
+                    if (!illustrative) return null;
+                    return (
+                      <div style={{ marginTop: 4 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 11, color: 'var(--muted)', textDecoration: 'line-through' }}>
+                            ₱{illustrative.referencePrice.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </span>
+                          <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--muted)' }}>
+                            {illustrative.percent}% ILLUSTRATIVE
+                          </span>
+                        </div>
+                        <div style={{ fontSize: 9, color: 'var(--muted)', lineHeight: 1.3 }}>
+                          Illustrative reference price — not a verified former price or actual savings.
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </Link>
               <button
