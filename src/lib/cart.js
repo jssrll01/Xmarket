@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { parseCartVariant, comboLabel, priceFor, stockFor } from './variants';
+import { getDiscountTiers, unitDiscount } from './discounts';
 
 try { localStorage.removeItem('xmarket_cart_v1'); } catch {}
 
@@ -17,6 +18,7 @@ export async function fetchCart(userId) {
     .in('id', productIds);
   if (e2) return { error: e2, items: [] };
 
+  const tiers = await getDiscountTiers();
   const byId = new Map((products || []).map(p => [p.id, p]));
 
   return {
@@ -32,12 +34,14 @@ export async function fetchCart(userId) {
         const vals = Object.values(prices).map(Number).filter(n => n > 0);
         return vals.length ? Math.min(...vals) : 0;
       })();
-      const price = variantPrice > 0 ? variantPrice : fallbackPrice;
+      const listPrice = variantPrice > 0 ? variantPrice : fallbackPrice;
+      const price = Math.round((listPrice - unitDiscount(listPrice, tiers)) * 100) / 100;
       return {
         id: p.legacy_id ?? row.product_id,
         rowId: row.id,
         product_id: row.product_id,
         name: p.name || 'Unknown product',
+        listPrice,
         price,
         images: Array.isArray(p.images) ? p.images : [],
         store: p.store || '',
