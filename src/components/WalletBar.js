@@ -28,7 +28,7 @@ const iconBox = (grad) => ({
 const divider = <div style={{ width: 1, background: 'var(--border)', margin: '10px 0' }} />;
 const labelStyle = { fontSize: 13, fontWeight: 800 };
 const subStyle = { fontSize: 11.5, color: 'var(--muted)', fontWeight: 600, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' };
-const panel = { flex: '0 0 100%', minWidth: 0, display: 'flex', alignItems: 'stretch', scrollSnapAlign: 'start' };
+const panel = { flex: '0 0 auto', width: '100%', minWidth: 0, display: 'flex', alignItems: 'stretch', scrollSnapAlign: 'start' };
 
 function Cell({ to, grad, icon, label, sub }) {
   return (
@@ -85,9 +85,7 @@ export default function WalletBar() {
           onScroll={measure}
           className="wb-scroll"
           style={{
-            display: 'flex', overflowX: 'auto', overflowY: 'hidden',
-            scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch',
-            scrollbarWidth: 'none', msOverflowStyle: 'none',
+            display: 'flex', flexDirection: 'column',
           }}
         >
           <div style={panel}>
@@ -102,7 +100,7 @@ export default function WalletBar() {
               icon={<span style={{ fontSize: 18, lineHeight: 1 }}>🎮</span>} label="Play Time" sub="Earn points" />
           </div>
 
-          <div style={panel}>
+          <div style={{ ...panel, borderTop: '1px solid var(--border)' }}>
             <Cell to="/bundles" grad="linear-gradient(135deg, #2563EB, #7C3AED)"
               icon={<Gift size={18} color="#fff" />} label="Bundle Deals" sub="Save together" />
             {divider}
@@ -116,7 +114,7 @@ export default function WalletBar() {
         </div>
       </div>
 
-      <div style={{ position: 'relative', height: 3, width: 64, margin: '8px auto 0', borderRadius: 999, background: 'var(--border)' }}>
+      <div style={{ display: 'none', position: 'relative', height: 3, width: 64, margin: '8px auto 0', borderRadius: 999, background: 'var(--border)' }}>
         <div className="pill-thumb" style={{ position: 'absolute', top: 0, bottom: 0, left: m.left + '%', width: m.width + '%', borderRadius: 999, transition: 'left .12s ease-out' }} />
       </div>
     </div>

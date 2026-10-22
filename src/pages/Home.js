@@ -466,6 +466,106 @@ export default function Home() {
         </div>
       </div>
 
+      <WalletBar />
+      <BackToTop threshold={400} />
+
+      {/* Quick-access buttons */}
+      <PillRow>
+        <Link to="/xmall" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #DC2626, #F59E0B)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <Store size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>XMALL</div>
+          </div>
+        </Link>
+        <Link to="/flash-sale" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #F59E0B, #DC2626)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <Zap size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Flash Sale</div>
+          </div>
+        </Link>
+        <Link to="/savemore" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+          <div style={{
+            width: 34, height: 34, borderRadius: 10,
+            background: 'linear-gradient(135deg, #10B981, #059669)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+          }}>
+            <Percent size={16} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Save More</div>
+          </div>
+        </Link>
+        {SHOWCASE_PAGES.map(({ path, label, gradient, Icon }) => (
+          <Link key={path} to={path} className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: 10,
+              background: gradient,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+            }}>
+              <Icon size={16} color="#fff" />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>{label}</div>
+            </div>
+          </Link>
+        ))}
+      </PillRow>
+<div className="banner-wrap" style={{ padding: '12px 16px 4px', display: banners.length ? undefined : 'none' }}>
+        <div
+          className="banner-stage"
+          style={{ touchAction: 'pan-y' }}
+          onTouchStart={e => { swipe.x = e.touches[0].clientX; }}
+          onTouchEnd={e => { if (swipe.x == null || banners.length < 2) return; const dx = e.changedTouches[0].clientX - swipe.x; swipe.x = null; if (Math.abs(dx) > 40) setBannerIdx(i => (i + (dx < 0 ? 1 : banners.length - 1)) % banners.length); }}
+          onMouseEnter={() => setBannerHover && setBannerHover(true)}
+          onMouseLeave={() => setBannerHover && setBannerHover(false)}
+        >
+          <div className="banner-track" style={{ transform: `translateX(-${bannerIdx * 100}%)` }}>
+            {banners.map((b, i) => {
+              const meta = BANNER_META[i % BANNER_META.length];
+              const isActive = i === bannerIdx;
+              return (
+                <div key={i} className={'banner-slide-full' + (isActive ? ' active' : '')}>
+                  <img src={b} alt={meta.title} loading={i === 0 ? 'eager' : 'lazy'} />
+                </div>
+              );
+            })}
+          </div>
+          {bannerRows[bannerIdx] && bannerRows[bannerIdx].cta_link && (
+            /^https?:/i.test(bannerRows[bannerIdx].cta_link)
+              ? <a href={bannerRows[bannerIdx].cta_link} target="_blank" rel="noreferrer" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 12, textDecoration: 'none' }}>
+                  {bannerRows[bannerIdx].cta_text && <span style={{ background: '#fff', color: '#2563EB', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 999, boxShadow: '0 4px 12px rgba(0,0,0,.2)' }}>{bannerRows[bannerIdx].cta_text}</span>}
+                </a>
+              : <Link to={bannerRows[bannerIdx].cta_link} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 12, textDecoration: 'none' }}>
+                  {bannerRows[bannerIdx].cta_text && <span style={{ background: '#fff', color: '#2563EB', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 999, boxShadow: '0 4px 12px rgba(0,0,0,.2)' }}>{bannerRows[bannerIdx].cta_text}</span>}
+                </Link>
+          )}
+          <div className="banner-dots" style={{ display: banners.length > 1 ? undefined : 'none' }}>
+            {banners.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={'Slide ' + (i+1)}
+                className={'banner-dot' + (i === bannerIdx ? ' active' : '')}
+                onClick={() => setBannerIdx(i)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+
+
         <div className="search-wrap" style={{ position: 'relative' }}>
           <div className="search-input-box">
             <Search size={16} style={{
@@ -552,105 +652,6 @@ export default function Home() {
           )}
         </div>
 
-<div className="banner-wrap" style={{ padding: '12px 16px 4px', display: banners.length ? undefined : 'none' }}>
-        <div
-          className="banner-stage"
-          style={{ touchAction: 'pan-y' }}
-          onTouchStart={e => { swipe.x = e.touches[0].clientX; }}
-          onTouchEnd={e => { if (swipe.x == null || banners.length < 2) return; const dx = e.changedTouches[0].clientX - swipe.x; swipe.x = null; if (Math.abs(dx) > 40) setBannerIdx(i => (i + (dx < 0 ? 1 : banners.length - 1)) % banners.length); }}
-          onMouseEnter={() => setBannerHover && setBannerHover(true)}
-          onMouseLeave={() => setBannerHover && setBannerHover(false)}
-        >
-          <div className="banner-track" style={{ transform: `translateX(-${bannerIdx * 100}%)` }}>
-            {banners.map((b, i) => {
-              const meta = BANNER_META[i % BANNER_META.length];
-              const isActive = i === bannerIdx;
-              return (
-                <div key={i} className={'banner-slide-full' + (isActive ? ' active' : '')}>
-                  <img src={b} alt={meta.title} loading={i === 0 ? 'eager' : 'lazy'} />
-                </div>
-              );
-            })}
-          </div>
-          {bannerRows[bannerIdx] && bannerRows[bannerIdx].cta_link && (
-            /^https?:/i.test(bannerRows[bannerIdx].cta_link)
-              ? <a href={bannerRows[bannerIdx].cta_link} target="_blank" rel="noreferrer" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 12, textDecoration: 'none' }}>
-                  {bannerRows[bannerIdx].cta_text && <span style={{ background: '#fff', color: '#2563EB', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 999, boxShadow: '0 4px 12px rgba(0,0,0,.2)' }}>{bannerRows[bannerIdx].cta_text}</span>}
-                </a>
-              : <Link to={bannerRows[bannerIdx].cta_link} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 12, textDecoration: 'none' }}>
-                  {bannerRows[bannerIdx].cta_text && <span style={{ background: '#fff', color: '#2563EB', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 999, boxShadow: '0 4px 12px rgba(0,0,0,.2)' }}>{bannerRows[bannerIdx].cta_text}</span>}
-                </Link>
-          )}
-          <div className="banner-dots" style={{ display: banners.length > 1 ? undefined : 'none' }}>
-            {banners.map((_, i) => (
-              <button
-                key={i}
-                type="button"
-                aria-label={'Slide ' + (i+1)}
-                className={'banner-dot' + (i === bannerIdx ? ' active' : '')}
-                onClick={() => setBannerIdx(i)}
-              />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <WalletBar />
-      <BackToTop threshold={400} />
-
-      {/* Quick-access buttons */}
-      <PillRow>
-        <Link to="/xmall" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #DC2626, #F59E0B)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <Store size={16} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>XMALL</div>
-          </div>
-        </Link>
-        <Link to="/flash-sale" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #F59E0B, #DC2626)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <Zap size={16} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Flash Sale</div>
-          </div>
-        </Link>
-        <Link to="/savemore" className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
-          <div style={{
-            width: 34, height: 34, borderRadius: 10,
-            background: 'linear-gradient(135deg, #10B981, #059669)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-          }}>
-            <Percent size={16} color="#fff" />
-          </div>
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>Save More</div>
-          </div>
-        </Link>
-        {SHOWCASE_PAGES.map(({ path, label, gradient, Icon }) => (
-          <Link key={path} to={path} className="pill" style={{ ...pillStyle, flexShrink: 0, scrollSnapAlign: 'start' }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: 10,
-              background: gradient,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-            }}>
-              <Icon size={16} color="#fff" />
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, whiteSpace: 'nowrap' }}>{label}</div>
-            </div>
-          </Link>
-        ))}
-      </PillRow>
       <div className="chips">
         {categories.map(c => (
           <button key={c}
