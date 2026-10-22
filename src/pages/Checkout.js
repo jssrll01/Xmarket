@@ -1,4 +1,4 @@
-import { getShippingFee } from '../lib/shipping';
+import { getShippingFeeSync } from '../lib/shipping';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap, Wand2 } from 'lucide-react';
@@ -651,7 +651,7 @@ export default function Checkout() {
         <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
         <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--primary)' }}><span>Discount</span><span>-₱{discount}</span></div>
         {(() => {
-          const sf = getShippingFee(subtotal);
+          const sf = getShippingFeeSync(subtotal);
           return (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}>

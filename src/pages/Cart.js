@@ -1,4 +1,4 @@
-import { getShippingFee } from '../lib/shipping';
+import { getShippingFeeSync } from '../lib/shipping';
 import { ListRowsSkeleton } from '../components/Skeleton';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -114,7 +114,7 @@ export default function Cart() {
       <div className="card" style={{ padding: 16, marginTop: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
         {(() => {
-          const sf = getShippingFee(subtotal);
+          const sf = getShippingFeeSync(subtotal);
           return (
             <>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}>
