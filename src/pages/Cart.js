@@ -1,3 +1,4 @@
+import { getShippingFee } from '../lib/shipping';
 import { ListRowsSkeleton } from '../components/Skeleton';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -112,7 +113,20 @@ export default function Cart() {
 
       <div className="card" style={{ padding: 16, marginTop: 12 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}><span>Shipping Fee</span><span>SF will be added on the order confirmation</span></div>
+        {(() => {
+          const sf = getShippingFee(subtotal);
+          return (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}>
+                <span>Shipping Fee</span>
+                <span>₱{sf.toFixed(2)}</span>
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic', marginTop: -4 }}>
+                Your shipping fee is based on your order total.
+              </div>
+            </>
+          );
+        })()}
         <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>
           <span>Total</span><span>₱{total}</span>
