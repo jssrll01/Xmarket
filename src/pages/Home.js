@@ -11,6 +11,7 @@ import { banners as staticBanners, fetchProducts, fetchProductStatsMap } from '.
 import { supabase as bannerDb } from '../lib/supabase';
 import { sortByStock, isOutOfStock } from '../lib/stock';
 import { priceRange, hasRealVariants } from '../lib/variants';
+import PriceTag from '../components/PriceTag';
 import { supabase } from '../lib/supabase';
 import { unreadCount } from '../lib/notifications';
 import { Star } from 'lucide-react';
@@ -803,7 +804,7 @@ export default function Home() {
                     {p.verified && <BadgeCheck size={12} color="#2563EB" />}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
-                    <span style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(p).display}</span>
+                    <PriceTag product={p} />
                     
                   </div>
                 </div>
