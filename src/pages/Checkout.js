@@ -1,4 +1,6 @@
-import { getShippingFeeSync } from '../lib/shipping';
+import { getShippingFeeSync, fetchShippingTiers } from '../lib/shipping';
+import OrderTotals from '../components/OrderTotals';
+import { itemDiscount } from '../lib/discount';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap, Wand2 } from 'lucide-react';
@@ -31,7 +33,7 @@ const PAYMENTS = [
 
 const DELIVERIES = [
   { id: 'doortodoor', label: 'Door to door',
-    note: 'Delivered straight to your door. The delivery fee is confirmed with you after you place your order.' },
+    note: 'Delivered straight to your door. The shipping fee is shown in your order summary.' },
   { id: 'express', label: 'Express [Lalamove]',
     note: "Same-day or next-day delivery via Lalamove. Actual fee is charged based on Lalamove's live quotation at checkout. (Buyer will shoulder the delivery fee of Lalamove)" },
   { id: 'instant', label: 'Instant [Applicable for digital products only]',
@@ -115,10 +117,14 @@ export default function Checkout() {
   }, [allInstant]);
 
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
-  const promoDiscount = computeDiscount(promo, subtotal);
-  const xcardDiscount = Math.min(xcardValue, Math.max(0, subtotal - promoDiscount));
-  const discount = promoDiscount + xcardDiscount;
-  const total = Math.max(0, subtotal - promoDiscount - xcardDiscount);
+  const [shipTiers, setShipTiers] = useState(null);
+  useEffect(() => { fetchShippingTiers().then(setShipTiers); }, []);
+  const productDiscount = items.reduce((t, i) => t + itemDiscount(i.price, i.quantity), 0);
+  const promoDiscount = computeDiscount(promo, subtotal - productDiscount);
+  const xcardDiscount = Math.min(xcardValue, Math.max(0, subtotal - productDiscount - promoDiscount));
+  const discount = productDiscount + promoDiscount + xcardDiscount;
+  const shipping = form.delivery === 'doortodoor' ? getShippingFeeSync(subtotal, shipTiers || undefined) : (form.delivery === 'instant' ? 0 : null);
+  const total = Math.max(0, subtotal - discount) + (shipping || 0);
 
   const autofill = () => {
     if (!profile) {
@@ -641,33 +647,7 @@ export default function Checkout() {
         )}
 
         <h3 style={{ marginBottom: 8 }}>Order Summary</h3>
-        {items.map(i => (
-          <div key={i.rowId} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 4 }}>
-            <span>{i.name} × {i.quantity}</span>
-            <span>₱{(Number(i.price) || 0) * (Number(i.quantity) || 1)}</span>
-          </div>
-        ))}
-        <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--primary)' }}><span>Discount</span><span>-₱{discount}</span></div>
-        {(() => {
-          const sf = getShippingFeeSync(subtotal);
-          return (
-            <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)' }}>
-                <span>Shipping Fee</span>
-                <span>₱{sf.toFixed(2)}</span>
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic', marginTop: -4 }}>
-                Your shipping fee is based on your order total.
-              </div>
-            </>
-          );
-        })()}
-        <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>
-          <span>Total</span><span>₱{total}</span>
-        </div>
+        <OrderTotals showItems items={items} subtotal={subtotal} productDiscount={productDiscount} promoDiscount={promoDiscount} xcardDiscount={xcardDiscount} shipping={shipping} total={total} />
       </div>
 
       <button onClick={placeOrder} disabled={sending} className="btn-primary"

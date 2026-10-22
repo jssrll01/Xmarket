@@ -1,3 +1,5 @@
+import DiscountTag from '../components/DiscountTag';
+import { firstNumber } from '../lib/discount';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
@@ -263,6 +265,7 @@ export default function ProductDetails() {
         <h2>{product.name}</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
           <span style={{ fontSize: 24, fontWeight: 'bold' }}>{displayPrice}</span>
+          <DiscountTag price={firstNumber(displayPrice)} />
           
         </div>
         <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>

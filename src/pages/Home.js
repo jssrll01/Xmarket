@@ -1,3 +1,4 @@
+import DiscountTag from '../components/DiscountTag';
 import React, { useState, useEffect, useRef } from 'react';
 import PillRow, { pillStyle } from '../components/PillRow';
 import BackToTop from '../components/BackToTop';
@@ -852,6 +853,7 @@ export default function Home() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
                     <span style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(p).display}</span>
+                    <DiscountTag price={priceRange(p).min} />
                     
                   </div>
                 </div>

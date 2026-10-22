@@ -1,4 +1,6 @@
-import { getShippingFeeSync } from '../lib/shipping';
+import { getShippingFeeSync, fetchShippingTiers } from '../lib/shipping';
+import OrderTotals from '../components/OrderTotals';
+import { itemDiscount } from '../lib/discount';
 import { ListRowsSkeleton } from '../components/Skeleton';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -24,7 +26,11 @@ export default function Cart() {
   }, [user, authLoading, navigate]);
 
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
-  const total = subtotal;
+  const [tiers, setTiers] = useState(null);
+  useEffect(() => { fetchShippingTiers().then(setTiers); }, []);
+  const productDiscount = items.reduce((t, i) => t + itemDiscount(i.price, i.quantity), 0);
+  const shipping = getShippingFeeSync(subtotal, tiers || undefined);
+  const total = Math.max(0, subtotal - productDiscount) + shipping;
 
   const handleCheckout = () => {
     setGoing(true);
@@ -112,25 +118,7 @@ export default function Cart() {
       ))}
 
       <div className="card" style={{ padding: 16, marginTop: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Subtotal</span><span>₱{subtotal}</span></div>
-        {(() => {
-          const sf = getShippingFeeSync(subtotal);
-          return (
-            <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}>
-                <span>Shipping Fee</span>
-                <span>₱{sf.toFixed(2)}</span>
-              </div>
-              <div style={{ fontSize: 11, color: 'var(--muted)', fontStyle: 'italic', marginTop: -4 }}>
-                Your shipping fee is based on your order total.
-              </div>
-            </>
-          );
-        })()}
-        <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: 18 }}>
-          <span>Total</span><span>₱{total}</span>
-        </div>
+        <OrderTotals items={items} subtotal={subtotal} productDiscount={productDiscount} shipping={shipping} total={total} />
       </div>
 
       <button onClick={handleCheckout} disabled={going} className="btn-primary"
