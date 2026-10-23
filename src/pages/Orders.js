@@ -67,7 +67,7 @@ export default function Orders() {
             <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>#{o.order_code}</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
               <span style={{ color: 'var(--muted)' }}>{new Date(o.created_at).toLocaleDateString()}</span>
-              <span style={{ fontWeight: 800 }}>₱{o.total}</span>
+              <span style={{ fontWeight: 800 }}>₱{Number(o.total).toFixed(2)}</span>
             </div>
           </div>
         ))

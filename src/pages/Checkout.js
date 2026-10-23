@@ -348,7 +348,7 @@ export default function Checkout() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '🛒 New order ' + newOrderId,
-              body: form.fullName + ' · ₱' + res.total + ' · ' + paymentLabel,
+              body: form.fullName + ' · ₱' + (Math.max(0, (Number(res.subtotal) || 0) - (Number(res.discount) || 0)) + (Number(res.shipping) || 0)).toFixed(2) + ' · ' + paymentLabel,
               url: '/orders',
               tag: 'new-order',
             }),

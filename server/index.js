@@ -123,11 +123,13 @@ app.post('/api/order', async (req, res) => {
     lines.push(`• ${i.name}${v} × ${i.quantity} — ₱${i.price * i.quantity}`);
   });
   lines.push('');
+  const fmt2 = (n) => (Number(n) || 0).toFixed(2);
+  const grand = Math.max(0, (Number(subtotal) || 0) - (Number(discount) || 0)) + (Number(shipping) || 0);
   lines.push('💰 *Summary*');
-  lines.push(`Subtotal: ₱${subtotal}`);
-  lines.push(`Discount: -₱${discount}`);
-  lines.push(`Shipping: ₱${Number(shipping) || 0}`);
-  lines.push(`Total: ₱${total}`);
+  lines.push(`Subtotal: ₱${fmt2(subtotal)}`);
+  lines.push(`Discount: -₱${fmt2(discount)}`);
+  lines.push(`Shipping: ₱${fmt2(shipping)}`);
+  lines.push(`Total: ₱${fmt2(grand)}`);
   lines.push('');
   lines.push('💳 *Payment*');
   lines.push(payment || '-');

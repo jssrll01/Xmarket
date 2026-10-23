@@ -91,7 +91,8 @@ export default function OrderDetail() {
   const stepIndex = STEPS.indexOf(order.status);
   const subtotal = Number(order.subtotal) || 0;
   const discount = Number(order.discount) || 0;
-  const total = Number(order.total) || 0;
+  const shipping = Number(order.shipping_fee) || 0;
+  const total = Math.max(0, subtotal - discount) + shipping;
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
@@ -154,20 +155,20 @@ export default function OrderDetail() {
         ))}
         <hr style={{ margin: '10px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-          <span>Subtotal</span><span>₱{subtotal}</span>
+          <span>Subtotal</span><span>₱{subtotal.toFixed(2)}</span>
         </div>
         {discount > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--primary)' }}>
-            <span>Discount</span><span>-₱{discount}</span>
+            <span>Discount</span><span>-₱{discount.toFixed(2)}</span>
           </div>
         )}
-        {Number(order.shipping_fee) > 0 && (
+        {(
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-            <span>Shipping</span><span>₱{Number(order.shipping_fee)}</span>
+            <span>Shipping</span><span>₱{shipping.toFixed(2)}</span>
           </div>
         )}
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 16, marginTop: 8 }}>
-          <span>Total</span><span>₱{total}</span>
+          <span>Total</span><span>₱{total.toFixed(2)}</span>
         </div>
       </div>
 
