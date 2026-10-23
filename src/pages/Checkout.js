@@ -78,6 +78,7 @@ export default function Checkout() {
   const [xwalletBalance, setXwalletBalance] = useState(0);
   const [success, setSuccess] = useState(false);
   const [orderId, setOrderId] = useState('');
+  const [placed, setPlaced] = useState(null);
   const [orderError, setOrderError] = useState('');
   const [receipt, setReceipt] = useState(null);
   const [promoInput, setPromoInput] = useState('');
@@ -302,6 +303,7 @@ export default function Checkout() {
 
         if (oErr) throw oErr;
         if (!res || !res.ok) throw new Error(res?.error || 'Failed to place order');
+        setPlaced({ subtotal: Number(res.subtotal) || 0, discount: Number(res.discount) || 0, shipping: Number(res.shipping) || 0 });
 
         // Notify Telegram with the server-calculated totals (text only, no image)
         try {
@@ -409,9 +411,23 @@ export default function Checkout() {
           <div style={{ fontSize: 11, color: 'var(--text-dim)', marginBottom: 4 }}>Order ID</div>
           <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--primary)', letterSpacing: 1 }}>{orderId}</div>
           <hr style={{ margin: '12px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+          {placed && (<>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+              <span style={{ color: 'var(--text-dim)' }}>Subtotal</span>
+              <span style={{ fontWeight: 700 }}>₱{placed.subtotal.toFixed(2)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
+              <span style={{ color: 'var(--text-dim)' }}>Discount</span>
+              <span style={{ fontWeight: 700 }}>-₱{placed.discount.toFixed(2)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
+              <span style={{ color: 'var(--text-dim)' }}>Shipping</span>
+              <span style={{ fontWeight: 700 }}>₱{placed.shipping.toFixed(2)}</span>
+            </div>
+          </>)}
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
             <span style={{ color: 'var(--text-dim)' }}>Total</span>
-            <span style={{ fontWeight: 700 }}>₱{total}</span>
+            <span style={{ fontWeight: 800 }}>₱{placed ? (Math.max(0, placed.subtotal - placed.discount) + placed.shipping).toFixed(2) : Number(total).toFixed(2)}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
             <span style={{ color: 'var(--text-dim)' }}>Payment</span>
