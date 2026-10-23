@@ -50,6 +50,7 @@ export function getPromoDisplay(priceNum, tiers) {
     finalPrice: result.finalPrice,
     discountAmount: result.discount,
     discountPercent: result.effectivePct,
+    tierRate: result.tier ? Number(result.tier.rate_pct) : 0,
     badgeText: `${Math.round(result.effectivePct)}% OFF`,
     label: null,
   };

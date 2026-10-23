@@ -59,7 +59,7 @@ export default function PromoPrice({ price, currencyFormatter, size = 'normal' }
                 whiteSpace: 'nowrap',
               }}
             >
-              {Math.round(promo.discountPercent)}% OFF
+              {promo.tierRate && Math.abs(promo.discountPercent - promo.tierRate) < 0.01 ? Math.round(promo.tierRate) + '% OFF' : 'SAVE ₱' + Number(promo.discountAmount).toFixed(0)}
             </span>
           </>
         ) : (
