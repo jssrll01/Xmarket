@@ -35,15 +35,12 @@ export default function OrderTotals({ items = [], showItems = false, subtotal = 
       )}
 
       <div style={{ ...row, padding: '8px 0' }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Truck size={16} style={{ flexShrink: 0 }} />
-          Shipping
-        </span>
+        <span>Shipping</span>
         {shipping === null
           ? <span style={{ fontSize: 12, color: 'var(--muted)' }}>Set by courier</span>
           : shipping === 0
-            ? <span style={{ background: '#059669', color: '#fff', fontSize: 11, fontWeight: 800, padding: '3px 10px', borderRadius: 999 }}>FREE</span>
-            : <span style={{ background: 'rgba(37,99,235,0.1)', color: '#2563EB', fontWeight: 800, padding: '4px 12px', borderRadius: 999 }}>{m(shipping)}</span>}
+            ? <span>FREE</span>
+            : <span>{m(shipping)}</span>}
       </div>
 
       {hr}
