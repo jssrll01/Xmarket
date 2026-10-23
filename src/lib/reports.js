@@ -2,7 +2,6 @@ import { supabase } from './supabase';
 
 /**
  * Submit a report. Writes to Supabase + forwards to the backend
- * which pushes to the correct Telegram bot.
  */
 export async function submitReport({ userId, category, gmail, phone, concern, relatedId }) {
   // 1) Persist to Supabase
