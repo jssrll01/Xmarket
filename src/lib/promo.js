@@ -26,7 +26,7 @@ export function computeDiscountForPrice(price, tiers) {
     p >= Number(t.min_price) && (t.max_price == null || p < Number(t.max_price))
   );
   if (!tier) return { discount: 0, effectivePct: 0, finalPrice: p, tier: null, hasPromo: false };
-  const pctDisc = Math.round(p * Number(tier.rate_pct)) / 100;
+  const pctDisc = Math.round((p * Number(tier.rate_pct) / 100) * 100) / 100;
   const cap = Number(tier.max_discount);
   const discount = Math.max(0, Math.min(pctDisc, cap));
   const finalPrice = Math.max(0, p - discount);
