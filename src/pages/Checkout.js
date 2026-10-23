@@ -17,7 +17,7 @@ import { fetchWallet } from '../lib/xwallet';
 const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
 const RECEIPT_API = 'https://xmarket-telegram-bot.onrender.com/api/receipt';
 const CLD_CLOUD = 'bvw3okdf';
-const CLD_PRESET = 'PUT_REAL_NAME_HERE';
+const CLD_PRESET = 'xmarket_receipts';
 
 const PAYMENTS = [
   { id: 'gcash', label: 'GCash',
