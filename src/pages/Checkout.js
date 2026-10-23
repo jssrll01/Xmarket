@@ -14,8 +14,6 @@ import StockModal from '../components/StockModal';
 import { isOutOfStock } from '../lib/stock';
 import { fetchWallet } from '../lib/xwallet';
 
-const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
-const RECEIPT_API = 'https://xmarket-telegram-bot.onrender.com/api/receipt';
 const CLD_CLOUD = 'bvw3okdf';
 const CLD_PRESET = 'xmarket_receipts';
 
@@ -189,11 +187,6 @@ export default function Checkout() {
     if (!receipt) return;
     setSendingReceipt(true);
     try {
-      await fetch(RECEIPT_API, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: orderId || 'N/A', name: receipt.name, dataUrl: receipt.dataUrl })
-      });
       setReceiptSent(true);
     } catch (err) { console.log('Receipt send failed:', err); }
     setSendingReceipt(false);
@@ -305,24 +298,7 @@ export default function Checkout() {
         if (!res || !res.ok) throw new Error(res?.error || 'Failed to place order');
         setPlaced({ subtotal: Number(res.subtotal) || 0, discount: Number(res.discount) || 0, shipping: Number(res.shipping) || 0 });
 
-        // Notify Telegram with the server-calculated totals (text only, no image)
-        try {
-          await fetch(ORDER_API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              form,
-              items: items.map(i => ({ name: i.name, variant: i.variant || null, quantity: i.quantity, price: i.price })),
-              subtotal: res.subtotal, discount: res.discount, shipping: res.shipping, total: res.total,
-              payment: paymentLabel, delivery: deliveryLabel, orderId: newOrderId,
-              promo: promo?.code || null,
-              xcard: xcardValue > 0 ? { code: xcardInput, amount: xcardValue } : null,
-              payment_status: form.payment === 'xwallet' ? 'Paid via Xwallet' : 'Awaiting receipt verification',
-            }),
-          });
-        } catch (err) { console.log('Notify failed:', err); }
-        
-        // Upload receipt straight to Cloudinary (unsigned) and save the link on the order
+// Upload receipt straight to Cloudinary (unsigned) and save the link on the order
         if (receipt?.dataUrl) {
           try {
             const fd = new FormData();
@@ -342,20 +318,6 @@ export default function Checkout() {
 
         // Clear the cart
         await dispatch({ type: 'CLEAR' });
-
-        // Fire admin push — new order placed
-        try {
-          await fetch('https://xmarket-telegram-bot.onrender.com/api/push/admins', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              title: '🛒 New order ' + newOrderId,
-              body: form.fullName + ' · ₱' + (Math.max(0, (Number(res.subtotal) || 0) - (Number(res.discount) || 0)) + (Number(res.shipping) || 0)).toFixed(2) + ' · ' + paymentLabel,
-              url: '/orders',
-              tag: 'new-order',
-            }),
-          });
-        } catch (e) { console.log('[push] admin notify failed:', e); }
 
       } catch (err) {
         console.log('Supabase order failed:', err);

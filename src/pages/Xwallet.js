@@ -81,7 +81,6 @@ export default function Xwallet() {
     setTransferAmount(''); setTransferEmail('');
     notifySendMoney({
       fromUserId: user.id, toUsername: transferEmail, amount: amt,
-      userChatId: user?.telegram_chat_id || null,
     }).catch(() => {});
     refresh();
   };
@@ -99,7 +98,6 @@ export default function Xwallet() {
     setLoadAmount(''); setLoadNumber('');
     notifyBuyLoad({
       userId: user.id, network: loadNetwork, mobile: loadNumber, amount: amt,
-      userChatId: user?.telegram_chat_id || null,
     }).catch(() => {});
     refresh();
   };

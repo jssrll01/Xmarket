@@ -109,25 +109,5 @@ export async function submitTopupBilling({ userId, email, amount, payment, fee, 
   if (error) return { error };
   if (data?.error) return { error: { message: data.error } };
 
-  // Forward to Telegram
-  try {
-    await fetch('https://xmarket-telegram-bot.onrender.com/api/report/order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ticket_id: data.id,
-        user_id: userId,
-        gmail: email,
-        phone: '—',
-        concern: `XWALLET TOP-UP REQUEST\nAmount: ₱${amount.toFixed(2)}\nFee (1%): ₱${fee.toFixed(2)}\nTotal: ₱${total.toFixed(2)}\nPayment: ${payment}\nReceipt: ${receipt.name}`,
-        related_id: data.id,
-        created_at: new Date().toISOString(),
-        receipt: { name: receipt.name, dataUrl: receipt.dataUrl },
-      }),
-    });
-  } catch (err) {
-    console.warn('[topup] telegram forward failed:', err);
-  }
-
   return { data, error: null };
 }

@@ -80,7 +80,6 @@ export default function XwalletTopup() {
     if (error) { showToast(error.message); return; }
     notifyTopup({
       userId: user.id, amount: total, channel: selected.label,
-      userChatId: user?.telegram_chat_id || null,
     }).catch(() => {});
     showToast('Top-up request submitted. Awaiting admin verification.');
     nav('/xwallet');
