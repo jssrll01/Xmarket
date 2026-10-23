@@ -45,8 +45,15 @@ export function itemDiscount(price, qty, tiers) {
 
   const result = computeDiscountForPrice(p, tiers);
 
-  // The maximum discount applies to each unit.
-  return Math.round(result.discount * q * 100) / 100;
+  // The maximum discount applies to the entire product line.
+  const lineDiscount = result.discount * q;
+  const cap = Number(result.tier?.max_discount);
+
+  const cappedDiscount = Number.isFinite(cap) && cap >= 0
+    ? Math.min(lineDiscount, cap)
+    : lineDiscount;
+
+  return Math.round(cappedDiscount * 100) / 100;
 }
 
 export function firstNumber(text) {
