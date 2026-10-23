@@ -1,4 +1,5 @@
 import express from 'express';
+import crypto from 'node:crypto';
 import cors from 'cors';
 import fetch from 'node-fetch';
 import { Blob } from 'buffer';
@@ -9,12 +10,16 @@ import { sendPushToUser } from './fcm.js';
 const app = express();
 
 const sb = createClient(
-  process.env.SUPABASE_URL || 'https://dmdjytwrgqnvxdxdlnrp.supabase.co',
+  process.env.SUPABASE_URL || 'https://dmdjytkuwfudkqepkxkl.supabase.co',
   process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_ANON_KEY || ''
 );
 
 app.use(cors());
+<<<<<<< HEAD
 app.use(express.json({ limit: '7mb' }));
+=======
+app.use(express.json({ limit: '12mb' }));
+>>>>>>> 238f6db (Checkout: cloudinary receipts, server totals, labels)
 
 // Existing order bot
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -454,6 +459,110 @@ app.post('/api/push/admins', async (req, res) => {
     failed += r.failed || 0;
   }
   res.json({ ok: true, sent, failed });
+});
+
+
+// XMARKET_CLOUDINARY_RECEIPT_ROUTE
+app.post('/api/receipt', async (req, res) => {
+  try {
+    // XMARKET_RECEIPT_OWNER_CHECK
+    const { orderId, buyerId, dataUrl } = req.body || {};
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+    const serviceKey = process.env.SUPABASE_SERVICE_KEY;
+
+    if (!cloudName || !apiKey || !apiSecret || !serviceKey) {
+      return res.status(503).json({ error: 'Receipt service is not configured.' });
+    }
+    if (typeof orderId !== 'string' ||
+        !/^XM-[A-Za-z0-9-]{4,40}$/i.test(orderId)) {
+      return res.status(400).json({ error: 'Invalid order code.' });
+    }
+
+    if (typeof buyerId !== 'string' ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(buyerId)) {
+      return res.status(401).json({ error: 'Authentication required.' });
+    }
+    if (typeof dataUrl !== 'string' ||
+        !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=\r\n]+$/i.test(dataUrl) ||
+        dataUrl.length > 11 * 1024 * 1024) {
+      return res.status(400).json({ error: 'Upload a JPG, PNG, or WebP image under 8 MB.' });
+    }
+
+    // Use the server-side service role key for this privileged database update.
+    const { createClient } = await import('@supabase/supabase-js');
+    const adminSb = createClient(
+      process.env.SUPABASE_URL || 'https://dmdjytkuwfudkqepkxkl.supabase.co',
+      serviceKey,
+      { auth: { persistSession: false, autoRefreshToken: false } }
+    );
+
+    const { data: order, error: lookupError } = await adminSb
+      .from('orders')
+      .select('id, buyer_id, receipt_url')
+      .eq('order_code', orderId)
+      .eq('buyer_id', buyerId)
+      .maybeSingle();
+
+    if (lookupError) {
+      console.error('[receipt] Order lookup failed:', lookupError.message);
+      return res.status(500).json({ error: 'Could not verify the order.' });
+    }
+    if (!order) return res.status(404).json({ error: 'Order not found.' });
+    if (order.receipt_url) {
+      return res.status(409).json({ error: 'A receipt has already been uploaded for this order.' });
+    }
+
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const folder = 'Xmarket/OrderReceipts';
+    const publicId = 'receipt_' + crypto.randomUUID();
+    const signParams = { folder, public_id: publicId, timestamp };
+    const signText = Object.keys(signParams).sort()
+      .map(k => `${k}=${signParams[k]}`).join('&') + apiSecret;
+    const signature = crypto.createHash('sha1').update(signText).digest('hex');
+
+    const form = new FormData();
+    form.append('file', dataUrl);
+    form.append('api_key', apiKey);
+    form.append('timestamp', timestamp);
+    form.append('folder', folder);
+    form.append('public_id', publicId);
+    form.append('signature', signature);
+
+    const uploadResponse = await fetch(
+      `https://api.cloudinary.com/v1_1/${encodeURIComponent(cloudName)}/image/upload`,
+      { method: 'POST', body: form }
+    );
+    const uploaded = await uploadResponse.json();
+    if (!uploadResponse.ok || !uploaded.secure_url) {
+      console.error('[receipt] Cloudinary upload failed:', uploaded.error?.message || 'Unknown error');
+      return res.status(502).json({ error: 'Cloudinary could not upload the receipt.' });
+    }
+
+    const { data: updated, error: updateError } = await adminSb
+      .from('orders')
+      .update({
+        receipt_url: uploaded.secure_url,
+        receipt_public_id: uploaded.public_id,
+        receipt_uploaded_at: new Date().toISOString()
+      })
+      .eq('order_code', orderId)
+      .eq('buyer_id', buyerId)
+      .is('receipt_url', null)
+      .select('id')
+      .maybeSingle();
+
+    if (updateError || !updated) {
+      console.error('[receipt] Database update failed:', updateError?.message || 'Receipt already exists');
+      return res.status(409).json({ error: 'Receipt uploaded but could not be attached to the order. Contact support.' });
+    }
+
+    return res.json({ ok: true, receipt_url: uploaded.secure_url });
+  } catch (err) {
+    console.error('[receipt] Endpoint failed:', err.message);
+    return res.status(500).json({ error: 'Receipt upload failed.' });
+  }
 });
 
 app.listen(PORT, () => {

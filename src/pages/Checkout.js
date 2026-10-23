@@ -16,6 +16,8 @@ import { fetchWallet } from '../lib/xwallet';
 
 const ORDER_API = 'https://xmarket-telegram-bot.onrender.com/api/order';
 const RECEIPT_API = 'https://xmarket-telegram-bot.onrender.com/api/receipt';
+const CLD_CLOUD = 'bvw3okdf';
+const CLD_PRESET = 'PUT_REAL_NAME_HERE';
 
 const PAYMENTS = [
   { id: 'gcash', label: 'GCash',
@@ -24,7 +26,7 @@ const PAYMENTS = [
   { id: 'maya', label: 'Maya',
     note: 'Send payment to Maya number 09454408496 (JE*****L C.). Upload your receipt screenshot after payment. Scan the QR below.',
     qr: 'https://res.cloudinary.com/bvw3okdf/image/upload/v1790593882/myqr_1790592093301.jpg' },
-  { id: 'gotyme', label: 'Bank Transfer [Gotyme]',
+  { id: 'gotyme', label: 'Bank transfer',
     note: 'Transfer to: Gotyme Bank | Account Name: Jessrell Custodio | Account No: 0152 4915 7462. Send us a screenshot of the transfer confirmation.',
     qr: 'https://res.cloudinary.com/bvw3okdf/image/upload/v1790592841/Screenshot_20260928_183617_GoTyme_PH.jpg' },
   { id: 'xwallet', label: 'Xwallet Balance',
@@ -280,50 +282,6 @@ export default function Checkout() {
       const deliveryLabel = DELIVERIES.find(d => d.id === form.delivery)?.label;
       const newOrderId = 'XM-' + Date.now().toString().slice(-8);
 
-      // 1) Notify Telegram with EVERYTHING in one call (order + delivery + receipt)
-      try {
-        await fetch(ORDER_API, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            form,
-            items: items.map(i => ({
-              name: i.name,
-              variant: i.variant || null,
-              quantity: i.quantity,
-              price: i.price,
-            })),
-            subtotal, discount, total,
-            payment: paymentLabel,
-            delivery: deliveryLabel,
-            orderId: newOrderId,
-            promo: promo?.code || null,
-            receipt: receipt ? { name: receipt.name, dataUrl: receipt.dataUrl } : null,
-            xcard: xcardValue > 0 ? { code: xcardInput, amount: xcardValue } : null,
-            payment_status: form.payment === 'xwallet'
-              ? 'Paid via Xwallet'
-              : 'Awaiting receipt verification',
-          }),
-        });
-      } catch (err) { console.log('Notify failed:', err); }
-
-      // 1b) Send the receipt separately so the bot definitely receives it
-      if (receipt) {
-        try {
-          await fetch(RECEIPT_API, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              orderId: newOrderId,
-              orderCode: newOrderId,
-              name: receipt.name,
-              dataUrl: receipt.dataUrl,
-            }),
-          });
-          console.log('Receipt sent to Telegram');
-        } catch (err) { console.log('Receipt send failed:', err); }
-      }
-
       // 2) Write the order securely via RPC
       try {
         const payloadItems = items.map(i => ({
@@ -345,6 +303,41 @@ export default function Checkout() {
         if (oErr) throw oErr;
         if (!res || !res.ok) throw new Error(res?.error || 'Failed to place order');
 
+        // Notify Telegram with the server-calculated totals (text only, no image)
+        try {
+          await fetch(ORDER_API, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              form,
+              items: items.map(i => ({ name: i.name, variant: i.variant || null, quantity: i.quantity, price: i.price })),
+              subtotal: res.subtotal, discount: res.discount, shipping: res.shipping, total: res.total,
+              payment: paymentLabel, delivery: deliveryLabel, orderId: newOrderId,
+              promo: promo?.code || null,
+              xcard: xcardValue > 0 ? { code: xcardInput, amount: xcardValue } : null,
+              payment_status: form.payment === 'xwallet' ? 'Paid via Xwallet' : 'Awaiting receipt verification',
+            }),
+          });
+        } catch (err) { console.log('Notify failed:', err); }
+        
+        // Upload receipt straight to Cloudinary (unsigned) and save the link on the order
+        if (receipt?.dataUrl) {
+          try {
+            const fd = new FormData();
+            fd.append('file', receipt.dataUrl);
+            fd.append('upload_preset', CLD_PRESET);
+            fd.append('folder', 'Xmarket/OrderReceipts');
+            const up = await fetch('https://api.cloudinary.com/v1_1/' + CLD_CLOUD + '/image/upload', { method: 'POST', body: fd });
+            const upj = await up.json().catch(() => ({}));
+            if (!up.ok || !upj.secure_url) throw new Error(upj?.error?.message || 'Receipt upload failed');
+            const { data: rr, error: rErr } = await supabase.rpc('set_order_receipt', { p_order_code: newOrderId, p_url: upj.secure_url });
+            if (rErr || !rr?.ok) throw new Error(rErr?.message || rr?.error || 'Could not save receipt');
+          } catch (receiptError) {
+            console.error('[receipt] Upload failed:', receiptError);
+            showToast('Order saved, but receipt upload failed. Contact support before paying again.');
+          }
+        }
+
         // Clear the cart
         await dispatch({ type: 'CLEAR' });
 
@@ -355,7 +348,7 @@ export default function Checkout() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               title: '🛒 New order ' + newOrderId,
-              body: form.fullName + ' · ₱' + total + ' · ' + paymentLabel,
+              body: form.fullName + ' · ₱' + res.total + ' · ' + paymentLabel,
               url: '/orders',
               tag: 'new-order',
             }),
@@ -364,7 +357,8 @@ export default function Checkout() {
 
       } catch (err) {
         console.log('Supabase order failed:', err);
-        showToast('Order sent but not saved. Contact support.');
+        showToast('Order could not be saved. Please try again or contact support.');
+        throw err;
       }
 
       setSending(false);
@@ -511,7 +505,7 @@ export default function Checkout() {
         {input('city', 'City / Municipality')}
         {input('barangay', 'Barangay')}
         <div style={{ marginBottom: 10 }}>
-          <label>Additional Delivery Instruction *</label>
+          <label>Additional Delivery Instruction (optional)</label>
           <textarea value={form.instructions} onChange={e => upd('instructions', e.target.value)}
             style={{ width: '100%', padding: 10, marginTop: 4,
               borderColor: missing.includes('instructions') ? '#DC2626' : undefined }} rows="2" />
