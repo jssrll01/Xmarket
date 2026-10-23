@@ -15,11 +15,7 @@ const sb = createClient(
 );
 
 app.use(cors());
-<<<<<<< HEAD
-app.use(express.json({ limit: '7mb' }));
-=======
 app.use(express.json({ limit: '12mb' }));
->>>>>>> 238f6db (Checkout: cloudinary receipts, server totals, labels)
 
 // Existing order bot
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
