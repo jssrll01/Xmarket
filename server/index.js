@@ -3,6 +3,7 @@ import cors from 'cors';
 import fetch from 'node-fetch';
 import { Blob } from 'buffer';
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'node:crypto';
 
 import { sendPushToUser } from './fcm.js';
 const app = express();
@@ -13,7 +14,7 @@ const sb = createClient(
 );
 
 app.use(cors());
-app.use(express.json({ limit: '1mb' }));
+app.use(express.json({ limit: '7mb' }));
 
 // Existing order bot
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -135,6 +136,113 @@ app.post('/api/order', async (req, res) => {
 
   const data = await tgSend(BOT_TOKEN, CHAT_ID, lines.join('\n'));
   res.json({ ok: data.ok, forwarded: !!data.ok });
+});
+
+
+
+// Authenticated receipt upload: Cloudinary + existing Supabase order.
+app.post('/api/receipt', async (req, res) => {
+  try {
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+    if (!token) return res.status(401).json({ error: 'Sign in required' });
+
+    const supabaseUrl = process.env.RECEIPT_SUPABASE_URL
+      || 'https://dmdjytkuwfudkqepkxkl.supabase.co';
+    const serviceKey = process.env.RECEIPT_SUPABASE_SERVICE_KEY;
+    const cloud = process.env.CLOUDINARY_CLOUD_NAME;
+    const apiKey = process.env.CLOUDINARY_API_KEY;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+    if (!serviceKey || !cloud || !apiKey || !apiSecret) {
+      return res.status(503).json({ error: 'Receipt service is not configured' });
+    }
+
+    const admin = createClient(supabaseUrl, serviceKey, {
+      auth: { persistSession: false, autoRefreshToken: false }
+    });
+    const { data: userData, error: userError } = await admin.auth.getUser(token);
+    if (userError || !userData?.user) {
+      return res.status(401).json({ error: 'Invalid or expired session' });
+    }
+
+    const { orderId, dataUrl } = req.body || {};
+    if (typeof orderId !== 'string' || !/^XM-[A-Za-z0-9-]+$/.test(orderId)) {
+      return res.status(400).json({ error: 'Invalid order ID' });
+    }
+    if (typeof dataUrl !== 'string') {
+      return res.status(400).json({ error: 'Receipt image is required' });
+    }
+
+    const match = dataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+    if (!match) return res.status(400).json({ error: 'Use a JPG, PNG, or WebP image' });
+
+    const mime = match[1];
+    const base64 = match[2];
+    const image = Buffer.from(base64, 'base64');
+    if (!image.length || image.length > 5 * 1024 * 1024) {
+      return res.status(413).json({ error: 'Receipt image must be 5 MB or smaller' });
+    }
+
+    const { data: order, error: orderError } = await admin
+      .from('orders')
+      .select('id, order_code, buyer_id')
+      .eq('order_code', orderId)
+      .eq('buyer_id', userData.user.id)
+      .maybeSingle();
+
+    if (orderError) throw orderError;
+    if (!order) return res.status(404).json({ error: 'Order not found for this account' });
+
+    const timestamp = Math.floor(Date.now() / 1000).toString();
+    const folder = 'xmarket/receipts';
+    const publicId = `receipt-${order.id}-${timestamp}`;
+    const signed = `folder=${folder}&public_id=${publicId}&timestamp=${timestamp}`;
+    const signature = crypto.createHash('sha1')
+      .update(signed + apiSecret)
+      .digest('hex');
+
+    const uploadBody = new URLSearchParams({
+      file: `data:${mime};base64,${base64}`,
+      api_key: apiKey,
+      timestamp,
+      folder,
+      public_id: publicId,
+      signature
+    });
+
+    const uploadResponse = await fetch(
+      `https://api.cloudinary.com/v1_1/${encodeURIComponent(cloud)}/image/upload`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: uploadBody.toString()
+      }
+    );
+
+    const uploaded = await uploadResponse.json();
+    if (!uploadResponse.ok || !uploaded.secure_url || !uploaded.public_id) {
+      console.error('[receipt] Cloudinary upload failed:', uploaded.error?.message || uploadResponse.status);
+      return res.status(502).json({ error: 'Receipt image upload failed' });
+    }
+
+    const { error: updateError } = await admin
+      .from('orders')
+      .update({
+        receipt_url: uploaded.secure_url,
+        receipt_public_id: uploaded.public_id,
+        receipt_uploaded_at: new Date().toISOString()
+      })
+      .eq('id', order.id)
+      .eq('buyer_id', userData.user.id);
+
+    if (updateError) throw updateError;
+
+    return res.json({ ok: true, receipt_url: uploaded.secure_url });
+  } catch (error) {
+    console.error('[receipt] Endpoint error:', error.message || error);
+    return res.status(500).json({ error: 'Unable to save receipt' });
+  }
 });
 
 /* ============================================================
