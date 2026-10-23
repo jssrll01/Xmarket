@@ -4,7 +4,6 @@ import cors from 'cors';
 import fetch from 'node-fetch';
 import { Blob } from 'buffer';
 import { createClient } from '@supabase/supabase-js';
-import crypto from 'node:crypto';
 
 import { sendPushToUser } from './fcm.js';
 const app = express();

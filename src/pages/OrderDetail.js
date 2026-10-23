@@ -161,6 +161,11 @@ export default function OrderDetail() {
             <span>Discount</span><span>-₱{discount}</span>
           </div>
         )}
+        {Number(order.shipping_fee) > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+            <span>Shipping</span><span>₱{Number(order.shipping_fee)}</span>
+          </div>
+        )}
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 16, marginTop: 8 }}>
           <span>Total</span><span>₱{total}</span>
         </div>
