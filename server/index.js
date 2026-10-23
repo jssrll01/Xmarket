@@ -97,7 +97,7 @@ app.post('/api/order', async (req, res) => {
     return res.status(500).json({ error: 'Server not configured' });
   }
 
-  const { form, items, subtotal, discount, total, payment, delivery, orderId, xcard, payment_status } = req.body || {};
+  const { form, items, subtotal, discount, shipping, total, payment, delivery, orderId, xcard, payment_status } = req.body || {};
   if (!form || !items) return res.status(400).json({ error: 'Missing order data' });
 
   const lines = [];
@@ -126,6 +126,7 @@ app.post('/api/order', async (req, res) => {
   lines.push('💰 *Summary*');
   lines.push(`Subtotal: ₱${subtotal}`);
   lines.push(`Discount: -₱${discount}`);
+  lines.push(`Shipping: ₱${Number(shipping) || 0}`);
   lines.push(`Total: ₱${total}`);
   lines.push('');
   lines.push('💳 *Payment*');
