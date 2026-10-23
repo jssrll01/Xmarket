@@ -7,9 +7,9 @@ const row = { display: 'flex', justifyContent: 'space-between', alignItems: 'cen
 const m = (v) => '₱' + safeFixed(v);
 const hr = <hr style={{ margin: '8px 0', border: 'none', borderTop: '1px solid var(--border)' }} />;
 
-export default function OrderTotals({ items = [], showItems = false, subtotal = 0, productDiscount = 0, promoDiscount = 0, xcardDiscount = 0, shipping = 0, total = 0 }) {
+export default function OrderTotals({ items = [], showItems = false, subtotal = 0, productDiscount = 0, promoDiscount = 0, xcardDiscount = 0, shipping = 0, total = 0, discountTiers = [] }) {
   const totalDiscount = productDiscount + promoDiscount + xcardDiscount;
-  const lines = items.map(i => ({ i, pct: discountPercent(i.price), amt: itemDiscount(i.price, i.quantity) })).filter(x => x.amt > 0);
+  const lines = items.map(i => ({ i, pct: discountPercent(i.price, discountTiers), amt: itemDiscount(i.price, i.quantity, discountTiers) })).filter(x => x.amt > 0);
   return (
     <div>
       {showItems && items.map((i, n) => (

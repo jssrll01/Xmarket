@@ -1,6 +1,6 @@
 import { getShippingFeeSync, fetchShippingTiers } from '../lib/shipping';
 import OrderTotals from '../components/OrderTotals';
-import { itemDiscount } from '../lib/discount';
+import { itemDiscount, loadDiscountRules } from '../lib/discount';
 import { ListRowsSkeleton } from '../components/Skeleton';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +20,12 @@ export default function Cart() {
   const { show: showToast } = useToast();
   const [going, setGoing] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState(null);
+  const [discountTiers, setDiscountTiers] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    loadDiscountRules().then(t => { if (alive) setDiscountTiers(t); }).catch(err => console.error('Unable to load discount rules:', err));
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/signin', { replace: true });
@@ -28,7 +34,7 @@ export default function Cart() {
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
   const [tiers, setTiers] = useState(null);
   useEffect(() => { fetchShippingTiers().then(setTiers); }, []);
-  const productDiscount = items.reduce((t, i) => t + itemDiscount(i.price, i.quantity), 0);
+  const productDiscount = items.reduce((t, i) => t + itemDiscount(i.price, i.quantity, discountTiers), 0);
   const shipping = getShippingFeeSync(subtotal, tiers || undefined);
   const total = Math.max(0, subtotal - productDiscount) + shipping;
 
@@ -118,7 +124,7 @@ export default function Cart() {
       ))}
 
       <div className="card" style={{ padding: 16, marginTop: 12 }}>
-        <OrderTotals items={items} subtotal={subtotal} productDiscount={productDiscount} shipping={shipping} total={total} />
+        <OrderTotals items={items} subtotal={subtotal} productDiscount={productDiscount} discountTiers={discountTiers} shipping={shipping} total={total} />
       </div>
 
       <button onClick={handleCheckout} disabled={going} className="btn-primary"

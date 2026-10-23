@@ -1,13 +1,13 @@
-import { getPromoDisplay, loadDiscountTiers } from './promo';
+
+import {
+  getPromoDisplay,
+  loadDiscountTiers,
+  computeDiscountForPrice,
+} from './promo';
 
 let tiersPromise = null;
 
-export function discountPercent(price) {
-  const p = getPromoDisplay(price);
-  return p.hasPromo ? p.discountPercent : 0;
-}
-
-export async function loadDiscountPercent(price) {
+export function loadDiscountRules() {
   if (!tiersPromise) {
     tiersPromise = loadDiscountTiers().catch((error) => {
       tiersPromise = null;
@@ -15,20 +15,38 @@ export async function loadDiscountPercent(price) {
     });
   }
 
+  return tiersPromise;
+}
+
+export function discountPercent(price, tiers) {
+  const promo = getPromoDisplay(price, tiers);
+  return promo.hasPromo ? promo.discountPercent : 0;
+}
+
+export async function loadDiscountPercent(price) {
   try {
-    const tiers = await tiersPromise;
-    const promo = getPromoDisplay(price, tiers);
-    return promo.hasPromo ? promo.discountPercent : 0;
+    const tiers = await loadDiscountRules();
+    return discountPercent(price, tiers);
   } catch (error) {
     console.error('Unable to load discount tiers:', error);
     return 0;
   }
 }
 
-export function itemDiscount(price, qty) {
-  const p = Number(price) || 0;
-  const q = Number(qty) || 1;
-  return Math.round(p * q * discountPercent(p)) / 100;
+export function itemDiscount(price, qty, tiers) {
+  const p = Number(price);
+  const q = Number(qty);
+
+  if (!Number.isFinite(p) || p <= 0) return 0;
+  if (!Number.isFinite(q) || q <= 0) return 0;
+
+  // Without loaded rules, do not claim a discount was applied.
+  if (!Array.isArray(tiers) || tiers.length === 0) return 0;
+
+  const result = computeDiscountForPrice(p, tiers);
+
+  // The maximum discount applies to each unit.
+  return Math.round(result.discount * q * 100) / 100;
 }
 
 export function firstNumber(text) {

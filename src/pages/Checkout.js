@@ -1,6 +1,6 @@
 import { getShippingFeeSync, fetchShippingTiers } from '../lib/shipping';
 import OrderTotals from '../components/OrderTotals';
-import { itemDiscount } from '../lib/discount';
+import { itemDiscount, loadDiscountRules } from '../lib/discount';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap, Wand2 } from 'lucide-react';
@@ -87,6 +87,12 @@ export default function Checkout() {
   const [promoError, setPromoError] = useState('');
   const [sendingReceipt, setSendingReceipt] = useState(false);
   const [receiptSent, setReceiptSent] = useState(false);
+  const [discountTiers, setDiscountTiers] = useState([]);
+  useEffect(() => {
+    let alive = true;
+    loadDiscountRules().then(t => { if (alive) setDiscountTiers(t); }).catch(err => console.error('Unable to load discount rules:', err));
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -119,7 +125,7 @@ export default function Checkout() {
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
   const [shipTiers, setShipTiers] = useState(null);
   useEffect(() => { fetchShippingTiers().then(setShipTiers); }, []);
-  const productDiscount = items.reduce((t, i) => t + itemDiscount(i.price, i.quantity), 0);
+  const productDiscount = items.reduce((t, i) => t + itemDiscount(i.price, i.quantity, discountTiers), 0);
   const promoDiscount = computeDiscount(promo, subtotal - productDiscount);
   const xcardDiscount = Math.min(xcardValue, Math.max(0, subtotal - productDiscount - promoDiscount));
   const discount = productDiscount + promoDiscount + xcardDiscount;
@@ -647,7 +653,7 @@ export default function Checkout() {
         )}
 
         <h3 style={{ marginBottom: 8 }}>Order Summary</h3>
-        <OrderTotals showItems items={items} subtotal={subtotal} productDiscount={productDiscount} promoDiscount={promoDiscount} xcardDiscount={xcardDiscount} shipping={shipping} total={total} />
+        <OrderTotals showItems items={items} subtotal={subtotal} productDiscount={productDiscount} discountTiers={discountTiers} promoDiscount={promoDiscount} xcardDiscount={xcardDiscount} shipping={shipping} total={total} />
       </div>
 
       <button onClick={placeOrder} disabled={sending} className="btn-primary"
