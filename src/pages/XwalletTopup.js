@@ -66,6 +66,20 @@ export default function XwalletTopup() {
     if (!user) return;
     if (!receipt) { showToast('Please upload your payment receipt'); return; }
     setSending(true);
+    let receiptToSend;
+    try {
+      const fd = new FormData();
+      fd.append('file', receipt.dataUrl);
+      fd.append('upload_preset', 'xmarket_topup');
+      const up = await fetch('https://api.cloudinary.com/v1_1/bvw3okdf/image/upload', { method: 'POST', body: fd });
+      const j = await up.json();
+      if (!j.secure_url) throw new Error('upload failed');
+      receiptToSend = { name: receipt.name, url: j.secure_url };
+    } catch (e) {
+      setSending(false);
+      showToast('Receipt upload failed. Please try again.');
+      return;
+    }
     const { data, error } = await submitTopupBilling({
       userId: user.id,
       email: user.email,
@@ -73,7 +87,7 @@ export default function XwalletTopup() {
       payment: selected.label,
       fee,
       total,
-      receipt,
+      receipt: receiptToSend,
     });
     setSending(false);
     if (error) { showToast(error.message); return; }
