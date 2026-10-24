@@ -173,12 +173,6 @@ export default function OrderDetail() {
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
-        {(order.status === 'shipped' || order.status === 'delivered') && (
-          <button onClick={onConfirm} disabled={busy} className="btn-primary"
-            style={{ flex: 1, padding: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-            <CheckCircle2 size={14} /> Confirm receipt
-          </button>
-        )}
         <button onClick={onWriteReview} disabled={busy || !items.length} className="btn-primary"
           style={{ flex: 1, padding: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
           <Star size={14} /> Write a review
