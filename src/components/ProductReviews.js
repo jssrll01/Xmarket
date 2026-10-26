@@ -91,7 +91,8 @@ export default function ProductReviews({ product }) {
         photoUrl = await uploadReviewPhoto(photo.file);
       } catch (err) {
         setSubmitting(false);
-        showToast('Photo could not be uploaded. Try again or remove the photo.');
+        console.error('Review photo upload failed:', err);
+        showToast('Photo could not be uploaded (' + ((err && err.message) || 'unknown reason') + '). Try again or remove the photo.');
         return;
       }
     }
