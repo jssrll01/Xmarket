@@ -36,6 +36,7 @@ export default function Orders() {
         <ArrowLeft size={20} />
       </button>
       <h2 style={{ marginBottom: 20 }}>Orders</h2>
+      <button onClick={() => nav('/tracking-orders')} style={{ marginBottom: 16, padding: '10px 16px', borderRadius: 999, border: '1px solid var(--border)', background: '#fff', fontWeight: 700, cursor: 'pointer' }}>Track my orders</button>
 
       {loading ? (
         <>

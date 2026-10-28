@@ -52,6 +52,7 @@ import Settings from './pages/Settings';
 import SignUp from './pages/SignUp';
 import Profile from './pages/Profile';
 import Orders from './pages/Orders';
+import TrackingOrders from './pages/TrackingOrders';
 import OrderDetail from './pages/OrderDetail';
 import SellerProfile from './pages/SellerProfile';
 import Rewards from './pages/Rewards';
@@ -104,6 +105,7 @@ function Router() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/tracking-orders" element={<TrackingOrders />} />
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/store/:store" element={<SellerProfile />} />
         <Route path="/rewards" element={<Rewards />} />
