@@ -4,6 +4,7 @@ import { CartProvider } from './CartContext';
 import { ToastProvider } from './components/Toast';
 import SiteFooter from './components/SiteFooter';
 import useScrollTop from './hooks/useScrollTop';
+import LandingPage from './landing/App';
 import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
@@ -92,6 +93,7 @@ function Router() {
   return (
     <>
       <Routes>
+        <Route path="/landing-page" element={<LandingPage />} />
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />
