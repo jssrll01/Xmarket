@@ -186,11 +186,11 @@ export default function XCoin() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#64748b', marginBottom: '10px' }}>
                 <span>Est. Price (incl. spread):</span>
-                <strong style={{ color: '#0f172a' }}>₱{(market.current_price * (tradeType === 'buy' ? 1.015 : 0.985)).toFixed(2)}</strong>
+                <strong style={{ color: '#0f172a' }}>₱{(market.current_price * (tradeType === 'buy' ? 1.005 : 0.995)).toFixed(2)}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#64748b', marginBottom: '20px' }}>
                 <span>You will {tradeType === 'buy' ? 'receive' : 'pay'}:</span>
-                <strong style={{ color: '#0f172a' }}>{tradeType === 'buy' ? `${(parseFloat(tradeAmount) / (market.current_price * 1.015) || 0).toFixed(2)} XCOIN` : `₱${(parseFloat(tradeAmount) * market.current_price * 0.985 || 0).toFixed(2)}`}</strong>
+                <strong style={{ color: '#0f172a' }}>{tradeType === 'buy' ? `${(parseFloat(tradeAmount) / (market.current_price * 1.005) || 0).toFixed(2)} XCOIN` : `₱${(parseFloat(tradeAmount) * market.current_price * 0.985 || 0).toFixed(2)}`}</strong>
               </div>
               <button disabled={loading} type="submit" style={{ width: '100%', padding: '16px', background: tradeType === 'buy' ? '#2563EB' : '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '16px', cursor: loading ? 'not-allowed' : 'pointer' }}>
                 {loading ? 'Processing...' : (tradeType === 'buy' ? 'Buy XCOIN' : 'Sell XCOIN')}
