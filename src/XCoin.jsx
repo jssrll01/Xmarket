@@ -4,50 +4,61 @@ import { createChart, CandlestickSeries, HistogramSeries, AreaSeries, CrosshairM
 import { useNavigate } from 'react-router-dom';
 
 const TFS = [['1m', 60], ['5m', 300], ['15m', 900], ['1H', 3600], ['4H', 14400], ['1D', 86400]];
+const perMinute = (rows) => {
+  const m = new Map();
+  rows.forEach((t) => m.set(Math.floor(t.time / 60), t.value));
+  return [...m.entries()].sort((a, b) => a[0] - b[0]).map(([b, v]) => ({ time: b * 60, value: v }));
+};
 const BUY_SPREAD = 1.005;
 const SELL_SPREAD = 0.995;
-const UP = '#22c55e';
-const DOWN = '#ef4444';
+const UP = '#16a34a';
+const DOWN = '#dc2626';
 
 const CSS = `
-.xc{background:#070b14;min-height:100vh;color:#e5e7eb;font-family:Inter,system-ui,sans-serif;padding-bottom:40px}
+.xc{background:#f4f6fb;min-height:100vh;color:#0f172a;font-family:Inter,system-ui,sans-serif;padding-bottom:40px}
 .xc *{box-sizing:border-box}
-.xc-top{background:#0b1220;border-bottom:1px solid #1f2937;padding:12px 14px;position:sticky;top:0;z-index:20}
+.xc-top{background:#ffffff;border-bottom:1px solid #e2e8f0;padding:12px 14px;position:sticky;top:0;z-index:20}
 .xc-top-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}
-.xc-back{background:none;border:0;color:#94a3b8;font-size:13px;cursor:pointer;padding:0}
+.xc-back{background:none;border:0;color:#64748b;font-size:13px;cursor:pointer;padding:0}
 .xc-pair{display:flex;align-items:center;gap:10px}
 .xc-logo{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}
 .xc-pair b{font-size:16px}.xc-pair small{display:block;color:#64748b;font-size:11px}
-.xc-chip{font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;background:#1e3a8a;color:#93c5fd;margin-left:6px}
-.xc-clock{font-family:ui-monospace,monospace;color:#38bdf8;font-size:13px;font-weight:700}
-.xc-wal{background:#111827;border:1px solid #1f2937;border-radius:10px;padding:6px 12px;text-align:right}
+.xc-chip{font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;background:#dbeafe;color:#1d4ed8;margin-left:6px}
+.xc-clock{font-family:ui-monospace,monospace;color:#0284c7;font-size:13px;font-weight:700}
+.xc-wal{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:6px 12px;text-align:right}
 .xc-wal small{display:block;color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.8px}
 .xc-wal b{font-size:16px}
-.xc-wrap{max-width:1240px;margin:0 auto;padding:12px 12px 0;display:grid;gap:12px;grid-template-columns:1fr}
-@media(min-width:1000px){.xc-wrap{grid-template-columns:minmax(0,1fr) 340px}}
-.xc-card{background:#0f172a;border:1px solid #1f2937;border-radius:14px;padding:14px}
+.xc-wrap{max-width:1240px;margin:0 auto;padding:12px 12px 0;display:grid;gap:12px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media(min-width:1000px){
+  .xc-wrap{grid-template-columns:minmax(0,1fr) 340px}
+  .xc-a{grid-column:1;grid-row:1 / span 2}
+  .xc-b{grid-column:2;grid-row:1}
+  .xc-c{grid-column:2;grid-row:2}
+  .xc-d{grid-column:1;grid-row:3 / span 1}
+}
+.xc-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
 .xc-ticker{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 14px}
 @media(min-width:700px){.xc-ticker{grid-template-columns:repeat(6,1fr)}}
 .xc-stat small{display:block;color:#64748b;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
 .xc-stat b{font-size:13.5px}
 .xc-price{font-size:34px;font-weight:900;letter-spacing:-1px;line-height:1.05}
 .xc-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:12px 0 8px}
-.xc-tf{background:#111827;border:1px solid #1f2937;color:#94a3b8;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer}
+.xc-tf{background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer}
 .xc-tf.on{background:#2563eb;color:#fff;border-color:#2563eb}
 .xc-sp{flex:1}
-.xc-chart{border-radius:10px;overflow:hidden;background:#0b1220;height:380px}
-.xc-ohlc{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#94a3b8;margin-top:8px;font-family:ui-monospace,monospace}
-.xc-seg{display:grid;grid-template-columns:1fr 1fr;background:#111827;border-radius:10px;padding:3px;margin-bottom:12px}
-.xc-seg button{border:0;border-radius:8px;padding:10px;font-weight:800;font-size:14px;cursor:pointer;background:transparent;color:#94a3b8}
+.xc-chart{border-radius:10px;overflow:hidden;background:#ffffff;border:1px solid #eef2f7;height:380px}
+.xc-ohlc{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#64748b;margin-top:8px;font-family:ui-monospace,monospace}
+.xc-seg{display:grid;grid-template-columns:1fr 1fr;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:12px}
+.xc-seg button{border:0;border-radius:8px;padding:10px;font-weight:800;font-size:14px;cursor:pointer;background:transparent;color:#64748b}
 .xc-lbl{display:flex;justify-content:space-between;font-size:11.5px;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.xc-inp{display:flex;align-items:center;background:#0b1220;border:1px solid #243049;border-radius:10px;padding:0 12px}
-.xc-inp:focus-within{border-color:#3b82f6}
+.xc-inp{display:flex;align-items:center;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:0 12px}
+.xc-inp:focus-within{border-color:#2563eb;background:#fff}
 .xc-inp span{color:#64748b;font-weight:800}
-.xc-inp input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#f8fafc;font-size:18px;font-weight:700;padding:13px 8px}
+.xc-inp input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#0f172a;font-size:18px;font-weight:700;padding:13px 8px}
 .xc-pcts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 12px}
-.xc-pcts button{background:#111827;border:1px solid #1f2937;color:#cbd5e1;border-radius:8px;padding:6px 0;font-size:12px;font-weight:700;cursor:pointer}
-.xc-row{display:flex;justify-content:space-between;font-size:13px;color:#94a3b8;margin:6px 0}
-.xc-row b{color:#f1f5f9}
+.xc-pcts button{background:#f1f5f9;border:1px solid #e2e8f0;color:#334155;border-radius:8px;padding:6px 0;font-size:12px;font-weight:700;cursor:pointer}
+.xc-row{display:flex;justify-content:space-between;font-size:13px;color:#64748b;margin:6px 0}
+.xc-row b{color:#0f172a}
 .xc-go{width:100%;border:0;border-radius:10px;padding:14px;font-weight:900;font-size:15px;color:#fff;cursor:pointer;margin-top:10px}
 .xc-go:disabled{opacity:.55;cursor:not-allowed}
 .xc-msg{margin-top:10px;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:600}
@@ -56,9 +67,9 @@ const CSS = `
 .xc-pf small{display:block;color:#64748b;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
 .xc-pf b{font-size:16px}
 .xc-ticks{max-height:260px;overflow:auto}
-.xc-tk{display:grid;grid-template-columns:1fr 1fr 1fr;font-family:ui-monospace,monospace;font-size:12px;padding:4px 0;border-bottom:1px solid #131c2e}
+.xc-tk{display:grid;grid-template-columns:1fr 1fr 1fr;font-family:ui-monospace,monospace;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9}
 .xc-tk span:nth-child(2){text-align:right}.xc-tk span:nth-child(3){text-align:right;color:#64748b}
-.xc-gauge{height:8px;border-radius:6px;background:#1f2937;overflow:hidden;margin-top:6px}
+.xc-gauge{height:8px;border-radius:6px;background:#e2e8f0;overflow:hidden;margin-top:6px}
 .xc-gauge i{display:block;height:100%;background:linear-gradient(90deg,#ef4444,#f59e0b,#22c55e)}
 .xc-note{font-size:11px;color:#64748b;margin-top:8px;line-height:1.4}
 `;
@@ -81,7 +92,7 @@ function aggregate(ticks, step) {
       cur.n += 1;
     }
   }
-  candles.forEach((c) => vols.push({ time: c.time, value: c.n, color: c.close >= c.open ? 'rgba(34,197,94,.45)' : 'rgba(239,68,68,.45)' }));
+  candles.forEach((c) => vols.push({ time: c.time, value: c.n, color: c.close >= c.open ? 'rgba(22,163,74,.40)' : 'rgba(220,38,38,.40)' }));
   return { candles, vols };
 }
 
@@ -104,6 +115,7 @@ export default function XCoin() {
   const chartRef = useRef(null);
   const ticksRef = useRef([]);
   const tfRef = useRef('1m');
+  const pendRef = useRef(null);
   tfRef.current = tf;
 
   useEffect(() => {
@@ -134,29 +146,46 @@ export default function XCoin() {
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'xcoin_market_state' }, (payload) => setMarket(payload.new)).subscribe();
     const historySub = supabase.channel('xcoin_history')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'xcoin_price_history' }, (payload) => {
+        // The database ticks every second; we publish ONE tick per minute (the last price of each finished minute).
         const t = { time: Math.floor(new Date(payload.new.recorded_at).getTime() / 1000), value: Number(payload.new.price) };
-        ticksRef.current = [...ticksRef.current.slice(-4999), t];
-        setTicks(ticksRef.current);
-        const c = chartRef.current;
-        if (c && c.series) {
-          const step = TFS.find((x) => x[0] === tfRef.current)[1];
-          const { candles, vols } = aggregate(ticksRef.current, step);
-          const last = candles[candles.length - 1];
-          if (last) {
-            if (c.style === 'candles') c.series.update(last); else c.series.update({ time: last.time, value: last.close });
-            c.vol.update(vols[vols.length - 1]);
+        const b = Math.floor(t.time / 60);
+        const pend = pendRef.current;
+        if (pend && pend.bucket < b) {
+          ticksRef.current = [...ticksRef.current.slice(-4999), { time: pend.bucket * 60, value: pend.value }];
+          setTicks(ticksRef.current);
+          const c = chartRef.current;
+          if (c && c.series) {
+            const step = TFS.find((x) => x[0] === tfRef.current)[1];
+            const { candles, vols } = aggregate(ticksRef.current, step);
+            const last = candles[candles.length - 1];
+            if (last) {
+              if (c.style === 'candles') c.series.update(last); else c.series.update({ time: last.time, value: last.close });
+              c.vol.update(vols[vols.length - 1]);
+            }
           }
         }
+        pendRef.current = { bucket: b, value: t.value };
       }).subscribe();
     return () => { supabase.removeChannel(marketSub); supabase.removeChannel(historySub); };
   }, [loadAccount]);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from('xcoin_price_history').select('price, recorded_at').order('recorded_at', { ascending: false }).limit(5000);
-      if (data) {
-        ticksRef.current = data.reverse().map((d) => ({ time: Math.floor(new Date(d.recorded_at).getTime() / 1000), value: Number(d.price) }));
-        setTicks(ticksRef.current);
+      let rows = null;
+      // Preferred: one row per minute from the xcoin_price_minute view (see SQL). Falls back to raw ticks.
+      const v = await supabase.from('xcoin_price_minute').select('price, recorded_at').order('recorded_at', { ascending: false }).limit(1000);
+      if (!v.error && v.data && v.data.length) rows = v.data;
+      if (!rows) {
+        const r = await supabase.from('xcoin_price_history').select('price, recorded_at').order('recorded_at', { ascending: false }).limit(1000);
+        if (r.data) rows = r.data;
+      }
+      if (rows) {
+        let list = perMinute(rows.reverse().map((d) => ({ time: Math.floor(new Date(d.recorded_at).getTime() / 1000), value: Number(d.price) })));
+        const nowB = Math.floor(Date.now() / 60000);
+        const last = list[list.length - 1];
+        if (last && last.time / 60 >= nowB) { pendRef.current = { bucket: last.time / 60, value: last.value }; list = list.slice(0, -1); }
+        ticksRef.current = list;
+        setTicks(list);
       }
     })();
   }, []);
@@ -166,21 +195,21 @@ export default function XCoin() {
     if (!boxRef.current) return;
     const el = boxRef.current;
     const chart = createChart(el, {
-      layout: { background: { type: 'solid', color: '#0b1220' }, textColor: '#94a3b8', fontSize: 11 },
-      grid: { vertLines: { color: '#111a2e' }, horzLines: { color: '#111a2e' } },
+      layout: { background: { type: 'solid', color: '#ffffff' }, textColor: '#475569', fontSize: 11 },
+      grid: { vertLines: { color: '#eef2f7' }, horzLines: { color: '#eef2f7' } },
       width: el.clientWidth, height: 380,
       crosshair: { mode: CrosshairMode.Normal },
-      timeScale: { timeVisible: true, secondsVisible: tf === '1m', borderColor: '#1f2937' },
-      rightPriceScale: { borderColor: '#1f2937' },
+      timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#e2e8f0' },
+      rightPriceScale: { borderColor: '#e2e8f0' },
     });
     const step = TFS.find((x) => x[0] === tf)[1];
     const { candles, vols } = aggregate(ticks, step);
     let series;
     if (style === 'candles') {
-      series = chart.addSeries(CandlestickSeries, { upColor: UP, downColor: DOWN, borderUpColor: UP, borderDownColor: DOWN, wickUpColor: UP, wickDownColor: DOWN });
+      series = chart.addSeries(CandlestickSeries, { upColor: '#16a34a', downColor: '#dc2626', borderUpColor: '#16a34a', borderDownColor: '#dc2626', wickUpColor: '#16a34a', wickDownColor: '#dc2626' });
       series.setData(candles);
     } else {
-      series = chart.addSeries(AreaSeries, { lineColor: '#3b82f6', topColor: 'rgba(59,130,246,.35)', bottomColor: 'rgba(59,130,246,0)', lineWidth: 2 });
+      series = chart.addSeries(AreaSeries, { lineColor: '#2563eb', topColor: 'rgba(37,99,235,.25)', bottomColor: 'rgba(59,130,246,0)', lineWidth: 2 });
       series.setData(candles.map((c) => ({ time: c.time, value: c.close })));
     }
     const vol = chart.addSeries(HistogramSeries, { priceFormat: { type: 'volume' }, priceScaleId: 'vol', lastValueVisible: false, priceLineVisible: false });
@@ -280,8 +309,7 @@ export default function XCoin() {
       </div>
 
       <div className="xc-wrap">
-        <div style={{ display: 'grid', gap: 12, minWidth: 0 }}>
-          <div className="xc-card">
+          <div className="xc-card xc-a">
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
               <div>
                 <div className="xc-price" style={{ color: isUp ? UP : DOWN }}>{peso(price, 4)}</div>
@@ -297,7 +325,7 @@ export default function XCoin() {
             </div>
 
             <div className="xc-ticker" style={{ marginTop: 14 }}>
-              <div className="xc-stat"><small>24h change</small><b style={{ color: change24 == null ? '#94a3b8' : change24 >= 0 ? UP : DOWN }}>{change24 == null ? '—' : `${change24 >= 0 ? '+' : ''}${change24.toFixed(2)}%`}</b></div>
+              <div className="xc-stat"><small>24h change</small><b style={{ color: change24 == null ? '#64748b' : change24 >= 0 ? UP : DOWN }}>{change24 == null ? '—' : `${change24 >= 0 ? '+' : ''}${change24.toFixed(2)}%`}</b></div>
               <div className="xc-stat"><small>24h high</small><b>{peso(hi)}</b></div>
               <div className="xc-stat"><small>24h low</small><b>{peso(lo)}</b></div>
               <div className="xc-stat"><small>24h volume</small><b>{peso(market.volume_24h, 0)}</b></div>
@@ -318,38 +346,32 @@ export default function XCoin() {
             <div ref={boxRef} className="xc-chart" />
             {shown && (
               <div className="xc-ohlc">
-                <span>O <b style={{ color: '#e2e8f0' }}>{Number(shown.open).toFixed(2)}</b></span>
+                <span>O <b style={{ color: '#0f172a' }}>{Number(shown.open).toFixed(2)}</b></span>
                 <span>H <b style={{ color: UP }}>{Number(shown.high).toFixed(2)}</b></span>
                 <span>L <b style={{ color: DOWN }}>{Number(shown.low).toFixed(2)}</b></span>
-                <span>C <b style={{ color: '#e2e8f0' }}>{Number(shown.close).toFixed(2)}</b></span>
+                <span>C <b style={{ color: '#0f172a' }}>{Number(shown.close).toFixed(2)}</b></span>
               </div>
             )}
           </div>
 
-          <div className="xc-card">
-            <div className="xc-h">Recent price ticks <small style={{ color: '#64748b', fontWeight: 600 }}>live</small></div>
-            <div className="xc-tk" style={{ color: '#64748b', fontSize: 11 }}><span>Price (PHP)</span><span>Change</span><span>Time</span></div>
-            <div className="xc-ticks">
-              {recent.map((t, i) => {
-                const before = recent[i + 1];
-                const d = before ? t.value - before.value : 0;
-                return (
-                  <div className="xc-tk" key={t.time + '-' + i}>
-                    <span style={{ color: d >= 0 ? UP : DOWN }}>{t.value.toFixed(4)}</span>
-                    <span style={{ color: d >= 0 ? UP : DOWN }}>{d >= 0 ? '+' : ''}{d.toFixed(4)}</span>
-                    <span>{new Date(t.time * 1000).toLocaleTimeString('en-PH', { hour12: false })}</span>
-                  </div>
-                );
-              })}
+          <div className="xc-card xc-b">
+            <div className="xc-h">Your position</div>
+            <div className="xc-pf">
+              <div><small>Holdings</small><b>{balCoin.toFixed(4)} <span style={{ fontSize: 11, color: '#64748b' }}>XCOIN</span></b></div>
+              <div><small>Market value</small><b>{peso(posValue)}</b></div>
+              <div><small>Avg. buy price</small><b>{peso(avg, 4)}</b></div>
+              <div><small>Cost basis</small><b>{peso(cost)}</b></div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <small>Unrealized P/L</small>
+                <b style={{ color: pnl >= 0 ? UP : DOWN, fontSize: 20 }}>{pnl >= 0 ? '+' : '-'}{peso(Math.abs(pnl))} <span style={{ fontSize: 13 }}>({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%)</span></b>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div style={{ display: 'grid', gap: 12, alignContent: 'start' }}>
-          <div className="xc-card">
+          <div className="xc-card xc-c">
             <div className="xc-seg">
-              <button onClick={() => { setTradeType('buy'); setTradeAmount(''); }} style={{ background: tradeType === 'buy' ? UP : 'transparent', color: tradeType === 'buy' ? '#04130a' : '#94a3b8' }}>Buy</button>
-              <button onClick={() => { setTradeType('sell'); setTradeAmount(''); }} style={{ background: tradeType === 'sell' ? DOWN : 'transparent', color: tradeType === 'sell' ? '#fff' : '#94a3b8' }}>Sell</button>
+              <button onClick={() => { setTradeType('buy'); setTradeAmount(''); }} style={{ background: tradeType === 'buy' ? UP : 'transparent', color: tradeType === 'buy' ? '#ffffff' : '#64748b' }}>Buy</button>
+              <button onClick={() => { setTradeType('sell'); setTradeAmount(''); }} style={{ background: tradeType === 'sell' ? DOWN : 'transparent', color: tradeType === 'sell' ? '#fff' : '#64748b' }}>Sell</button>
             </div>
             <form onSubmit={executeTrade}>
               <div className="xc-lbl">
@@ -366,40 +388,36 @@ export default function XCoin() {
               <div className="xc-row"><span>Market price</span><b>{peso(price, 4)}</b></div>
               <div className="xc-row"><span>Execution price (±0.5% spread)</span><b>{peso(tradeType === 'buy' ? execBuy : execSell, 4)}</b></div>
               <div className="xc-row"><span>Spread cost</span><b>{peso(spreadCost, 2)}</b></div>
-              <div className="xc-row" style={{ borderTop: '1px solid #1f2937', paddingTop: 8 }}>
+              <div className="xc-row" style={{ borderTop: '1px solid #e2e8f0', paddingTop: 8 }}>
                 <span>{tradeType === 'buy' ? 'You receive' : 'You receive (PHP)'}</span>
                 <b style={{ fontSize: 15 }}>{tradeType === 'buy' ? `${youGet.toFixed(4)} XCOIN` : peso(youGet)}</b>
               </div>
-              <button disabled={loading} type="submit" className="xc-go" style={{ background: tradeType === 'buy' ? UP : DOWN, color: tradeType === 'buy' ? '#04130a' : '#fff' }}>
+              <button disabled={loading} type="submit" className="xc-go" style={{ background: tradeType === 'buy' ? UP : DOWN, color: '#fff' }}>
                 {loading ? 'Processing...' : tradeType === 'buy' ? 'Buy XCOIN' : 'Sell XCOIN'}
               </button>
             </form>
-            {message && <div className="xc-msg" style={{ background: message.includes('Success') ? 'rgba(34,197,94,.12)' : 'rgba(239,68,68,.12)', color: message.includes('Success') ? UP : '#fca5a5' }}>{message}</div>}
+            {message && <div className="xc-msg" style={{ background: message.includes('Success') ? 'rgba(22,163,74,.10)' : 'rgba(220,38,38,.10)', color: message.includes('Success') ? UP : '#b91c1c' }}>{message}</div>}
             <div className="xc-note">Estimates use the current price; the final fill price is set by the market when your order executes.</div>
           </div>
 
-          <div className="xc-card">
-            <div className="xc-h">Your position</div>
-            <div className="xc-pf">
-              <div><small>Holdings</small><b>{balCoin.toFixed(4)} <span style={{ fontSize: 11, color: '#64748b' }}>XCOIN</span></b></div>
-              <div><small>Market value</small><b>{peso(posValue)}</b></div>
-              <div><small>Avg. buy price</small><b>{peso(avg, 4)}</b></div>
-              <div><small>Cost basis</small><b>{peso(cost)}</b></div>
-              <div style={{ gridColumn: '1 / -1' }}>
-                <small>Unrealized P/L</small>
-                <b style={{ color: pnl >= 0 ? UP : DOWN, fontSize: 20 }}>{pnl >= 0 ? '+' : '-'}{peso(Math.abs(pnl))} <span style={{ fontSize: 13 }}>({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%)</span></b>
-              </div>
+          <div className="xc-card xc-d">
+            <div className="xc-h">Recent price ticks <small style={{ color: '#64748b', fontWeight: 600 }}>1 tick / minute</small></div>
+            <div className="xc-tk" style={{ color: '#64748b', fontSize: 11 }}><span>Price (PHP)</span><span>Change</span><span>Time</span></div>
+            <div className="xc-ticks">
+              {recent.map((t, i) => {
+                const before = recent[i + 1];
+                const d = before ? t.value - before.value : 0;
+                return (
+                  <div className="xc-tk" key={t.time + '-' + i}>
+                    <span style={{ color: d >= 0 ? UP : DOWN }}>{t.value.toFixed(4)}</span>
+                    <span style={{ color: d >= 0 ? UP : DOWN }}>{d >= 0 ? '+' : ''}{d.toFixed(4)}</span>
+                    <span>{new Date(t.time * 1000).toLocaleTimeString('en-PH', { hour12: false })}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
-          <div className="xc-card">
-            <div className="xc-h">Market info</div>
-            <div className="xc-row"><span>Pair</span><b>XCOIN / PHP</b></div>
-            <div className="xc-row"><span>Trading fee</span><b>0.5% spread</b></div>
-            <div className="xc-row"><span>Ticks (24h)</span><b>{day ? day.ticks.toLocaleString() : '—'}</b></div>
-            <div className="xc-row"><span>Market hours</span><b>24 / 7</b></div>
-          </div>
-        </div>
       </div>
     </div>
   );
