@@ -62,9 +62,9 @@ export default function WalletBar() {
         <Cell to="/rewards" grad="linear-gradient(135deg, #F59E0B, #D97706)"
           icon={<CoinIcon size={18} color="#fff" />} label="Loyalty"
           sub={user ? (points === null ? '...' : Number(points).toLocaleString() + ' pts') : 'Earn rewards'} />
-        } label="Xcards" sub="Gift cards" />
         {divider}
         <Cell to="/xcoin" grad="linear-gradient(135deg, #3B82F6, #2563EB)" icon={<span style={{ fontSize: 18, lineHeight: 1 }}>🪙</span>} label="XCOIN" sub="Market" />
+        {divider}
         <Cell to="/play-time" grad="linear-gradient(135deg, #F59E0B, #EF4444)"
           icon={<span style={{ fontSize: 18, lineHeight: 1 }}>🎮</span>} label="Play Time" sub="Earn points" />
       </div>
