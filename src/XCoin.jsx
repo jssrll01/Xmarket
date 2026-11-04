@@ -196,7 +196,7 @@ export default function XCoin() {
     const onResize = () => chart.applyOptions({ width: el.clientWidth });
     window.addEventListener('resize', onResize);
     return () => { window.removeEventListener('resize', onResize); chart.remove(); chartRef.current = null; };
-  }, [tf, style, ticks.length === 0]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [tf, style, ticks.length === 0]);
 
   const price = Number(market.current_price) || 0;
   const prev = Number(market.prev_price) || price;
