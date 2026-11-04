@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { supabase } from './lib/supabase';
-import { createChart, CandlestickSeries, HistogramSeries, AreaSeries, CrosshairMode } from 'lightweight-charts';
+import { createChart, CandlestickSeries, AreaSeries, CrosshairMode } from 'lightweight-charts';
 import { useNavigate } from 'react-router-dom';
 
 const TFS = [['1m', 60], ['5m', 300], ['15m', 900], ['1H', 3600], ['4H', 14400], ['1D', 86400]];
@@ -76,6 +76,9 @@ const CSS = `
 
 const peso = (n, d = 2) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: d, maximumFractionDigits: d });
 
+const phtFmt = (sec, o) => new Date(sec * 1000).toLocaleString('en-PH', { timeZone: 'Asia/Manila', ...o });
+const phtTick = (sec, type) => (type >= 3 ? phtFmt(sec, { hour: 'numeric', minute: '2-digit', hour12: true }) : type === 2 ? phtFmt(sec, { month: 'short', day: 'numeric' }) : type === 1 ? phtFmt(sec, { month: 'short' }) : phtFmt(sec, { year: 'numeric' }));
+
 function aggregate(ticks, step) {
   const candles = [];
   const vols = [];
@@ -92,7 +95,11 @@ function aggregate(ticks, step) {
       cur.n += 1;
     }
   }
-  candles.forEach((c) => vols.push({ time: c.time, value: c.n, color: c.close >= c.open ? 'rgba(22,163,74,.40)' : 'rgba(220,38,38,.40)' }));
+  for (let i = 1; i < candles.length; i++) {
+    candles[i].open = candles[i - 1].close;
+    candles[i].high = Math.max(candles[i].high, candles[i].open);
+    candles[i].low = Math.min(candles[i].low, candles[i].open);
+  }
   return { candles, vols };
 }
 
@@ -156,11 +163,10 @@ export default function XCoin() {
           const c = chartRef.current;
           if (c && c.series) {
             const step = TFS.find((x) => x[0] === tfRef.current)[1];
-            const { candles, vols } = aggregate(ticksRef.current, step);
+            const { candles } = aggregate(ticksRef.current, step);
             const last = candles[candles.length - 1];
             if (last) {
               if (c.style === 'candles') c.series.update(last); else c.series.update({ time: last.time, value: last.close });
-              c.vol.update(vols[vols.length - 1]);
             }
           }
         }
@@ -199,11 +205,12 @@ export default function XCoin() {
       grid: { vertLines: { color: '#eef2f7' }, horzLines: { color: '#eef2f7' } },
       width: el.clientWidth, height: 380,
       crosshair: { mode: CrosshairMode.Normal },
-      timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#e2e8f0' },
-      rightPriceScale: { borderColor: '#e2e8f0' },
+      localization: { timeFormatter: (t) => phtFmt(t, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) },
+      timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#e2e8f0', rightOffset: 3, tickMarkFormatter: phtTick },
+      rightPriceScale: { borderColor: '#e2e8f0', scaleMargins: { top: 0.1, bottom: 0.1 } },
     });
     const step = TFS.find((x) => x[0] === tf)[1];
-    const { candles, vols } = aggregate(ticks, step);
+    const { candles } = aggregate(ticks, step);
     let series;
     if (style === 'candles') {
       series = chart.addSeries(CandlestickSeries, { upColor: '#16a34a', downColor: '#dc2626', borderUpColor: '#16a34a', borderDownColor: '#dc2626', wickUpColor: '#16a34a', wickDownColor: '#dc2626' });
@@ -212,16 +219,14 @@ export default function XCoin() {
       series = chart.addSeries(AreaSeries, { lineColor: '#2563eb', topColor: 'rgba(37,99,235,.25)', bottomColor: 'rgba(59,130,246,0)', lineWidth: 2 });
       series.setData(candles.map((c) => ({ time: c.time, value: c.close })));
     }
-    const vol = chart.addSeries(HistogramSeries, { priceFormat: { type: 'volume' }, priceScaleId: 'vol', lastValueVisible: false, priceLineVisible: false });
-    vol.priceScale().applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
-    vol.setData(vols);
-    chart.timeScale().fitContent();
+    const n = candles.length;
+    if (n > 80) chart.timeScale().setVisibleLogicalRange({ from: n - 80, to: n + 3 }); else chart.timeScale().fitContent();
     chart.subscribeCrosshairMove((p) => {
       const d = p.seriesData && p.seriesData.get(series);
       if (!d) { setHover(null); return; }
       setHover(d.open !== undefined ? d : { open: d.value, high: d.value, low: d.value, close: d.value });
     });
-    chartRef.current = { chart, series, vol, style };
+    chartRef.current = { chart, series, style };
     const onResize = () => chart.applyOptions({ width: el.clientWidth });
     window.addEventListener('resize', onResize);
     return () => { window.removeEventListener('resize', onResize); chart.remove(); chartRef.current = null; };
