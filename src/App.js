@@ -1,3 +1,5 @@
+import XCoin from './XCoin';
+import XAdminXCoin from './XAdminXCoin';
 import React from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { CartProvider } from './CartContext';
@@ -157,7 +159,9 @@ function Router() {
         <Route path="/mega-voucher" element={<MegaVoucher />} />
         <Route path="/support" element={<Xupport />} />
         <Route path="*" element={<NotFound />} />
-      </Routes>
+      <Route path="/xcoin" element={<XCoin />} />
+<Route path="/xadmin/xcoin" element={<XAdminXCoin />} />
+</Routes>
       {!hideFooter && <SiteFooter />}
     </>
   );
