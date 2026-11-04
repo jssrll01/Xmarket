@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { createClient } from '@supabase/supabase-js';
-import { createChart } from 'lightweight-charts';
+import { supabase } from './lib/supabase';
+import { createChart, LineSeries } from 'lightweight-charts';
 
-const supabase = createClient(process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_ANON_KEY);
 
 export default function XCoin() {
   const [market, setMarket] = useState({ current_price: 0, prev_price: 0, market_state: 'Loading...' });
@@ -46,7 +45,7 @@ export default function XCoin() {
       width: chartContainerRef.current.clientWidth, height: 400,
       timeScale: { timeVisible: true, secondsVisible: false },
     });
-    const lineSeries = chart.addLineSeries({ color: '#2563EB', lineWidth: 2 });
+    const lineSeries = chart.addSeries(LineSeries, { color: '#2563EB', lineWidth: 2 });
     chartRef.current = { chart, lineSeries };
 
     async function fetchHistory() {

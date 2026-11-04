@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from './lib/supabase';
 
-const supabase = createClient(process.env.REACT_APP_SUPABASE_URL, process.env.REACT_APP_SUPABASE_ANON_KEY);
 
 export default function XAdminXCoin() {
   const [settings, setSettings] = useState(null);
