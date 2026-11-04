@@ -67,6 +67,7 @@ export default function WalletBar() {
           icon={<CreditCard size={18} color="#fff" />} label="Xcards" sub="Gift cards" />
         {divider}
         <Cell to="/play-time" grad="linear-gradient(135deg, #F59E0B, #EF4444)"
+          <div onClick={() => window.location.href="/xcoin"} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", padding: "10px" }}><span style={{ fontSize: 18, lineHeight: 1 }}>🪙</span><div style={{ fontWeight: 600, marginTop: 4 }}>XCOIN</div><div style={{ fontSize: 12, color: "#64748b" }}>Market</div></div>
           icon={<span style={{ fontSize: 18, lineHeight: 1 }}>🎮</span>} label="Play Time" sub="Earn points" />
       </div>
     </div>

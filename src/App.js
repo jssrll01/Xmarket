@@ -93,7 +93,6 @@ function Router() {
 
   return (
     <>
-      <div style={{ background: "#0f172a", padding: "12px", textAlign: "center", borderBottom: "1px solid #2563EB" }}><a href="/xcoin" style={{ color: "#f8fafc", fontWeight: "bold", fontSize: "16px", textDecoration: "none" }}>XCOIN Market</a></div>
 <Routes>
         <Route path="/landing-page" element={<LandingPage />} />
         <Route path="/" element={<Home />} />
