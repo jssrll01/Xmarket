@@ -18,18 +18,17 @@ export default function XCoin() {
   const chartRef = useRef();
   const historyDataRef = useRef([]);
 
-  // REAL-TIME PHT CLOCK (Updates every 50ms)
+  // REAL-TIME PHT CLOCK (12-Hour Format)
   useEffect(() => {
     const timer = setInterval(() => {
       const now = new Date();
       // Force UTC+8 (Philippine Time)
       const phtDate = new Date(now.getTime() + (8 * 60 * 60 * 1000));
-      const h = String(phtDate.getUTCHours()).padStart(2, '0');
+      let h = phtDate.getUTCHours(); const ampm = h >= 12 ? 'PM' : 'AM'; h = h % 12; h = h ? h : 12; const hStr = String(h).padStart(2, '0');
       const m = String(phtDate.getUTCMinutes()).padStart(2, '0');
       const s = String(phtDate.getUTCSeconds()).padStart(2, '0');
-      const ms = String(phtDate.getUTCMilliseconds()).padStart(3, '0');
-      setPhtTime(`${h}:${m}:${s}.${ms}`);
-    }, 50);
+      setPhtTime(`${hStr}:${m}:${s} ${ampm}`);
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
