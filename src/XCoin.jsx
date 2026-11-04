@@ -53,7 +53,7 @@ export default function XCoin() {
       layout: { background: { type: 'solid', color: '#0f172a' }, textColor: '#94a3b8' },
       grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
       width: chartContainerRef.current.clientWidth, height: 350,
-      timeScale: { timeVisible: true, secondsVisible: false },
+      timeScale: { timeVisible: true, secondsVisible: true },
       rightPriceScale: { borderColor: '#1e293b' },
     });
     const lineSeries = chart.addSeries(LineSeries, { color: '#3b82f6', lineWidth: 3 });
@@ -61,7 +61,7 @@ export default function XCoin() {
 
     async function fetchHistory() {
       const { data } = await supabase.from('xcoin_price_history')
-        .select('price, recorded_at').order('recorded_at', { ascending: true }).limit(500);
+        .select('price, recorded_at').order('recorded_at', { ascending: true }).limit(1000);
       if (data) {
         historyDataRef.current = data.map(d => ({ time: new Date(d.recorded_at).getTime() / 1000, value: d.price }));
         lineSeries.setData(historyDataRef.current);
