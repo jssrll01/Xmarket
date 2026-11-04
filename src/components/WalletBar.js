@@ -66,8 +66,8 @@ export default function WalletBar() {
         <Cell to="/xcards" grad="linear-gradient(135deg, #6366F1, #06B6D4)"
           icon={<CreditCard size={18} color="#fff" />} label="Xcards" sub="Gift cards" />
         {divider}
+        <Cell to="/xcoin" grad="linear-gradient(135deg, #3B82F6, #2563EB)" icon={<span style={{ fontSize: 18, lineHeight: 1 }}>🪙</span>} label="XCOIN" sub="Market" />
         <Cell to="/play-time" grad="linear-gradient(135deg, #F59E0B, #EF4444)"
-          <div onClick={() => window.location.href="/xcoin"} style={{ cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", padding: "10px" }}><span style={{ fontSize: 18, lineHeight: 1 }}>🪙</span><div style={{ fontWeight: 600, marginTop: 4 }}>XCOIN</div><div style={{ fontSize: 12, color: "#64748b" }}>Market</div></div>
           icon={<span style={{ fontSize: 18, lineHeight: 1 }}>🎮</span>} label="Play Time" sub="Earn points" />
       </div>
     </div>

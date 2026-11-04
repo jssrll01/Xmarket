@@ -96,8 +96,6 @@ export default function XCoin() {
 
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '60px', fontFamily: 'Inter, sans-serif' }}>
-      
-      {/* Top Header Bar */}
       <div style={{ background: '#0f172a', padding: '24px 20px', color: '#fff' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
           <div>
@@ -111,10 +109,8 @@ export default function XCoin() {
         </div>
       </div>
 
-      {/* Main Grid */}
       <div style={{ maxWidth: '1100px', margin: '-20px auto 0', padding: '0 20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
         
-        {/* Left Side: Chart */}
         <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
             <div>
@@ -136,17 +132,12 @@ export default function XCoin() {
           </div>
           <div ref={chartContainerRef} style={{ borderRadius: '12px', overflow: 'hidden' }} />
         </div>
-
-        {/* Right Side: Trade & Portfolio */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
-          {/* Trade Panel */}
           <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: '10px', padding: '4px', marginBottom: '20px' }}>
               <button onClick={() => setTradeType('buy')} style={{ flex: 1, padding: '10px', background: tradeType === 'buy' ? '#fff' : 'transparent', color: tradeType === 'buy' ? '#2563EB' : '#64748b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', boxShadow: tradeType === 'buy' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>Buy</button>
               <button onClick={() => setTradeType('sell')} style={{ flex: 1, padding: '10px', background: tradeType === 'sell' ? '#fff' : 'transparent', color: tradeType === 'sell' ? '#ef4444' : '#64748b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', boxShadow: tradeType === 'sell' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none' }}>Sell</button>
             </div>
-
             <form onSubmit={executeTrade}>
               <label style={{ fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase' }}>
                 {tradeType === 'buy' ? 'Amount in PHP' : 'Amount in XCOIN'}
@@ -155,12 +146,10 @@ export default function XCoin() {
                 <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontWeight: 'bold' }}>{tradeType === 'buy' ? '₱' : 'X'}</span>
                 <input type="number" step="any" value={tradeAmount} onChange={(e) => setTradeAmount(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '16px 16px 16px 36px', border: '2px solid #e2e8f0', borderRadius: '12px', fontSize: '18px', fontWeight: '600', outline: 'none', background: '#f8fafc' }} />
               </div>
-              
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#64748b', marginBottom: '20px' }}>
                 <span>You will {tradeType === 'buy' ? 'receive' : 'pay'}:</span>
                 <strong style={{ color: '#0f172a' }}>{tradeType === 'buy' ? `${(parseFloat(tradeAmount) / market.current_price || 0).toFixed(2)} XCOIN` : `₱${(parseFloat(tradeAmount) * market.current_price || 0).toFixed(2)}`}</strong>
               </div>
-
               <button disabled={loading} type="submit" style={{ width: '100%', padding: '16px', background: tradeType === 'buy' ? '#2563EB' : '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '16px', cursor: loading ? 'not-allowed' : 'pointer', transition: 'background 0.2s' }}>
                 {loading ? 'Processing...' : (tradeType === 'buy' ? 'Buy XCOIN' : 'Sell XCOIN')}
               </button>
@@ -168,7 +157,6 @@ export default function XCoin() {
             {message && <div style={{ marginTop: '16px', padding: '12px', background: message.includes('Success') ? '#ecfdf5' : '#fef2f2', borderRadius: '8px', fontSize: '14px', color: message.includes('Success') ? '#10b981' : '#ef4444', fontWeight: '500' }}>{message}</div>}
           </div>
 
-          {/* Portfolio Panel */}
           <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
             <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', color: '#0f172a', fontWeight: 'bold' }}>Your Portfolio</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -192,7 +180,6 @@ export default function XCoin() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </div>
