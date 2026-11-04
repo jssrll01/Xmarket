@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from './lib/supabase';
 import { createChart, LineSeries } from 'lightweight-charts';
+import { useNavigate } from 'react-router-dom';
 
 export default function XCoin() {
+  const navigate = useNavigate();
   const [market, setMarket] = useState({ current_price: 0, prev_price: 0, market_state: 'Loading...', high_24h: 0, low_24h: 0 });
   const [wallet, setWallet] = useState({ real_balance: 0, avg_buy_price: 0 });
   const [xwalletBalance, setXwalletBalance] = useState(0);
@@ -28,12 +30,24 @@ export default function XCoin() {
     }
     fetchData();
 
+    // Subscribe to Market State (Text Updates)
     const marketSub = supabase.channel('xcoin_market')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'xcoin_market_state' }, payload => {
         setMarket(payload.new);
       }).subscribe();
 
-    return () => supabase.removeChannel(marketSub);
+    // Subscribe to Price History (Chart Updates)
+    const historySub = supabase.channel('xcoin_history')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'xcoin_price_history' }, payload => {
+        if (chartRef.current && chartRef.current.lineSeries) {
+          chartRef.current.lineSeries.update({
+            time: new Date(payload.new.recorded_at).getTime() / 1000,
+            value: payload.new.price
+          });
+        }
+      }).subscribe();
+
+    return () => { supabase.removeChannel(marketSub); supabase.removeChannel(historySub); };
   }, []);
 
   useEffect(() => {
@@ -99,6 +113,9 @@ export default function XCoin() {
       <div style={{ background: '#0f172a', padding: '24px 20px', color: '#fff' }}>
         <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
           <div>
+            <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '14px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '5px', padding: 0 }}>
+              ← Return
+            </button>
             <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>XCOIN Market</h1>
             <p style={{ margin: '4px 0 0 0', color: '#94a3b8', fontSize: '14px' }}>Trade XCOIN directly with your Xwallet</p>
           </div>
