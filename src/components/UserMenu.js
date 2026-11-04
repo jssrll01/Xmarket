@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Package, Heart, Settings, LogOut, FileText, RotateCcw, Ticket, CreditCard } from 'lucide-react';
@@ -58,7 +57,6 @@ export default function UserMenu() {
               </div>
 
               <button style={row} onClick={() => go('/profile')}>
-                <Link to="/xcards" style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 16px", color: "var(--text)", textDecoration: "none" }}><CreditCard size={16} /> Xcards</Link>
                 <User size={16} /> Profile
               </button>
               <button style={row} onClick={() => go('/orders')}>
@@ -69,6 +67,9 @@ export default function UserMenu() {
               </button>
               <button style={row} onClick={() => go('/vouchers')}>
                 <Ticket size={16} /> Vouchers
+              </button>
+              <button style={row} onClick={() => go('/xcards')}>
+                <CreditCard size={16} /> Xcards
               </button>
               <button style={row} onClick={() => go('/returns')}>
                 <RotateCcw size={16} /> Returns & Refunds

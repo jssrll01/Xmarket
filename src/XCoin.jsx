@@ -1,7 +1,89 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { supabase } from './lib/supabase';
-import { createChart, LineSeries } from 'lightweight-charts';
+import { createChart, CandlestickSeries, HistogramSeries, AreaSeries, CrosshairMode } from 'lightweight-charts';
 import { useNavigate } from 'react-router-dom';
+
+const TFS = [['1m', 60], ['5m', 300], ['15m', 900], ['1H', 3600], ['4H', 14400], ['1D', 86400]];
+const BUY_SPREAD = 1.005;
+const SELL_SPREAD = 0.995;
+const UP = '#22c55e';
+const DOWN = '#ef4444';
+
+const CSS = `
+.xc{background:#070b14;min-height:100vh;color:#e5e7eb;font-family:Inter,system-ui,sans-serif;padding-bottom:40px}
+.xc *{box-sizing:border-box}
+.xc-top{background:#0b1220;border-bottom:1px solid #1f2937;padding:12px 14px;position:sticky;top:0;z-index:20}
+.xc-top-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}
+.xc-back{background:none;border:0;color:#94a3b8;font-size:13px;cursor:pointer;padding:0}
+.xc-pair{display:flex;align-items:center;gap:10px}
+.xc-logo{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}
+.xc-pair b{font-size:16px}.xc-pair small{display:block;color:#64748b;font-size:11px}
+.xc-chip{font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;background:#1e3a8a;color:#93c5fd;margin-left:6px}
+.xc-clock{font-family:ui-monospace,monospace;color:#38bdf8;font-size:13px;font-weight:700}
+.xc-wal{background:#111827;border:1px solid #1f2937;border-radius:10px;padding:6px 12px;text-align:right}
+.xc-wal small{display:block;color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.8px}
+.xc-wal b{font-size:16px}
+.xc-wrap{max-width:1240px;margin:0 auto;padding:12px 12px 0;display:grid;gap:12px;grid-template-columns:1fr}
+@media(min-width:1000px){.xc-wrap{grid-template-columns:minmax(0,1fr) 340px}}
+.xc-card{background:#0f172a;border:1px solid #1f2937;border-radius:14px;padding:14px}
+.xc-ticker{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 14px}
+@media(min-width:700px){.xc-ticker{grid-template-columns:repeat(6,1fr)}}
+.xc-stat small{display:block;color:#64748b;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
+.xc-stat b{font-size:13.5px}
+.xc-price{font-size:34px;font-weight:900;letter-spacing:-1px;line-height:1.05}
+.xc-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:12px 0 8px}
+.xc-tf{background:#111827;border:1px solid #1f2937;color:#94a3b8;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer}
+.xc-tf.on{background:#2563eb;color:#fff;border-color:#2563eb}
+.xc-sp{flex:1}
+.xc-chart{border-radius:10px;overflow:hidden;background:#0b1220;height:380px}
+.xc-ohlc{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#94a3b8;margin-top:8px;font-family:ui-monospace,monospace}
+.xc-seg{display:grid;grid-template-columns:1fr 1fr;background:#111827;border-radius:10px;padding:3px;margin-bottom:12px}
+.xc-seg button{border:0;border-radius:8px;padding:10px;font-weight:800;font-size:14px;cursor:pointer;background:transparent;color:#94a3b8}
+.xc-lbl{display:flex;justify-content:space-between;font-size:11.5px;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.xc-inp{display:flex;align-items:center;background:#0b1220;border:1px solid #243049;border-radius:10px;padding:0 12px}
+.xc-inp:focus-within{border-color:#3b82f6}
+.xc-inp span{color:#64748b;font-weight:800}
+.xc-inp input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#f8fafc;font-size:18px;font-weight:700;padding:13px 8px}
+.xc-pcts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 12px}
+.xc-pcts button{background:#111827;border:1px solid #1f2937;color:#cbd5e1;border-radius:8px;padding:6px 0;font-size:12px;font-weight:700;cursor:pointer}
+.xc-row{display:flex;justify-content:space-between;font-size:13px;color:#94a3b8;margin:6px 0}
+.xc-row b{color:#f1f5f9}
+.xc-go{width:100%;border:0;border-radius:10px;padding:14px;font-weight:900;font-size:15px;color:#fff;cursor:pointer;margin-top:10px}
+.xc-go:disabled{opacity:.55;cursor:not-allowed}
+.xc-msg{margin-top:10px;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:600}
+.xc-h{font-size:14px;font-weight:800;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+.xc-pf{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.xc-pf small{display:block;color:#64748b;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
+.xc-pf b{font-size:16px}
+.xc-ticks{max-height:260px;overflow:auto}
+.xc-tk{display:grid;grid-template-columns:1fr 1fr 1fr;font-family:ui-monospace,monospace;font-size:12px;padding:4px 0;border-bottom:1px solid #131c2e}
+.xc-tk span:nth-child(2){text-align:right}.xc-tk span:nth-child(3){text-align:right;color:#64748b}
+.xc-gauge{height:8px;border-radius:6px;background:#1f2937;overflow:hidden;margin-top:6px}
+.xc-gauge i{display:block;height:100%;background:linear-gradient(90deg,#ef4444,#f59e0b,#22c55e)}
+.xc-note{font-size:11px;color:#64748b;margin-top:8px;line-height:1.4}
+`;
+
+const peso = (n, d = 2) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+function aggregate(ticks, step) {
+  const candles = [];
+  const vols = [];
+  let cur = null;
+  for (const t of ticks) {
+    const b = Math.floor(t.time / step) * step;
+    if (!cur || cur.time !== b) {
+      cur = { time: b, open: t.value, high: t.value, low: t.value, close: t.value, n: 1 };
+      candles.push(cur);
+    } else {
+      cur.high = Math.max(cur.high, t.value);
+      cur.low = Math.min(cur.low, t.value);
+      cur.close = t.value;
+      cur.n += 1;
+    }
+  }
+  candles.forEach((c) => vols.push({ time: c.time, value: c.n, color: c.close >= c.open ? 'rgba(34,197,94,.45)' : 'rgba(239,68,68,.45)' }));
+  return { candles, vols };
+}
 
 export default function XCoin() {
   const navigate = useNavigate();
@@ -13,214 +95,309 @@ export default function XCoin() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [phtTime, setPhtTime] = useState('');
-  
-  const chartContainerRef = useRef();
-  const chartRef = useRef();
-  const historyDataRef = useRef([]);
+  const [tf, setTf] = useState('1m');
+  const [style, setStyle] = useState('candles');
+  const [ticks, setTicks] = useState([]);
+  const [hover, setHover] = useState(null);
 
-  // REAL-TIME PHT CLOCK (12-Hour Format)
+  const boxRef = useRef(null);
+  const chartRef = useRef(null);
+  const ticksRef = useRef([]);
+  const tfRef = useRef('1m');
+  tfRef.current = tf;
+
   useEffect(() => {
     const timer = setInterval(() => {
-      const now = new Date();
-      // Force UTC+8 (Philippine Time)
-      const phtDate = new Date(now.getTime() + (8 * 60 * 60 * 1000));
-      let h = phtDate.getUTCHours(); const ampm = h >= 12 ? 'PM' : 'AM'; h = h % 12; h = h ? h : 12; const hStr = String(h).padStart(2, '0');
-      const m = String(phtDate.getUTCMinutes()).padStart(2, '0');
-      const s = String(phtDate.getUTCSeconds()).padStart(2, '0');
-      setPhtTime(`${hStr}:${m}:${s} ${ampm}`);
+      const p = new Date(Date.now() + 8 * 3600 * 1000);
+      let h = p.getUTCHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+      setPhtTime(`${String(h).padStart(2, '0')}:${String(p.getUTCMinutes()).padStart(2, '0')}:${String(p.getUTCSeconds()).padStart(2, '0')} ${ap}`);
     }, 1000);
     return () => clearInterval(timer);
   }, []);
 
+  const loadAccount = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: w } = await supabase.from('xcoin_wallets').select('*').eq('user_id', user.id).single();
+    if (w) setWallet(w);
+    const { data: p } = await supabase.from('profiles').select('xwallet_balance').eq('id', user.id).single();
+    if (p) setXwalletBalance(Number(p.xwallet_balance) || 0);
+  }, []);
+
   useEffect(() => {
-    async function fetchData() {
+    (async () => {
       const { data: m } = await supabase.from('xcoin_market_state').select('*').eq('id', 1).single();
       if (m) setMarket(m);
-
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: w } = await supabase.from('xcoin_wallets').select('*').eq('user_id', user.id).single();
-        if (w) setWallet(w);
-        const { data: p } = await supabase.from('profiles').select('xwallet_balance').eq('id', user.id).single();
-        if (p) setXwalletBalance(p.xwallet_balance);
-      }
-    }
-    fetchData();
-
+      loadAccount();
+    })();
     const marketSub = supabase.channel('xcoin_market')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'xcoin_market_state' }, payload => {
-        setMarket(payload.new);
-      }).subscribe();
-
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'xcoin_market_state' }, (payload) => setMarket(payload.new)).subscribe();
     const historySub = supabase.channel('xcoin_history')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'xcoin_price_history' }, payload => {
-        historyDataRef.current.push({ time: new Date(payload.new.recorded_at).getTime() / 1000, value: payload.new.price });
-        if (chartRef.current && chartRef.current.lineSeries) {
-          chartRef.current.lineSeries.update(historyDataRef.current[historyDataRef.current.length - 1]);
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'xcoin_price_history' }, (payload) => {
+        const t = { time: Math.floor(new Date(payload.new.recorded_at).getTime() / 1000), value: Number(payload.new.price) };
+        ticksRef.current = [...ticksRef.current.slice(-4999), t];
+        setTicks(ticksRef.current);
+        const c = chartRef.current;
+        if (c && c.series) {
+          const step = TFS.find((x) => x[0] === tfRef.current)[1];
+          const { candles, vols } = aggregate(ticksRef.current, step);
+          const last = candles[candles.length - 1];
+          if (last) {
+            if (c.style === 'candles') c.series.update(last); else c.series.update({ time: last.time, value: last.close });
+            c.vol.update(vols[vols.length - 1]);
+          }
         }
       }).subscribe();
-
     return () => { supabase.removeChannel(marketSub); supabase.removeChannel(historySub); };
-  }, []);
+  }, [loadAccount]);
 
   useEffect(() => {
-    if (!chartContainerRef.current) return;
-    const chart = createChart(chartContainerRef.current, {
-      layout: { background: { type: 'solid', color: '#0f172a' }, textColor: '#94a3b8' },
-      grid: { vertLines: { color: '#1e293b' }, horzLines: { color: '#1e293b' } },
-      width: chartContainerRef.current.clientWidth, height: 350,
-      timeScale: { timeVisible: true, secondsVisible: true },
-      rightPriceScale: { borderColor: '#1e293b' },
-    });
-    const lineSeries = chart.addSeries(LineSeries, { color: '#3b82f6', lineWidth: 3 });
-    chartRef.current = { chart, lineSeries };
-
-    async function fetchHistory() {
-      const { data } = await supabase.from('xcoin_price_history')
-        .select('price, recorded_at').order('recorded_at', { ascending: true }).limit(1000);
+    (async () => {
+      const { data } = await supabase.from('xcoin_price_history').select('price, recorded_at').order('recorded_at', { ascending: false }).limit(5000);
       if (data) {
-        historyDataRef.current = data.map(d => ({ time: new Date(d.recorded_at).getTime() / 1000, value: d.price }));
-        lineSeries.setData(historyDataRef.current);
+        ticksRef.current = data.reverse().map((d) => ({ time: Math.floor(new Date(d.recorded_at).getTime() / 1000), value: Number(d.price) }));
+        setTicks(ticksRef.current);
       }
-    }
-    fetchHistory();
-
-    const handleResize = () => { chart.applyOptions({ width: chartContainerRef.current.clientWidth }); };
-    window.addEventListener('resize', handleResize);
-    return () => { window.removeEventListener('resize', handleResize); chart.remove(); };
+    })();
   }, []);
+
+  // (Re)build the chart whenever timeframe / style / history changes.
+  useEffect(() => {
+    if (!boxRef.current) return;
+    const el = boxRef.current;
+    const chart = createChart(el, {
+      layout: { background: { type: 'solid', color: '#0b1220' }, textColor: '#94a3b8', fontSize: 11 },
+      grid: { vertLines: { color: '#111a2e' }, horzLines: { color: '#111a2e' } },
+      width: el.clientWidth, height: 380,
+      crosshair: { mode: CrosshairMode.Normal },
+      timeScale: { timeVisible: true, secondsVisible: tf === '1m', borderColor: '#1f2937' },
+      rightPriceScale: { borderColor: '#1f2937' },
+    });
+    const step = TFS.find((x) => x[0] === tf)[1];
+    const { candles, vols } = aggregate(ticks, step);
+    let series;
+    if (style === 'candles') {
+      series = chart.addSeries(CandlestickSeries, { upColor: UP, downColor: DOWN, borderUpColor: UP, borderDownColor: DOWN, wickUpColor: UP, wickDownColor: DOWN });
+      series.setData(candles);
+    } else {
+      series = chart.addSeries(AreaSeries, { lineColor: '#3b82f6', topColor: 'rgba(59,130,246,.35)', bottomColor: 'rgba(59,130,246,0)', lineWidth: 2 });
+      series.setData(candles.map((c) => ({ time: c.time, value: c.close })));
+    }
+    const vol = chart.addSeries(HistogramSeries, { priceFormat: { type: 'volume' }, priceScaleId: 'vol', lastValueVisible: false, priceLineVisible: false });
+    vol.priceScale().applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+    vol.setData(vols);
+    chart.timeScale().fitContent();
+    chart.subscribeCrosshairMove((p) => {
+      const d = p.seriesData && p.seriesData.get(series);
+      if (!d) { setHover(null); return; }
+      setHover(d.open !== undefined ? d : { open: d.value, high: d.value, low: d.value, close: d.value });
+    });
+    chartRef.current = { chart, series, vol, style };
+    const onResize = () => chart.applyOptions({ width: el.clientWidth });
+    window.addEventListener('resize', onResize);
+    return () => { window.removeEventListener('resize', onResize); chart.remove(); chartRef.current = null; };
+  }, [tf, style, ticks.length === 0]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const price = Number(market.current_price) || 0;
+  const prev = Number(market.prev_price) || price;
+  const change = price - prev;
+  const changePct = prev ? (change / prev) * 100 : 0;
+  const isUp = change >= 0;
+
+  const win = useMemo(() => {
+    const step = TFS.find((x) => x[0] === tf)[1];
+    const { candles } = aggregate(ticks, step);
+    return candles;
+  }, [ticks, tf]);
+  const shown = hover || (win.length ? win[win.length - 1] : null);
+
+  const day = useMemo(() => {
+    const since = Date.now() / 1000 - 86400;
+    const d = ticks.filter((t) => t.time >= since);
+    if (!d.length) return null;
+    return { open: d[0].value, ticks: d.length };
+  }, [ticks]);
+  const change24 = day && day.open ? ((price - day.open) / day.open) * 100 : null;
+
+  const balCoin = Number(wallet.real_balance) || 0;
+  const avg = Number(wallet.avg_buy_price) || 0;
+  const posValue = balCoin * price;
+  const cost = balCoin * avg;
+  const pnl = posValue - cost;
+  const pnlPct = cost ? (pnl / cost) * 100 : 0;
+
+  const amt = parseFloat(tradeAmount);
+  const validAmt = !isNaN(amt) && amt > 0;
+  const execBuy = price * BUY_SPREAD;
+  const execSell = price * SELL_SPREAD;
+  const youGet = !validAmt ? 0 : tradeType === 'buy' ? amt / execBuy : amt * execSell;
+  const spreadCost = !validAmt ? 0 : tradeType === 'buy' ? amt - amt / execBuy * price : amt * price - amt * execSell;
+  const maxAmt = tradeType === 'buy' ? xwalletBalance : balCoin;
+  const setPct = (p) => setTradeAmount(String(Math.floor(maxAmt * p * 10000) / 10000));
+
+  const lo = Number(market.low_24h) || 0;
+  const hi = Number(market.high_24h) || 0;
+  const rangePos = hi > lo ? Math.min(100, Math.max(0, ((price - lo) / (hi - lo)) * 100)) : 50;
 
   const executeTrade = async (e) => {
     e.preventDefault();
     setLoading(true); setMessage('');
-    const amount = parseFloat(tradeAmount);
-    if (isNaN(amount) || amount <= 0) { setMessage('Please enter a valid amount.'); setLoading(false); return; }
+    if (!validAmt) { setMessage('Please enter a valid amount.'); setLoading(false); return; }
+    if (amt > maxAmt + 1e-9) { setMessage(tradeType === 'buy' ? 'Not enough Xwallet balance.' : 'Not enough XCOIN balance.'); setLoading(false); return; }
     const ref = 'XCOIN-' + Date.now() + '-' + Math.random().toString(36).substring(7);
-
     if (tradeType === 'buy') {
-      const { data, error } = await supabase.rpc('xcoin_buy', { p_php_amount: amount, p_ref: ref });
+      const { data, error } = await supabase.rpc('xcoin_buy', { p_php_amount: amt, p_ref: ref });
       if (error) setMessage(error.message);
-      else {
-        setMessage(`Successfully bought ${data.xcoin_bought.toFixed(2)} XCOIN at ₱${data.execution_price.toFixed(2)}`);
-        setXwalletBalance(prev => prev - amount);
-        setWallet(prev => ({ ...prev, real_balance: prev.real_balance + data.xcoin_bought }));
-      }
+      else setMessage(`Successfully bought ${data.xcoin_bought.toFixed(4)} XCOIN at ₱${data.execution_price.toFixed(2)}`);
     } else {
-      const { data, error } = await supabase.rpc('xcoin_sell', { p_xcoin_amount: amount, p_ref: ref });
+      const { data, error } = await supabase.rpc('xcoin_sell', { p_xcoin_amount: amt, p_ref: ref });
       if (error) setMessage(error.message);
-      else {
-        setMessage(`Successfully sold ${amount} XCOIN for ₱${data.php_received.toFixed(2)} at ₱${data.execution_price.toFixed(2)}`);
-        setXwalletBalance(prev => prev + data.php_received);
-        setWallet(prev => ({ ...prev, real_balance: prev.real_balance - amount }));
-      }
+      else setMessage(`Successfully sold ${amt} XCOIN for ₱${data.php_received.toFixed(2)} at ₱${data.execution_price.toFixed(2)}`);
     }
+    await loadAccount();
     setTradeAmount(''); setLoading(false);
   };
 
-  const priceChange = market.current_price - market.prev_price;
-  const isUp = priceChange >= 0;
-  const pnl = (market.current_price - wallet.avg_buy_price) * wallet.real_balance;
+  const regime = String(market.current_regime || '');
+  const rcol = regime.includes('Bull') ? UP : regime.includes('Bear') ? DOWN : '#f59e0b';
+  const recent = ticks.slice(-40).reverse();
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100vh', paddingBottom: '60px', fontFamily: 'Inter, sans-serif' }}>
-      <div style={{ background: '#0f172a', padding: '24px 20px', color: '#fff' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+    <div className="xc">
+      <style>{CSS}</style>
+      <div className="xc-top">
+        <div className="xc-top-in">
           <div>
-            <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '14px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '5px', padding: 0 }}>← Return</button>
-            <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>XCOIN Market <span style={{fontSize:'12px', background:'#2563EB', padding:'2px 8px', borderRadius:'8px', verticalAlign:'middle'}}>2.0</span></h1>
-          </div>
-          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>PHT Time</div>
-              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#38bdf8', fontFamily: 'monospace' }}>{phtTime}</div>
-            </div>
-            <div style={{ background: '#1e293b', padding: '12px 20px', borderRadius: '12px', border: '1px solid #334155' }}>
-              <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Xwallet Balance</div>
-              <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#f8fafc' }}>₱{xwalletBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            <button className="xc-back" onClick={() => navigate(-1)}>← Return</button>
+            <div className="xc-pair" style={{ marginTop: 4 }}>
+              <div className="xc-logo">X</div>
+              <div><b>XCOIN / PHP<span className="xc-chip">2.0</span></b><small>XMARKET spot market</small></div>
             </div>
           </div>
+          <div className="xc-clock">PHT {phtTime}</div>
+          <div className="xc-wal"><small>Xwallet balance</small><b>{peso(xwalletBalance)}</b></div>
         </div>
       </div>
 
-      <div style={{ maxWidth: '1100px', margin: '-20px auto 0', padding: '0 20px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '20px' }}>
-        <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-            <div>
-              <div style={{ fontSize: '14px', color: '#64748b', fontWeight: '500' }}>XCOIN Price</div>
-              <div style={{ fontSize: '40px', fontWeight: '800', color: '#0f172a', lineHeight: 1.1 }}>₱{market.current_price.toFixed(4)}</div>
-              <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '8px', flexWrap: 'wrap' }}>
-                <span style={{ background: isUp ? '#ecfdf5' : '#fef2f2', color: isUp ? '#10b981' : '#ef4444', padding: '4px 8px', borderRadius: '6px', fontSize: '13px', fontWeight: 'bold' }}>
-                  {isUp ? '▲' : '▼'} {Math.abs(priceChange).toFixed(4)} ({Math.abs((priceChange / (market.prev_price || 1)) * 100).toFixed(2)}%)
-                </span>
-                <span style={{ fontSize: '13px', color: '#64748b' }}>Vol: ₱{market.volume_24h?.toFixed(0)}</span>
-              </div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Regime</div>
-              <div style={{ fontSize: '16px', fontWeight: 'bold', marginTop: '4px', color: market.current_regime?.includes('Bull') ? '#10b981' : market.current_regime?.includes('Bear') ? '#ef4444' : '#f59e0b' }}>
-                {market.current_regime}
-              </div>
-            </div>
-          </div>
-          <div ref={chartContainerRef} style={{ borderRadius: '12px', overflow: 'hidden' }} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '20px', borderTop: '1px solid #e2e8f0', paddingTop: '15px' }}>
-            <div><span style={{fontSize:'12px', color:'#64748b'}}>24h High:</span> <strong style={{fontSize:'14px', float:'right'}}>₱{market.high_24h?.toFixed(2)}</strong></div>
-            <div><span style={{fontSize:'12px', color:'#64748b'}}>24h Low:</span> <strong style={{fontSize:'14px', float:'right'}}>₱{market.low_24h?.toFixed(2)}</strong></div>
-            <div><span style={{fontSize:'12px', color:'#64748b'}}>All-Time High:</span> <strong style={{fontSize:'14px', float:'right'}}>₱{market.ath?.toFixed(2)}</strong></div>
-            <div><span style={{fontSize:'12px', color:'#64748b'}}>All-Time Low:</span> <strong style={{fontSize:'14px', float:'right'}}>₱{market.atl?.toFixed(2)}</strong></div>
-          </div>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: '10px', padding: '4px', marginBottom: '20px' }}>
-              <button onClick={() => setTradeType('buy')} style={{ flex: 1, padding: '10px', background: tradeType === 'buy' ? '#fff' : 'transparent', color: tradeType === 'buy' ? '#2563EB' : '#64748b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Buy</button>
-              <button onClick={() => setTradeType('sell')} style={{ flex: 1, padding: '10px', background: tradeType === 'sell' ? '#fff' : 'transparent', color: tradeType === 'sell' ? '#ef4444' : '#64748b', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}>Sell</button>
-            </div>
-            <form onSubmit={executeTrade}>
-              <label style={{ fontSize: '13px', color: '#64748b', fontWeight: '600', textTransform: 'uppercase' }}>
-                {tradeType === 'buy' ? 'Amount in PHP' : 'Amount in XCOIN'}
-              </label>
-              <div style={{ position: 'relative', marginTop: '8px', marginBottom: '16px' }}>
-                <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontWeight: 'bold' }}>{tradeType === 'buy' ? '₱' : 'X'}</span>
-                <input type="number" step="any" value={tradeAmount} onChange={(e) => setTradeAmount(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: '16px 16px 16px 36px', border: '2px solid #e2e8f0', borderRadius: '12px', fontSize: '18px', fontWeight: '600', outline: 'none', background: '#f8fafc' }} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#64748b', marginBottom: '10px' }}>
-                <span>Est. Price (incl. spread):</span>
-                <strong style={{ color: '#0f172a' }}>₱{(market.current_price * (tradeType === 'buy' ? 1.005 : 0.995)).toFixed(2)}</strong>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#64748b', marginBottom: '20px' }}>
-                <span>You will {tradeType === 'buy' ? 'receive' : 'pay'}:</span>
-                <strong style={{ color: '#0f172a' }}>{tradeType === 'buy' ? `${(parseFloat(tradeAmount) / (market.current_price * 1.005) || 0).toFixed(2)} XCOIN` : `₱${(parseFloat(tradeAmount) * market.current_price * 0.985 || 0).toFixed(2)}`}</strong>
-              </div>
-              <button disabled={loading} type="submit" style={{ width: '100%', padding: '16px', background: tradeType === 'buy' ? '#2563EB' : '#ef4444', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 'bold', fontSize: '16px', cursor: loading ? 'not-allowed' : 'pointer' }}>
-                {loading ? 'Processing...' : (tradeType === 'buy' ? 'Buy XCOIN' : 'Sell XCOIN')}
-              </button>
-            </form>
-            {message && <div style={{ marginTop: '16px', padding: '12px', background: message.includes('Success') ? '#ecfdf5' : '#fef2f2', borderRadius: '8px', fontSize: '14px', color: message.includes('Success') ? '#10b981' : '#ef4444', fontWeight: '500' }}>{message}</div>}
-          </div>
-
-          <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: '18px', color: '#0f172a', fontWeight: 'bold' }}>Your Portfolio</h3>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+      <div className="xc-wrap">
+        <div style={{ display: 'grid', gap: 12, minWidth: 0 }}>
+          <div className="xc-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Balance</div>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: '#0f172a' }}>{wallet.real_balance.toFixed(2)} <span style={{ fontSize: '12px', color: '#64748b' }}>XCOIN</span></div>
-              </div>
-              <div>
-                <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Current Value</div>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: '#0f172a' }}>₱{(wallet.real_balance * market.current_price).toFixed(2)}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Avg. Buy Price</div>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: '#0f172a' }}>₱{wallet.avg_buy_price.toFixed(4)}</div>
-              </div>
-              <div>
-                <div style={{ fontSize: '12px', color: '#64748b', textTransform: 'uppercase' }}>Profit / Loss</div>
-                <div style={{ fontSize: '18px', fontWeight: '700', color: pnl >= 0 ? '#10b981' : '#ef4444' }}>
-                  {pnl >= 0 ? '+' : ''}₱{pnl.toFixed(2)}
+                <div className="xc-price" style={{ color: isUp ? UP : DOWN }}>{peso(price, 4)}</div>
+                <div style={{ marginTop: 6, fontSize: 13, fontWeight: 800, color: isUp ? UP : DOWN }}>
+                  {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(4)} ({Math.abs(changePct).toFixed(2)}%)
+                  <span style={{ color: '#64748b', fontWeight: 600 }}> last tick</span>
                 </div>
               </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: 10.5, color: '#64748b', textTransform: 'uppercase', letterSpacing: .6 }}>Market regime</div>
+                <div style={{ fontSize: 16, fontWeight: 900, color: rcol }}>{regime}</div>
+              </div>
             </div>
+
+            <div className="xc-ticker" style={{ marginTop: 14 }}>
+              <div className="xc-stat"><small>24h change</small><b style={{ color: change24 == null ? '#94a3b8' : change24 >= 0 ? UP : DOWN }}>{change24 == null ? '—' : `${change24 >= 0 ? '+' : ''}${change24.toFixed(2)}%`}</b></div>
+              <div className="xc-stat"><small>24h high</small><b>{peso(hi)}</b></div>
+              <div className="xc-stat"><small>24h low</small><b>{peso(lo)}</b></div>
+              <div className="xc-stat"><small>24h volume</small><b>{peso(market.volume_24h, 0)}</b></div>
+              <div className="xc-stat"><small>All-time high</small><b>{peso(market.ath)}</b></div>
+              <div className="xc-stat"><small>All-time low</small><b>{peso(market.atl)}</b></div>
+            </div>
+            <div style={{ marginTop: 12 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#64748b' }}><span>24h range</span><span>{rangePos.toFixed(0)}% of range</span></div>
+              <div className="xc-gauge"><i style={{ width: rangePos + '%' }} /></div>
+            </div>
+
+            <div className="xc-bar">
+              {TFS.map(([k]) => <button key={k} className={'xc-tf' + (tf === k ? ' on' : '')} onClick={() => setTf(k)}>{k}</button>)}
+              <span className="xc-sp" />
+              <button className={'xc-tf' + (style === 'candles' ? ' on' : '')} onClick={() => setStyle('candles')}>Candles</button>
+              <button className={'xc-tf' + (style === 'line' ? ' on' : '')} onClick={() => setStyle('line')}>Line</button>
+            </div>
+            <div ref={boxRef} className="xc-chart" />
+            {shown && (
+              <div className="xc-ohlc">
+                <span>O <b style={{ color: '#e2e8f0' }}>{Number(shown.open).toFixed(2)}</b></span>
+                <span>H <b style={{ color: UP }}>{Number(shown.high).toFixed(2)}</b></span>
+                <span>L <b style={{ color: DOWN }}>{Number(shown.low).toFixed(2)}</b></span>
+                <span>C <b style={{ color: '#e2e8f0' }}>{Number(shown.close).toFixed(2)}</b></span>
+              </div>
+            )}
+          </div>
+
+          <div className="xc-card">
+            <div className="xc-h">Recent price ticks <small style={{ color: '#64748b', fontWeight: 600 }}>live</small></div>
+            <div className="xc-tk" style={{ color: '#64748b', fontSize: 11 }}><span>Price (PHP)</span><span>Change</span><span>Time</span></div>
+            <div className="xc-ticks">
+              {recent.map((t, i) => {
+                const before = recent[i + 1];
+                const d = before ? t.value - before.value : 0;
+                return (
+                  <div className="xc-tk" key={t.time + '-' + i}>
+                    <span style={{ color: d >= 0 ? UP : DOWN }}>{t.value.toFixed(4)}</span>
+                    <span style={{ color: d >= 0 ? UP : DOWN }}>{d >= 0 ? '+' : ''}{d.toFixed(4)}</span>
+                    <span>{new Date(t.time * 1000).toLocaleTimeString('en-PH', { hour12: false })}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gap: 12, alignContent: 'start' }}>
+          <div className="xc-card">
+            <div className="xc-seg">
+              <button onClick={() => { setTradeType('buy'); setTradeAmount(''); }} style={{ background: tradeType === 'buy' ? UP : 'transparent', color: tradeType === 'buy' ? '#04130a' : '#94a3b8' }}>Buy</button>
+              <button onClick={() => { setTradeType('sell'); setTradeAmount(''); }} style={{ background: tradeType === 'sell' ? DOWN : 'transparent', color: tradeType === 'sell' ? '#fff' : '#94a3b8' }}>Sell</button>
+            </div>
+            <form onSubmit={executeTrade}>
+              <div className="xc-lbl">
+                <span>{tradeType === 'buy' ? 'Amount (PHP)' : 'Amount (XCOIN)'}</span>
+                <span>Avail: {tradeType === 'buy' ? peso(xwalletBalance) : balCoin.toFixed(4)}</span>
+              </div>
+              <div className="xc-inp">
+                <span>{tradeType === 'buy' ? '₱' : 'X'}</span>
+                <input type="number" step="any" inputMode="decimal" value={tradeAmount} onChange={(e) => setTradeAmount(e.target.value)} placeholder="0.00" />
+              </div>
+              <div className="xc-pcts">
+                {[0.25, 0.5, 0.75, 1].map((p) => <button type="button" key={p} onClick={() => setPct(p)}>{p === 1 ? 'MAX' : p * 100 + '%'}</button>)}
+              </div>
+              <div className="xc-row"><span>Market price</span><b>{peso(price, 4)}</b></div>
+              <div className="xc-row"><span>Execution price (±0.5% spread)</span><b>{peso(tradeType === 'buy' ? execBuy : execSell, 4)}</b></div>
+              <div className="xc-row"><span>Spread cost</span><b>{peso(spreadCost, 2)}</b></div>
+              <div className="xc-row" style={{ borderTop: '1px solid #1f2937', paddingTop: 8 }}>
+                <span>{tradeType === 'buy' ? 'You receive' : 'You receive (PHP)'}</span>
+                <b style={{ fontSize: 15 }}>{tradeType === 'buy' ? `${youGet.toFixed(4)} XCOIN` : peso(youGet)}</b>
+              </div>
+              <button disabled={loading} type="submit" className="xc-go" style={{ background: tradeType === 'buy' ? UP : DOWN, color: tradeType === 'buy' ? '#04130a' : '#fff' }}>
+                {loading ? 'Processing...' : tradeType === 'buy' ? 'Buy XCOIN' : 'Sell XCOIN'}
+              </button>
+            </form>
+            {message && <div className="xc-msg" style={{ background: message.includes('Success') ? 'rgba(34,197,94,.12)' : 'rgba(239,68,68,.12)', color: message.includes('Success') ? UP : '#fca5a5' }}>{message}</div>}
+            <div className="xc-note">Estimates use the current price; the final fill price is set by the market when your order executes.</div>
+          </div>
+
+          <div className="xc-card">
+            <div className="xc-h">Your position</div>
+            <div className="xc-pf">
+              <div><small>Holdings</small><b>{balCoin.toFixed(4)} <span style={{ fontSize: 11, color: '#64748b' }}>XCOIN</span></b></div>
+              <div><small>Market value</small><b>{peso(posValue)}</b></div>
+              <div><small>Avg. buy price</small><b>{peso(avg, 4)}</b></div>
+              <div><small>Cost basis</small><b>{peso(cost)}</b></div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <small>Unrealized P/L</small>
+                <b style={{ color: pnl >= 0 ? UP : DOWN, fontSize: 20 }}>{pnl >= 0 ? '+' : '-'}{peso(Math.abs(pnl))} <span style={{ fontSize: 13 }}>({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%)</span></b>
+              </div>
+            </div>
+          </div>
+
+          <div className="xc-card">
+            <div className="xc-h">Market info</div>
+            <div className="xc-row"><span>Pair</span><b>XCOIN / PHP</b></div>
+            <div className="xc-row"><span>Trading fee</span><b>0.5% spread</b></div>
+            <div className="xc-row"><span>Ticks (24h)</span><b>{day ? day.ticks.toLocaleString() : '—'}</b></div>
+            <div className="xc-row"><span>Market hours</span><b>24 / 7</b></div>
           </div>
         </div>
       </div>

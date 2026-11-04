@@ -1,9 +1,8 @@
 import XCoin from './XCoin';
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { CartProvider } from './CartContext';
 import { ToastProvider } from './components/Toast';
-import SiteFooter from './components/SiteFooter';
 import useScrollTop from './hooks/useScrollTop';
 import LandingPage from './landing/App';
 import Home from './pages/Home';
@@ -71,8 +70,6 @@ import { setupForegroundHandler } from './lib/fcm';
 
 function Router() {
   useScrollTop();
-  const location = useLocation();
-  const hideFooter = location.pathname === '/checkout' || location.pathname === '/support';
 
   // Foreground FCM handler — safe here because this Router is inside AuthProvider
   React.useEffect(() => {
@@ -160,7 +157,6 @@ function Router() {
         <Route path="*" element={<NotFound />} />
       <Route path="/xcoin" element={<XCoin />} />
 </Routes>
-      {!hideFooter && <SiteFooter />}
     </>
   );
 }
