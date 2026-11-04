@@ -12,9 +12,26 @@ export default function XCoin() {
   const [tradeType, setTradeType] = useState('buy');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [phtTime, setPhtTime] = useState('');
+  
   const chartContainerRef = useRef();
   const chartRef = useRef();
   const historyDataRef = useRef([]);
+
+  // REAL-TIME PHT CLOCK (Updates every 50ms)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      // Force UTC+8 (Philippine Time)
+      const phtDate = new Date(now.getTime() + (8 * 60 * 60 * 1000));
+      const h = String(phtDate.getUTCHours()).padStart(2, '0');
+      const m = String(phtDate.getUTCMinutes()).padStart(2, '0');
+      const s = String(phtDate.getUTCSeconds()).padStart(2, '0');
+      const ms = String(phtDate.getUTCMilliseconds()).padStart(3, '0');
+      setPhtTime(`${h}:${m}:${s}.${ms}`);
+    }, 50);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     async function fetchData() {
@@ -113,9 +130,15 @@ export default function XCoin() {
             <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '14px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '5px', padding: 0 }}>← Return</button>
             <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 'bold' }}>XCOIN Market <span style={{fontSize:'12px', background:'#2563EB', padding:'2px 8px', borderRadius:'8px', verticalAlign:'middle'}}>2.0</span></h1>
           </div>
-          <div style={{ background: '#1e293b', padding: '12px 20px', borderRadius: '12px', border: '1px solid #334155' }}>
-            <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Xwallet Balance</div>
-            <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#f8fafc' }}>₱{xwalletBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+          <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap' }}>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>PHT Time</div>
+              <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#38bdf8', fontFamily: 'monospace' }}>{phtTime}</div>
+            </div>
+            <div style={{ background: '#1e293b', padding: '12px 20px', borderRadius: '12px', border: '1px solid #334155' }}>
+              <div style={{ fontSize: '12px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Xwallet Balance</div>
+              <div style={{ fontSize: '22px', fontWeight: 'bold', color: '#f8fafc' }}>₱{xwalletBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+            </div>
           </div>
         </div>
       </div>
