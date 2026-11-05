@@ -1,6 +1,7 @@
 import XCoin from './XCoin';
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
+import CreatorStudio from './pages/CreatorStudio';
 import { CartProvider } from './CartContext';
 import { ToastProvider } from './components/Toast';
 import useScrollTop from './hooks/useScrollTop';
@@ -109,6 +110,7 @@ function Router() {
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/store/:store" element={<SellerProfile />} />
         <Route path="/rewards" element={<Rewards />} />
+        <Route path="/creator-studio" element={<CreatorStudio />} />
         <Route path="/returns" element={<Returns />} />
         <Route path="/bundles" element={<Bundles />} />
         <Route path="/flash-sale" element={<FlashSale />} />
