@@ -149,6 +149,7 @@ export default function CreatorDashboard() {
             <button style={{ ...ghost, flex: 1 }} onClick={share}>Share</button>
           </div>
           <button style={{ ...ghost, width: '100%', marginTop: 8 }} onClick={() => nav('/creator-studio/referrals')}>Open referral dashboard</button>
+          <button style={{ ...ghost, width: '100%', marginTop: 8 }} onClick={() => nav('/notifications')}>Notifications</button>
         </div>
         <div style={card}>
           <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8 }}>Creator profile</div>
