@@ -117,6 +117,7 @@ export default function XCoin() {
   const [style, setStyle] = useState('candles');
   const [ticks, setTicks] = useState([]);
   const [hover, setHover] = useState(null);
+  const [positions, setPositions] = useState([]);
 
   const boxRef = useRef(null);
   const chartRef = useRef(null);
@@ -139,6 +140,8 @@ export default function XCoin() {
     if (!user) return;
     const { data: w } = await supabase.from('xcoin_wallets').select('*').eq('user_id', user.id).single();
     if (w) setWallet(w);
+    const { data: ps } = await supabase.from('xcoin_positions').select('*').eq('user_id', user.id).eq('status', 'open').order('opened_at');
+    setPositions(ps || []);
     const { data: p } = await supabase.from('profiles').select('xwallet_balance').eq('id', user.id).single();
     if (p) setXwalletBalance(Number(p.xwallet_balance) || 0);
   }, []);
@@ -282,11 +285,51 @@ export default function XCoin() {
   const hi = Number(market.high_24h) || 0;
   const rangePos = hi > lo ? Math.min(100, Math.max(0, ((price - lo) / (hi - lo)) * 100)) : 50;
 
+  const atLimit = positions.length >= 10;
+
+  const closePosition = async (id) => {
+    if (loading) return;
+    setLoading(true); setMessage('');
+    const ref = 'XCOIN-' + Date.now() + '-' + Math.random().toString(36).substring(7);
+    const { data, error } = await supabase.rpc('xcoin_sell_position', { p_position_id: id, p_ref: ref });
+    if (error) setMessage(error.message);
+    else setMessage(`Closed position for ₱${data.php_received.toFixed(2)} at ₱${data.execution_price.toFixed(2)}`);
+    await loadAccount();
+    setLoading(false);
+  };
+
+  const positionsPanel = (
+    <div style={{ margin: '8px 0 12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
+        <span>Open positions</span><span>{positions.length}/10</span>
+      </div>
+      {positions.length === 0 ? (
+        <div style={{ fontSize: 12, opacity: 0.6 }}>No open positions.</div>
+      ) : positions.map(p => {
+        const cst = Number(p.php_cost) || 0;
+        const val = Number(p.xcoin_amount) * execSell;
+        const pl = val - cst;
+        const plPct = cst ? (pl / cst) * 100 : 0;
+        return (
+          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '8px 0', borderTop: '1px solid rgba(128,128,128,.25)', fontSize: 12 }}>
+            <div>
+              <div><b>{Number(p.xcoin_amount).toFixed(4)} XCOIN</b> @ {peso(Number(p.entry_price), 4)}</div>
+              <div style={{ opacity: 0.7 }}>Value {peso(val)} · <span style={{ color: pl >= 0 ? UP : DOWN, fontWeight: 700 }}>{pl >= 0 ? '+' : ''}{peso(pl)} ({plPct.toFixed(2)}%)</span></div>
+            </div>
+            <button type="button" disabled={loading} onClick={() => closePosition(p.id)} style={{ padding: '6px 12px', borderRadius: 8, border: 'none', background: DOWN, color: '#fff', fontWeight: 700, fontSize: 12 }}>Close</button>
+          </div>
+        );
+      })}
+      <div style={{ fontSize: 10, opacity: 0.55, marginTop: 4 }}>Estimated before the trading fee. Max 10 open positions.</div>
+    </div>
+  );
+
   const executeTrade = async (e) => {
     e.preventDefault();
     setLoading(true); setMessage('');
     if (!validAmt) { setMessage('Please enter a valid amount.'); setLoading(false); return; }
     if (amt > maxAmt + 1e-9) { setMessage(tradeType === 'buy' ? 'Not enough Xwallet balance.' : 'Not enough XCOIN balance.'); setLoading(false); return; }
+    if (tradeType === 'buy' && atLimit) { setMessage('Maximum of 10 open positions reached. Close one first.'); setLoading(false); return; }
     const ref = 'XCOIN-' + Date.now() + '-' + Math.random().toString(36).substring(7);
     if (tradeType === 'buy') {
       const { data, error } = await supabase.rpc('xcoin_buy', { p_php_amount: amt, p_ref: ref });
@@ -370,6 +413,7 @@ export default function XCoin() {
 
           <div className="xc-card xc-b">
             <div className="xc-h">Your position</div>
+            {positionsPanel}
             <div className="xc-pf">
               <div><small>Holdings</small><b>{balCoin.toFixed(4)} <span style={{ fontSize: 11, color: '#64748b' }}>XCOIN</span></b></div>
               <div><small>Market value</small><b>{peso(posValue)}</b></div>
@@ -406,7 +450,7 @@ export default function XCoin() {
                 <span>{tradeType === 'buy' ? 'You receive' : 'You receive (PHP)'}</span>
                 <b style={{ fontSize: 15 }}>{tradeType === 'buy' ? `${youGet.toFixed(4)} XCOIN` : peso(youGet)}</b>
               </div>
-              <button disabled={loading} type="submit" className="xc-go" style={{ background: tradeType === 'buy' ? UP : DOWN, color: '#fff' }}>
+              <button disabled={loading || (tradeType === 'buy' && atLimit)} type="submit" className="xc-go" style={{ background: tradeType === 'buy' ? UP : DOWN, color: '#fff' }}>
                 {loading ? 'Processing...' : tradeType === 'buy' ? 'Buy XCOIN' : 'Sell XCOIN'}
               </button>
             </form>
