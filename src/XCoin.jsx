@@ -171,6 +171,15 @@ export default function XCoin() {
           }
         }
         pendRef.current = { bucket: b, value: t.value };
+        const cc = chartRef.current;
+        if (cc && cc.series) {
+          const lastClosed = ticksRef.current[ticksRef.current.length - 1];
+          const live = [...ticksRef.current, { time: b * 60, value: t.value }];
+          const stepL = TFS.find((x) => x[0] === tfRef.current)[1];
+          const { candles: cl } = aggregate(live, stepL);
+          const lc = cl[cl.length - 1];
+          if (lc) { if (cc.style === 'candles') cc.series.update(lc); else cc.series.update({ time: lc.time, value: lc.close }); }
+        }
       }).subscribe();
     return () => { supabase.removeChannel(marketSub); supabase.removeChannel(historySub); };
   }, [loadAccount]);
