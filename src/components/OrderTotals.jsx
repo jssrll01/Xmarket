@@ -31,6 +31,7 @@ export default function OrderTotals({
   promoDiscount = 0,
   xcardDiscount = 0,
   shipping = 0,
+  hideShipping = false,
   total = 0,
   discountTiers = [],
 }) {
@@ -64,6 +65,7 @@ export default function OrderTotals({
         <span>{m(subtotal)}</span>
       </div>
 
+      {!hideShipping && (
       <div style={{ ...row, padding: '8px 0' }}>
         <span>Shipping Fee</span>
         {shipping === null ? (
@@ -76,6 +78,10 @@ export default function OrderTotals({
           <span>{m(shipping)}</span>
         )}
       </div>
+      )}
+      {hideShipping && (
+        <div style={{ fontSize: 12, color: 'var(--muted)', padding: '4px 0' }}>Shipping fee is calculated at checkout.</div>
+      )}
 
       {totalDiscount > 0 && (
         <>

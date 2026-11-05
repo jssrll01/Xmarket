@@ -1,4 +1,3 @@
-import { getShippingFeeSync, fetchShippingTiers } from '../lib/shipping';
 import OrderTotals from '../components/OrderTotals';
 import { itemDiscount, loadDiscountRules } from '../lib/discount';
 import { ListRowsSkeleton } from '../components/Skeleton';
@@ -32,11 +31,8 @@ export default function Cart() {
   }, [user, authLoading, navigate]);
 
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
-  const [tiers, setTiers] = useState(null);
-  useEffect(() => { fetchShippingTiers().then(setTiers); }, []);
   const productDiscount = items.reduce((t, i) => t + itemDiscount(i.price, i.quantity, discountTiers), 0);
-  const shipping = getShippingFeeSync(subtotal, tiers || undefined);
-  const total = Math.max(0, subtotal - productDiscount) + shipping;
+  const total = Math.max(0, subtotal - productDiscount);
 
   const handleCheckout = () => {
     setGoing(true);
@@ -124,7 +120,7 @@ export default function Cart() {
       ))}
 
       <div className="card" style={{ padding: 16, marginTop: 12 }}>
-        <OrderTotals items={items} subtotal={subtotal} productDiscount={productDiscount} discountTiers={discountTiers} shipping={shipping} total={total} />
+        <OrderTotals hideShipping items={items} subtotal={subtotal} productDiscount={productDiscount} discountTiers={discountTiers} total={total} />
       </div>
 
       <button onClick={handleCheckout} disabled={going} className="btn-primary"
