@@ -160,7 +160,7 @@ export default function Xwallet() {
         <div style={{ fontSize: 10.5, opacity: 0.7, marginTop: 8 }}>Totals are based on your recent transactions.</div>
       </div>
 
-      <XwalletInterest summary={interest} log={interestLog} />
+      <XwalletInterest summary={interest} log={interestLog} onApplied={refresh} />
 
       {/* Tabs */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16, background: 'var(--card)', borderRadius: 14, padding: 6 }}>
