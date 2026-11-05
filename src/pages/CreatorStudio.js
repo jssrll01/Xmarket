@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import CreatorDashboard from './CreatorDashboard';
 
@@ -8,6 +9,7 @@ const lbl = { fontSize: 12, fontWeight: 700, color: 'var(--muted, #64748b)' };
 const btn = { width: '100%', padding: 13, borderRadius: 12, border: 'none', background: '#2563EB', color: '#fff', fontWeight: 800, fontSize: 14, cursor: 'pointer' };
 
 export default function CreatorStudio() {
+  const nav = useNavigate();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [pw, setPw] = useState('');
@@ -40,7 +42,10 @@ export default function CreatorStudio() {
   const p = data.profile || {}; const a = data.application;
 
   const wrap = { maxWidth: 520, margin: '0 auto', padding: 16 };
-  const head = <h2 style={{ fontSize: 22, fontWeight: 800, margin: '4px 0 14px' }}>Creator Studio</h2>;
+  const head = (<>
+    <button type="button" onClick={() => nav('/profile')} style={{ background: 'none', border: 'none', color: '#2563EB', fontWeight: 800, padding: 0, cursor: 'pointer' }}>← Back</button>
+    <h2 style={{ fontSize: 22, fontWeight: 800, margin: '4px 0 14px' }}>Creator Studio</h2>
+  </>);
 
   if (a && a.status === 'pending') return (
     <div style={wrap}>{head}<div style={box}><h3 style={{ marginTop: 0 }}>Application pending</h3><p>Please wait for verification.</p></div></div>

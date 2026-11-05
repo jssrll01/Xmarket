@@ -115,6 +115,7 @@ export default function CreatorDashboard() {
 
   return (
     <div style={{ maxWidth: 640, margin: '0 auto', padding: 16 }}>
+      <button type="button" onClick={() => nav('/profile')} style={{ background: 'none', border: 'none', color: BLUE, fontWeight: 800, padding: 0, marginBottom: 10, cursor: 'pointer' }}>← Back</button>
       <div style={{ ...card, background: 'linear-gradient(135deg,#2563EB,#60A5FA)', color: '#fff', border: 'none' }}>
         <div style={{ fontSize: 12, opacity: 0.85 }}>Creator Studio</div>
         <div style={{ fontSize: 13, marginTop: 6, opacity: 0.9 }}>Available earnings</div>
