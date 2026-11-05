@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default function XwalletInterest({ summary, log, onApplied }) {
-  const [code, setCode] = useState('');
+  const [code, setCode] = useState(() => { try { return (new URLSearchParams(window.location.search).get('ref') || '').toUpperCase(); } catch (e) { return ''; } });
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   if (!summary) return null;

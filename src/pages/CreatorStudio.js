@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import CreatorDashboard from './CreatorDashboard';
 
 const box = { background: 'var(--card, #fff)', border: '1px solid var(--border, #e2e8f0)', borderRadius: 16, padding: 18, marginBottom: 14 };
 const inp = { width: '100%', padding: 12, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border, #cbd5e1)', fontSize: 14, boxSizing: 'border-box' };
@@ -44,7 +45,9 @@ export default function CreatorStudio() {
   if (a && a.status === 'pending') return (
     <div style={wrap}>{head}<div style={box}><h3 style={{ marginTop: 0 }}>Application pending</h3><p>Please wait for verification.</p></div></div>
   );
-  if (a && a.status === 'approved') return (
+  if (a && a.status === 'approved') return <CreatorDashboard />;
+  // eslint-disable-next-line no-constant-condition
+  if (false) return (
     <div style={wrap}>{head}<div style={box}><h3 style={{ marginTop: 0 }}>Approved</h3>
       <p>Your referral code: <b>{a.referral_code}</b></p>
       <p style={{ color: 'var(--muted, #64748b)', fontSize: 13 }}>The dashboard is coming in the next update.</p></div></div>
