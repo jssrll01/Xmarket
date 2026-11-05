@@ -169,6 +169,12 @@ export default function Profile() {
         </span>
         <ChevronRight size={16} color="var(--muted)" />
       </Link>
+      <Link to="/creator-studio" style={menuRow}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Ticket size={18} color="var(--primary)" /> Creator Studio
+        </span>
+        <ChevronRight size={16} color="var(--muted)" />
+      </Link>
       <Link to="/vouchers" style={menuRow}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Ticket size={18} color="var(--primary)" /> Vouchers
