@@ -42,9 +42,13 @@ export default function CreatorTask() {
   const closed = t.deadline && new Date(t.deadline) < new Date();
   const pending = subs.some(s => s.status === 'pending');
   const done = subs.some(s => s.status === 'approved');
-  const locked = closed || pending || done;
+  const maxEntries = t.max_entries || 5;
+  const used = subs.filter(s => s.status !== 'rejected').length;
+  const pendingCount = subs.filter(s => s.status === 'pending').length;
+  const locked = closed || used >= maxEntries || pendingCount >= 3;
   const reqs = String(t.requirements || '').split('\n').map(x => x.trim()).filter(Boolean);
 
+  void pending; void done;
   const submit = async () => {
     if (busy) return; setMsg('');
     if (!/^https?:\/\//i.test(url.trim())) return setMsg('Enter a valid link starting with http:// or https://');
@@ -96,7 +100,7 @@ export default function CreatorTask() {
       <div style={card}>
         <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 2 }}>Submit your entry</div>
         <div style={{ fontSize: 12, color: MUTED, marginBottom: 12 }}>
-          {done ? 'Your entry was approved. The reward is in your earnings.' : pending ? 'Your entry is under review.' : closed ? 'This task is closed.' : 'Paste the link to your finished work.'}
+          {closed ? 'This task is closed.' : used >= maxEntries ? 'You reached the entry limit for this task.' : pendingCount >= 3 ? 'You have 3 entries waiting for review.' : `Entries used ${used} of ${maxEntries}. Paste the link to your finished work.`}
         </div>
         <div style={{ position: 'relative' }}>
           <Link2 size={16} color={MUTED} style={{ position: 'absolute', left: 13, top: 15 }} />
