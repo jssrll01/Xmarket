@@ -7,6 +7,10 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import XwalletWithdraw from './XwalletWithdraw';
+import XwalletInterest from './XwalletInterest';
+import { supabase } from '../lib/supabase';
+import { fetchMyWithdrawals, fetchInterestSummary, fetchMyInterestLog } from '../lib/xwallet';
 import {
   fetchWallet, fetchWalletTxns, createTopupRequest, fetchMyTopups,
   buyLoad, fetchMyLoads, transferByEmail,
@@ -26,6 +30,9 @@ export default function Xwallet() {
   const [loads, setLoads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('topup');
+  const [withdrawals, setWithdrawals] = useState([]);
+  const [interest, setInterest] = useState(null);
+  const [interestLog, setInterestLog] = useState([]);
 
   // Top-up form
   const [topupAmount, setTopupAmount] = useState(100);
@@ -45,16 +52,30 @@ export default function Xwallet() {
 
   const refresh = async () => {
     if (!user) return;
-    const [b, t, tp, ld] = await Promise.all([
+    const [b, t, tp, ld, wd, isum, ilog] = await Promise.all([
       fetchWallet(user.id),
       fetchWalletTxns(user.id),
       fetchMyTopups(user.id),
       fetchMyLoads(user.id),
+      fetchMyWithdrawals(user.id),
+      fetchInterestSummary(),
+      fetchMyInterestLog(user.id),
     ]);
+    setWithdrawals(wd); setInterest(isum); setInterestLog(ilog);
     setBalance(b); setTxns(t); setTopups(tp); setLoads(ld); setLoading(false);
   };
 
   useEffect(() => { refresh(); /* eslint-disable-line */ }, [user]);
+
+  useEffect(() => {
+    if (!user) return undefined;
+    const ch = supabase.channel('xwallet-live-' + user.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'xwallet_withdrawals', filter: 'user_id=eq.' + user.id }, () => refresh())
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'xwallet_txns', filter: 'user_id=eq.' + user.id }, () => refresh())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line
+  }, [user]);
 
   if (!user) {
     return (
@@ -103,6 +124,7 @@ export default function Xwallet() {
     { id: 'topup', label: 'Top-up', icon: Plus },
     { id: 'transfer', label: 'Send', icon: Send },
     { id: 'load', label: 'Buy Load', icon: Smartphone },
+    { id: 'withdraw', label: 'Withdraw', icon: ArrowUpRight },
   ];
 
   return (
@@ -138,8 +160,10 @@ export default function Xwallet() {
         <div style={{ fontSize: 10.5, opacity: 0.7, marginTop: 8 }}>Totals are based on your recent transactions.</div>
       </div>
 
+      <XwalletInterest summary={interest} log={interestLog} />
+
       {/* Tabs */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16, background: 'var(--card)', borderRadius: 14, padding: 6 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16, background: 'var(--card)', borderRadius: 14, padding: 6 }}>
         {TABS.map(t => {
           const Icon = t.icon;
           const active = activeTab === t.id;
@@ -215,6 +239,10 @@ export default function Xwallet() {
             })
           )}
         </>
+      )}
+
+      {activeTab === 'withdraw' && (
+        <XwalletWithdraw balance={balance} withdrawals={withdrawals} onDone={refresh} />
       )}
 
       {/* TRANSFER TAB */}
@@ -345,6 +373,8 @@ export default function Xwallet() {
         {[
           ['Minimum top-up', '₱10'],
           ['Minimum load purchase', '₱10'],
+          ['Minimum withdrawal', '₱100 (1% fee)'],
+          ['Daily interest', '1.5% p.a.'],
           ['Top-up review', 'Within 24 hours'],
           ['Load networks', NETWORKS.join(', ')],
           ['Currency', 'Philippine Peso (PHP)'],

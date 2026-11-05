@@ -111,3 +111,29 @@ export async function submitTopupBilling({ userId, email, amount, payment, fee, 
 
   return { data, error: null };
 }
+
+export async function requestWithdrawal({ method, amount, accountName, accountNumber, bankName, ref }) {
+  const { data, error } = await supabase.rpc('xwallet_request_withdrawal', {
+    p_method: method, p_amount: Number(amount), p_account_name: accountName,
+    p_account_number: accountNumber, p_bank_name: bankName || null, p_ref: ref || null,
+  });
+  if (error) return { error: { message: error.message } };
+  return { data, error: null };
+}
+
+export async function fetchMyWithdrawals(userId) {
+  const { data } = await supabase.from('xwallet_withdrawals').select('*')
+    .eq('user_id', userId).order('created_at', { ascending: false }).limit(50);
+  return data || [];
+}
+
+export async function fetchInterestSummary() {
+  const { data } = await supabase.rpc('xwallet_interest_summary');
+  return data || null;
+}
+
+export async function fetchMyInterestLog(userId, limit = 30) {
+  const { data } = await supabase.from('xwallet_interest_log').select('*')
+    .eq('user_id', userId).order('day', { ascending: false }).limit(limit);
+  return data || [];
+}
