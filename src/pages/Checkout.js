@@ -1,3 +1,4 @@
+import { useVip } from '../lib/vip';
 import { getShippingFeeSync, fetchShippingTiers } from '../lib/shipping';
 import OrderTotals from '../components/OrderTotals';
 import { itemDiscount, loadDiscountRules } from '../lib/discount';
@@ -127,12 +128,13 @@ export default function Checkout() {
 
   const subtotal = items.reduce((sum, i) => sum + (Number(i.price) || 0) * (Number(i.quantity) || 1), 0);
   const [shipTiers, setShipTiers] = useState(null);
+  const { isVip } = useVip();
   useEffect(() => { fetchShippingTiers().then(setShipTiers); }, []);
   const productDiscount = items.reduce((t, i) => t + itemDiscount(i.price, i.quantity, discountTiers), 0);
   const promoDiscount = computeDiscount(promo, subtotal - productDiscount);
   const xcardDiscount = Math.min(xcardValue, Math.max(0, subtotal - productDiscount - promoDiscount));
   const discount = productDiscount + promoDiscount + xcardDiscount;
-  const shipping = form.delivery === 'doortodoor' ? getShippingFeeSync(subtotal, shipTiers || undefined) : (form.delivery === 'instant' ? 0 : null);
+  const shipping = form.delivery === 'doortodoor' ? (isVip ? 0 : getShippingFeeSync(subtotal, shipTiers || undefined)) : (form.delivery === 'instant' ? 0 : null);
   const total = Math.max(0, subtotal - discount) + (shipping || 0);
 
   const [addrId, setAddrId] = useState(null);
@@ -393,7 +395,7 @@ export default function Checkout() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
               <span style={{ color: 'var(--text-dim)' }}>Shipping</span>
-              <span style={{ fontWeight: 700 }}>₱{placed.shipping.toFixed(2)}</span>
+              <span style={{ fontWeight: 700 }}>{placed.shipping === 0 ? 'FREE' : '₱' + placed.shipping.toFixed(2)}</span>
             </div>
           </>)}
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>

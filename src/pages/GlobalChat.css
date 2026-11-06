@@ -90,3 +90,16 @@
 }
 .gc-send:active { transform: scale(.92); }
 .gc-send:disabled { opacity: .4; box-shadow: none; }
+
+/* Composer: only the pill is neumorphic, the input itself stays flat */
+.gc-field .gc-input,
+.gc-field .gc-input:focus,
+.gc-field .gc-input:active {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  -webkit-appearance: none;
+  appearance: none;
+}

@@ -1,3 +1,4 @@
+import VipBadge from './VipBadge';
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Package, Heart, Settings, LogOut, FileText, RotateCcw, CreditCard } from 'lucide-react';
@@ -77,7 +78,7 @@ export default function UserMenu() {
             <>
               <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
                 <div style={{ fontSize: 13, fontWeight: 800 }}>
-                  {user.user_metadata?.first_name || user.email?.split('@')[0] || 'User'}
+                  {user.user_metadata?.first_name || user.email?.split('@')[0] || 'User'}<VipBadge />
                 </div>
                 <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{user.email}</div>
               </div>

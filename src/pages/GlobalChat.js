@@ -1,3 +1,4 @@
+import VipBadge from '../components/VipBadge';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Send } from 'lucide-react';
@@ -145,8 +146,8 @@ export default function GlobalChat() {
       <div key={m.id} className={'gc-row' + (mine ? ' mine' : '') + (first ? ' first' : '')}>
         {!mine && (last ? <Avatar m={m} /> : <span className="gc-av-spacer" />)}
         <div className="gc-col">
-          {!mine && first && <div className="gc-name">{m.username || 'XMARKET user'}</div>}
-          <div className="gc-bubble">
+          {!mine && first && <div className="gc-name">{m.username || 'XMARKET user'}{m.is_vip && <VipBadge active />}</div>}
+          <div className={'gc-bubble' + (m.is_vip ? ' vip' : '')}>
             <span className="gc-text">{m.body}</span>
             <span className="gc-time">{fmtTime(m.created_at)}</span>
           </div>

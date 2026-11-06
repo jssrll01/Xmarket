@@ -1,7 +1,7 @@
 import { WalletSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Gift, Copy, Check, Sparkles, Wallet, ShieldCheck, Ticket } from 'lucide-react';
+import { Gift, Copy, Check, Sparkles, Wallet, ShieldCheck, Ticket } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { fetchWallet } from '../lib/xwallet';
@@ -70,9 +70,6 @@ export default function Xcards() {
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <button onClick={() => nav(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
-        <ArrowLeft size={20} />
-      </button>
 
       <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Xcards</h2>
       <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>

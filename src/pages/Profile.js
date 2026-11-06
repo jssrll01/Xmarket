@@ -1,3 +1,4 @@
+import VipBadge from '../components/VipBadge';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -89,7 +90,7 @@ export default function Profile() {
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 18, fontWeight: 800 }}>
-            {profile?.first_name} {profile?.last_name}
+            {profile?.first_name} {profile?.last_name}<VipBadge />
           </div>
           <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{user.email}</div>
         </div>

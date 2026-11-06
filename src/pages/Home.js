@@ -473,7 +473,7 @@ export default function Home() {
         </div>
       </div>
 
-{!bannersLoaded && (
+{false && !bannersLoaded && (
         <div style={{ padding: '12px 16px 4px' }}>
           <div className="sk" style={{ width: '100%', aspectRatio: '16 / 6', borderRadius: 22 }} />
         </div>
