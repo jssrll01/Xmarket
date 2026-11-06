@@ -4,7 +4,6 @@ import { ArrowLeft, Bell, Users, Clock, TrendingUp, Wallet, ChevronRight, Clipbo
 import { supabase } from '../lib/supabase';
 import { BLUE, MUTED, peso, card, inp, btn, ghost, circBtn, Pill, IconBox, StatCard, Sk, SkStyle, PageSkeleton, copyText, initials } from './creatorUi';
 
-const TABS = [['overview', 'Overview'], ['tasks', 'Tasks'], ['history', 'Content History'], ['earnings', 'Earnings']];
 
 function Bars({ data }) {
   if (!data.length) return null;
@@ -107,11 +106,9 @@ export default function CreatorDashboard() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 2, overflowX: 'auto', marginBottom: 14, borderBottom: '1px solid rgba(148,163,184,.3)' }}>
-        {TABS.map(([id, label]) => (
-          <button key={id} type="button" onClick={() => { setTab(id); setMsg(''); }} style={{ background: 'none', border: 'none', padding: '10px 14px', whiteSpace: 'nowrap', fontWeight: 800, fontSize: 13, cursor: 'pointer', color: tab === id ? BLUE : MUTED, borderBottom: '3px solid ' + (tab === id ? BLUE : 'transparent') }}>{label}</button>
-        ))}
-      </div>
+      {tab !== 'overview' && (
+        <button type="button" onClick={() => { setTab('overview'); setMsg(''); }} style={{ ...ghost, padding: '8px 14px', marginBottom: 14, fontSize: 13 }}>← Back to overview</button>
+      )}
       {msg && <div style={{ ...card, padding: 12, fontSize: 13, fontWeight: 700, color: good ? '#059669' : '#DC2626' }}>{msg}</div>}
 
       {tab === 'overview' && (<>
@@ -120,7 +117,7 @@ export default function CreatorDashboard() {
           <StatCard icon={Clock} label="Pending referrals" value={d.pending} accent="#F59E0B" />
           <StatCard icon={TrendingUp} label="Total commissions" value={peso(d.commissions)} />
           <StatCard icon={Wallet} label="Task earnings" value={peso(d.task_earnings)} accent="#7C3AED" />
-          <div style={{ gridColumn: '1 / -1' }}><StatCard icon={Users} label="Followers" value={Number(d.followers) || 0} accent="#2563EB" /></div>
+          <div role="button" onClick={() => nav('/creator-studio/followers')} style={{ gridColumn: '1 / -1', cursor: 'pointer' }}><StatCard icon={Users} label="Followers · tap to view" value={Number(d.followers) || 0} accent="#2563EB" /></div>
         </div>
         <div style={card}>
           <div style={{ fontWeight: 800, fontSize: 14 }}>Performance</div>
@@ -138,6 +135,8 @@ export default function CreatorDashboard() {
         <div style={{ ...card, paddingTop: 4, paddingBottom: 4 }}>
           <NavRow first icon={Users} title="Referral dashboard" sub="Pending, successful and commissions" onClick={() => nav('/creator-studio/referrals')} />
           <NavRow icon={ClipboardList} title="Browse tasks" sub="Join tasks and earn rewards" onClick={() => setTab('tasks')} />
+          <NavRow icon={Calendar} title="Content history" sub="Your submitted content and results" onClick={() => { setTab('history'); setMsg(''); }} />
+          <NavRow icon={Wallet} title="Earnings" sub="Balance, withdrawals and payouts" onClick={() => { setTab('earnings'); setMsg(''); }} />
           <NavRow icon={ClipboardList} title="New post" sub="Post to XMARKET Socials, once per day" onClick={() => nav('/creator-studio/post')} />
           <NavRow icon={Clock} title="Post history" sub="Your posts, likes and comments" onClick={() => nav('/creator-studio/posts')} />
           <NavRow icon={Bell} title="Notifications" sub="Approvals, commissions and updates" onClick={() => nav('/notifications')} />

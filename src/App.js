@@ -3,6 +3,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import CreatorStudio from './pages/CreatorStudio';
 import CreatorReferrals from './pages/CreatorReferrals';
+import CreatorFollowers from './pages/CreatorFollowers';
 import CreatorTask from './pages/CreatorTask';
 import SearchPage from './pages/SearchPage';
 import XwSend from './pages/xw/XwSend';
@@ -131,6 +132,7 @@ function Router() {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/creator-studio" element={<CreatorStudio />} />
         <Route path="/creator-studio/referrals" element={<CreatorReferrals />} />
+        <Route path="/creator-studio/followers" element={<CreatorFollowers />} />
         <Route path="/creator-studio/tasks/:id" element={<CreatorTask />} />
         <Route path="/returns" element={<Returns />} />
         <Route path="/bundles" element={<Bundles />} />
