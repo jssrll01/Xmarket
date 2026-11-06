@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Send, Trash2, Clock } from 'lucide-react';
+import { ArrowLeft, Send, Clock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import { Avatar, Sk, SkStyle, time12 } from './socialsUi';
@@ -30,7 +30,6 @@ export default function SocialsComments() {
     if (!data.ok) return show(data.error);
     setText(''); setReply(null); load();
   };
-  const del = async (c) => { await supabase.rpc('socials_delete_comment', { p_id: c.id }); load(); };
 
   const tops = rows.filter(c => !c.parent_id);
   const kids = (pid) => rows.filter(c => c.parent_id === pid);
@@ -46,8 +45,7 @@ export default function SocialsComments() {
         <div style={{ display: 'flex', gap: 14, fontSize: 11, color: 'var(--muted)', padding: '4px 8px', alignItems: 'center' }}>
           <span>{time12(c.created_at)}</span>
           <button onClick={() => setReply(c)} style={{ fontWeight: 800, fontSize: 11, color: 'var(--muted)' }}>Reply</button>
-          {c.mine && <button onClick={() => del(c)} aria-label="Delete" style={{ color: '#DC2626' }}><Trash2 size={13} /></button>}
-        </div>
+                  </div>
       </div>
     </div>
   );
