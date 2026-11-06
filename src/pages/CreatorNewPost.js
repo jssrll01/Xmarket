@@ -23,6 +23,8 @@ export default function CreatorNewPost() {
   const [preview, setPreview] = useState('');
   const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [pct, setPct] = useState(0);
+  useEffect(() => { if (!busy) return undefined; const h = (e) => { e.preventDefault(); e.returnValue = ''; }; window.addEventListener('beforeunload', h); return () => window.removeEventListener('beforeunload', h); }, [busy]);
   const pick = useRef(null);
 
   useEffect(() => { supabase.rpc('creator_my_application').then(({ data }) => setState(data && data.application ? data.application.status : 'none')); }, []);
@@ -44,14 +46,21 @@ export default function CreatorNewPost() {
     try {
       const fd = new FormData();
       fd.append('file', file); fd.append('upload_preset', 'xmarket_creator_upload');
-      const up = await fetch('https://api.cloudinary.com/v1_1/bvw3okdf/image/upload', { method: 'POST', body: fd });
-      const j = await up.json();
+      const j = await new Promise((resolve, reject) => {
+        const x = new XMLHttpRequest();
+        x.open('POST', 'https://api.cloudinary.com/v1_1/bvw3okdf/image/upload');
+        x.upload.onprogress = (e) => { if (e.lengthComputable) setPct(Math.round((e.loaded / e.total) * 100)); };
+        x.onload = () => { try { resolve(JSON.parse(x.responseText)); } catch (er) { reject(new Error('Picture upload failed. Try again.')); } };
+        x.onerror = () => reject(new Error('Network error. Check your connection and try again.'));
+        x.send(fd);
+      });
+      setPct(100);
       if (!j.secure_url) throw new Error('Picture upload failed. Try again.');
       await supabase.rpc('creator_accept_rules');
       const { data, error } = await supabase.rpc('creator_create_post', { p_description: desc, p_image_url: j.secure_url });
       if (error) throw new Error(error.message);
       if (!data.ok) throw new Error(data.error);
-      show('Posted to XMARKET Socials'); nav('/socials');
+      setPct(0); show('Posted to XMARKET Socials'); nav('/socials');
     } catch (e) { show(e.message || 'Something went wrong.'); }
     setBusy(false);
   };
@@ -64,6 +73,16 @@ export default function CreatorNewPost() {
 
   return (
     <div className="page-enter" style={wrap}>
+      {busy && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 3000, background: 'rgba(15,23,42,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+          <div style={{ background: '#fff', borderRadius: 20, padding: 22, width: '100%', maxWidth: 340, textAlign: 'center' }}>
+            <div style={{ fontWeight: 800, fontSize: 16 }}>{pct < 100 ? 'Uploading your post…' : 'Publishing…'}</div>
+            <div style={{ height: 10, borderRadius: 10, background: '#E2E8F0', margin: '14px 0 8px', overflow: 'hidden' }}><div style={{ width: pct + '%', height: '100%', background: '#2563EB', transition: 'width .2s' }} /></div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: '#2563EB' }}>{pct}%</div>
+            <div style={{ fontSize: 12, color: '#64748B', marginTop: 6 }}>Please do not close or leave this page.</div>
+          </div>
+        </div>
+      )}
       {head}
       <div className="card" style={{ padding: 14, marginBottom: 12, borderColor: '#F59E0B' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, color: '#B45309', marginBottom: 6 }}><ShieldAlert size={18} /> Posting rules</div>
@@ -76,8 +95,8 @@ export default function CreatorNewPost() {
         <button type="button" onClick={() => pick.current && pick.current.click()} style={{ width: '100%', minHeight: 160, borderRadius: 16, border: '2px dashed #CBD5E1', background: '#F8FAFC', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, overflow: 'hidden', color: 'var(--muted)', fontWeight: 700 }}>
           {preview ? <img src={preview} alt="" style={{ width: '100%', maxHeight: 340, objectFit: 'cover' }} /> : <><ImagePlus size={30} />Add picture</>}
         </button>
-        <textarea value={desc} maxLength={1000} onChange={e => setDesc(e.target.value)} placeholder="Write a description…" style={{ width: '100%', minHeight: 110, marginTop: 12, padding: 12, fontSize: 14 }} />
-        <div style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'right' }}>{desc.length}/1000</div>
+        <textarea value={desc} maxLength={3000} onChange={e => setDesc(e.target.value)} placeholder="Write a description…" style={{ width: '100%', minHeight: 110, marginTop: 12, padding: 12, fontSize: 14 }} />
+        <div style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'right' }}>{desc.length}/3000</div>
         <button className="btn-primary" disabled={busy} onClick={submit} style={{ width: '100%', padding: 14, fontSize: 14, marginTop: 8 }}>{busy ? 'Posting…' : 'Post to Socials'}</button>
         <p style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'center', marginTop: 10 }}>You can post once per day. The day resets at midnight (Manila time).</p>
       </div>

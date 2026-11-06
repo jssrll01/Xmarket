@@ -50,6 +50,7 @@ import Socials from './pages/Socials';
 import SocialsCreator from './pages/SocialsCreator';
 import SocialsComments from './pages/SocialsComments';
 import CreatorNewPost from './pages/CreatorNewPost';
+import CreatorPostHistory from './pages/CreatorPostHistory';
 import Vip from './pages/Vip';
 import BottomNav from './components/BottomNav';
 import MyReports from './pages/report/MyReports';
@@ -165,6 +166,7 @@ function Router() {
         <Route path="/socials/creator/:username" element={<SocialsCreator />} />
         <Route path="/socials/post/:id/comments" element={<SocialsComments />} />
         <Route path="/creator-studio/post" element={<CreatorNewPost />} />
+        <Route path="/creator-studio/posts" element={<CreatorPostHistory />} />
         <Route path="/vip" element={<Vip />} />
         <Route path="/my-reports" element={<MyReports />} />
         <Route path="/report/bug" element={<BugReport />} />
