@@ -123,8 +123,8 @@ export default function XwalletWithdraw({ balance, withdrawals, onDone, onSeeAll
       })}
 
       {confirm && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end' }} onClick={() => !busy && setConfirm(false)}>
-          <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: 'var(--bg, #fff)', padding: 20, borderRadius: '20px 20px 0 0' }}>
+        <div data-fix="xw-confirm-fix" style={{ position: 'fixed', inset: 0, zIndex: 3000, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end' }} onClick={() => !busy && setConfirm(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: '#fff', padding: 20, paddingBottom: 110, borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflowY: 'auto' }}>
             <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 10 }}>Confirm withdrawal</h3>
             <p style={{ fontSize: 13, lineHeight: 1.6, marginBottom: 20 }}>
               {peso(amt)} will be deducted from your Xwallet. You will receive <b>{peso(net)}</b> in{' '}
