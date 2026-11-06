@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  User, Mail, Phone, MapPin, Building, Map, Flag,
+  User, Mail, Phone, MapPin,
   Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft, Ticket
 } from 'lucide-react';
 import { Sparkles as CreatorIcon } from 'lucide-react';
@@ -132,21 +132,17 @@ export default function Profile() {
       <Field icon={Mail} label="Email" value={user.email} />
       <Field icon={Phone} label="Mobile" value={profile?.phone} />
 
-      {/* Address */}
-      <h3 style={{ fontSize: 12, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.5, margin: '20px 0 10px 4px' }}>
-        Delivery Information
-      </h3>
-      <button onClick={() => nav('/addresses')} className="btn-primary" style={{ width: '100%', padding: 12, marginBottom: 10, fontSize: 13 }}>Manage saved addresses</button>
-      <Field icon={MapPin} label="Address" value={profile?.delivery_address} />
-      <Field icon={MapPin} label="Landmark" value={profile?.nearest_landmark} />
-      <Field icon={Flag} label="Province" value={profile?.province} />
-      <Field icon={Building} label="City" value={profile?.city} />
-      <Field icon={Map} label="Barangay" value={profile?.barangay} />
 
       {/* Menu links */}
       <h3 style={{ fontSize: 12, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.5, margin: '20px 0 10px 4px' }}>
         More
       </h3>
+      <Link to="/addresses" style={menuRow}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <MapPin size={18} color="var(--primary)" /> Saved addresses
+        </span>
+        <ChevronRight size={16} color="var(--muted)" />
+      </Link>
       <Link to="/wishlist" style={menuRow}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Heart size={18} color="var(--primary)" /> Wishlist

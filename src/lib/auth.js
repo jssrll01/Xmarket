@@ -35,11 +35,6 @@ export async function signUp(form) {
         first_name: form.firstName,
         last_name: form.lastName,
         phone: form.phone,
-        delivery_address: form.deliveryAddress,
-        nearest_landmark: form.nearestLandmark,
-        province: form.province,
-        city: form.city,
-        barangay: form.barangay,
       },
     },
   });

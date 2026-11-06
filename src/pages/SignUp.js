@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  User, Mail, Phone, MapPin, Building, Map, Flag,
+  User, Mail, Phone,
 } from 'lucide-react';
 import { signUp, signOut } from '../lib/auth';
 import { useToast } from '../components/Toast';
@@ -16,8 +16,6 @@ export default function SignUp() {
   const [form, setForm] = useState({
     username: '', firstName: '', lastName: '',
     email: '', phone: '', password: '', confirm: '',
-    deliveryAddress: '', nearestLandmark: '',
-    province: '', city: '', barangay: '',
   });
   const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
 
@@ -50,11 +48,6 @@ export default function SignUp() {
         <AuthField icon={Phone} label="Mobile Number" type="tel" placeholder="09XX XXX XXXX" value={form.phone} onChange={set('phone')} required />
         <PasswordField label="Password" placeholder="At least 6 characters" value={form.password} onChange={set('password')} required />
         <PasswordField label="Confirm Password" placeholder="Re-enter your password" value={form.confirm} onChange={set('confirm')} required />
-        <AuthField icon={MapPin} label="Delivery Address" placeholder="House #, Street" value={form.deliveryAddress} onChange={set('deliveryAddress')} required />
-        <AuthField icon={MapPin} label="Nearest Landmark" placeholder="Near school, church, etc." value={form.nearestLandmark} onChange={set('nearestLandmark')} required />
-        <AuthField icon={Flag} label="Province" placeholder="Province" value={form.province} onChange={set('province')} required />
-        <AuthField icon={Building} label="City / Municipality" placeholder="City or municipality" value={form.city} onChange={set('city')} required />
-        <AuthField icon={Map} label="Barangay" placeholder="Barangay" value={form.barangay} onChange={set('barangay')} required />
         <button
           type="submit"
           className="btn-primary"

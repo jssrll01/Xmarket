@@ -180,7 +180,7 @@ export default function Checkout() {
   const LABELS = {
     fullName: 'Full Name', mobile: 'Mobile Number', email: 'Email Address', address: 'Delivery Address',
     landmark: 'Nearest Landmark', province: 'Province', city: 'City / Municipality',
-    barangay: 'Barangay', instructions: 'Additional Delivery Instruction'
+    barangay: 'Barangay'
   };
   const REQUIRED = Object.keys(LABELS);
 
@@ -502,12 +502,6 @@ export default function Checkout() {
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Order Details</h3>
         {input('email', 'Email Address', 'email')}
-        <div style={{ marginBottom: 10 }}>
-          <label>Additional Delivery Instruction (optional)</label>
-          <textarea value={form.instructions} onChange={e => upd('instructions', e.target.value)}
-            style={{ width: '100%', padding: 10, marginTop: 4,
-              borderColor: missing.includes('instructions') ? '#DC2626' : undefined }} rows="2" />
-        </div>
         <div>
           <label>Note (optional)</label>
           <textarea value={form.note} onChange={e => upd('note', e.target.value)}
