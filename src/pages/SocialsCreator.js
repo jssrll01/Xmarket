@@ -14,6 +14,7 @@ export default function SocialsCreator() {
   const [prof, setProf] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fc, setFc] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -43,11 +44,11 @@ export default function SocialsCreator() {
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 18, fontWeight: 800 }}>@{prof.username}</div>
             <div style={{ display: 'flex', gap: 18, marginTop: 6, fontSize: 13 }}>
-              <span><b>{prof.posts}</b> posts</span><span><b>{prof.likes}</b> likes</span>
+              <span><b>{prof.posts}</b> posts</span><span><b>{fc ?? Number(prof.followers || 0)}</b> followers</span><span><b>{prof.likes}</b> likes</span>
             </div>
           </div>
         </div>
-        {!prof.mine && <FollowButton creatorId={prof.creator_id} initial={prof.following} count={prof.followers} />}
+        {!prof.mine && <FollowButton creatorId={prof.creator_id} initial={prof.following} count={prof.followers} onCount={setFc} />}
         <FollowerList creatorId={prof.creator_id} />
         {posts.length === 0 && <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 30 }}>No posts yet.</div>}
         {posts.map(p => <PostCard key={p.id} p={p} onLike={like} onShare={share} />)}

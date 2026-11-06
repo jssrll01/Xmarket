@@ -120,6 +120,7 @@ export default function CreatorDashboard() {
           <StatCard icon={Clock} label="Pending referrals" value={d.pending} accent="#F59E0B" />
           <StatCard icon={TrendingUp} label="Total commissions" value={peso(d.commissions)} />
           <StatCard icon={Wallet} label="Task earnings" value={peso(d.task_earnings)} accent="#7C3AED" />
+          <div style={{ gridColumn: '1 / -1' }}><StatCard icon={Users} label="Followers" value={Number(d.followers) || 0} accent="#2563EB" /></div>
         </div>
         <div style={card}>
           <div style={{ fontWeight: 800, fontSize: 14 }}>Performance</div>

@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 
-export default function FollowButton({ creatorId, initial, count }) {
+export default function FollowButton({ creatorId, initial, count, onCount }) {
   const { show } = useToast();
   const [on, setOn] = useState(!!initial);
-  const [n, setN] = useState(Number(count) || 0);
+  const [, setN] = useState(Number(count) || 0);
   const [busy, setBusy] = useState(false);
   const tap = async () => {
     if (busy) return;
@@ -15,6 +15,7 @@ export default function FollowButton({ creatorId, initial, count }) {
     if (error) return show(error.message);
     if (!data.ok) return show(data.error);
     setOn(data.following); setN(Number(data.followers));
+    onCount && onCount(Number(data.followers));
   };
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
