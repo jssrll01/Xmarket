@@ -258,7 +258,7 @@ export default function Help() {
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 20 }}>
-            {[['My orders', '/orders', Package], ['Xwallet', '/xwallet', Wallet], ['Returns', '/returns', RotateCcw], ['Vouchers', '/vouchers', Ticket]].map(([label, to, Icon]) => (
+            {[['My orders', '/orders', Package], ['Xwallet', '/xwallet', Wallet], ['Returns', '/returns', RotateCcw], ].map(([label, to, Icon]) => (
               <button key={label} className="card" onClick={() => navigate(to)}
                 style={{ padding: 14, display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text)', fontWeight: 700, fontSize: 13.5, textAlign: 'left' }}>
                 <Icon size={18} color="var(--primary)" /> {label}

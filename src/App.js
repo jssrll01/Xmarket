@@ -167,7 +167,6 @@ function Router() {
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/refund" element={<Refund />} />
-        <Route path="/vouchers" element={<Vouchers />} />
         <Route path="/mall" element={<Mall />} />
         <Route path="/advertising" element={<Advertising />} />
         <Route path="/off-platform-ads" element={<OffPlatformAds />} />

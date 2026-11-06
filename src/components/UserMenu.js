@@ -65,9 +65,6 @@ export default function UserMenu() {
               <button style={row} onClick={() => go('/wishlist')}>
                 <Heart size={16} /> Wishlist
               </button>
-              <button style={row} onClick={() => go('/vouchers')}>
-                <Ticket size={16} /> Vouchers
-              </button>
               <button style={row} onClick={() => go('/xcards')}>
                 <CreditCard size={16} /> Xcards
               </button>
