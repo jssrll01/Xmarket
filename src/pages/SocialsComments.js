@@ -37,7 +37,7 @@ export default function SocialsComments() {
 
   const Item = ({ c, child }) => (
     <div style={{ display: 'flex', gap: 10, marginTop: child ? 10 : 14 }}>
-      <Avatar name={c.username} size={child ? 28 : 36} />
+      <Avatar name={c.username} url={c.avatar_url} size={child ? 28 : 36} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 16, padding: '8px 12px' }}>
           <div style={{ fontWeight: 800, fontSize: 13 }}>@{c.username}{c.is_vip && <VipBadge active />}{c.is_creator && <span style={{ marginLeft: 6, fontSize: 9, background: '#2563EB', color: '#fff', padding: '2px 6px', borderRadius: 8, verticalAlign: 'middle' }}>CREATOR</span>}</div>
