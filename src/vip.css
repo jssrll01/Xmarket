@@ -33,8 +33,8 @@
 .vip-tag{font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;color:#64748B;background:#F1F5F9;white-space:nowrap}
 .vip-tag.on{color:#047857;background:rgba(5,150,105,.14)}
 
-.vip-prev-name{font-size:12px;font-weight:800;margin:0 0 3px 12px;color:#2563EB}
-.vip-prev-row{animation:none!important;margin-top:0!important;justify-content:flex-start!important}
+.vip-prev-name{font-size:12px;font-weight:800;margin:0 4px 3px 0;color:#2563EB;text-align:right}
+.vip-prev-row{animation:none!important;margin-top:0!important;justify-content:flex-end!important}
 
 .vip-row{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:14px;font-weight:700}
 .vip-warn{margin-top:10px;padding:10px 12px;border-radius:12px;background:#FEF3C7;color:#92400E;font-size:12.5px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:10px}
