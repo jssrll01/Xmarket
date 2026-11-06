@@ -36,9 +36,8 @@ export const StatCard = ({ icon, label, value, accent }) => (
   </div>
 );
 
-const CSS = '@keyframes cs-sh{0%{background-position:-200px 0}100%{background-position:calc(200px + 100%) 0}}.cs-sk{background:linear-gradient(90deg,rgba(148,163,184,.18) 0,rgba(148,163,184,.34) 40px,rgba(148,163,184,.18) 80px);background-size:200px 100%;animation:cs-sh 1.3s infinite linear}';
-export const SkStyle = () => <style>{CSS}</style>;
-export const Sk = ({ w = '100%', h = 14, r = 10, style }) => <div className="cs-sk" style={{ width: w, height: h, borderRadius: r, ...style }} />;
+export const SkStyle = () => null; // keyframes now live in index.css (.sk)
+export const Sk = ({ w = '100%', h = 14, r = 10, style }) => <div className="sk" style={{ width: w, height: h, borderRadius: r, ...style }} />;
 
 export const PageSkeleton = ({ hero = true }) => (
   <div style={{ maxWidth: 640, margin: '0 auto', padding: 16 }}>

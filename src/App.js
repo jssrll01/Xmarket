@@ -45,6 +45,10 @@ import Xmall from './pages/Xmall';
 import Xwallet from './pages/Xwallet';
 import XwalletTopup from './pages/XwalletTopup';
 import Xcards from './pages/Xcards';
+import GlobalChat from './pages/GlobalChat';
+import Socials from './pages/Socials';
+import Vip from './pages/Vip';
+import BottomNav from './components/BottomNav';
 import MyReports from './pages/report/MyReports';
 import BugReport from './pages/report/BugReport';
 import OrderReport from './pages/report/OrderReport';
@@ -153,6 +157,9 @@ function Router() {
         <Route path="/xwallet/bank" element={<XwBank />} />
         <Route path="/xwallet/history" element={<XwHistory />} />
         <Route path="/xcards" element={<Xcards />} />
+        <Route path="/global-chat" element={<GlobalChat />} />
+        <Route path="/socials" element={<Socials />} />
+        <Route path="/vip" element={<Vip />} />
         <Route path="/my-reports" element={<MyReports />} />
         <Route path="/report/bug" element={<BugReport />} />
         <Route path="/report/order" element={<OrderReport />} />
@@ -176,6 +183,7 @@ function Router() {
         <Route path="*" element={<NotFound />} />
       <Route path="/xcoin" element={<XCoin />} />
 </Routes>
+      <BottomNav />
     </>
   );
 }

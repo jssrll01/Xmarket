@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone, MapPin,
-  Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft, Ticket
+  Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft
 } from 'lucide-react';
 import { Sparkles as CreatorIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -170,12 +170,6 @@ export default function Profile() {
       <Link to="/creator-studio" style={menuRow}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <CreatorIcon size={18} color="var(--primary)"  /> Creator Studio
-        </span>
-        <ChevronRight size={16} color="var(--muted)" />
-      </Link>
-      <Link to="/vouchers" style={menuRow}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Ticket size={18} color="var(--primary)" /> Vouchers
         </span>
         <ChevronRight size={16} color="var(--muted)" />
       </Link>

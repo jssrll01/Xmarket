@@ -21,6 +21,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import SmartImage from '../components/SmartImage';
 import { ProductGridSkeleton } from '../components/Skeleton';
+import BannerImage from '../components/BannerImage';
 import EmptyState from '../components/EmptyState';
 import useRecentSearches from '../hooks/useRecentSearches';
 import { useNavigate as useNavToSearch } from 'react-router-dom';
@@ -196,16 +197,19 @@ export default function Home() {
   const [bannerIdx, setBannerIdx] = useState(0);
   const [banners, setBanners] = useState([]);
   const [bannerRows, setBannerRows] = useState([]);
+  const [bannersLoaded, setBannersLoaded] = useState(false);
   useEffect(() => {
     let alive = true;
     bannerDb.from('banners').select('*').eq('active', true).order('sort_order')
       .then(({ data }) => {
-        if (!alive || !data) return;
+        if (!alive) return;
+        setBannersLoaded(true);
+        if (!data) return;
         const now = new Date().toISOString();
         const ok = data.filter(b => b.image_url && (!b.starts_at || b.starts_at <= now) && (!b.ends_at || b.ends_at > now));
         if (ok.length) { setBanners(ok.map(b => b.image_url)); setBannerRows(ok); setBannerIdx(0); }
       })
-      .catch(() => {});
+      .catch(() => { if (alive) setBannersLoaded(true); });
     return () => { alive = false; };
   }, []);
   const [bannerHover, setBannerHover] = useState(false);
@@ -469,6 +473,11 @@ export default function Home() {
         </div>
       </div>
 
+{!bannersLoaded && (
+        <div style={{ padding: '12px 16px 4px' }}>
+          <div className="sk" style={{ width: '100%', aspectRatio: '16 / 6', borderRadius: 22 }} />
+        </div>
+      )}
 <div className="banner-wrap" style={{ padding: '12px 16px 4px', display: banners.length ? undefined : 'none' }}>
         <div
           className="banner-stage"
@@ -484,7 +493,7 @@ export default function Home() {
               const isActive = i === bannerIdx;
               return (
                 <div key={i} className={'banner-slide-full' + (isActive ? ' active' : '')}>
-                  <img src={b} alt={meta.title} loading={i === 0 ? 'eager' : 'lazy'} />
+                  <BannerImage src={b} alt={meta.title} eager={i === 0} />
                 </div>
               );
             })}

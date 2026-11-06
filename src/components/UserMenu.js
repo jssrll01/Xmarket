@@ -1,22 +1,45 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Package, Heart, Settings, LogOut, FileText, RotateCcw, Ticket, CreditCard } from 'lucide-react';
+import { User, Package, Heart, Settings, LogOut, FileText, RotateCcw, CreditCard } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+
+const EXIT_MS = 160; // keep in sync with .um-out in index.css
 
 export default function UserMenu() {
   const nav = useNavigate();
   const { user } = useAuth();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);       // should be open
+  const [mounted, setMounted] = useState(false); // in the DOM (stays true while the close animation plays)
   const ref = useRef(null);
 
   useEffect(() => {
-    if (!open) return;
-    const onClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    if (open) { setMounted(true); return undefined; }
+    const t = setTimeout(() => setMounted(false), EXIT_MS);
+    return () => clearTimeout(t);
+  }, [open]);
+
+  // Close on any click, tap, scroll, swipe, wheel, resize or Escape outside the menu
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = () => setOpen(false);
+    const outside = (e) => { if (!ref.current || !ref.current.contains(e.target)) close(); };
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    const passive = { capture: true, passive: true };
+    document.addEventListener('pointerdown', outside, true);
+    document.addEventListener('touchmove', outside, passive);
+    document.addEventListener('wheel', outside, passive);
+    window.addEventListener('scroll', outside, passive);
+    window.addEventListener('resize', close);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('pointerdown', outside, true);
+      document.removeEventListener('touchmove', outside, passive);
+      document.removeEventListener('wheel', outside, passive);
+      window.removeEventListener('scroll', outside, passive);
+      window.removeEventListener('resize', close);
+      document.removeEventListener('keydown', onKey);
     };
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
   }, [open]);
 
   const go = (path) => { setOpen(false); nav(path); };
@@ -36,17 +59,20 @@ export default function UserMenu() {
 
   return (
     <div ref={ref} style={{ position: 'relative' }}>
-      <button className="icon-btn" onClick={() => setOpen(o => !o)} aria-label="Account menu">
+      <button className="icon-btn" onClick={() => setOpen(o => !o)} aria-label="Account menu" aria-expanded={open}>
         <User size={20} />
       </button>
 
-      {open && (
-        <div style={{
-          position: 'absolute', top: 44, right: 0, zIndex: 200,
-          width: 240, borderRadius: 14, overflow: 'hidden',
-          background: 'var(--card)', border: '1px solid var(--border)',
-          boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-        }}>
+      {mounted && (
+        <div
+          className={'um-pop ' + (open ? 'um-in' : 'um-out')}
+          style={{
+            position: 'absolute', top: 44, right: 0, zIndex: 200,
+            width: 240, borderRadius: 14, overflow: 'hidden',
+            background: 'var(--card)', border: '1px solid var(--border)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+          }}
+        >
           {user ? (
             <>
               <div style={{ padding: '14px 16px', borderBottom: '1px solid var(--border)' }}>
@@ -76,9 +102,6 @@ export default function UserMenu() {
               </button>
               <button style={row} onClick={() => go('/settings')}>
                 <Settings size={16} /> Settings
-              </button>
-              <button style={row} onClick={() => go('/account')}>
-                <Settings size={16} /> Account settings
               </button>
 
               <div style={{ borderTop: '1px solid var(--border)' }} />

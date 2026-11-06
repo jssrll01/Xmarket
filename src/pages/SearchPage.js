@@ -9,7 +9,6 @@ const clean = (s) => String(s || '').replace(/[%,()*\\]/g, ' ').trim();
 const minPrice = (vp) => { const v = Object.values(vp || {}).map(Number).filter(n => n > 0); return v.length ? Math.min(...v) : 0; };
 const SORTS = [['rel', 'Relevance'], ['new', 'Latest'], ['sold', 'Top Sales'], ['pa', 'Price ↑'], ['pd', 'Price ↓']];
 const COLS = 'id,name,category,store,images,sold,variant_prices,created_at';
-const sk = { background: 'rgba(148,163,184,.25)', borderRadius: 14, animation: 'xsr 1.2s ease-in-out infinite' };
 
 export default function SearchPage() {
   const nav = useNavigate();
@@ -76,7 +75,6 @@ export default function SearchPage() {
 
   return (
     <div style={{ minHeight: '100vh', paddingBottom: 40 }}>
-      <style>{'@keyframes xsr{0%,100%{opacity:.45}50%{opacity:1}}'}</style>
       <div style={{ position: 'sticky', top: 0, zIndex: 50, background: 'var(--bg)', padding: '12px 12px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
         <button className="icon-btn" aria-label="Back" onClick={() => (window.history.state && window.history.state.idx > 0 ? nav(-1) : nav('/'))}><ArrowLeft size={20} /></button>
         <form style={{ flex: 1, position: 'relative' }} onSubmit={e => { e.preventDefault(); go(text); }}>
@@ -127,7 +125,7 @@ export default function SearchPage() {
         </div>
         <div style={{ padding: '0 16px 8px', fontSize: 12, color: 'var(--muted)' }}>{loading ? 'Searching…' : `${list.length} result${list.length === 1 ? '' : 's'} for “${q}”`}</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: '0 12px' }}>
-          {loading && [0, 1, 2, 3].map(i => <div key={i} style={{ ...sk, height: 250 }} />)}
+          {loading && [0, 1, 2, 3].map(i => <div key={i} className="sk" style={{ borderRadius: 14, height: 250 }} />)}
           {!loading && list.map(p => (
             <Link key={p.id} to={'/product/' + p.id} className="card" style={{ overflow: 'hidden', display: 'block' }}>
               <div style={{ aspectRatio: '1 / 1', background: '#EEF1F6' }}>

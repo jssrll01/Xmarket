@@ -328,17 +328,6 @@ h1, h2, h3, h4 { color: var(--text); }
 .slideshow::-webkit-scrollbar { display: none; }
 .slideshow img { flex: 0 0 100%; scroll-snap-align: center; width: 100%; height: 320px; object-fit: cover; display: block; }
 
-/* SKELETON — DEPRECATED: superseded by C-PASS shimmer at bottom of file */
-.skeleton { position: relative; overflow: hidden; background: var(--card); }
-.skeleton::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.85) 50%, transparent 100%);
-  transform: translateX(-100%);
-  animation: shimmer 1.4s infinite;
-}
-@keyframes shimmer { 100% { transform: translateX(100%); } }
-
 .img-wrap { position: relative; width: 100%; height: 100%; overflow: hidden; }
 .img-wrap img { width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 0.35s ease; display: block; }
 .img-wrap img.loaded { opacity: 1; }
@@ -827,15 +816,12 @@ button:active,
 /* ============================================================
    SKELETON LOADERS
    ============================================================ */
+/* Shared skeleton = Xwallet loader (soft pulse) */
+@keyframes xwsk { 0%, 100% { opacity: .45; } 50% { opacity: 1; } }
 .sk {
-  background: linear-gradient(90deg, var(--card) 0%, var(--border) 50%, var(--card) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.4s ease-in-out infinite;
+  background: rgba(148, 163, 184, .25);
   border-radius: 8px;
-}
-@keyframes shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  animation: xwsk 1.2s ease-in-out infinite;
 }
 .sk-img  { width: 100%; aspect-ratio: 1 / 1; border-radius: 0; }
 .sk-line { height: 12px; }
@@ -1136,29 +1122,6 @@ button:focus, a:focus {
 .err-glow       { animation: pageEnterFade 400ms ease-out both !important; }
 .err-code       { animation: pageEnterFade 300ms ease-out both !important; }
 
-/* Dedupe shimmer — one authoritative definition, GPU-only transform */
-@keyframes shimmer {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-.sk {
-  position: relative;
-  overflow: hidden;
-  background: var(--neu-surface);
-  box-shadow: var(--neu-inset-sm);
-}
-.sk::after {
-  content: '';
-  position: absolute; inset: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.75) 50%,
-    transparent 100%
-  );
-  transform: translateX(-100%);
-  animation: shimmer 1.5s ease-in-out infinite;
-}
 .sk-img  { width: 100%; aspect-ratio: 1 / 1; border-radius: 0; }
 .sk-line { height: 12px; border-radius: 8px; }
 .sk-btn  { height: 40px; margin: 8px; border-radius: 12px; }
@@ -1243,19 +1206,10 @@ body {
   .fade-up,
   .dialog,
   .toast,
-  .sk::after {
+  .sk {
     animation: none !important;
   }
 }
-
-/* ============================================================
-   SHIMMER KEYFRAME — AUTHORITATIVE
-   Note: 3 real @keyframes shimmer defs exist above (lines 340, 836, 1140)
-   block (legacy). This note does not override them; the last
-   definition in the file wins at parse time, and the last one
-   is our GPU-only transform-based version from the C-PASS.
-   Future cleanup: delete the two legacy shimmer blocks.
-   ============================================================ */
 
 /* ============================================================
    HERO PASS — branded header, banner polish, search tools
@@ -2695,3 +2649,20 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):focus, select:foc
 .pill { background: #FFFFFF !important; color: #0F172A !important; border: 1px solid #E6EAF0 !important; box-shadow: 3px 3px 8px rgba(163,177,198,.4), -3px -3px 8px #fff !important; }
 .pill:active { box-shadow: inset 2px 2px 5px rgba(163,177,198,.5), inset -2px -2px 5px #fff !important; }
 /* ===== END XM WHITE THEME v3 ===== */
+
+/* ===== UI PASS 2: profile dropdown + side drawer animations ===== */
+@keyframes umIn  { from { opacity: 0; transform: translateY(-8px) scale(.95); } to { opacity: 1; transform: none; } }
+@keyframes umOut { from { opacity: 1; transform: none; } to { opacity: 0; transform: translateY(-8px) scale(.95); } }
+.um-pop { transform-origin: top right; }
+.um-pop.um-in  { animation: umIn 200ms cubic-bezier(.22, 1, .36, 1) both; }
+.um-pop.um-out { animation: umOut 160ms ease-in both; pointer-events: none; }
+
+.drawer-backdrop { visibility: hidden; opacity: 0; transition: opacity 280ms ease, visibility 0s linear 340ms; }
+.drawer-backdrop.open { visibility: visible; opacity: 1; transition: opacity 280ms ease, visibility 0s; }
+.drawer { transform: translateX(105%); transition: transform 300ms cubic-bezier(.4, 0, 1, 1); }
+.drawer.open { transform: translateX(0); transition: transform 380ms cubic-bezier(.22, 1, .36, 1); }
+.drawer > * { opacity: 0; translate: 18px 0; transition: opacity 180ms ease, translate 260ms ease; }
+.drawer.open > * { opacity: 1; translate: 0 0; transition: opacity 280ms ease 120ms, translate 380ms cubic-bezier(.22, 1, .36, 1) 120ms; }
+.drawer.open > *:nth-child(2) { transition-delay: 170ms; }
+.drawer.open > *:nth-child(3) { transition-delay: 220ms; }
+.drawer.open > *:nth-child(4) { transition-delay: 270ms; }

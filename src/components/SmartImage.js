@@ -4,7 +4,7 @@ export default function SmartImage({ src, alt, style, className }) {
   const [loaded, setLoaded] = useState(false);
   return (
     <div className="img-wrap" style={style}>
-      {!loaded && <div className="skeleton" style={{ position: 'absolute', inset: 0 }} />}
+      {!loaded && <div className="sk" style={{ position: 'absolute', inset: 0, borderRadius: 0 }} />}
       <img
         src={src}
         alt={alt}

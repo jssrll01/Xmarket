@@ -31,9 +31,9 @@ export const SignIn = () => {
 };
 
 export const Sk = ({ h = 16, w = '100%', r = 12, style }) => (
-  <div style={{ height: h, width: w, borderRadius: r, background: 'rgba(148,163,184,.25)', animation: 'xwsk 1.2s ease-in-out infinite', ...style }} />
+  <div className="sk" style={{ height: h, width: w, borderRadius: r, ...style }} />
 );
-export const SkStyle = () => <style>{'@keyframes xwsk{0%,100%{opacity:.45}50%{opacity:1}}'}</style>;
+export const SkStyle = () => null; // keyframes now live in index.css (.sk)
 
 export function Sheet({ title, onClose, children }) {
   return (
