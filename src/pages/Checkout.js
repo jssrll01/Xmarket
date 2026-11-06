@@ -3,7 +3,9 @@ import OrderTotals from '../components/OrderTotals';
 import { itemDiscount, loadDiscountRules } from '../lib/discount';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap, Wand2 } from 'lucide-react';
+import { ArrowLeft, AlertCircle, X, CheckCircle2, Upload, Zap, MapPin, ChevronRight } from 'lucide-react';
+import AddressBook from '../components/AddressBook';
+import { fetchAddresses, addressLine } from '../lib/addresses';
 import { useCart } from '../CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -133,24 +135,31 @@ export default function Checkout() {
   const shipping = form.delivery === 'doortodoor' ? getShippingFeeSync(subtotal, shipTiers || undefined) : (form.delivery === 'instant' ? 0 : null);
   const total = Math.max(0, subtotal - discount) + (shipping || 0);
 
-  const autofill = () => {
-    if (!profile) {
-      showToast('No saved profile information found');
-      return;
-    }
-    setForm(f => ({
-      ...f,
-      fullName: [profile.first_name, profile.last_name].filter(Boolean).join(' ') || f.fullName,
-      mobile: profile.phone || f.mobile,
-      email: user?.email || f.email,
-      address: profile.delivery_address || f.address,
-      landmark: profile.nearest_landmark || f.landmark,
-      province: profile.province || f.province,
-      city: profile.city || f.city,
-      barangay: profile.barangay || f.barangay,
-    }));
-    showToast('Filled from your account');
+  const [addrId, setAddrId] = useState(null);
+  const [addrView, setAddrView] = useState(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+
+  const applyAddress = (a) => {
+    setAddrId(a.id); setAddrView(a);
+    setForm(f => ({ ...f, fullName: a.full_name, mobile: a.phone, address: a.address, landmark: a.landmark || '',
+      province: a.province, city: a.city, barangay: a.barangay }));
+    try { localStorage.setItem('xm_ship_addr', a.id); } catch (e) { /* ignore */ }
   };
+
+  useEffect(() => {
+    if (!user) return;
+    fetchAddresses(user.id).then(list => {
+      if (!list.length) return;
+      let saved = null;
+      try { saved = localStorage.getItem('xm_ship_addr'); } catch (e) { /* ignore */ }
+      applyAddress(list.find(x => x.id === saved) || list.find(x => x.is_default) || list[0]);
+    });
+    // eslint-disable-next-line
+  }, [user]);
+
+  useEffect(() => {
+    if (user?.email) setForm(f => (f.email ? f : { ...f, email: user.email }));
+  }, [user]);
 
   const goBack = () => {
     const idx = window.history.state?.idx ?? 0;
@@ -452,10 +461,7 @@ export default function Checkout() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <button onClick={goBack} className="icon-btn"><ArrowLeft size={20} /></button>
-        <button onClick={autofill} className="btn-ghost"
-          style={{ padding: '8px 14px', fontSize: 12.5, display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700 }}>
-          <Wand2 size={14} /> Autofill
-        </button>
+        <span />
       </div>
       <h2 style={{ marginBottom: 16 }}>Checkout</h2>
 
@@ -472,16 +478,30 @@ export default function Checkout() {
         </div>
       )}
 
+      <div className="card" onClick={() => setPickerOpen(true)}
+        style={{ padding: 14, marginBottom: 12, cursor: 'pointer', display: 'flex', gap: 12, alignItems: 'center',
+          border: missing.some(k => ['address', 'province', 'city', 'barangay', 'fullName', 'mobile'].includes(k)) ? '1px solid #DC2626' : undefined }}>
+        <MapPin size={20} color="var(--primary)" style={{ flexShrink: 0 }} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {addrView ? (
+            <>
+              <div style={{ fontWeight: 700, fontSize: 14.5 }}>{addrView.full_name} <span style={{ fontWeight: 400, color: 'var(--muted)', fontSize: 13 }}>{addrView.phone}</span></div>
+              <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3, lineHeight: 1.45 }}>{addrView.address}<br />{addressLine(addrView)}</div>
+              {addrView.is_default && <span style={{ display: 'inline-block', marginTop: 5, fontSize: 10.5, padding: '1px 7px', border: '1px solid var(--primary)', color: 'var(--primary)', borderRadius: 3 }}>Default</span>}
+            </>
+          ) : (
+            <>
+              <div style={{ fontWeight: 700, fontSize: 14.5 }}>Add delivery address</div>
+              <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 3 }}>{allInstant ? 'Required for contact details' : 'Tap to add where we should deliver'}</div>
+            </>
+          )}
+        </div>
+        <ChevronRight size={18} color="var(--muted)" />
+      </div>
+
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
-        <h3 style={{ marginBottom: 8 }}>Delivery Information</h3>
-        {input('fullName', 'Full Name')}
-        {input('mobile', 'Mobile Number', 'tel')}
+        <h3 style={{ marginBottom: 8 }}>Order Details</h3>
         {input('email', 'Email Address', 'email')}
-        {input('address', 'Delivery Address')}
-        {input('landmark', 'Nearest Landmark')}
-        {input('province', 'Province')}
-        {input('city', 'City / Municipality')}
-        {input('barangay', 'Barangay')}
         <div style={{ marginBottom: 10 }}>
           <label>Additional Delivery Instruction (optional)</label>
           <textarea value={form.instructions} onChange={e => upd('instructions', e.target.value)}
@@ -494,6 +514,12 @@ export default function Checkout() {
             style={{ width: '100%', padding: 10, marginTop: 4 }} rows="2" />
         </div>
       </div>
+
+      {pickerOpen && (
+        <AddressBook mode="select" selectedId={addrId}
+          onClose={() => setPickerOpen(false)}
+          onSelect={(a) => { applyAddress(a); setPickerOpen(false); }} />
+      )}
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Mode of Payment</h3>

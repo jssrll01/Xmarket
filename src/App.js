@@ -55,6 +55,7 @@ import Xupport from './pages/Xupport';
 import Settings from './pages/Settings';
 import SignUp from './pages/SignUp';
 import Profile from './pages/Profile';
+import Addresses from './pages/Addresses';
 import Orders from './pages/Orders';
 import TrackingOrders from './pages/TrackingOrders';
 import OrderDetail from './pages/OrderDetail';
@@ -107,6 +108,7 @@ function Router() {
         <Route path="/settings" element={<Settings />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/addresses" element={<Addresses />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/tracking-orders" element={<TrackingOrders />} />
         <Route path="/orders/:id" element={<OrderDetail />} />

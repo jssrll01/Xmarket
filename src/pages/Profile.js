@@ -136,6 +136,7 @@ export default function Profile() {
       <h3 style={{ fontSize: 12, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.5, margin: '20px 0 10px 4px' }}>
         Delivery Information
       </h3>
+      <button onClick={() => nav('/addresses')} className="btn-primary" style={{ width: '100%', padding: 12, marginBottom: 10, fontSize: 13 }}>Manage saved addresses</button>
       <Field icon={MapPin} label="Address" value={profile?.delivery_address} />
       <Field icon={MapPin} label="Landmark" value={profile?.nearest_landmark} />
       <Field icon={Flag} label="Province" value={profile?.province} />
