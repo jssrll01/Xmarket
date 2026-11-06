@@ -1,0 +1,56 @@
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Heart, MessageCircle, Share2 } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+
+export const BLUE = '#2563EB';
+export const time12 = (d) => new Date(d).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+export const initials = (n) => String(n || 'U').slice(0, 2).toUpperCase();
+
+export const Sk = ({ h = 16, w = '100%', r = 12, style }) => (
+  <div style={{ height: h, width: w, borderRadius: r, background: 'rgba(148,163,184,.25)', animation: 'socsk 1.2s ease-in-out infinite', ...style }} />
+);
+export const SkStyle = () => <style>{'@keyframes socsk{0%,100%{opacity:.45}50%{opacity:1}}'}</style>;
+
+export function Avatar({ name, url, size = 40 }) {
+  return url
+    ? <img src={url} alt="" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+    : <span style={{ width: size, height: size, borderRadius: '50%', background: 'linear-gradient(135deg,#2563EB,#60A5FA)', color: '#fff', fontWeight: 800, fontSize: size * 0.38, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{initials(name)}</span>;
+}
+
+export async function toggleLike(id) {
+  const { data } = await supabase.rpc('socials_toggle_like', { p_post: id });
+  return data;
+}
+
+export async function sharePost(p) {
+  const url = window.location.origin + '/socials/post/' + p.id + '/comments';
+  const text = '@' + p.username + ' on XMARKET: ' + String(p.description).slice(0, 80);
+  if (navigator.share) { try { await navigator.share({ title: 'XMARKET Socials', text, url }); return 'shared'; } catch (e) { return 'cancel'; } }
+  try { await navigator.clipboard.writeText(url); return 'copied'; } catch (e) { return 'fail'; }
+}
+
+export function PostCard({ p, onLike, onShare }) {
+  const nav = useNavigate();
+  return (
+    <div className="card" style={{ marginBottom: 14, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 12, cursor: 'pointer' }} onClick={() => nav('/socials/creator/' + p.username)}>
+        <Avatar name={p.username} url={p.avatar_url} />
+        <div><div style={{ fontWeight: 800, fontSize: 14 }}>@{p.username}</div><div style={{ fontSize: 11, color: 'var(--muted)' }}>{time12(p.created_at)}</div></div>
+      </div>
+      <img src={p.image_url} alt="" loading="lazy" style={{ width: '100%', display: 'block', maxHeight: 520, objectFit: 'cover', background: '#EEF1F6' }} />
+      <div style={{ display: 'flex', gap: 18, padding: '10px 12px 4px' }}>
+        <button onClick={() => onLike(p)} aria-label="Like" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13 }}>
+          <Heart size={22} color={p.liked ? '#DC2626' : '#475569'} fill={p.liked ? '#DC2626' : 'none'} /> {p.likes}
+        </button>
+        <button onClick={() => nav('/socials/post/' + p.id + '/comments')} aria-label="Comments" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13 }}>
+          <MessageCircle size={22} color="#475569" /> {p.comments}
+        </button>
+        <button onClick={() => onShare(p)} aria-label="Share" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13, marginLeft: 'auto' }}>
+          <Share2 size={21} color="#475569" /> Share
+        </button>
+      </div>
+      <div style={{ padding: '4px 12px 14px', fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}><b>@{p.username}</b> {p.description}</div>
+    </div>
+  );
+}

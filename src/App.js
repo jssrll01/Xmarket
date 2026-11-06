@@ -47,6 +47,9 @@ import XwalletTopup from './pages/XwalletTopup';
 import Xcards from './pages/Xcards';
 import GlobalChat from './pages/GlobalChat';
 import Socials from './pages/Socials';
+import SocialsCreator from './pages/SocialsCreator';
+import SocialsComments from './pages/SocialsComments';
+import CreatorNewPost from './pages/CreatorNewPost';
 import Vip from './pages/Vip';
 import BottomNav from './components/BottomNav';
 import MyReports from './pages/report/MyReports';
@@ -159,6 +162,9 @@ function Router() {
         <Route path="/xcards" element={<Xcards />} />
         <Route path="/global-chat" element={<GlobalChat />} />
         <Route path="/socials" element={<Socials />} />
+        <Route path="/socials/creator/:username" element={<SocialsCreator />} />
+        <Route path="/socials/post/:id/comments" element={<SocialsComments />} />
+        <Route path="/creator-studio/post" element={<CreatorNewPost />} />
         <Route path="/vip" element={<Vip />} />
         <Route path="/my-reports" element={<MyReports />} />
         <Route path="/report/bug" element={<BugReport />} />
