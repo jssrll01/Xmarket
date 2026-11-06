@@ -299,7 +299,7 @@ export default function Checkout() {
           p_shipping: form,
           p_payment: form.payment === 'xwallet' ? 'xwallet' : paymentLabel,
           p_delivery: deliveryLabel,
-          p_promo_code: promoInput || null,
+          p_promo_code: null,
           p_xcard_code: xcardInput || null
         });
 
@@ -596,23 +596,6 @@ export default function Checkout() {
       )}
 
       <div className="card" style={{ padding: 16 }}>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          <input
-            type="text"
-            placeholder="Promo code"
-            value={promoInput}
-            onChange={(e) => setPromoInput(e.target.value.toUpperCase())}
-            style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: '1px solid var(--border)', fontSize: 13 }}
-          />
-          <button
-            onClick={applyPromo}
-            className="btn-primary"
-            style={{ padding: '0 16px', fontSize: 13, borderRadius: 10 }}
-          >
-            Apply
-          </button>
-        </div>
-        {promoError && <div style={{ color: '#DC2626', fontSize: 12, marginBottom: 12 }}>{promoError}</div>}
 
         {/* XCARD REDEEM */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 8, marginTop: 12 }}>
