@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Crown, Truck, Headset, Sparkles, MessageCircle, Check, Copy, Wallet, ShieldCheck, Clock } from 'lucide-react';
+import { Crown, Truck, Headset, Sparkles, MessageCircle, Wallet, ShieldCheck, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { fetchWallet } from '../lib/xwallet';
 import { useVip, purchaseVip, fetchVipHistory, VIP_PRICE, VIP_DAYS } from '../lib/vip';
@@ -154,7 +154,6 @@ function useCountdown(expiresAt, onDone) {
 function Dashboard({ user, profile, status, welcome, refresh }) {
   const nav = useNavigate();
   const [history, setHistory] = useState(null);
-  const [copied, setCopied] = useState(false);
   const cd = useCountdown(status.expires_at, refresh);
 
   useEffect(() => {
@@ -174,9 +173,6 @@ function Dashboard({ user, profile, status, welcome, refresh }) {
   const pct = Math.max(0, Math.min(100, (cd.ms / total) * 100));
   const pad = (n) => String(n).padStart(2, '0');
 
-  const copy = async () => {
-    try { await navigator.clipboard.writeText(accId); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch (e) { /* ignore */ }
-  };
 
   return (
     <>
@@ -199,7 +195,6 @@ function Dashboard({ user, profile, status, welcome, refresh }) {
           <div>
             <div className="k">ACCOUNT ID</div>
             <div className="v">{accId}
-              <button className="vip-copy" onClick={copy} aria-label="Copy account ID">{copied ? <Check size={13} /> : <Copy size={13} />}</button>
             </div>
           </div>
           <div style={{ textAlign: 'right' }}>
