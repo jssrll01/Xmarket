@@ -47,7 +47,7 @@ export default function XwalletTopup() {
   const [sending, setSending] = useState(false);
 
   const subtotal = amount;
-  const fee = +(subtotal * FEE_RATE).toFixed(2);
+  const fee = 0; // transaction fee removed
   const total = +(subtotal + fee).toFixed(2);
   const selected = PAYMENTS.find(p => p.id === payment);
 
@@ -145,9 +145,7 @@ export default function XwalletTopup() {
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
           <span>Subtotal</span><span>₱{subtotal.toFixed(2)}</span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6, color: 'var(--muted)' }}>
-          <span>Transaction fee (1%)</span><span>₱{fee.toFixed(2)}</span>
-        </div>
+        
         <hr style={{ margin: '10px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 16 }}>
           <span>Total</span><span>₱{total.toFixed(2)}</span>
