@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { supabase } from './lib/supabase';
 import { createChart, CandlestickSeries, AreaSeries, CrosshairMode } from 'lightweight-charts';
@@ -344,8 +345,6 @@ export default function XCoin() {
     setTradeAmount(''); setLoading(false);
   };
 
-  const regime = String(market.current_regime || '');
-  const rcol = regime.includes('Bull') ? UP : regime.includes('Bear') ? DOWN : '#f59e0b';
   const recent = ticks.slice(-40).reverse();
 
   return (
@@ -357,7 +356,7 @@ export default function XCoin() {
             <button className="xc-back" onClick={() => navigate(-1)}>← Return</button>
             <div className="xc-pair" style={{ marginTop: 4 }}>
               <div className="xc-logo">X</div>
-              <div><b>XCOIN / PHP<span className="xc-chip">2.0</span></b><small>XMARKET spot market</small></div>
+              <div><b>XCOIN / PHP<span className="xc-chip">2.0</span></b><small>XTRADE market</small></div>
             </div>
           </div>
           <div className="xc-clock">PHT {phtTime}</div>
@@ -375,10 +374,6 @@ export default function XCoin() {
                   <span style={{ color: '#64748b', fontWeight: 600 }}> last tick</span>
                 </div>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 10.5, color: '#64748b', textTransform: 'uppercase', letterSpacing: .6 }}>Market regime</div>
-                <div style={{ fontSize: 16, fontWeight: 900, color: rcol }}>{regime}</div>
-              </div>
             </div>
 
             <div className="xc-ticker" style={{ marginTop: 14 }}>
@@ -389,10 +384,6 @@ export default function XCoin() {
               <div className="xc-stat"><small>All-time high</small><b>{peso(market.ath)}</b></div>
               <div className="xc-stat"><small>All-time low</small><b>{peso(market.atl)}</b></div>
             </div>
-            <div style={{ marginTop: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10.5, color: '#64748b' }}><span>24h range</span><span>{rangePos.toFixed(0)}% of range</span></div>
-              <div className="xc-gauge"><i style={{ width: rangePos + '%' }} /></div>
-            </div>
 
             <div className="xc-bar">
               {TFS.map(([k]) => <button key={k} className={'xc-tf' + (tf === k ? ' on' : '')} onClick={() => setTf(k)}>{k}</button>)}
@@ -401,14 +392,6 @@ export default function XCoin() {
               <button className={'xc-tf' + (style === 'line' ? ' on' : '')} onClick={() => setStyle('line')}>Line</button>
             </div>
             <div ref={boxRef} className="xc-chart" />
-            {shown && (
-              <div className="xc-ohlc">
-                <span>O <b style={{ color: '#0f172a' }}>{Number(shown.open).toFixed(2)}</b></span>
-                <span>H <b style={{ color: UP }}>{Number(shown.high).toFixed(2)}</b></span>
-                <span>L <b style={{ color: DOWN }}>{Number(shown.low).toFixed(2)}</b></span>
-                <span>C <b style={{ color: '#0f172a' }}>{Number(shown.close).toFixed(2)}</b></span>
-              </div>
-            )}
           </div>
 
           <div className="xc-card xc-b">
