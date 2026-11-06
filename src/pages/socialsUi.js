@@ -1,3 +1,4 @@
+import FollowChip from './FollowChip';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
@@ -37,6 +38,7 @@ export function PostCard({ p, onLike, onShare }) {
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 12, cursor: 'pointer' }} onClick={() => nav('/socials/creator/' + p.username)}>
         <Avatar name={p.username} url={p.avatar_url} />
         <div><div style={{ fontWeight: 800, fontSize: 14 }}>@{p.username}</div><div style={{ fontSize: 11, color: 'var(--muted)' }}>{time12(p.created_at)}</div></div>
+        {!p.mine && p.creator_id && <FollowChip creatorId={p.creator_id} initial={p.following} />}
       </div>
       <img src={p.image_url} alt="" loading="lazy" style={{ width: '100%', display: 'block', maxHeight: 520, objectFit: 'cover', background: '#EEF1F6' }} />
       <div style={{ display: 'flex', gap: 18, padding: '10px 12px 4px' }}>
