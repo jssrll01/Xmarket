@@ -8,10 +8,12 @@ import {
 import { Sparkles as CreatorIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
+import useMyAvatar from '../lib/useMyAvatar';
 
 export default function Profile() {
   const nav = useNavigate();
   const { user, profile } = useAuth();
+  const avatar = useMyAvatar();
   const [stats, setStats] = useState({ orders: 0, wishlist: 0, following: 0, extra: null });
   const [statsLoaded, setStatsLoaded] = useState(false);
 
@@ -86,7 +88,7 @@ export default function Profile() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: '#fff', fontSize: 26, fontWeight: 800,
         }}>
-          {initial}
+          {avatar ? <img src={avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : initial}
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 18, fontWeight: 800 }}>

@@ -20,7 +20,6 @@ export default function FollowButton({ creatorId, initial, count, onCount }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
       <button onClick={tap} disabled={busy} className={on ? 'btn-ghost' : 'btn-primary'} style={{ flex: 1, padding: 12, fontSize: 14, fontWeight: 800 }}>{on ? 'Following' : 'Follow'}</button>
-      <span style={{ fontSize: 13, color: 'var(--muted)', whiteSpace: 'nowrap' }}><b style={{ color: 'var(--text)' }}>{n}</b> followers</span>
     </div>
   );
 }

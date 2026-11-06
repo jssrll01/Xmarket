@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Bell, Users, Clock, TrendingUp, Wallet, ChevronRight, ClipboardList, Link2, Calendar, CheckCircle2, Share2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import useMyAvatar from '../lib/useMyAvatar';
 import { BLUE, MUTED, peso, card, inp, btn, ghost, circBtn, Pill, IconBox, StatCard, Sk, SkStyle, PageSkeleton, copyText, initials } from './creatorUi';
 
 
@@ -36,6 +37,7 @@ const NavRow = ({ icon, title, sub, onClick, first }) => (
 
 export default function CreatorDashboard() {
   const nav = useNavigate();
+  const avatar = useMyAvatar();
   const [tab, setTab] = useState('overview');
   const [d, setD] = useState(null);
   const [loaded, setLoaded] = useState(false);
@@ -94,7 +96,7 @@ export default function CreatorDashboard() {
           <button type="button" aria-label="Notifications" onClick={() => nav('/notifications')} style={circBtn}><Bell size={18} /></button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
-          <div style={{ width: 46, height: 46, borderRadius: 14, background: 'rgba(255,255,255,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800 }}>{initials(name)}</div>
+          <div style={{ width: 46, height: 46, borderRadius: 14, background: 'rgba(255,255,255,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, overflow: 'hidden' }}>{avatar ? <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials(name)}</div>
           <div><div style={{ fontWeight: 800 }}>{name}</div><div style={{ fontSize: 12, opacity: 0.85 }}>@{d.profile.username} · {d.code}</div></div>
         </div>
         <div style={{ marginTop: 16, fontSize: 12, opacity: 0.85 }}>Available earnings</div>
