@@ -103,3 +103,28 @@
   -webkit-appearance: none;
   appearance: none;
 }
+
+/* send spinner */
+@keyframes gcSpin { to { transform: rotate(360deg); } }
+.gc-spin { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid rgba(255, 255, 255, .35); border-top-color: #fff; animation: gcSpin .7s linear infinite; }
+.gc-send.sending:disabled { opacity: 1; }
+
+/* flat input: beats global input styles */
+form.gc-compose div.gc-field input.gc-input,
+form.gc-compose div.gc-field input.gc-input:focus,
+form.gc-compose div.gc-field input.gc-input:active,
+form.gc-compose div.gc-field input.gc-input:hover {
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  filter: none !important;
+  height: auto !important;
+  padding: 8px 0 !important;
+  margin: 0 !important;
+  -webkit-appearance: none;
+  appearance: none;
+}

@@ -104,7 +104,7 @@ export default function GlobalChat() {
     const body = text.trim();
     if (!body || sending) return;
     setSending(true); setError(''); stick.current = true;
-    const { data, error: err } = await supabase.from('global_messages').insert({ body }).select().single();
+    const [{ data, error: err }] = await Promise.all([supabase.from('global_messages').insert({ body }).select().single(), new Promise((r) => setTimeout(r, 350))]);
     setSending(false);
     if (err) {
       setError(String(err.message || '').includes('too fast') ? 'You are sending messages too fast.' : 'Could not send. Try again.');
@@ -191,8 +191,8 @@ export default function GlobalChat() {
             maxLength={500}
             autoComplete="off"
           />
-          <button type="submit" className="gc-send" aria-label="Send" disabled={!text.trim() || sending}>
-            <Send size={18} />
+          <button type="submit" className={'gc-send' + (sending ? ' sending' : '')} aria-label="Send" disabled={!text.trim() || sending}>
+            {sending ? <span className="gc-spin" aria-hidden="true" /> : <Send size={18} />}
           </button>
         </div>
       </form>
