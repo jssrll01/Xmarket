@@ -18,7 +18,6 @@ export default function AuthShell({ title, subtitle, children, footer }) {
 
         <div className="auth-brand">
           <img className="auth-logo" src="https://res.cloudinary.com/bvw3okdf/image/upload/v1793930341/mqfefdb3lxz5nrugsy5t.jpg" alt="XMARKET" />
-          <div className="auth-tag">Your World of Great Deals</div>
         </div>
 
         <div className="auth-card">
