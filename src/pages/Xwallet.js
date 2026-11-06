@@ -141,17 +141,17 @@ export default function Xwallet() {
       </p>
 
       {/* Balance card */}
-      <div style={{ padding: 22, marginBottom: 16, borderRadius: 24, color: '#fff', position: 'relative', overflow: 'hidden',
-        background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 55%, #2563EB 100%)', boxShadow: '0 18px 40px rgba(30, 58, 138, 0.35)' }}>
-        <Wallet size={120} style={{ position: 'absolute', top: -20, right: -24, opacity: 0.1 }} />
+      <div style={{ padding: 22, marginBottom: 16, borderRadius: 24, color: '#0F172A', position: 'relative', overflow: 'hidden',
+        background: 'linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 60%, #E2E8F0 100%)', border: '1px solid #E2E8F0', boxShadow: '0 14px 34px rgba(15, 23, 42, 0.10)' }}>
+        <Wallet size={120} style={{ position: 'absolute', top: -20, right: -24, opacity: 0.07, color: '#2563EB' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.8, letterSpacing: 1.2, textTransform: 'uppercase' }}>Available balance</div>
-          <div style={{ fontSize: 10.5, padding: '4px 10px', borderRadius: 20, background: 'rgba(255,255,255,0.14)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+          <div style={{ fontSize: 10.5, padding: '4px 10px', borderRadius: 20, background: 'rgba(37,99,235,0.08)', color: '#2563EB', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
         </div>
         <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 1.1, marginTop: 8, letterSpacing: -1 }}>₱{Number(balance).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 18 }}>
           {[['Pending', pendingTotal], ['Money in', moneyIn], ['Money out', moneyOut]].map(([k, v]) => (
-            <div key={k} style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 14, padding: '9px 11px', border: '1px solid rgba(255,255,255,0.12)' }}>
+            <div key={k} style={{ background: '#fff', borderRadius: 14, padding: '9px 11px', border: '1px solid #E2E8F0' }}>
               <div style={{ fontSize: 9.5, opacity: 0.8, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.7 }}>{k}</div>
               <div style={{ fontSize: 13.5, fontWeight: 800, marginTop: 2 }}>₱{Number(v).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             </div>
