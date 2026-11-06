@@ -17,8 +17,7 @@ export default function AuthShell({ title, subtitle, children, footer }) {
         </button>
 
         <div className="auth-brand">
-          <div className="auth-logo">X</div>
-          <div className="auth-wordmark">XMARKET</div>
+          <img className="auth-logo" src="https://res.cloudinary.com/bvw3okdf/image/upload/v1793930341/mqfefdb3lxz5nrugsy5t.jpg" alt="XMARKET" />
           <div className="auth-tag">Your World of Great Deals</div>
         </div>
 
@@ -29,7 +28,6 @@ export default function AuthShell({ title, subtitle, children, footer }) {
         </div>
 
         {footer && <div className="auth-foot">{footer}</div>}
-        <div className="auth-secure">🔒 Your information is encrypted and secure</div>
       </div>
     </div>
   );
