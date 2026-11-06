@@ -40,7 +40,8 @@ export default function XwalletTopup() {
   const { user } = useAuth();
   const { show: showToast } = useToast();
 
-  const amount = Number(params.get('amount')) || 0;
+  const [amountText, setAmountText] = useState(() => { const a = Number(params.get('amount')) || 0; return a ? String(a) : ''; });
+  const amount = Math.round((Number(amountText) || 0) * 100) / 100;
   const [payment, setPayment] = useState('gcash');
   const [receipt, setReceipt] = useState(null);
   const [sending, setSending] = useState(false);
@@ -113,10 +114,10 @@ export default function XwalletTopup() {
           style={{ width: '100%', padding: 12, marginTop: 6, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14, background: 'var(--bg)', color: 'var(--muted)' }} />
       </div>
 
-      {/* Amount — locked */}
+      {/* Amount */}
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Amount (₱)</label>
-        <input value={subtotal.toFixed(2)} readOnly
+        <input type="number" inputMode="decimal" min="100" step="1" placeholder="Minimum 100" value={amountText} onChange={e => setAmountText(e.target.value)}
           style={{ width: '100%', padding: 12, marginTop: 6, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14, background: 'var(--bg)', color: 'var(--muted)' }} />
       </div>
 
@@ -176,7 +177,7 @@ export default function XwalletTopup() {
         )}
       </div>
 
-      <button onClick={confirm} disabled={sending || !receipt} className="btn-primary"
+      <button onClick={confirm} disabled={sending || !receipt || amount < 100} className="btn-primary"
         style={{
           width: '100%', padding: 14, fontSize: 15, fontWeight: 700,
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
