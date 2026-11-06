@@ -23,6 +23,7 @@ import SmartImage from '../components/SmartImage';
 import { ProductGridSkeleton } from '../components/Skeleton';
 import EmptyState from '../components/EmptyState';
 import useRecentSearches from '../hooks/useRecentSearches';
+import { useNavigate as useNavToSearch } from 'react-router-dom';
 import UserMenu from '../components/UserMenu';
 import VariantPicker from '../components/VariantPicker';
 
@@ -217,6 +218,7 @@ export default function Home() {
   const [scrolled, setScrolled] = useState(false);
   const [hydrated, setHydrated] = useState(false);
   const [searchFocus, setSearchFocus] = useState(false);
+  const navToSearch = useNavToSearch();
   const { recent, add: addRecent, remove: removeRecent, clear: clearRecent } = useRecentSearches();
   const { items, dispatch } = useCart();
   const { user } = useAuth();
@@ -588,7 +590,7 @@ export default function Home() {
               position: 'absolute', left: 12, top: '50%',
               transform: 'translateY(-50%)', color: 'var(--muted)'
             }} />
-            <input type="text" placeholder="Search a product..."
+            <input type="text" readOnly inputMode="none" onClick={() => navToSearch('/search')} placeholder="Search a product..."
               value={search} onChange={e => setSearch(e.target.value)}
               onFocus={() => setSearchFocus(true)}
               onBlur={() => setTimeout(() => setSearchFocus(false), 150)}

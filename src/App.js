@@ -4,6 +4,7 @@ import { Routes, Route } from 'react-router-dom';
 import CreatorStudio from './pages/CreatorStudio';
 import CreatorReferrals from './pages/CreatorReferrals';
 import CreatorTask from './pages/CreatorTask';
+import SearchPage from './pages/SearchPage';
 import { CartProvider } from './CartContext';
 import { ToastProvider } from './components/Toast';
 import useScrollTop from './hooks/useScrollTop';
@@ -114,6 +115,7 @@ function Router() {
         <Route path="/orders/:id" element={<OrderDetail />} />
         <Route path="/store/:store" element={<SellerProfile />} />
         <Route path="/rewards" element={<Rewards />} />
+        <Route path="/search" element={<SearchPage />} />
         <Route path="/creator-studio" element={<CreatorStudio />} />
         <Route path="/creator-studio/referrals" element={<CreatorReferrals />} />
         <Route path="/creator-studio/tasks/:id" element={<CreatorTask />} />
