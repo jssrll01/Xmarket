@@ -115,7 +115,7 @@ export default function XCoin() {
   const [message, setMessage] = useState('');
   const [phtTime, setPhtTime] = useState('');
   const [tf, setTf] = useState('1m');
-  const [style, setStyle] = useState('candles');
+  const [style, setStyle] = useState('line');
   const [ticks, setTicks] = useState([]);
   const [hover, setHover] = useState(null);
   const [positions, setPositions] = useState([]);
@@ -370,7 +370,7 @@ export default function XCoin() {
               <div>
                 <div className="xc-price" style={{ color: isUp ? UP : DOWN }}>{peso(price, 4)}</div>
                 <div style={{ marginTop: 6, fontSize: 13, fontWeight: 800, color: isUp ? UP : DOWN }}>
-                  {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(4)} ({Math.abs(changePct).toFixed(2)}%)
+                  {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(4)} 
                   <span style={{ color: '#64748b', fontWeight: 600 }}> last tick</span>
                 </div>
               </div>
