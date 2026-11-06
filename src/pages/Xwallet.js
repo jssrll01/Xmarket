@@ -9,6 +9,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import XwalletWithdraw from './XwalletWithdraw';
 import XwalletInterest from './XwalletInterest';
+import XwalletHistory, { SectionHead } from './XwalletHistory';
 import { supabase } from '../lib/supabase';
 import { fetchMyWithdrawals, fetchInterestSummary, fetchMyInterestLog } from '../lib/xwallet';
 import {
@@ -31,6 +32,7 @@ export default function Xwallet() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('topup');
   const [withdrawals, setWithdrawals] = useState([]);
+  const [seeAll, setSeeAll] = useState(null);
   const [interest, setInterest] = useState(null);
   const [interestLog, setInterestLog] = useState([]);
 
@@ -139,45 +141,39 @@ export default function Xwallet() {
       </p>
 
       {/* Balance card */}
-      <div style={{
-        padding: 24, marginBottom: 16, borderRadius: 18,
-        background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-        color: '#fff', position: 'relative', overflow: 'hidden',
-        boxShadow: '0 10px 30px rgba(16, 185, 129, 0.25)',
-      }}>
-        <Wallet size={80} style={{ position: 'absolute', top: -10, right: -20, opacity: 0.15 }} />
-        <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.85, letterSpacing: 1, textTransform: 'uppercase' }}>Balance</div>
-        <div style={{ fontSize: 42, fontWeight: 900, lineHeight: 1.1, marginTop: 4 }}>₱{balance.toFixed(2)}</div>
-        <div style={{ fontSize: 11.5, opacity: 0.85, marginTop: 6 }}>{user.email}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 16 }}>
+      <div style={{ padding: 22, marginBottom: 16, borderRadius: 24, color: '#fff', position: 'relative', overflow: 'hidden',
+        background: 'linear-gradient(135deg, #0F172A 0%, #1E3A8A 55%, #2563EB 100%)', boxShadow: '0 18px 40px rgba(30, 58, 138, 0.35)' }}>
+        <Wallet size={120} style={{ position: 'absolute', top: -20, right: -24, opacity: 0.1 }} />
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.8, letterSpacing: 1.2, textTransform: 'uppercase' }}>Available balance</div>
+          <div style={{ fontSize: 10.5, padding: '4px 10px', borderRadius: 20, background: 'rgba(255,255,255,0.14)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+        </div>
+        <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 1.1, marginTop: 8, letterSpacing: -1 }}>₱{Number(balance).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 18 }}>
           {[['Pending', pendingTotal], ['Money in', moneyIn], ['Money out', moneyOut]].map(([k, v]) => (
-            <div key={k} style={{ background: 'rgba(255,255,255,0.16)', borderRadius: 12, padding: '8px 10px' }}>
-              <div style={{ fontSize: 10, opacity: 0.85, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.6 }}>{k}</div>
-              <div style={{ fontSize: 14, fontWeight: 800, marginTop: 2 }}>₱{Number(v).toFixed(2)}</div>
+            <div key={k} style={{ background: 'rgba(255,255,255,0.12)', borderRadius: 14, padding: '9px 11px', border: '1px solid rgba(255,255,255,0.12)' }}>
+              <div style={{ fontSize: 9.5, opacity: 0.8, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.7 }}>{k}</div>
+              <div style={{ fontSize: 13.5, fontWeight: 800, marginTop: 2 }}>₱{Number(v).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
             </div>
           ))}
         </div>
-        <div style={{ fontSize: 10.5, opacity: 0.7, marginTop: 8 }}>Totals are based on your recent transactions.</div>
       </div>
 
       <XwalletInterest summary={interest} log={interestLog} onApplied={refresh} />
 
-      {/* Tabs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16, background: 'var(--card)', borderRadius: 14, padding: 6 }}>
+      {/* Quick actions */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 18 }}>
         {TABS.map(t => {
           const Icon = t.icon;
           const active = activeTab === t.id;
           return (
-            <button key={t.id} onClick={() => setActiveTab(t.id)}
-              style={{
-                padding: 12, borderRadius: 10, border: 'none',
-                background: active ? 'var(--primary)' : 'transparent',
-                color: active ? '#fff' : 'var(--text)',
-                fontWeight: 700, fontSize: 12,
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
-                cursor: 'pointer',
-              }}>
-              <Icon size={16} /> {t.label}
+            <button key={t.id} onClick={() => setActiveTab(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 0 }}>
+              <span style={{ width: 54, height: 54, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: active ? 'linear-gradient(135deg, #2563EB, #3B82F6)' : 'var(--card)', color: active ? '#fff' : 'var(--primary, #2563EB)',
+                boxShadow: active ? '0 10px 22px rgba(37, 99, 235, 0.35)' : '0 2px 10px rgba(15, 23, 42, 0.08)', border: active ? 'none' : '1px solid var(--border, #e2e8f0)' }}>
+                <Icon size={22} />
+              </span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: active ? 'var(--primary, #2563EB)' : 'var(--text)' }}>{t.label}</span>
             </button>
           );
         })}
@@ -218,11 +214,11 @@ export default function Xwallet() {
             </p>
           </div>
 
-          <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 10 }}>Top-up history</h3>
+          <SectionHead title="Top-up history" show={topups.length > 3} onAll={() => setSeeAll('topups')} />
           {topups.length === 0 ? (
             <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No top-up requests yet.</p>
           ) : (
-            topups.map(t => {
+            topups.slice(0, 3).map(t => {
               const statusColor = t.status === 'approved' ? '#059669' : t.status === 'rejected' ? '#DC2626' : '#F59E0B';
               const StatusIcon = t.status === 'approved' ? CheckCircle2 : t.status === 'rejected' ? AlertCircle : Clock;
               return (
@@ -242,7 +238,7 @@ export default function Xwallet() {
       )}
 
       {activeTab === 'withdraw' && (
-        <XwalletWithdraw balance={balance} withdrawals={withdrawals} onDone={refresh} />
+        <XwalletWithdraw balance={balance} withdrawals={withdrawals} onDone={refresh} onSeeAll={() => setSeeAll('withdrawals')} />
       )}
 
       {/* TRANSFER TAB */}
@@ -316,11 +312,11 @@ export default function Xwallet() {
             </button>
           </div>
 
-          <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 10 }}>Load history</h3>
+          <SectionHead title="Load history" show={loads.length > 3} onAll={() => setSeeAll('loads')} />
           {loads.length === 0 ? (
             <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No loads yet.</p>
           ) : (
-            loads.map(l => (
+            loads.slice(0, 3).map(l => (
               <div key={l.id} className="card" style={{ padding: 12, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{ width: 34, height: 34, borderRadius: 10, background: '#DBEAFE', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -339,13 +335,13 @@ export default function Xwallet() {
       )}
 
       {/* TRANSACTIONS */}
-      <h3 style={{ fontSize: 15, fontWeight: 800, margin: '20px 0 10px' }}>All transactions</h3>
+      <SectionHead top={20} title="All transactions" show={txns.length > 3} onAll={() => setSeeAll('txns')} />
       {loading ? (
         <WalletSkeleton />
       ) : txns.length === 0 ? (
         <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No transactions yet.</p>
       ) : (
-        txns.map(t => (
+        txns.slice(0, 3).map(t => (
           <div key={t.id} className="card" style={{ padding: 12, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
@@ -403,6 +399,8 @@ export default function Xwallet() {
         </div>
         <span style={{ color: 'var(--muted)' }}>→</span>
       </div>
+
+      {seeAll && <XwalletHistory kind={seeAll} data={{ topups, loads, txns, withdrawals }[seeAll]} onClose={() => setSeeAll(null)} />}
 
       {/* TRANSFER CONFIRM */}
       {showTransferConfirm && (

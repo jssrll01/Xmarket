@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { CheckCircle2, AlertCircle, Clock, Loader2 } from 'lucide-react';
 import { useToast } from '../components/Toast';
 import { requestWithdrawal } from '../lib/xwallet';
+import { SectionHead } from './XwalletHistory';
 
 const METHODS = [['gcash', 'GCash'], ['maya', 'Maya'], ['bank', 'Bank']];
 const STATUS = {
@@ -12,7 +13,7 @@ const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFrac
 const inp = { width: '100%', padding: 12, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 };
 const lbl = { fontSize: 12, fontWeight: 700, color: 'var(--muted)' };
 
-export default function XwalletWithdraw({ balance, withdrawals, onDone }) {
+export default function XwalletWithdraw({ balance, withdrawals, onDone, onSeeAll }) {
   const { show: showToast } = useToast();
   const [method, setMethod] = useState('gcash');
   const [amount, setAmount] = useState('');
@@ -97,10 +98,10 @@ export default function XwalletWithdraw({ balance, withdrawals, onDone }) {
         </p>
       </div>
 
-      <h3 style={{ fontSize: 15, fontWeight: 800, marginBottom: 10 }}>Withdrawal history</h3>
+      <SectionHead title="Withdrawal history" show={withdrawals.length > 3} onAll={() => onSeeAll && onSeeAll()} />
       {withdrawals.length === 0 ? (
         <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No withdrawals yet.</p>
-      ) : withdrawals.map(w => {
+      ) : withdrawals.slice(0, 3).map(w => {
         const [color, Icon] = STATUS[w.status] || STATUS.pending;
         return (
           <div key={w.id} className="card" style={{ padding: 12, marginBottom: 8 }}>
