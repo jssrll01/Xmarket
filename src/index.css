@@ -2673,3 +2673,13 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):focus, select:foc
 }
 .auth-control input { background: transparent !important; box-shadow: none !important; border: 0 !important; }
 /* ===== END XM WHITE THEME ===== */
+
+/* ===== XM WHITE THEME v2 (drawer, menus) ===== */
+.drawer { background: #FFFFFF !important; border-left: 1px solid var(--border); box-shadow: -10px 0 30px rgba(15,23,42,.08) !important; }
+.drawer-backdrop { background: rgba(15,23,42,.35) !important; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+.drawer-item { background: #F4F6FA !important; border: 1px solid var(--border) !important; border-radius: 14px !important; box-shadow: none !important; font-weight: 700; }
+.drawer-item:hover { background: #EEF2FF !important; }
+.drawer-item:active { background: #E8EEFF !important; box-shadow: var(--inset) !important; transform: none; }
+.drawer-item svg { color: #2563EB; stroke: #2563EB; }
+.section-title { color: var(--text); letter-spacing: -.2px; }
+/* ===== END XM WHITE THEME v2 ===== */
