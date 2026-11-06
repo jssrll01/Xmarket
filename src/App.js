@@ -5,6 +5,9 @@ import CreatorStudio from './pages/CreatorStudio';
 import CreatorReferrals from './pages/CreatorReferrals';
 import CreatorFollowers from './pages/CreatorFollowers';
 import CreatorTask from './pages/CreatorTask';
+import CreatorTasks from './pages/CreatorTasks';
+import CreatorHistory from './pages/CreatorHistory';
+import CreatorEarnings from './pages/CreatorEarnings';
 import SearchPage from './pages/SearchPage';
 import XwSend from './pages/xw/XwSend';
 import XwLoad from './pages/xw/XwLoad';
@@ -134,6 +137,9 @@ function Router() {
         <Route path="/creator-studio/referrals" element={<CreatorReferrals />} />
         <Route path="/creator-studio/followers" element={<CreatorFollowers />} />
         <Route path="/creator-studio/tasks/:id" element={<CreatorTask />} />
+        <Route path="/creator-studio/tasks" element={<CreatorTasks />} />
+        <Route path="/creator-studio/history" element={<CreatorHistory />} />
+        <Route path="/creator-studio/earnings" element={<CreatorEarnings />} />
         <Route path="/returns" element={<Returns />} />
         <Route path="/bundles" element={<Bundles />} />
         <Route path="/flash-sale" element={<FlashSale />} />

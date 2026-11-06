@@ -136,7 +136,7 @@ export default function CreatorDashboard() {
         </div>
         <div style={{ ...card, paddingTop: 4, paddingBottom: 4 }}>
           <NavRow first icon={Users} title="Referral dashboard" sub="Pending, successful and commissions" onClick={() => nav('/creator-studio/referrals')} />
-          <NavRow icon={ClipboardList} title="Browse tasks" sub="Join tasks and earn rewards" onClick={() => setTab('tasks')} />
+          <NavRow icon={ClipboardList} title="Browse tasks" sub="Join tasks and earn rewards" onClick={() => nav('/creator-studio/tasks')} />
           <NavRow icon={Calendar} title="Content history" sub="Your submitted content and results" onClick={() => { setTab('history'); setMsg(''); }} />
           <NavRow icon={Wallet} title="Earnings" sub="Balance, withdrawals and payouts" onClick={() => { setTab('earnings'); setMsg(''); }} />
           <NavRow icon={ClipboardList} title="New post" sub="Post to XMARKET Socials, once per day" onClick={() => nav('/creator-studio/post')} />
