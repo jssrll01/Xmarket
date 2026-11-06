@@ -2640,3 +2640,36 @@ input, textarea, select, [contenteditable="true"], .selectable, .selectable * {
   -webkit-touch-callout: default;
 }
 
+
+/* ===== XM WHITE THEME v1 (flat + minimal neumorphic) ===== */
+:root {
+  --bg: #F4F6FA; --card: #FFFFFF; --border: #E6EAF0;
+  --primary: #2563EB; --text: #0F172A; --muted: #64748B;
+  --shadow-dark: rgba(163,177,198,.45); --shadow-light: #FFFFFF;
+  --raised: 6px 6px 14px var(--shadow-dark), -6px -6px 14px var(--shadow-light);
+  --raised-sm: 3px 3px 8px var(--shadow-dark), -3px -3px 8px var(--shadow-light);
+  --inset: inset 3px 3px 7px var(--shadow-dark), inset -3px -3px 7px var(--shadow-light);
+}
+body { background: var(--bg) !important; color: var(--text); }
+
+/* flat surfaces */
+.card { background: var(--card) !important; border: 1px solid var(--border) !important; border-radius: 18px !important; box-shadow: none !important; }
+
+/* raised controls */
+.btn-primary { background: linear-gradient(135deg, #2563EB, #3B82F6) !important; border: none !important; border-radius: 14px !important; box-shadow: 0 8px 18px -8px rgba(37,99,235,.7) !important; }
+.btn-primary:active { box-shadow: inset 2px 2px 6px rgba(0,0,0,.28) !important; }
+.btn-outline, .btn-ghost { background: var(--card) !important; border: 1px solid var(--border) !important; border-radius: 14px !important; box-shadow: var(--raised-sm) !important; }
+.btn-outline:active, .btn-ghost:active { box-shadow: var(--inset) !important; }
+.icon-btn { background: var(--card) !important; border-radius: 14px !important; box-shadow: var(--raised-sm) !important; }
+.icon-btn:active { box-shadow: var(--inset) !important; }
+
+/* pressed-in inputs */
+input:not([type=range]):not([type=checkbox]):not([type=radio]), select, textarea {
+  background: #EEF1F6 !important; border: 1px solid transparent !important; border-radius: 14px !important;
+  box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light) !important;
+}
+input:not([type=range]):not([type=checkbox]):not([type=radio]):focus, select:focus, textarea:focus {
+  background: #FFFFFF !important; border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(37,99,235,.15) !important;
+}
+.auth-control input { background: transparent !important; box-shadow: none !important; border: 0 !important; }
+/* ===== END XM WHITE THEME ===== */
