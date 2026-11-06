@@ -34,7 +34,7 @@ export default function Xwallet() {
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
       <SkStyle />
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-        <button className="icon-btn" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button>
+        <button className="icon-btn" aria-label="Back" onClick={() => nav('/', { replace: true })}><ArrowLeft size={20} /></button>
         <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Xwallet</h2>
       </div>
 
