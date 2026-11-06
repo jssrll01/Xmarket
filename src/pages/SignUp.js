@@ -42,17 +42,19 @@ export default function SignUp() {
       <form onSubmit={onSubmit}>
 <fieldset disabled={busy} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
         <AuthField icon={User} label="Username" placeholder="Choose a username" value={form.username} onChange={set('username')} required />
-        <AuthField icon={User} label="First Name" placeholder="Juan" value={form.firstName} onChange={set('firstName')} required />
-        <AuthField icon={User} label="Last Name" placeholder="Dela Cruz" value={form.lastName} onChange={set('lastName')} required />
+        <div className="auth-row">
+          <AuthField icon={User} label="First Name" placeholder="Juan" value={form.firstName} onChange={set('firstName')} required />
+          <AuthField icon={User} label="Last Name" placeholder="Dela Cruz" value={form.lastName} onChange={set('lastName')} required />
+        </div>
         <AuthField icon={Mail} label="Email Address" type="email" placeholder="you@example.com" value={form.email} onChange={set('email')} required />
         <AuthField icon={Phone} label="Mobile Number" type="tel" placeholder="09XX XXX XXXX" value={form.phone} onChange={set('phone')} required />
         <PasswordField label="Password" placeholder="At least 6 characters" value={form.password} onChange={set('password')} required />
         <PasswordField label="Confirm Password" placeholder="Re-enter your password" value={form.confirm} onChange={set('confirm')} required />
         <button
           type="submit"
-          className="btn-primary"
+          className="btn-primary auth-submit"
           disabled={busy}
-          style={{ width: '100%', padding: 15, fontSize: 15, borderRadius: 14, marginTop: 6 }}
+          
         >
           {busy ? (<span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><style>{'@keyframes xmspin{to{transform:rotate(360deg)}}'}</style><span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'xmspin .7s linear infinite' }} />Creating account…</span>) : 'Create account'}
         </button>

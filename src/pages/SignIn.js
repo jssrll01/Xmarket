@@ -53,9 +53,9 @@ export default function SignIn() {
         </div>
         <button
           type="submit"
-          className="btn-primary"
+          className="btn-primary auth-submit"
           disabled={busy}
-          style={{ width: '100%', padding: 15, fontSize: 15, borderRadius: 14 }}
+          
         >
           {busy ? 'Signing in…' : 'Sign in'}
         </button>
