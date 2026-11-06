@@ -20,7 +20,7 @@ export default function CreatorFollowers() {
         <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Followers</h2>
         {rows && <span style={{ fontSize: 13, color: MUTED }}>{rows.length} total</span>}
       </div>
-      {rows === null && <div style={{ ...card, padding: 24, textAlign: 'center', color: MUTED }}>Loading…</div>}
+      {rows === null && (<div style={{ ...card, padding: 0, overflow: 'hidden' }}>{[0,1,2,3,4,5].map(i => (<div key={i} className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderTop: i ? '1px solid rgba(148,163,184,.25)' : 'none', animationDelay: Math.min(i * 40, 400) + 'ms' }}><div className="sk" style={{ width: 40, height: 40, borderRadius: '50%', flexShrink: 0 }} /><div style={{ flex: 1 }}><div className="sk sk-line" style={{ width: '45%', marginBottom: 8 }} /><div className="sk sk-line" style={{ width: '30%', height: 10 }} /></div></div>))}</div>)}
       {rows && rows.length === 0 && (
         <div style={{ ...card, padding: 30, textAlign: 'center', color: MUTED }}>
           <Users size={34} style={{ opacity: 0.4 }} />
