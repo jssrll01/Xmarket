@@ -1,58 +1,180 @@
-import React from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Send } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../context/AuthContext';
+import './GlobalChat.css';
 
-const SAMPLE = [
-  { name: 'XMARKET', text: 'Welcome to the Global Chat! Say hi to everyone.', time: '9:00 AM', color: '#2563EB' },
-  { name: 'Mika', text: 'Hello! Any good deals today?', time: '9:02 AM', color: '#059669' },
-  { name: 'Jun', text: 'Check the Flash Sale, it ends tonight.', time: '9:03 AM', color: '#F59E0B' },
-  { name: 'Ara', text: 'Thanks! Just grabbed one.', time: '9:05 AM', color: '#DC2626' },
-];
+const DAY_MS = 24 * 60 * 60 * 1000;
+const COLORS = ['#2563EB', '#059669', '#F59E0B', '#DC2626', '#7C3AED', '#0891B2', '#DB2777'];
 
-const pill = { fontSize: 11, fontWeight: 800, color: '#2563EB', background: 'rgba(37,99,235,.12)', padding: '5px 10px', borderRadius: 999 };
+const byTime = (a, b) => new Date(a.created_at) - new Date(b.created_at);
+const colorOf = (id) => { let h = 0; for (const c of String(id)) h = (h * 31 + c.charCodeAt(0)) >>> 0; return COLORS[h % COLORS.length]; };
+const fmtTime = (d) => new Date(d).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+const dayKey = (d) => new Date(d).toDateString();
+const dayLabel = (d) => {
+  const x = new Date(d);
+  if (x.toDateString() === new Date().toDateString()) return 'Today';
+  if (x.toDateString() === new Date(Date.now() - DAY_MS).toDateString()) return 'Yesterday';
+  return x.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+function Avatar({ m }) {
+  const name = m.username || 'X';
+  return (
+    <div className="gc-av" style={{ background: colorOf(m.user_id) }}>
+      {name[0].toUpperCase()}
+      {m.avatar_url && <img src={m.avatar_url} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+    </div>
+  );
+}
 
 export default function GlobalChat() {
-  return (
-    <div className="page-enter" style={{ padding: 16 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Global Chat</h2>
-        <span style={pill}>Coming soon</span>
-      </div>
-      <p style={{ color: 'var(--muted)', fontSize: 13, margin: '6px 0 14px' }}>
-        An open forum where every XMARKET user can talk together.
-      </p>
+  const nav = useNavigate();
+  const { user, loading: authLoading } = useAuth();
+  const [msgs, setMsgs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [text, setText] = useState('');
+  const [sending, setSending] = useState(false);
+  const listRef = useRef(null);
+  const stick = useRef(true);
 
-      <div className="card" style={{ padding: 14 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 12 }}>
-          Preview (sample messages)
+  const add = useCallback((m) => {
+    setMsgs((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m].sort(byTime)));
+  }, []);
+
+  useEffect(() => {
+    if (!user?.id) { setLoading(false); return undefined; }
+    let alive = true;
+    const since = new Date(Date.now() - DAY_MS).toISOString();
+
+    supabase.from('global_messages').select('*').gte('created_at', since)
+      .order('created_at', { ascending: false }).limit(200)
+      .then(({ data, error: err }) => {
+        if (!alive) return;
+        if (err) {
+          setError(err.code === '42P01' || err.code === 'PGRST205'
+            ? 'Global Chat is not set up yet.'
+            : 'Could not load messages.');
+        } else {
+          setMsgs((prev) => {
+            const map = new Map();
+            [...(data || []).reverse(), ...prev].forEach((m) => map.set(m.id, m));
+            return [...map.values()].sort(byTime);
+          });
+        }
+        setLoading(false);
+      });
+
+    const ch = supabase.channel('global-chat')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'global_messages' }, (p) => { if (alive) add(p.new); })
+      .subscribe();
+
+    // hide anything older than 24 hours even before the server cleanup runs
+    const tick = setInterval(() => {
+      setMsgs((prev) => prev.filter((m) => Date.now() - new Date(m.created_at) < DAY_MS));
+    }, 60000);
+
+    return () => { alive = false; supabase.removeChannel(ch); clearInterval(tick); };
+  }, [user?.id, add]);
+
+  const onScroll = () => {
+    const el = listRef.current;
+    if (el) stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
+  };
+
+  useLayoutEffect(() => {
+    const el = listRef.current;
+    if (el && stick.current) el.scrollTop = el.scrollHeight;
+  }, [msgs, loading]);
+
+  const send = async (e) => {
+    e.preventDefault();
+    const body = text.trim();
+    if (!body || sending) return;
+    setSending(true); setError(''); stick.current = true;
+    const { data, error: err } = await supabase.from('global_messages').insert({ body }).select().single();
+    setSending(false);
+    if (err) {
+      setError(String(err.message || '').includes('too fast') ? 'You are sending messages too fast.' : 'Could not send. Try again.');
+      return;
+    }
+    setText('');
+    add(data);
+  };
+
+  const head = (
+    <div className="gc-head">
+      <h2 className="gc-title">Global Chat</h2>
+      <div className="gc-sub">Everyone can see your messages. Chats clear after 24 hours.</div>
+    </div>
+  );
+
+  if (!authLoading && !user) {
+    return (
+      <div className="page-enter gc-page">
+        {head}
+        <div className="gc-empty">
+          <p>Sign in to join the conversation.</p>
+          <button className="btn-primary" onClick={() => nav('/signin')} style={{ marginTop: 12, padding: '10px 24px' }}>Sign in</button>
         </div>
+      </div>
+    );
+  }
 
-        {SAMPLE.map((m, i) => (
-          <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-            <div style={{ width: 34, height: 34, borderRadius: '50%', background: m.color, color: '#fff', fontWeight: 800, fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              {m.name[0]}
-            </div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 800 }}>
-                {m.name} <span style={{ color: 'var(--muted)', fontWeight: 600 }}> {m.time}</span>
-              </div>
-              <div style={{ fontSize: 13, background: '#F4F6FA', border: '1px solid var(--border)', borderRadius: '4px 14px 14px 14px', padding: '8px 12px', marginTop: 4, display: 'inline-block' }}>
-                {m.text}
-              </div>
-            </div>
+  const rows = [];
+  msgs.forEach((m, i) => {
+    const prev = msgs[i - 1];
+    const newDay = !prev || dayKey(prev.created_at) !== dayKey(m.created_at);
+    const first = newDay || prev.user_id !== m.user_id;
+    const mine = m.user_id === user?.id;
+    if (newDay) rows.push(<div key={'d' + m.id} className="gc-day"><span>{dayLabel(m.created_at)}</span></div>);
+    rows.push(
+      <div key={m.id} className={'gc-row' + (mine ? ' mine' : '') + (first ? ' first' : '')}>
+        {!mine && (first ? <Avatar m={m} /> : <span className="gc-av-spacer" />)}
+        <div className="gc-col">
+          {!mine && first && <div className="gc-name">{m.username || 'XMARKET user'}</div>}
+          <div className="gc-bubble">
+            <span className="gc-text">{m.body}</span>
+            <span className="gc-time">{fmtTime(m.created_at)}</span>
+          </div>
+        </div>
+      </div>
+    );
+  });
+
+  return (
+    <div className="page-enter gc-page">
+      {head}
+
+      <div className="gc-list" ref={listRef} onScroll={onScroll}>
+        {loading && [0, 1, 2, 3].map((i) => (
+          <div key={i} className="gc-row first" style={{ justifyContent: i % 2 ? 'flex-end' : 'flex-start' }}>
+            {i % 2 === 0 && <div className="sk" style={{ width: 32, height: 32, borderRadius: '50%' }} />}
+            <div className="sk" style={{ width: 150 + i * 28, height: 40, borderRadius: 18 }} />
           </div>
         ))}
-
-        <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
-          <input
-            disabled
-            placeholder="Chat opens soon..."
-            style={{ flex: 1, minWidth: 0, padding: '11px 14px', borderRadius: 999, border: '1px solid var(--border)', background: '#F4F6FA', fontSize: 14 }}
-          />
-          <button disabled className="btn-primary" aria-label="Send" style={{ width: 44, height: 44, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5, padding: 0 }}>
-            <Send size={18} />
-          </button>
-        </div>
+        {!loading && !error && msgs.length === 0 && (
+          <div className="gc-empty">No messages yet. Say hi to everyone!</div>
+        )}
+        {rows}
       </div>
+
+      {error && <div className="gc-error">{error}</div>}
+      <form className="gc-compose" onSubmit={send}>
+        <input
+          className="gc-input"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder="Message everyone..."
+          maxLength={500}
+          autoComplete="off"
+        />
+        <button type="submit" className="gc-send" aria-label="Send" disabled={!text.trim() || sending}>
+          <Send size={18} />
+        </button>
+      </form>
     </div>
   );
 }
