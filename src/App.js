@@ -5,6 +5,11 @@ import CreatorStudio from './pages/CreatorStudio';
 import CreatorReferrals from './pages/CreatorReferrals';
 import CreatorTask from './pages/CreatorTask';
 import SearchPage from './pages/SearchPage';
+import XwSend from './pages/xw/XwSend';
+import XwLoad from './pages/xw/XwLoad';
+import XwWithdrawPage from './pages/xw/XwWithdrawPage';
+import XwBank from './pages/xw/XwBank';
+import XwHistory from './pages/xw/XwHistory';
 import { CartProvider } from './CartContext';
 import { ToastProvider } from './components/Toast';
 import useScrollTop from './hooks/useScrollTop';
@@ -142,6 +147,11 @@ function Router() {
         <Route path="/play-time/red-or-black" element={<PlayRedBlack />} />
         <Route path="/xwallet" element={<Xwallet />} />
         <Route path="/xwallet/topup" element={<XwalletTopup />} />
+        <Route path="/xwallet/send" element={<XwSend />} />
+        <Route path="/xwallet/load" element={<XwLoad />} />
+        <Route path="/xwallet/withdraw" element={<XwWithdrawPage />} />
+        <Route path="/xwallet/bank" element={<XwBank />} />
+        <Route path="/xwallet/history" element={<XwHistory />} />
         <Route path="/xcards" element={<Xcards />} />
         <Route path="/my-reports" element={<MyReports />} />
         <Route path="/report/bug" element={<BugReport />} />

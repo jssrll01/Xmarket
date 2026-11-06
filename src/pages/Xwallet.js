@@ -1,445 +1,90 @@
-import { WalletSkeleton } from '../components/Skeleton';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  ArrowLeft, Wallet, Plus, ArrowUpRight, ArrowDownLeft, Send, Smartphone,
-  CheckCircle2, AlertCircle, Clock, Phone
-} from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../components/Toast';
-import XwalletWithdraw from './XwalletWithdraw';
-import XwalletInterest from './XwalletInterest';
-import XwalletHistory, { SectionHead } from './XwalletHistory';
-import { supabase } from '../lib/supabase';
-import { fetchMyWithdrawals, fetchInterestSummary, fetchMyInterestLog } from '../lib/xwallet';
-import {
-  fetchWallet, fetchWalletTxns, createTopupRequest, fetchMyTopups,
-  buyLoad, fetchMyLoads, transferByEmail,
-} from '../lib/xwallet';
+import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight } from 'lucide-react';
+import useWallet from './xw/useWallet';
+import { SignIn, Sk, SkStyle, Row, txnItem, peso } from './xw/ui';
 
-const NETWORKS = ['Globe', 'TM', 'Smart', 'TNT', 'DITO'];
-const QUICK_TOPUP = [100, 200, 500, 1000, 2000];
+const ACTIONS = [
+  ['Top-up', Plus, '/xwallet/topup'], ['Send Money', Send, '/xwallet/send'], ['Buy Load', Smartphone, '/xwallet/load'],
+  ['Withdraw', ArrowUpRight, '/xwallet/withdraw'], ['Bank', TrendingUp, '/xwallet/bank'], ['History', Clock, '/xwallet/history'],
+];
 
 export default function Xwallet() {
   const nav = useNavigate();
-  const { user } = useAuth();
-  const { show: showToast } = useToast();
+  const { user, loading, balance, txns, topups, interest } = useWallet();
+  if (!user) return <SignIn />;
 
-  const [balance, setBalance] = useState(0);
-  const [txns, setTxns] = useState([]);
-  const [topups, setTopups] = useState([]);
-  const [loads, setLoads] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('topup');
-  const [withdrawals, setWithdrawals] = useState([]);
-  const [seeAll, setSeeAll] = useState(null);
-  const [interest, setInterest] = useState(null);
-  const [interestLog, setInterestLog] = useState([]);
-
-  // Top-up form
-  const [topupAmount, setTopupAmount] = useState(100);
-
-  // Transfer form
-  const [transferEmail, setTransferEmail] = useState('');
-  const [transferAmount, setTransferAmount] = useState('');
-  const [transferLoading, setTransferLoading] = useState(false);
-  const [showTransferConfirm, setShowTransferConfirm] = useState(false);
-
-  // Buy load form
-  const [loadNetwork, setLoadNetwork] = useState('Globe');
-  const [loadNumber, setLoadNumber] = useState('');
-  const [loadAmount, setLoadAmount] = useState('');
-  const [loadLoading, setLoadLoading] = useState(false);
-  const [showLoadConfirm, setShowLoadConfirm] = useState(false);
-
-  const refresh = async () => {
-    if (!user) return;
-    const [b, t, tp, ld, wd, isum, ilog] = await Promise.all([
-      fetchWallet(user.id),
-      fetchWalletTxns(user.id),
-      fetchMyTopups(user.id),
-      fetchMyLoads(user.id),
-      fetchMyWithdrawals(user.id),
-      fetchInterestSummary(),
-      fetchMyInterestLog(user.id),
-    ]);
-    setWithdrawals(wd); setInterest(isum); setInterestLog(ilog);
-    setBalance(b); setTxns(t); setTopups(tp); setLoads(ld); setLoading(false);
-  };
-
-  useEffect(() => { refresh(); /* eslint-disable-line */ }, [user]);
-
-  useEffect(() => {
-    if (!user) return undefined;
-    const ch = supabase.channel('xwallet-live-' + user.id)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'xwallet_withdrawals', filter: 'user_id=eq.' + user.id }, () => refresh())
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'xwallet_txns', filter: 'user_id=eq.' + user.id }, () => refresh())
-      .subscribe();
-    return () => { supabase.removeChannel(ch); };
-    // eslint-disable-next-line
-  }, [user]);
-
-  if (!user) {
-    return (
-      <div style={{ padding: 24, textAlign: 'center' }}>
-        <p style={{ color: 'var(--muted)' }}>Sign in to use Xwallet.</p>
-        <button className="btn-primary" onClick={() => nav('/signin')} style={{ marginTop: 12, padding: '10px 24px' }}>Sign in</button>
-      </div>
-    );
-  }
-
-  const submitTransfer = async () => {
-    setShowTransferConfirm(false);
-    const amt = Number(transferAmount);
-    if (!amt || amt <= 0) { showToast('Enter a valid amount'); return; }
-    if (amt > balance) { showToast('Insufficient balance'); return; }
-    if (!transferEmail.includes('@')) { showToast('Enter a valid email address'); return; }
-    setTransferLoading(true);
-    const { data, error } = await transferByEmail(user.id, transferEmail, amt, `Transfer to ${transferEmail}`);
-    setTransferLoading(false);
-    if (error) { showToast(error.message); return; }
-    if (data?.error) { showToast(data.error); return; }
-    showToast(`Sent ₱${amt} to ${transferEmail}`);
-    setTransferAmount(''); setTransferEmail('');
-    refresh();
-  };
-
-  const submitBuyLoad = async () => {
-    setShowLoadConfirm(false);
-    const amt = Number(loadAmount);
-    if (!amt || amt < 10) { showToast('Minimum load ₱10'); return; }
-    if (!loadNumber.trim()) { showToast('Enter mobile number'); return; }
-    setLoadLoading(true);
-    const { error } = await buyLoad(user.id, loadNetwork, loadNumber.trim(), amt);
-    setLoadLoading(false);
-    if (error) { showToast(error.message || error); return; }
-    showToast(`${loadNetwork} load ₱${amt} sent to ${loadNumber}`);
-    setLoadAmount(''); setLoadNumber('');
-    refresh();
-  };
-
-  const pendingTotal = topups.filter(t => t.status === 'pending').reduce((n, t) => n + (Number(t.amount) || 0), 0);
+  const pending = topups.filter(t => t.status === 'pending').reduce((n, t) => n + (Number(t.amount) || 0), 0);
   const moneyIn = txns.filter(t => t.amount > 0).reduce((n, t) => n + Number(t.amount), 0);
   const moneyOut = txns.filter(t => t.amount < 0).reduce((n, t) => n + Math.abs(Number(t.amount)), 0);
+  const on = interest && interest.interest_enabled;
 
-  const TABS = [
-    { id: 'topup', label: 'Top-up', icon: Plus },
-    { id: 'transfer', label: 'Send', icon: Send },
-    { id: 'load', label: 'Buy Load', icon: Smartphone },
-    { id: 'withdraw', label: 'Withdraw', icon: ArrowUpRight },
-  ];
+  const mini = (title, sub, Icon, to, tag) => (
+    <div className="card" onClick={() => nav(to)} style={{ padding: 14, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ width: 34, height: 34, borderRadius: 11, background: '#2563EB1A', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Icon size={17} /></span>
+        {tag && <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 20, background: on ? '#D1FAE5' : '#FEE2E2', color: on ? '#059669' : '#DC2626' }}>{tag}</span>}
+      </div>
+      <div style={{ fontWeight: 800, fontSize: 14 }}>{title}</div>
+      <div style={{ fontSize: 11.5, color: 'var(--muted)' }}>{sub}</div>
+    </div>
+  );
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <button onClick={() => nav(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
-        <ArrowLeft size={20} />
-      </button>
+      <SkStyle />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+        <button className="icon-btn" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button>
+        <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Xwallet</h2>
+      </div>
 
-      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Xwallet</h2>
-      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
-        Your XMARKET balance — top up, send, and pay.
-      </p>
-
-      {/* Balance card */}
-      <div style={{ padding: 22, marginBottom: 16, borderRadius: 24, color: '#0F172A', position: 'relative', overflow: 'hidden',
-        background: 'linear-gradient(135deg, #FFFFFF 0%, #F1F5F9 60%, #E2E8F0 100%)', border: '1px solid #E2E8F0', boxShadow: '0 14px 34px rgba(15, 23, 42, 0.10)' }}>
-        <Wallet size={120} style={{ position: 'absolute', top: -20, right: -24, opacity: 0.07, color: '#2563EB' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, opacity: 0.8, letterSpacing: 1.2, textTransform: 'uppercase' }}>Available balance</div>
-          <div style={{ fontSize: 10.5, padding: '4px 10px', borderRadius: 20, background: 'rgba(37,99,235,0.08)', color: '#2563EB', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user.email}</div>
+      {loading ? (<><Sk h={160} r={22} style={{ marginBottom: 12 }} /><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}><Sk h={96} r={18} /><Sk h={96} r={18} /></div><Sk h={190} r={20} /></>) : (<>
+        <div style={{ padding: 20, marginBottom: 12, borderRadius: 22, border: '1px solid #E2E8F0', background: 'linear-gradient(135deg,#FFFFFF 0%,#F1F5F9 60%,#E2E8F0 100%)', boxShadow: '0 14px 34px rgba(15,23,42,.08)' }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase' }}>Xwallet balance</div>
+          <div style={{ fontSize: 38, fontWeight: 900, letterSpacing: -1, marginTop: 4 }}>{peso(balance)}</div>
+          <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>{user.email}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 14 }}>
+            {[['Pending', pending], ['Money in', moneyIn], ['Money out', moneyOut]].map(([k, v]) => (
+              <div key={k} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '8px 10px' }}>
+                <div style={{ fontSize: 9.5, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: .6 }}>{k}</div>
+                <div style={{ fontSize: 13, fontWeight: 800, marginTop: 2 }}>{peso(v)}</div>
+              </div>
+            ))}
+          </div>
         </div>
-        <div style={{ fontSize: 44, fontWeight: 900, lineHeight: 1.1, marginTop: 8, letterSpacing: -1 }}>₱{Number(balance).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 18 }}>
-          {[['Pending', pendingTotal], ['Money in', moneyIn], ['Money out', moneyOut]].map(([k, v]) => (
-            <div key={k} style={{ background: '#fff', borderRadius: 14, padding: '9px 11px', border: '1px solid #E2E8F0' }}>
-              <div style={{ fontSize: 9.5, opacity: 0.8, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.7 }}>{k}</div>
-              <div style={{ fontSize: 13.5, fontWeight: 800, marginTop: 2 }}>₱{Number(v).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
+          {mini('Bank', on ? 'Earning 1.5% p.a.' : 'Daily interest 1.5% p.a.', TrendingUp, '/xwallet/bank', on ? 'ACTIVE' : 'OFF')}
+          {mini('History', `${txns.length} records`, Clock, '/xwallet/history')}
+        </div>
+
+        <div className="card" style={{ padding: '16px 8px', marginBottom: 18, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', rowGap: 18 }}>
+          {ACTIONS.map(([label, Icon, to]) => (
+            <button key={label} onClick={() => nav(to)} style={{ background: 'none', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, padding: 0 }}>
+              <span style={{ width: 52, height: 52, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#fff', color: '#2563EB', border: '1px solid var(--border)', boxShadow: '3px 3px 8px rgba(163,177,198,.4), -3px -3px 8px #fff' }}><Icon size={22} /></span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text)' }}>{label}</span>
+            </button>
           ))}
         </div>
-      </div>
 
-      <XwalletInterest summary={interest} log={interestLog} onApplied={refresh} />
-
-      {/* Quick actions */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 18 }}>
-        {TABS.map(t => {
-          const Icon = t.icon;
-          const active = activeTab === t.id;
-          return (
-            <button key={t.id} onClick={() => setActiveTab(t.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, padding: 0 }}>
-              <span style={{ width: 54, height: 54, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: active ? 'linear-gradient(135deg, #2563EB, #3B82F6)' : 'var(--card)', color: active ? '#fff' : 'var(--primary, #2563EB)',
-                boxShadow: active ? '0 10px 22px rgba(37, 99, 235, 0.35)' : '0 2px 10px rgba(15, 23, 42, 0.08)', border: active ? 'none' : '1px solid var(--border, #e2e8f0)' }}>
-                <Icon size={22} />
-              </span>
-              <span style={{ fontSize: 12, fontWeight: 700, color: active ? 'var(--primary, #2563EB)' : 'var(--text)' }}>{t.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* TOP-UP TAB */}
-      {activeTab === 'topup' && (
-        <>
-          <div className="card" style={{ padding: 16, marginBottom: 16 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>Request top-up</h3>
-            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Amount (₱)</label>
-            <input type="number" value={topupAmount} onChange={e => setTopupAmount(Number(e.target.value) || 0)}
-              style={{ width: '100%', padding: 12, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 }} />
-            <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>Or pick a quick amount</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
-              {QUICK_TOPUP.map(a => (
-                <button key={a} onClick={() => setTopupAmount(a)}
-                  style={{
-                    padding: 12, borderRadius: 10, border: '1px solid var(--border)',
-                    background: topupAmount === a ? 'var(--primary)' : 'var(--card)',
-                    color: topupAmount === a ? '#fff' : 'var(--text)',
-                    fontWeight: 700, fontSize: 13, cursor: 'pointer',
-                  }}>
-                  ₱{a}
-                </button>
-              ))}
-            </div>
-            <button onClick={() => {
-              const amt = Number(topupAmount);
-              if (!amt || amt < 10) { showToast('Minimum ₱10'); return; }
-              nav(`/xwallet/topup?amount=${amt}`);
-            }} className="btn-primary"
-              style={{ width: '100%', padding: 12, fontSize: 13 }}>
-              Continue to Pay
-            </button>
-            <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 10, textAlign: 'center' }}>
-              Top-ups are reviewed by admin. You'll see it approved within 24 hours.
-            </p>
-          </div>
-
-          <SectionHead title="Top-up history" show={topups.length > 3} onAll={() => setSeeAll('topups')} />
-          {topups.length === 0 ? (
-            <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No top-up requests yet.</p>
-          ) : (
-            topups.slice(0, 3).map(t => {
-              const statusColor = t.status === 'approved' ? '#059669' : t.status === 'rejected' ? '#DC2626' : '#F59E0B';
-              const StatusIcon = t.status === 'approved' ? CheckCircle2 : t.status === 'rejected' ? AlertCircle : Clock;
-              return (
-                <div key={t.id} className="card" style={{ padding: 12, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: 14 }}>₱{Number(t.amount).toFixed(2)}</div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{new Date(t.created_at).toLocaleString()}</div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 10px', borderRadius: 20, background: `${statusColor}15`, color: statusColor, fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-                    <StatusIcon size={11} /> {t.status}
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </>
-      )}
-
-      {activeTab === 'withdraw' && (
-        <XwalletWithdraw balance={balance} withdrawals={withdrawals} onDone={refresh} onSeeAll={() => setSeeAll('withdrawals')} />
-      )}
-
-      {/* TRANSFER TAB */}
-      {activeTab === 'transfer' && (
-        <div className="card" style={{ padding: 16, marginBottom: 16 }}>
-          <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>Send to another user</h3>
-          <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Recipient email</label>
-          <input value={transferEmail} onChange={e => setTransferEmail(e.target.value)}
-            placeholder="friend@example.com" type="email"
-            style={{ width: '100%', padding: 12, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 }} />
-          <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Amount (₱)</label>
-          <input type="number" value={transferAmount} onChange={e => setTransferAmount(e.target.value)}
-            placeholder="0.00"
-            style={{ width: '100%', padding: 12, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 }} />
-          <button onClick={() => {
-            const amt = Number(transferAmount);
-            if (!amt || amt <= 0) { showToast('Enter a valid amount'); return; }
-            if (amt > balance) { showToast('Insufficient balance'); return; }
-            if (!transferEmail.includes('@')) { showToast('Enter a valid email'); return; }
-            setShowTransferConfirm(true);
-          }} disabled={transferLoading} className="btn-primary"
-            style={{ width: '100%', padding: 12, fontSize: 13 }}>
-            {transferLoading ? 'Sending…' : 'Send money'}
-          </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+          <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0 }}>Recent activity</h3>
+          {txns.length > 3 && <button onClick={() => nav('/xwallet/history')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center' }}>See all <ChevronRight size={15} /></button>}
         </div>
-      )}
+        {txns.length === 0 && <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No transactions yet.</p>}
+        {txns.slice(0, 3).map(t => <Row key={t.id} it={txnItem(t)} onClick={() => nav('/xwallet/history')} />)}
 
-      {/* BUY LOAD TAB */}
-      {activeTab === 'load' && (
-        <>
-          <div className="card" style={{ padding: 16, marginBottom: 16 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>Buy prepaid load</h3>
-
-            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Network</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginTop: 6, marginBottom: 12 }}>
-              {NETWORKS.map(n => {
-                const on = loadNetwork === n;
-                return (
-                  <button key={n} type="button" onClick={() => setLoadNetwork(n)}
-                    style={{
-                      padding: '12px 0', borderRadius: 12, cursor: 'pointer', fontWeight: 800, fontSize: 13,
-                      border: on ? '2px solid var(--primary)' : '1px solid var(--border)',
-                      background: on ? 'var(--primary)' : 'var(--card)',
-                      color: on ? '#fff' : 'var(--text)',
-                    }}>
-                    {n}
-                  </button>
-                );
-              })}
-            </div>
-
-            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Mobile number</label>
-            <input value={loadNumber} onChange={e => setLoadNumber(e.target.value)}
-              placeholder="09XX XXX XXXX" type="tel"
-              style={{ width: '100%', padding: 12, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 }} />
-
-            <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Amount (₱)</label>
-            <input type="number" value={loadAmount} onChange={e => setLoadAmount(e.target.value)}
-              placeholder="10 minimum"
-              style={{ width: '100%', padding: 12, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 }} />
-
-            <button onClick={() => {
-              const amt = Number(loadAmount);
-              if (!amt || amt < 10) { showToast('Minimum ₱10'); return; }
-              if (!loadNumber.trim()) { showToast('Enter mobile number'); return; }
-              if (amt > balance) { showToast('Insufficient balance'); return; }
-              setShowLoadConfirm(true);
-            }} disabled={loadLoading} className="btn-primary"
-              style={{ width: '100%', padding: 12, fontSize: 13 }}>
-              {loadLoading ? 'Processing…' : 'Buy Load'}
-            </button>
+        <div className="card" style={{ padding: 14, marginTop: 12 }}>
+          <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>Keep your wallet safe</div>
+          <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'var(--muted)' }}>
+            • Never share your password or account codes<br />• Double-check the recipient email before sending<br />• Only top up using the payment details shown in the app
           </div>
-
-          <SectionHead title="Load history" show={loads.length > 3} onAll={() => setSeeAll('loads')} />
-          {loads.length === 0 ? (
-            <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No loads yet.</p>
-          ) : (
-            loads.slice(0, 3).map(l => (
-              <div key={l.id} className="card" style={{ padding: 12, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 10, background: '#DBEAFE', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Phone size={16} />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>{l.network} · {l.mobile}</div>
-                    <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{new Date(l.created_at).toLocaleString()}</div>
-                  </div>
-                </div>
-                <div style={{ fontWeight: 800, fontSize: 14, color: '#DC2626' }}>-₱{Number(l.amount).toFixed(2)}</div>
-              </div>
-            ))
-          )}
-        </>
-      )}
-
-      {/* TRANSACTIONS */}
-      <SectionHead top={20} title="All transactions" show={txns.length > 3} onAll={() => setSeeAll('txns')} />
-      {loading ? (
-        <WalletSkeleton />
-      ) : txns.length === 0 ? (
-        <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No transactions yet.</p>
-      ) : (
-        txns.slice(0, 3).map(t => (
-          <div key={t.id} className="card" style={{ padding: 12, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{
-                width: 34, height: 34, borderRadius: 10,
-                background: t.amount > 0 ? '#D1FAE5' : '#FEE2E2',
-                color: t.amount > 0 ? '#059669' : '#DC2626',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-              }}>
-                {t.amount > 0 ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
-              </div>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 700, textTransform: 'capitalize' }}>{t.type.replace('_', ' ')}</div>
-                <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>{new Date(t.created_at).toLocaleString()}</div>
-              </div>
-            </div>
-            <div style={{ fontWeight: 800, fontSize: 14, color: t.amount > 0 ? '#059669' : '#DC2626' }}>
-              {t.amount > 0 ? '+' : ''}₱{Math.abs(t.amount).toFixed(2)}
-            </div>
-          </div>
-        ))
-      )}
-
-      <div className="card" style={{ padding: 16, marginTop: 20 }}>
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>About Xwallet</div>
-        {[
-          ['Minimum top-up', '₱10'],
-          ['Minimum load purchase', '₱10'],
-          ['Minimum withdrawal', '₱100 (1% fee)'],
-          ['Daily interest', '1.5% p.a.'],
-          ['Top-up review', 'Within 24 hours'],
-          ['Load networks', NETWORKS.join(', ')],
-          ['Currency', 'Philippine Peso (PHP)'],
-        ].map(([k, v], i, arr) => (
-          <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '10px 0', borderBottom: i === arr.length - 1 ? 'none' : '1px solid var(--border, #EEF2F7)', fontSize: 13 }}>
-            <span style={{ color: 'var(--muted)' }}>{k}</span>
-            <span style={{ fontWeight: 700, textAlign: 'right' }}>{v}</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="card" style={{ padding: 16, marginTop: 12 }}>
-        <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>Keep your wallet safe</div>
-        <div style={{ fontSize: 12.5, lineHeight: 1.8, color: 'var(--muted)' }}>
-          • Never share your password or account codes with anyone<br />
-          • Double-check the recipient email before sending money<br />
-          • Only top up through the official payment details shown in the app<br />
-          • Report anything suspicious from Settings → Security reports
         </div>
-      </div>
-
-      <div onClick={() => nav('/xcards')} className="card" style={{ padding: 14, marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-        <div>
-          <div style={{ fontSize: 14, fontWeight: 800 }}>Xcards gift cards</div>
-          <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Use your balance to buy a gift card for anyone</div>
+        <div onClick={() => nav('/xcards')} className="card" style={{ padding: 14, marginTop: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+          <div><div style={{ fontSize: 14, fontWeight: 800 }}>Xcards gift cards</div><div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>Use your balance to buy a gift card</div></div>
+          <ChevronRight size={18} color="#94a3b8" />
         </div>
-        <span style={{ color: 'var(--muted)' }}>→</span>
-      </div>
-
-      {seeAll && <XwalletHistory kind={seeAll} data={{ topups, loads, txns, withdrawals }[seeAll]} onClose={() => setSeeAll(null)} />}
-
-      {/* TRANSFER CONFIRM */}
-      {showTransferConfirm && (
-        <ConfirmModal
-          title="Confirm transfer"
-          message={`Send ₱${Number(transferAmount).toFixed(2)} to ${transferEmail}?`}
-          onCancel={() => setShowTransferConfirm(false)}
-          onConfirm={submitTransfer}
-          confirming={transferLoading}
-        />
-      )}
-
-      {/* LOAD CONFIRM */}
-      {showLoadConfirm && (
-        <ConfirmModal
-          title="Confirm load purchase"
-          message={`${loadNetwork} ₱${Number(loadAmount).toFixed(2)} to ${loadNumber}?`}
-          onCancel={() => setShowLoadConfirm(false)}
-          onConfirm={submitBuyLoad}
-          confirming={loadLoading}
-        />
-      )}
-    </div>
-  );
-}
-
-function ConfirmModal({ title, message, onCancel, onConfirm, confirming }) {
-  return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 500, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end' }} onClick={onCancel}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: 'var(--bg, #fff)', padding: 20, borderRadius: '20px 20px 0 0', maxHeight: '85vh', overflowY: 'auto' }}>
-        <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 10 }}>{title}</h3>
-        <p style={{ fontSize: 13, color: 'var(--text)', lineHeight: 1.6, marginBottom: 20 }}>{message}</p>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={onCancel} className="btn-ghost" style={{ flex: 1, padding: 12 }}>Cancel</button>
-          <button onClick={onConfirm} disabled={confirming} className="btn-primary" style={{ flex: 1, padding: 12 }}>
-            {confirming ? 'Processing…' : 'Confirm'}
-          </button>
-        </div>
-      </div>
+      </>)}
     </div>
   );
 }
