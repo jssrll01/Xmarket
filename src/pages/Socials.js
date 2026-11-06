@@ -46,7 +46,7 @@ export default function Socials() {
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
       <SkStyle />
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-        <button className="icon-btn" aria-label="Back" onClick={() => nav('/')}><ArrowLeft size={20} /></button>
+        
         <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, flex: 1 }}>Socials</h2>
         {isCreator && <button className="btn-primary" onClick={() => nav('/creator-studio/post')} style={{ padding: '9px 14px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><PenSquare size={15} /> New post</button>}
       </div>

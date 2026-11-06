@@ -53,7 +53,7 @@ export default function SocialsComments() {
   );
 
   return (
-    <div className="page-enter" style={{ padding: 16, paddingBottom: 130 }}>
+    <div className="page-enter" style={{ padding: 16, paddingBottom: 220 }}>
       <SkStyle />
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
         <button className="icon-btn" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button>
@@ -68,7 +68,7 @@ export default function SocialsComments() {
           <div style={{ marginLeft: 46 }}>{kids(c.id).map(k => <Item key={k.id} c={k} child />)}</div>
         </div>
       ))}
-      <div style={{ position: 'fixed', left: 0, right: 0, bottom: 0, background: 'var(--bg)', borderTop: '1px solid var(--border)', padding: '8px 12px 12px', zIndex: 40 }}>
+      <div style={{ position: 'fixed', left: 0, right: 0, bottom: 84, background: 'var(--bg)', borderTop: '1px solid var(--border)', padding: '8px 12px 10px', zIndex: 1000 }}>
         {reply && <div style={{ fontSize: 12, color: 'var(--muted)', display: 'flex', justifyContent: 'space-between', padding: '0 4px 6px' }}>Replying to @{reply.username}<button onClick={() => setReply(null)} style={{ fontWeight: 800 }}>Cancel</button></div>}
         <div style={{ display: 'flex', gap: 8 }}>
           <input value={text} maxLength={300} onChange={e => setText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') send(); }} placeholder={reply ? 'Write a reply…' : 'Write a comment…'} style={{ flex: 1, height: 44, padding: '0 14px', fontSize: 14 }} />
