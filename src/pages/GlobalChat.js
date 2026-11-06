@@ -188,7 +188,7 @@ export default function GlobalChat() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Message everyone..."
-            maxLength={500}
+            maxLength={1000}
             autoComplete="off"
           />
           <button type="submit" className={'gc-send' + (sending ? ' sending' : '')} aria-label="Send" disabled={!text.trim() || sending}>

@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Store, Heart, BadgeCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import FollowedCreators from './FollowedCreators';
 
 export default function Following() {
   const nav = useNavigate();
@@ -64,6 +65,7 @@ export default function Following() {
         {loading ? 'Loading…' : `${sellers.length} ${sellers.length === 1 ? 'shop' : 'shops'} you follow`}
       </p>
 
+      {user && !loading && <FollowedCreators />}
       {err && <div style={{ padding: '10px 12px', borderRadius: 10, marginBottom: 12, fontSize: 12.5, fontWeight: 600, background: '#FEE2E2', color: '#991B1B' }}>{err}</div>}
 
       {loading ? (

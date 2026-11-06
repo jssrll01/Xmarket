@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import { PostCard, Avatar, Sk, SkStyle, toggleLike, sharePost } from './socialsUi';
+import FollowButton from './FollowButton';
 
 export default function SocialsCreator() {
   const { username } = useParams();
@@ -45,6 +46,7 @@ export default function SocialsCreator() {
             </div>
           </div>
         </div>
+        {!prof.mine && <FollowButton creatorId={prof.creator_id} initial={prof.following} count={prof.followers} />}
         {posts.length === 0 && <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 30 }}>No posts yet.</div>}
         {posts.map(p => <PostCard key={p.id} p={p} onLike={like} onShare={share} />)}
       </>)}
