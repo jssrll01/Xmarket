@@ -4,6 +4,7 @@ import { ArrowLeft, Send, Clock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import { Avatar, Sk, SkStyle, time12 } from './socialsUi';
+import VipBadge from '../components/VipBadge';
 
 export default function SocialsComments() {
   const { id } = useParams();
@@ -39,7 +40,7 @@ export default function SocialsComments() {
       <Avatar name={c.username} size={child ? 28 : 36} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ background: '#fff', border: '1px solid var(--border)', borderRadius: 16, padding: '8px 12px' }}>
-          <div style={{ fontWeight: 800, fontSize: 13 }}>@{c.username}{c.is_creator && <span style={{ marginLeft: 6, fontSize: 9, background: '#2563EB', color: '#fff', padding: '2px 6px', borderRadius: 8, verticalAlign: 'middle' }}>CREATOR</span>}</div>
+          <div style={{ fontWeight: 800, fontSize: 13 }}>@{c.username}{c.is_vip && <VipBadge active />}{c.is_creator && <span style={{ marginLeft: 6, fontSize: 9, background: '#2563EB', color: '#fff', padding: '2px 6px', borderRadius: 8, verticalAlign: 'middle' }}>CREATOR</span>}</div>
           <div style={{ fontSize: 14, marginTop: 2, wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>{c.body}</div>
         </div>
         <div style={{ display: 'flex', gap: 14, fontSize: 11, color: 'var(--muted)', padding: '4px 8px', alignItems: 'center' }}>
