@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bell, Users, Clock, TrendingUp, Wallet, ChevronRight, ClipboardList, Link2, Calendar, CheckCircle2, Share2 } from 'lucide-react';
+import { ArrowLeft, Bell, Users, Clock, TrendingUp, Wallet, ChevronRight, ClipboardList, Link2, Calendar, CheckCircle2, Share2, Pencil, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import useMyAvatar from '../lib/useMyAvatar';
+import useDmUnread from '../lib/useDmUnread';
+import DmBadge from '../components/DmBadge';
 import { BLUE, MUTED, peso, card, inp, btn, ghost, circBtn, Pill, IconBox, StatCard, Sk, SkStyle, PageSkeleton, copyText, initials } from './creatorUi';
 
 
@@ -38,6 +40,7 @@ const NavRow = ({ icon, title, sub, onClick, first }) => (
 export default function CreatorDashboard() {
   const nav = useNavigate();
   const avatar = useMyAvatar();
+  const dmUnread = useDmUnread();
   const [tab, setTab] = useState('overview');
   const [d, setD] = useState(null);
   const [loaded, setLoaded] = useState(false);
@@ -93,11 +96,18 @@ export default function CreatorDashboard() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <button type="button" aria-label="Back" onClick={() => nav('/profile')} style={circBtn}><ArrowLeft size={18} /></button>
           <div style={{ fontWeight: 800, fontSize: 14, letterSpacing: 0.4 }}>Creator Studio</div>
-          <button type="button" aria-label="Notifications" onClick={() => nav('/notifications')} style={circBtn}><Bell size={18} /></button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <span style={{ position: 'relative', display: 'inline-flex' }}>
+              <button type="button" aria-label="Messages" onClick={() => nav('/messages')} style={circBtn}><MessageCircle size={18} /></button>
+              <DmBadge count={dmUnread} ring="#2563EB" />
+            </span>
+            <button type="button" aria-label="Notifications" onClick={() => nav('/notifications')} style={circBtn}><Bell size={18} /></button>
+          </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
           <div style={{ width: 46, height: 46, borderRadius: 14, background: 'rgba(255,255,255,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, overflow: 'hidden' }}>{avatar ? <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials(name)}</div>
-          <div><div style={{ fontWeight: 800 }}>{name}</div><div style={{ fontSize: 12, opacity: 0.85 }}>@{d.profile.username} · {d.code}</div></div>
+          <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontWeight: 800 }}>{name}</div><div style={{ fontSize: 12, opacity: 0.85 }}>@{d.profile.username} · {d.code}</div></div>
+          <button type="button" onClick={() => nav('/creator-studio/profile')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 12, border: '1px solid rgba(255,255,255,.5)', background: 'rgba(255,255,255,.15)', color: '#fff', fontWeight: 800, fontSize: 12, cursor: 'pointer', flexShrink: 0 }}><Pencil size={14} /> Edit profile</button>
         </div>
         <div style={{ marginTop: 16, fontSize: 12, opacity: 0.85 }}>Available earnings</div>
         <div style={{ fontSize: 34, fontWeight: 800, lineHeight: 1.1 }}>{peso(d.balance)}</div>

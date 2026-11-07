@@ -6,13 +6,14 @@ import { useToast } from '../components/Toast';
 import { Avatar } from './socialsUi';
 
 const hm = (d) => new Date(d).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export default function DmInbox() {
   const nav = useNavigate();
   const [rows, setRows] = useState(null);
   useEffect(() => {
     let alive = true;
-    const load = () => supabase.rpc('dm_inbox').then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data : []); });
+    const load = () => supabase.rpc('dm_inbox').then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data.filter(r => r.last_text) : []); });
     load();
     const t = setInterval(load, 10000);
     return () => { alive = false; clearInterval(t); };
@@ -23,6 +24,7 @@ export default function DmInbox() {
         <button className="icon-btn" aria-label="Back" onClick={() => nav('/socials')}><ArrowLeft size={20} /></button>
         <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Messages</h2>
       </div>
+      <div style={{ fontSize: 12, color: 'var(--muted)', margin: '-6px 0 12px' }}>Chats are deleted automatically after 24 hours.</div>
       {rows === null && [0, 1, 2].map(i => <div key={i} className="sk" style={{ height: 68, borderRadius: 16, marginBottom: 10 }} />)}
       {rows && rows.length === 0 && <div className="card" style={{ padding: 24, textAlign: 'center', color: 'var(--muted)', fontSize: 13.5 }}>No messages yet. Open a creator's profile and tap Message to start a chat.</div>}
       {rows && rows.map(r => (
@@ -50,7 +52,7 @@ export function DmChat() {
   const last = useRef(0);
   const load = useCallback(async () => {
     const { data } = await supabase.rpc('dm_thread', { p_thread: tid });
-    setD(data && data.ok ? data : { ok: false });
+    setD(data && data.ok ? { ...data, messages: (data.messages || []).filter(m => Date.now() - new Date(m.created_at).getTime() < DAY_MS) } : { ok: false });
   }, [tid]);
   useEffect(() => { load(); const t = setInterval(load, 5000); return () => clearInterval(t); }, [load]);
   useEffect(() => {
@@ -77,6 +79,7 @@ export function DmChat() {
         <Avatar name={d.other.name} url={d.other.avatar} />
         <div style={{ fontWeight: 800, fontSize: 15 }}>@{d.other.name}</div>
       </div>
+      <div style={{ padding: '6px 12px', textAlign: 'center', fontSize: 11.5, color: '#64748B', background: '#F1F5F9' }}>Messages disappear 24 hours after they are sent.</div>
       <div style={{ flex: 1, overflowY: 'auto', padding: 14, display: 'flex', flexDirection: 'column', gap: 8, background: '#F8FAFC' }}>
         {d.messages.length === 0 && <div style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 13, marginTop: 30 }}>Say hello 👋</div>}
         {d.messages.map(m => {

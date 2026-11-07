@@ -3,12 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, X, PenSquare, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
+import useDmUnread from '../lib/useDmUnread';
+import DmBadge from '../components/DmBadge';
 import { PostCard, Avatar, Sk, SkStyle, toggleLike, sharePost } from './socialsUi';
 
 export default function Socials() {
   const nav = useNavigate();
   const { show } = useToast();
   const [posts, setPosts] = useState([]);
+  const dmUnread = useDmUnread();
   const [loading, setLoading] = useState(true);
   const [more, setMore] = useState(false);
   const [q, setQ] = useState('');
@@ -48,7 +51,10 @@ export default function Socials() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
         
         <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, flex: 1 }}>Socials</h2>
-        <button className="icon-btn" aria-label="Messages" onClick={() => nav('/messages')}><MessageCircle size={20} /></button>
+        <span style={{ position: 'relative', display: 'inline-flex' }}>
+          <button className="icon-btn" aria-label="Messages" onClick={() => nav('/messages')}><MessageCircle size={20} /></button>
+          <DmBadge count={dmUnread} />
+        </span>
         {isCreator && <button className="btn-primary" onClick={() => nav('/creator-studio/post')} style={{ padding: '9px 14px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><PenSquare size={15} /> New post</button>}
       </div>
       <div style={{ position: 'relative', marginBottom: 14 }}>
