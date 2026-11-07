@@ -191,3 +191,24 @@
 .vip-sheet{padding-bottom:40px!important;border-radius:18px 18px 0 0!important}
 .vip-ov{z-index:3000!important}
 /* ===== END VIP EDITORIAL ===== */
+
+/* ===== VIP WHITE GOLD ===== */
+.vip-page .vip-hero,.vip-page .vip-card{background:linear-gradient(145deg,#FFFFFF 0%,#FFFBEF 60%,#F7ECC8 100%)!important;background-image:linear-gradient(145deg,#FFFFFF 0%,#FFFBEF 60%,#F7ECC8 100%)!important;border:1px solid #E3CB82!important;box-shadow:0 14px 28px -18px rgba(184,144,46,.55)!important;color:#2B2414!important}
+.vip-page .vip-hero h2,.vip-page .vip-card-brand,.vip-page .vip-hero-ic{color:#9A7420!important}
+.vip-page .vip-hero p,.vip-page .vip-card-user,.vip-page .vip-price small{color:#6B6248!important}
+.vip-page .vip-price{color:#2B2414!important}
+.vip-page .vip-price span{color:#B8902E!important}
+.vip-page .vip-card-wm{color:#C9A24A!important;opacity:.14!important}
+.vip-page .vip-card-chip{border-color:#B8902E!important;color:#9A7420!important}
+.vip-page .vip-card-label,.vip-page .vip-card-bottom .k{color:#8F855F!important}
+.vip-page .vip-card-name{color:#2B2414!important}
+.vip-page .vip-card-bottom .v{color:#8A6A1F!important}
+.vip-page .vip-stats,.vip-page .vip-tiles,.vip-page .vip-panel{background:#fff!important;border-color:#EADFB8!important}
+.vip-page .vip-stat+.vip-stat,.vip-page .vip-tile+.vip-tile{border-left-color:#EADFB8!important}
+.vip-page .vip-sec{color:#9A7420!important}
+.vip-page .vip-perk,.vip-page .vip-hist,.vip-page .vip-step{border-top-color:#F3EAD0!important}
+.vip-page .vip-bar{background:#F3EAD0!important}
+.vip-page .vip-bar i{background:linear-gradient(90deg,#E7C873,#B8902E)!important}
+.vip-page .vip-btn{background:linear-gradient(135deg,#F3DC8F,#C9A24A)!important;color:#3B2D0A!important;border:1px solid #C9A24A!important}
+.vip-page .vip-btn.ghost{background:#fff!important;color:#8A6A1F!important;border:1px solid #E3CB82!important}
+/* ===== END VIP WHITE GOLD ===== */
