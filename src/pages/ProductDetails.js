@@ -150,7 +150,7 @@ export default function ProductDetails() {
     const shareUrl = window.location.origin + '/product/' + product.id;
     try {
       if (navigator.share) {
-        await navigator.share({ title: product.name, text: product.description, url: shareUrl });
+        await navigator.share({ title: product.name, url: shareUrl });
       } else {
         navigator.clipboard.writeText(shareUrl);
         showToast('Link copied');
