@@ -53,6 +53,16 @@ export function PostCard({ p, onLike, onShare }) {
         </button>
       </div>
       <div style={{ padding: '4px 12px 14px', fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}><b>@{p.username}</b> {p.description}</div>
+      {Array.isArray(p.links) && p.links.filter(l => l && /^https?:\/\/\S+$/i.test(l.url || '')).length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 12px 14px' }}>
+          {p.links.filter(l => l && /^https?:\/\/\S+$/i.test(l.url || '')).map((l, i) => (
+            <a key={i} href={l.url} target="_blank" rel="noopener noreferrer nofollow" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99, background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" /><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" /></svg>
+              {l.label}
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

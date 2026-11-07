@@ -26,6 +26,7 @@ export default function CreatorPostHistory() {
             <div style={{ display: 'flex', gap: 16, fontSize: 12, fontWeight: 700, color: '#475569' }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><Heart size={14} color="#DC2626" /> {p.likes}</span>
               <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><MessageCircle size={14} /> {p.comments}</span>
+              {Array.isArray(p.links) && p.links.length > 0 && <span style={{ display: 'flex', alignItems: 'center', gap: 4, color: '#2563EB' }}>🔗 {p.links.length} link{p.links.length === 1 ? '' : 's'}</span>}
             </div>
           </div>
         </div>
