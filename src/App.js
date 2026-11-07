@@ -45,6 +45,10 @@ import PlayColor from './pages/playtime/ColorGame';
 import PlayHiLo from './pages/playtime/HiLo';
 import PlayRedBlack from './pages/playtime/RedBlack';
 import PlayAirdrop from './pages/playtime/Airdrop';
+import PriceDrops, { PriceDropBuy, PriceDropOrder } from './pages/xf/PriceDrops';
+import DigitalProducts from './pages/xf/DigitalProducts';
+import DemandPolls from './pages/xf/DemandPolls';
+import Sponsorships from './pages/xf/Sponsorships';
 import Xmall from './pages/Xmall';
 import Xwallet from './pages/Xwallet';
 import XwalletTopup from './pages/XwalletTopup';
@@ -169,6 +173,12 @@ function Router() {
         <Route path="/xwallet/bank" element={<XwBank />} />
         <Route path="/xwallet/history" element={<XwHistory />} />
         <Route path="/xcards" element={<Xcards />} />
+        <Route path="/price-drops" element={<PriceDrops />} />
+        <Route path="/price-drops/:id/buy" element={<PriceDropBuy />} />
+        <Route path="/price-drops/order/:oid" element={<PriceDropOrder />} />
+        <Route path="/digital-products" element={<DigitalProducts />} />
+        <Route path="/demand-polls" element={<DemandPolls />} />
+        <Route path="/sponsorships" element={<Sponsorships />} />
         <Route path="/global-chat" element={<GlobalChat />} />
         <Route path="/socials" element={<Socials />} />
         <Route path="/socials/creator/:username" element={<SocialsCreator />} />
