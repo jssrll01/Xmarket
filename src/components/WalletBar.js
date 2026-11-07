@@ -1,4 +1,5 @@
-import { CreditCard, Coins as CoinsI, Gamepad2 } from 'lucide-react';
+import { Coins as CoinsI } from 'lucide-react';
+import { Gamepad2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Wallet, CreditCard } from 'lucide-react';
