@@ -4,7 +4,8 @@ import { Play } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import '../videos.css';
 
-export const thumb = (id) => 'https://i.ytimg.com/vi/' + id + '/hqdefault.jpg';
+const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==';
+export const thumb = (x) => (typeof x === 'string' ? 'https://i.ytimg.com/vi/' + x + '/hqdefault.jpg' : (x.platform === 'tiktok' ? (x.thumb_url || BLANK) : 'https://i.ytimg.com/vi/' + x.youtube_id + '/hqdefault.jpg'));
 
 function useVideos(username, limit) {
   const [rows, setRows] = useState(null);
@@ -19,7 +20,7 @@ function useVideos(username, limit) {
 
 const Card = ({ v, onOpen }) => (
   <button type="button" className="vr-card" onClick={onOpen}>
-    <img src={thumb(v.youtube_id)} alt="" loading="lazy" />
+    <img src={thumb(v)} alt="" loading="lazy" />
     <span className="vr-play"><Play size={14} fill="#fff" color="#fff" /></span>
     <span className="vr-meta"><b>@{v.username}</b>{v.title && <i>{v.title}</i>}</span>
   </button>

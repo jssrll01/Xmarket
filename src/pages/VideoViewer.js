@@ -57,22 +57,27 @@ function Player({ v, active, near }) {
   const ref = useRef(null);
   const first = useRef(active);
   const [ready, setReady] = useState(false);
+  const tt = v.platform === 'tiktok';
   useEffect(() => {
     if (!ready || !ref.current) return undefined;
     const send = () => {
       const w = ref.current && ref.current.contentWindow;
-      if (w) w.postMessage(JSON.stringify({ event: 'command', func: active ? 'playVideo' : 'pauseVideo', args: [] }), '*');
+      if (!w) return;
+      if (tt) w.postMessage({ type: active ? 'play' : 'pause', 'x-tiktok-player': true }, '*');
+      else w.postMessage(JSON.stringify({ event: 'command', func: active ? 'playVideo' : 'pauseVideo', args: [] }), '*');
     };
     send();
     const t = setTimeout(send, 500);
     return () => clearTimeout(t);
-  }, [active, ready]);
-  const src = 'https://www.youtube-nocookie.com/embed/' + v.youtube_id
-    + '?enablejsapi=1&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=' + v.youtube_id
-    + '&autoplay=' + (first.current ? 1 : 0);
+  }, [active, ready, tt]);
+  const src = tt
+    ? 'https://www.tiktok.com/player/v1/' + v.youtube_id + '?controls=0&progress_bar=0&play_button=0&volume_control=0&fullscreen_button=0&timestamp=0&music_info=0&description=0&rel=0&native_context_menu=0&loop=1&autoplay=' + (first.current ? 1 : 0)
+    : 'https://www.youtube-nocookie.com/embed/' + v.youtube_id
+      + '?enablejsapi=1&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=' + v.youtube_id
+      + '&autoplay=' + (first.current ? 1 : 0);
   return (
-    <div className={'vv-frame' + (v.is_short ? ' short' : '')}>
-      <img className="vv-poster" src={thumb(v.youtube_id)} alt="" />
+    <div className={'vv-frame' + (v.is_short || tt ? ' short' : '')}>
+      <img className="vv-poster" src={thumb(v)} alt="" />
       {near && <iframe ref={ref} className={ready ? 'on' : ''} title={v.title || 'video'} src={src} onLoad={() => setReady(true)} allow="autoplay; encrypted-media" tabIndex={-1} />}
       <div className="vv-shield" />
     </div>
