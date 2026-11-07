@@ -43,6 +43,7 @@ export default function WalletBar() {
   const { user } = useAuth() || {};
   const [balance, setBalance] = useState(null);
   const [points, setPoints] = useState(null);
+  void points;
 
   useEffect(() => {
     if (!user) { setBalance(null); setPoints(null); return; }
@@ -59,9 +60,7 @@ export default function WalletBar() {
           icon={<Wallet size={18} color="#fff" />} label="Xwallet"
           sub={user ? (balance === null ? '...' : '₱' + Number(balance).toFixed(2)) : 'Sign in'} />
         {divider}
-        <Cell to="/rewards" grad="linear-gradient(135deg, #F59E0B, #D97706)"
-          icon={<CoinIcon size={18} color="#fff" />} label="Loyalty"
-          sub={user ? (points === null ? '...' : Number(points).toLocaleString() + ' pts') : 'Earn rewards'} />
+        <Cell to="/xcards" grad="linear-gradient(135deg, #6366F1, #7C3AED)" icon={<span style={{ fontSize: 18, lineHeight: 1 }}>💳</span>} label="Xcards" sub="Gift cards" />
         {divider}
         <Cell to="/xcoin" grad="linear-gradient(135deg, #3B82F6, #2563EB)" icon={<span style={{ fontSize: 18, lineHeight: 1 }}>🪙</span>} label="XCOIN" sub="Market" />
         {divider}

@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import './BottomNav.css';
 
-// Pages where the bottom bar should not show
-const HIDE = ['/landing-page', '/signin', '/signup', '/forgot-password', '/checkout', '/addresses', '/support', '/xcoin'];
+// The bar only shows on the main tabs. Every other page hides it.
+const SHOW = ['/global-chat', '/socials', '/vip'];
 
 const svg = (children) => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{children}</svg>
@@ -11,7 +11,7 @@ const svg = (children) => (
 
 const ITEMS = [
   { to: '/', label: 'Home', icon: svg(<><path d="M3 11.5 12 4l9 7.5" /><path d="M5 10v10h5v-6h4v6h5V10" /></>) },
-  { to: '/xcards', label: 'Xcards', icon: svg(<><rect x="2.5" y="5" width="19" height="14" rx="3" /><path d="M2.5 10h19" /><path d="M6 15h4" /></>) },
+  { soon: true, label: 'Coming soon', icon: svg(<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>) },
   { to: '/global-chat', label: 'Global Chat', center: true, icon: svg(<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.2-4.3A8 8 0 1 1 21 12Z" />) },
   { to: '/socials', label: 'Socials', icon: svg(<><rect x="3" y="3" width="18" height="18" rx="5" /><path d="M10 8.5v7l6-3.5-6-3.5Z" /></>) },
   { to: '/vip', label: 'VIP', icon: svg(<path d="m3 8 4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z" />) },
@@ -19,28 +19,43 @@ const ITEMS = [
 
 export default function BottomNav() {
   const { pathname } = useLocation();
-  const hidden = HIDE.some((p) => pathname === p || pathname.startsWith(p + '/'));
+  const [note, setNote] = useState(false);
+  const hidden = !(pathname === '/' || SHOW.some((p) => pathname === p || pathname.startsWith(p + '/')));
 
   useEffect(() => {
     document.body.classList.toggle('has-bottom-nav', !hidden);
     return () => document.body.classList.remove('has-bottom-nav');
   }, [hidden]);
 
+  useEffect(() => {
+    if (!note) return undefined;
+    const t = setTimeout(() => setNote(false), 1800);
+    return () => clearTimeout(t);
+  }, [note]);
+
   if (hidden) return null;
 
   return (
-    <nav className="bn" aria-label="Main navigation">
-      {ITEMS.map((it) => (
-        <NavLink
-          key={it.to}
-          to={it.to}
-          end={it.to === '/'}
-          className={({ isActive }) => 'bn-item' + (it.center ? ' bn-center' : '') + (isActive ? ' active' : '')}
-        >
-          <span className="bn-ico">{it.icon}</span>
-          <span className="bn-label">{it.label}</span>
-        </NavLink>
-      ))}
-    </nav>
+    <>
+      {note && <div style={{ position: 'fixed', left: '50%', transform: 'translateX(-50%)', bottom: 96, background: '#0F172A', color: '#fff', padding: '8px 16px', borderRadius: 999, fontSize: 12, fontWeight: 700, zIndex: 3000 }}>Coming soon</div>}
+      <nav className="bn" aria-label="Main navigation">
+        {ITEMS.map((it) => it.soon ? (
+          <button key="soon" type="button" className="bn-item" onClick={() => setNote(true)}>
+            <span className="bn-ico">{it.icon}</span>
+            <span className="bn-label">{it.label}</span>
+          </button>
+        ) : (
+          <NavLink
+            key={it.to}
+            to={it.to}
+            end={it.to === '/'}
+            className={({ isActive }) => 'bn-item' + (it.center ? ' bn-center' : '') + (isActive ? ' active' : '')}
+          >
+            <span className="bn-ico">{it.icon}</span>
+            <span className="bn-label">{it.label}</span>
+          </NavLink>
+        ))}
+      </nav>
+    </>
   );
 }

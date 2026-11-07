@@ -1,7 +1,7 @@
 import { WalletSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Gift, Copy, Check, Sparkles, Wallet, ShieldCheck, Ticket } from 'lucide-react';
+import { ArrowLeft, Gift, Copy, Check, Sparkles, Wallet, ShieldCheck, Ticket } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { fetchWallet } from '../lib/xwallet';
@@ -163,6 +163,7 @@ export default function Xcards() {
                 border: used ? '1px dashed var(--border)' : 'none',
                 opacity: used ? 0.7 : 1,
               }}>
+      <button onClick={() => nav(-1)} className="icon-btn" aria-label="Back" style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <span style={{ fontSize: 18, fontWeight: 900 }}>₱{Number(c.value).toLocaleString()}</span>
                   <span style={{

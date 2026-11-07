@@ -46,7 +46,10 @@ export default function Rewards() {
         <ArrowLeft size={20} />
       </button>
 
-      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 16 }}>Loyalty Points</h2>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Loyalty Points</h2>
+        <button className="btn-primary" onClick={() => nav('/play-time/exchange')} style={{ padding: '9px 16px', fontSize: 13 }}>Exchange</button>
+      </div>
 
       <div style={{
         padding: 24, marginBottom: 16,
