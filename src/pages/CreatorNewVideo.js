@@ -18,15 +18,28 @@ export default function CreatorNewVideo() {
     let title = null;
     let thumb = null;
     setBusy(true);
+    let link = u;
     if (tt) {
-      if (!/tiktok\.com\/@[^/]+\/video\/\d{10,25}/i.test(u)) {
-        setBusy(false);
-        return show('Paste the full TikTok link (tiktok.com/@name/video/...). Short links are not supported.');
-      }
+      const full = /tiktok\.com\/@[^/]+\/video\/\d{10,25}/i.test(u);
       try {
         const r = await fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(u));
-        if (r.ok) { const j = await r.json(); title = j.title || null; thumb = j.thumbnail_url || null; }
-      } catch (e) { /* preview skipped, the server still validates the link */ }
+        if (r.ok) {
+          const j = await r.json();
+          title = j.title || null;
+          thumb = j.thumbnail_url || null;
+          if (!full) {
+            const html = String(j.html || '');
+            const cite = (html.match(/cite="([^"]+)"/) || [])[1];
+            const id = String(j.embed_product_id || '') || (html.match(/data-video-id="(\d+)"/) || [])[1];
+            if (cite && /tiktok\.com\/@[^/]+\/video\/\d{10,25}/i.test(cite)) link = cite;
+            else if (id && j.author_url) link = String(j.author_url).replace(/\/$/, '') + '/video/' + id;
+          }
+        }
+      } catch (e) { /* lookup failed */ }
+      if (!/tiktok\.com\/@[^/]+\/video\/\d{10,25}/i.test(link)) {
+        setBusy(false);
+        return show('Could not read that TikTok link. Open it in your browser, copy the full address (tiktok.com/@name/video/...), and paste that.');
+      }
     } else {
       const sm = u.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/i);
       const check = sm ? 'https://www.youtube.com/watch?v=' + sm[1] : u;
@@ -37,7 +50,7 @@ export default function CreatorNewVideo() {
         title = j.title || null;
       } catch (e) { /* check skipped, the server still validates the link */ }
     }
-    const { data, error } = await supabase.rpc('creator_add_video', { p_platform: platform, p_url: u, p_title: title, p_thumb: thumb });
+    const { data, error } = await supabase.rpc('creator_add_video', { p_platform: platform, p_url: link, p_title: title, p_thumb: thumb });
     setBusy(false);
     if (error) return show(error.message);
     if (!data.ok) return show(data.error);
@@ -60,7 +73,7 @@ export default function CreatorNewVideo() {
         <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder={tt ? 'https://www.tiktok.com/@name/video/...' : 'https://www.youtube.com/watch?v=...'} autoCapitalize="off" autoCorrect="off" style={{ width: '100%', padding: 12, marginTop: 6, marginBottom: 12, fontSize: 14 }} />
         <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5, marginBottom: 14 }}>
           {tt
-            ? 'Post it on TikTok first, then paste the full link here. If you only have a short link (vm.tiktok.com), open it in your browser and copy the full address. Only your own videos. One video per day.'
+            ? 'Post it on TikTok first, then paste the full link here. Share links like vt.tiktok.com work too. Only your own videos. One video per day.'
             : 'YouTube videos and Shorts are allowed. Post it on YouTube first, then paste the link here. Only your own videos. One video per day.'}
         </div>
         <button className="btn-primary" disabled={busy} onClick={submit} style={{ width: '100%', padding: 14, fontWeight: 800 }}>{busy ? 'Posting…' : 'Post video'}</button>
