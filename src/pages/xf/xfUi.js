@@ -103,3 +103,61 @@ export const XF_CSS = `
 @keyframes xfPulse{0%,100%{box-shadow:0 0 0 0 rgba(37,99,235,.45)}50%{box-shadow:0 0 0 6px rgba(37,99,235,0)}}
 @media(prefers-reduced-motion:reduce){.xf *{animation:none!important;transition:none!important}}
 `;
+
+const L = (w, h, mt) => <div className="sk sk-line" style={{ width: w, height: h, marginTop: mt }} />;
+
+export function XfSkel({ kind = 'cards' }) {
+  if (kind === 'cards') {
+    return [0, 1].map((i) => (
+      <div className="xf-card" key={i} style={{ animationDelay: i * 70 + 'ms' }}>
+        <div className="sk" style={{ width: '100%', height: 220, borderRadius: 0 }} />
+        <div className="xf-body">
+          {L('60%', 18)}{L('95%', 12, 10)}{L('75%', 12, 6)}{L('35%', 24, 14)}
+          <div className="sk sk-btn" style={{ marginTop: 14, height: 46, borderRadius: 12 }} />
+        </div>
+      </div>
+    ));
+  }
+  if (kind === 'polls') {
+    return [0, 1].map((i) => (
+      <div className="xf-card" key={i} style={{ animationDelay: i * 70 + 'ms' }}>
+        <div className="xf-body">
+          {L('30%', 11)}{L('80%', 18, 10)}
+          {[0, 1, 2].map((k) => <div key={k} className="sk" style={{ width: '100%', height: 46, borderRadius: 12, marginTop: 10 }} />)}
+        </div>
+      </div>
+    ));
+  }
+  if (kind === 'fund') {
+    return (
+      <div className="xf-card">
+        <div className="xf-body">
+          {L('55%', 18)}
+          <div className="sk" style={{ width: '100%', height: 12, borderRadius: 99, margin: '14px 0 8px' }} />
+          {L('70%', 12)}{L('95%', 12, 14)}{L('85%', 12, 6)}
+          <div className="xf-gal">{[0, 1, 2].map((k) => <div key={k} className="sk" style={{ aspectRatio: '1', borderRadius: 10 }} />)}</div>
+          <div className="sk sk-btn" style={{ marginTop: 16, height: 46, borderRadius: 12 }} />
+        </div>
+      </div>
+    );
+  }
+  if (kind === 'form') {
+    return (
+      <div className="xf-card">
+        <div className="xf-body">
+          {[0, 1, 2, 3, 4, 5, 6].map((k) => <div key={k}>{L('28%', 10, k ? 16 : 0)}<div className="sk" style={{ width: '100%', height: 46, borderRadius: 12, marginTop: 8 }} /></div>)}
+          <div className="sk sk-btn" style={{ marginTop: 18, height: 46, borderRadius: 12 }} />
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="xf-card">
+      <div className="xf-body xf-center">
+        <div className="sk" style={{ width: 44, height: 44, borderRadius: '50%', margin: '0 auto' }} />
+        <div style={{ display: 'flex', justifyContent: 'center' }}>{L('55%', 18, 16)}</div>
+        <div style={{ display: 'flex', justifyContent: 'center' }}>{L('80%', 12, 10)}</div>
+      </div>
+    </div>
+  );
+}

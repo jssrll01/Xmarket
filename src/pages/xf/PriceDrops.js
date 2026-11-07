@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { Carousel, XF_CSS, peso, useMe } from './xfUi';
+import { Carousel, XF_CSS, peso, useMe, XfSkel } from './xfUi';
 
 const Head = ({ title, sub, nav }) => (
   <header className="xf-head">
@@ -34,7 +34,7 @@ export default function PriceDrops() {
       <style>{XF_CSS}</style>
       <Head title="Digital Price Drops" sub="Limited items. 1 stock each. Pay with Xwallet." nav={nav} />
       <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b></div>
-      {items === null && <div className="xf-empty">Loading…</div>}
+      {items === null && <XfSkel kind="cards" />}
       {items && !items.length && <div className="xf-card xf-empty">No price drops right now. Check back soon.</div>}
       {(items || []).map((d) => {
         const out = d.stock < 1 || d.status !== 'active';
@@ -78,7 +78,7 @@ export function PriceDropBuy() {
     }
   }, [me, init, user]);
   const set = (k) => (e) => setF((p) => ({ ...p, [k]: e.target.value }));
-  if (d === undefined || !me) return <div className="xf"><style>{XF_CSS}</style><div className="xf-empty">Loading…</div></div>;
+  if (d === undefined || !me) return <div className="xf"><style>{XF_CSS}</style><XfSkel kind="form" /></div>;
   if (!d || d.stock < 1 || d.status !== 'active') {
     return <div className="xf"><style>{XF_CSS}</style><Head title="Unavailable" nav={nav} /><div className="xf-card xf-empty">This item is no longer available.</div></div>;
   }
@@ -142,7 +142,7 @@ export function PriceDropOrder() {
   const load = () => supabase.from('price_drop_orders').select('*').eq('id', oid).single().then(({ data }) => setO(data || null));
   useEffect(() => { load(); const t = setInterval(load, 15000); return () => clearInterval(t); // eslint-disable-next-line
   }, [oid]);
-  if (o === undefined) return <div className="xf"><style>{XF_CSS}</style><div className="xf-empty">Loading…</div></div>;
+  if (o === undefined) return <div className="xf"><style>{XF_CSS}</style><XfSkel kind="status" /></div>;
   if (!o) return <div className="xf"><style>{XF_CSS}</style><Head title="Order" nav={nav} /><div className="xf-card xf-empty">Order not found.</div></div>;
   const done = o.status === 'completed';
   return (

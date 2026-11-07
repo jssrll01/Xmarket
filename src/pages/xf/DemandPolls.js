@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { XF_CSS, peso, useMe } from './xfUi';
+import { XF_CSS, peso, useMe, XfSkel } from './xfUi';
 
 export default function DemandPolls() {
   const nav = useNavigate();
@@ -41,7 +41,7 @@ export default function DemandPolls() {
         <div><h1>Demand Polls</h1><p>Vote on what XMARKET should add. Earn Xwallet rewards.</p></div>
       </header>
       <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b></div>
-      {polls === null && <div className="xf-empty">Loading…</div>}
+      {polls === null && <XfSkel kind="polls" />}
       {polls && !polls.length && <div className="xf-card xf-empty">No active polls right now.</div>}
       {(polls || []).map((p) => {
         const voted = mine[p.id] !== undefined;

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { XF_CSS, peso, useMe } from './xfUi';
+import { XF_CSS, peso, useMe, XfSkel } from './xfUi';
 
 export default function Sponsorships() {
   const nav = useNavigate();
@@ -36,7 +36,7 @@ export default function Sponsorships() {
         <div><h1>Sponsorships</h1><p>Help fund XMARKET projects with your Xwallet.</p></div>
       </header>
       <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b></div>
-      {funds === null && <div className="xf-empty">Loading…</div>}
+      {funds === null && <XfSkel kind="fund" />}
       {funds && !funds.length && <div className="xf-card xf-empty">No fund is open right now.</div>}
       {(funds || []).map((f) => {
         const pct = Math.min(100, (Number(f.raised) / Number(f.target || 1)) * 100);
