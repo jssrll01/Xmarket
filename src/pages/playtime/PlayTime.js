@@ -28,8 +28,19 @@ const CSS = `
 .pt2-n{font-size:12px;color:#64748B;margin-top:2px}
 .pt2-g.off{opacity:.55}.pt2-g.off .pt2-n{display:flex;align-items:center;gap:5px}
 .pt2-x{margin-left:auto;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;color:#0F172A;white-space:nowrap}
-.pt2-ex{width:100%;margin-top:14px;padding:15px 16px;border-radius:12px;background:#0B1220;color:#fff;display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600}
-.pt2-ex span{margin-left:auto;font-size:12px;color:#94A3B8;font-weight:500}
+.pt2-ex{width:100%;margin-top:14px;padding:15px 16px;border-radius:12px;background:linear-gradient(135deg,#FFFFFF,#EFF6FF);color:#1D4ED8;border:1px solid #BFDBFE;box-shadow:0 8px 18px -12px rgba(37,99,235,.55);display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:700;position:relative;overflow:hidden;transition:transform .2s}
+.pt2-ex span{margin-left:auto;font-size:12px;color:#3B82F6;font-weight:600}
+@keyframes ptUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes ptFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes ptSheen{0%,55%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
+.pt2-g{animation:ptUp .5s cubic-bezier(.2,.8,.2,1) both;transition:background .2s,transform .2s}
+.pt2-g:nth-child(2){animation-delay:.07s}.pt2-g:nth-child(3){animation-delay:.14s}
+.pt2-g:not(.off):hover,.pt2-g:not(.off):active{background:#F5F9FF;transform:translateX(3px)}
+.pt2-g:not(.off) .pt2-ic{background:#EFF6FF;border-color:#BFDBFE;animation:ptFloat 3.4s ease-in-out infinite}
+.pt2-bal{animation:ptUp .5s both}
+.pt2-ex:active{transform:scale(.98)}
+.pt2-ex::after{content:"";position:absolute;top:0;left:0;width:35%;height:100%;background:linear-gradient(100deg,transparent,rgba(37,99,235,.14),transparent);animation:ptSheen 5s ease-in-out infinite;pointer-events:none}
+@media(prefers-reduced-motion:reduce){.pt2-g,.pt2-ic,.pt2-bal,.pt2-ex::after{animation:none!important}}
 .pt2-steps{list-style:none;border-top:1px solid #E5E7EB}
 .pt2-steps li{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid #E5E7EB;font-size:13px;line-height:1.45}
 .pt2-steps i{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#94A3B8;width:18px}
@@ -55,9 +66,6 @@ export default function PlayTime() {
     ].filter(a => airOn && airOn.includes(a[0])).forEach(a => games.push({ to: '/play-time/airdrop/' + a[0], title: a[1], note: 'Drawn every 10 minutes', tag: a[2], cost: 0, game: 'airdrop', Icon: BoxIcon }));
     [
       ['coinflip', '/play-time/coin-flip', 'Head or Tails', 'Call heads or tails', CoinIcon],
-      ['color', '/play-time/color-game', 'Color Game Extreme', 'Pick the winning color', PaletteIcon],
-      ['hilo', '/play-time/Hilo', 'Hilo', 'Higher or lower card', HiLoIcon],
-      ['redblack', '/play-time/red-or-black', 'Red Black', 'Guess the card color', CardsIcon],
     ].filter(x => mini[x[0]]).forEach(x => games.push({ to: x[1], title: x[2], note: x[3], tag: `${mini[x[0]].payout}x`, game: 'mini', key: x[0], Icon: x[4] }));
   }
 
