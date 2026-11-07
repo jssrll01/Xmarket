@@ -48,6 +48,7 @@ import DigitalProducts from './pages/xf/DigitalProducts';
 import DemandPolls from './pages/xf/DemandPolls';
 import Sponsorships from './pages/xf/Sponsorships';
 import DigitalHub from './pages/xf/DigitalHub';
+import PointsShop from './pages/xf/PointsShop';
 import Xmall from './pages/Xmall';
 import Xwallet from './pages/Xwallet';
 import XwalletTopup from './pages/XwalletTopup';
@@ -175,6 +176,7 @@ function Router() {
         <Route path="/digital-products" element={<DigitalProducts />} />
         <Route path="/demand-polls" element={<DemandPolls />} />
         <Route path="/sponsorships" element={<Sponsorships />} />
+        <Route path="/points-shop" element={<PointsShop />} />
         <Route path="/digital-hub" element={<DigitalHub />} />
         <Route path="/global-chat" element={<GlobalChat />} />
         <Route path="/socials" element={<Socials />} />
