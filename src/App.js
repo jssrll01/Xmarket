@@ -41,9 +41,6 @@ import PlayBox from './pages/playtime/MysteryBox';
 import PlayExchange from './pages/playtime/Exchange';
 import PlayHistory from './pages/playtime/History';
 import PlayCoinFlip from './pages/playtime/CoinFlip';
-import PlayColor from './pages/playtime/ColorGame';
-import PlayHiLo from './pages/playtime/HiLo';
-import PlayRedBlack from './pages/playtime/RedBlack';
 import PlayAirdrop from './pages/playtime/Airdrop';
 import PriceDrops, { PriceDropBuy, PriceDropOrder } from './pages/xf/PriceDrops';
 import DigitalProducts from './pages/xf/DigitalProducts';
@@ -162,9 +159,6 @@ function Router() {
         <Route path="/play-time/exchange" element={<PlayExchange />} />
         <Route path="/play-time/history" element={<PlayHistory />} />
         <Route path="/play-time/coin-flip" element={<PlayCoinFlip />} />
-        <Route path="/play-time/color-game" element={<PlayColor />} />
-        <Route path="/play-time/Hilo" element={<PlayHiLo />} />
-        <Route path="/play-time/red-or-black" element={<PlayRedBlack />} />
         <Route path="/xwallet" element={<Xwallet />} />
         <Route path="/xwallet/topup" element={<XwalletTopup />} />
         <Route path="/xwallet/send" element={<XwSend />} />
