@@ -4,7 +4,8 @@ import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { XF_CSS, peso, useMe } from './xfUi';
 
-export default function PointsShop() {
+// The rewards list. Used by the Points Shop page and shown inside the Loyalty Points page.
+export function PointsShopList({ hideBalance, onRedeemed }) {
   const nav = useNavigate();
   const { user, reload } = useMe();
   const [items, setItems] = useState(null);
@@ -28,15 +29,12 @@ export default function PointsShop() {
     if (error || !data || !data.ok) { setMsg({ [r.id]: { bad: true, t: (error && error.message) || (data && data.message) || 'Failed.' } }); return; }
     setMsg({ [r.id]: { t: peso(r.wallet_amount) + ' added to your Xwallet.' } });
     reload(); load();
+    if (onRedeemed) onRedeemed();
   };
   return (
-    <div className="page-enter xf">
+    <>
       <style>{XF_CSS}</style>
-      <header className="xf-head">
-        <button onClick={() => nav(-1)} className="icon-btn" aria-label="Back"><ArrowLeft size={20} /></button>
-        <div><h1>Points Shop</h1><p>Spend your loyalty points on rewards.</p></div>
-      </header>
-      <div className="xf-bal"><span>Your points</span><b>{pts.toLocaleString()}</b></div>
+      {!hideBalance && <div className="xf-bal"><span>Your points</span><b>{pts.toLocaleString()}</b></div>}
       {items === null && <div className="sk" style={{ height: 120, borderRadius: 16 }} />}
       {items && !items.length && <div className="xf-card xf-empty">No rewards yet.</div>}
       {(items || []).map((r) => {
@@ -50,10 +48,24 @@ export default function PointsShop() {
             <div className="xf-price">{r.cost.toLocaleString()} pts</div>
             {low && !out && <div className="xf-meta">You need {(r.cost - pts).toLocaleString()} more points</div>}
             {m && <div className={m.bad ? 'xf-warn' : 'xf-ok'}>{m.t}</div>}
-            <button className="xf-btn" disabled={out || low || busy === r.id} onClick={() => redeem(r)}>{out ? 'Out of stock' : busy === r.id ? 'Redeeming…' : 'Redeem'}</button>
+            <button className="xf-btn" disabled={out || low || busy === r.id} onClick={() => redeem(r)}>{out ? 'Out of stock' : busy === r.id ? 'Redeeming\u2026' : 'Redeem'}</button>
           </div></div>
         );
       })}
+    </>
+  );
+}
+
+export default function PointsShop() {
+  const nav = useNavigate();
+  return (
+    <div className="page-enter xf">
+      <style>{XF_CSS}</style>
+      <header className="xf-head">
+        <button onClick={() => nav(-1)} className="icon-btn" aria-label="Back"><ArrowLeft size={20} /></button>
+        <div><h1>Points Shop</h1><p>Spend your loyalty points on rewards.</p></div>
+      </header>
+      <PointsShopList />
     </div>
   );
 }
