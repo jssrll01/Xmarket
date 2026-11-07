@@ -6,6 +6,7 @@ import { useToast } from '../components/Toast';
 import { PostCard, Avatar, Sk, SkStyle, toggleLike, sharePost, SocialLinks } from './socialsUi';
 import FollowButton from './FollowButton';
 import FollowerList from './FollowerList';
+import { ProfileVideos } from '../components/VideoRail';
 
 export default function SocialsCreator() {
   const { username } = useParams();
@@ -15,6 +16,7 @@ export default function SocialsCreator() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [fc, setFc] = useState(null);
+  const [tab, setTab] = useState('posts');
 
   useEffect(() => {
     let alive = true;
@@ -63,8 +65,13 @@ export default function SocialsCreator() {
         {!prof.mine && <button className="btn-ghost" onClick={openDm} style={{ width: '100%', padding: 12, marginBottom: 10 }}>Message</button>}
         {!prof.mine && <FollowButton creatorId={prof.creator_id} initial={prof.following} count={prof.followers} onCount={setFc} />}
         {prof.mine && <FollowerList creatorId={prof.creator_id} />}
-        {posts.length === 0 && <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 30 }}>No posts yet.</div>}
-        {posts.map(p => <PostCard key={p.id} p={p} onLike={like} onShare={share} />)}
+        <div className="vp-tabs">
+          <button type="button" className={tab === 'posts' ? 'on' : ''} onClick={() => setTab('posts')}>Posts</button>
+          <button type="button" className={tab === 'videos' ? 'on' : ''} onClick={() => setTab('videos')}>Videos</button>
+        </div>
+        {tab === 'posts' && posts.length === 0 && <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 30 }}>No posts yet.</div>}
+        {tab === 'posts' && posts.map(p => <PostCard key={p.id} p={p} onLike={like} onShare={share} />)}
+        {tab === 'videos' && <ProfileVideos username={username} />}
       </>)}
     </div>
   );

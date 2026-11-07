@@ -4,6 +4,9 @@ import { ArrowLeft, Send } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import { Avatar } from './socialsUi';
+import { PacketBubble, PacketCreate } from '../components/RedPacket';
+import useReactions from '../lib/useReactions';
+import { MentionText, MentionSuggest, replaceMention, ReplyQuote, ReactionChip, MsgMenu, useLongPress } from '../components/MsgKit';
 
 const hm = (d) => new Date(d).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -48,6 +51,11 @@ export function DmChat() {
   const [d, setD] = useState(null);
   const [text, setText] = useState('');
   const [busy, setBusy] = useState(false);
+  const [pk, setPk] = useState(false);
+  const [menu, setMenu] = useState(null);
+  const [reply, setReply] = useState(null);
+  const lp = useLongPress((m) => setMenu(m));
+  const rx = useReactions('dm', d && d.messages ? d.messages.map((m) => m.id) : []);
   const end = useRef(null);
   const last = useRef(0);
   const load = useCallback(async () => {
@@ -63,11 +71,11 @@ export function DmChat() {
     const b = text.trim();
     if (!b || busy) return;
     setBusy(true);
-    const { data, error } = await supabase.rpc('dm_send', { p_thread: tid, p_body: b });
+    const { data, error } = await supabase.rpc('dm_send', { p_thread: tid, p_body: b, p_reply: reply ? reply.id : null });
     setBusy(false);
     if (error) return show(error.message);
     if (!data.ok) return show(data.error);
-    setText(''); load();
+    setText(''); setReply(null); load();
   };
   const wrap = { display: 'flex', flexDirection: 'column', height: '100dvh', maxWidth: 560, margin: '0 auto' };
   if (!d) return <div style={wrap}><div className="sk" style={{ height: 60, margin: 16, borderRadius: 16 }} /></div>;
@@ -86,17 +94,28 @@ export function DmChat() {
           const mine = m.sender === d.me;
           return (
             <div key={m.id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
-              <div style={{ padding: '9px 13px', borderRadius: 16, background: mine ? '#2563EB' : '#fff', color: mine ? '#fff' : '#0F172A', border: mine ? 'none' : '1px solid #E2E8F0', fontSize: 14, lineHeight: 1.45, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{m.body}</div>
+              {m.kind === 'packet' ? <PacketBubble m={m} onClaimed={load} onToast={show} /> : <div style={{ padding: '9px 13px', borderRadius: 16, background: mine ? '#2563EB' : '#fff', color: mine ? '#fff' : '#0F172A', border: mine ? 'none' : '1px solid #E2E8F0', fontSize: 14, lineHeight: 1.45, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }} {...lp(m)}>{m.reply_text && <ReplyQuote name={m.reply_name} text={m.reply_text} />}<MentionText text={m.body} /></div>}
               <div style={{ fontSize: 10.5, color: 'var(--muted)', textAlign: mine ? 'right' : 'left', marginTop: 2 }}>{hm(m.created_at)}</div>
+              <ReactionChip s={rx.map[m.id]} mine={mine} onTap={() => rx.set(m.id, rx.map[m.id] && rx.map[m.id].mine ? null : 'like')} />
             </div>
           );
         })}
         <div ref={end} />
       </div>
+      {reply && (<div className="mk-replybar" style={{ margin: 0, borderRadius: 0 }}><span>Replying to <b>{reply.sender === d.me ? 'yourself' : '@' + d.other.name}</b>: {String(reply.body).slice(0, 60)}</span><button type="button" aria-label="Cancel reply" onClick={() => setReply(null)}>✕</button></div>)}
+      <div style={{ background: '#fff', padding: '0 10px' }}><MentionSuggest text={text} onPick={(u) => setText(replaceMention(text, u))} /></div>
       <div style={{ display: 'flex', gap: 8, padding: 10, borderTop: '1px solid #E2E8F0', background: '#fff' }}>
+        <button type="button" aria-label="Red packet" onClick={() => setPk(true)} style={{ width: 46, height: 46, borderRadius: '50%', fontSize: 22, flexShrink: 0, background: '#FEE2E2' }}>🧧</button>
         <input value={text} maxLength={1000} onChange={e => setText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') send(); }} placeholder="Write a message…" style={{ flex: 1, padding: '11px 14px', borderRadius: 99, border: '1px solid #CBD5E1', fontSize: 14 }} />
         <button className="btn-primary" disabled={busy || !text.trim()} onClick={send} aria-label="Send" style={{ width: 46, height: 46, borderRadius: '50%', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Send size={18} /></button>
       </div>
+      {menu && (
+        <MsgMenu current={rx.map[menu.id] && rx.map[menu.id].mine} text={menu.body}
+          onReact={(k) => { rx.set(menu.id, k); setMenu(null); }}
+          onReply={() => { setReply(menu); setMenu(null); }}
+          onClose={() => setMenu(null)} />
+      )}
+      {pk && <PacketCreate thread={tid} onClose={() => setPk(false)} onDone={() => { setPk(false); load(); }} onToast={show} />}
     </div>
   );
 }

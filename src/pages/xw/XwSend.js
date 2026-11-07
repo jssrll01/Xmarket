@@ -6,6 +6,7 @@ import { useToast } from '../../components/Toast';
 import { transferByEmail } from '../../lib/xwallet';
 import useWallet from './useWallet';
 import { Shell, SignIn, Confirm, peso } from './ui';
+const feeOf = (a) => Math.round(Number(a) || 0) / 100;
 
 export default function XwSend() {
   const { user, balance, refresh } = useWallet();
@@ -18,8 +19,8 @@ export default function XwSend() {
 
   const check = () => {
     const amt = Number(amount);
-    if (!amt || amt <= 0) return show('Enter a valid amount');
-    if (amt > balance) return show('Insufficient balance');
+    if (!amt || amt < 10) return show('Minimum transfer is ₱10');
+    if (amt + feeOf(amt) > balance) return show('Insufficient balance. Amount plus 1% fee exceeds your balance');
     if (!email.includes('@')) return show('Enter a valid email address');
     setAsk(true);
   };
@@ -45,10 +46,10 @@ export default function XwSend() {
         <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="friend@example.com" style={inp} />
         <label style={lbl}>Amount (₱)</label>
         <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={inp} />
-        <button className="btn-primary" disabled={busy} onClick={check} style={{ width: '100%', padding: 13, fontSize: 14 }}>{busy ? 'Sending…' : 'Send money'}</button>
-        <p style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'center', marginTop: 10 }}>Double-check the recipient email before sending.</p>
+        {Number(amount) >= 10 && <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>Fee (1%): <b>{peso(feeOf(amount))}</b> · Total: <b>{peso(Number(amount) + feeOf(amount))}</b></div>}<button className="btn-primary" disabled={busy} onClick={check} style={{ width: '100%', padding: 13, fontSize: 14 }}>{busy ? 'Sending…' : 'Send money'}</button>
+        <p style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'center', marginTop: 10 }}>A 1% transfer fee applies. Minimum transfer is ₱10. Double-check the recipient email before sending.</p>
       </div>
-      {ask && <Confirm title="Confirm transfer" message={`Send ${peso(amount)} to ${email}?`} onCancel={() => setAsk(false)} onConfirm={submit} busy={busy} />}
+      {ask && <Confirm title="Confirm transfer" message={`Send ${peso(amount)} to ${email}? A 1% fee of ${peso(feeOf(amount))} applies. Total deducted: ${peso(Number(amount) + feeOf(amount))}.`} onCancel={() => setAsk(false)} onConfirm={submit} busy={busy} />}
     </Shell>
   );
 }

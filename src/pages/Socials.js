@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import useDmUnread from '../lib/useDmUnread';
 import DmBadge from '../components/DmBadge';
+import VideoRail from '../components/VideoRail';
 import { PostCard, Avatar, Sk, SkStyle, toggleLike, sharePost } from './socialsUi';
 
 export default function Socials() {
@@ -74,6 +75,8 @@ export default function Socials() {
         </div>
       )}
 
+      {isCreator && <button className="btn-ghost" onClick={() => nav('/creator-studio/video')} style={{ width: '100%', padding: 11, marginBottom: 12, fontWeight: 800 }}>+ Post a video</button>}
+      {!q.trim() && <VideoRail />}
       {loading && [0, 1].map(i => <Sk key={i} h={380} r={18} style={{ marginBottom: 14 }} />)}
       {!loading && posts.length === 0 && <div style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--muted)' }}><b style={{ color: 'var(--text)' }}>No posts yet</b><div style={{ fontSize: 13, marginTop: 4 }}>Creator posts will show up here.</div></div>}
       {posts.map(p => <PostCard key={p.id} p={p} onLike={like} onShare={share} />)}

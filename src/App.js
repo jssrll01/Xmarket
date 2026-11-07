@@ -63,6 +63,9 @@ import SocialsComments from './pages/SocialsComments';
 import CreatorNewPost from './pages/CreatorNewPost';
 import CreatorPostHistory from './pages/CreatorPostHistory';
 import Vip from './pages/Vip';
+import ChatSearch from './pages/ChatSearch';
+import VideoViewer from './pages/VideoViewer';
+import CreatorNewVideo from './pages/CreatorNewVideo';
 import BottomNav from './components/BottomNav';
 import MyReports from './pages/report/MyReports';
 import BugReport from './pages/report/BugReport';
@@ -183,8 +186,11 @@ function Router() {
         <Route path="/points-shop" element={<PointsShop />} />
         <Route path="/digital-hub" element={<DigitalHub />} />
         <Route path="/global-chat" element={<GlobalChat />} />
+        <Route path="/chat-search" element={<ChatSearch />} />
         <Route path="/socials" element={<Socials />} />
         <Route path="/socials/creator/:username" element={<SocialsCreator />} />
+        <Route path="/socials/video/:id" element={<VideoViewer />} />
+        <Route path="/creator-studio/video" element={<CreatorNewVideo />} />
         <Route path="/socials/post/:id/comments" element={<SocialsComments />} />
         <Route path="/creator-studio/post" element={<CreatorNewPost />} />
         <Route path="/creator-studio/posts" element={<CreatorPostHistory />} />

@@ -45,6 +45,9 @@ export default function Notifications() {
       setItems(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x));
     }
     if (n.type === 'order') nav('/orders');
+    if (n.type === 'cart') nav('/cart');
+    if (n.type === 'mention_global') nav('/global-chat');
+    if (n.type === 'mention_comment' || n.type === 'mention_post') nav('/socials');
   };
 
   return (

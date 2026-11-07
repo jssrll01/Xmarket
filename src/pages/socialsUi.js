@@ -3,6 +3,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Share2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import useReactions from '../lib/useReactions';
+import { ReactionChip, MsgMenu, MentionText } from '../components/MsgKit';
 
 export const BLUE = '#2563EB';
 export const time12 = (d) => new Date(d).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
@@ -40,11 +42,11 @@ function Caption({ p }) {
   const rest = long ? full.slice(cut.length) : '';
   return (
     <div style={{ padding: '4px 12px 14px', fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
-      <b>@{p.username}</b> {cut}
+      <b>@{p.username}</b> <MentionText text={cut} />
       {long && (
         <>
           <span style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows .45s ease', }}>
-            <span style={{ overflow: 'hidden', minHeight: 0, opacity: open ? 1 : 0, transition: 'opacity .45s ease' }}>{rest}</span>
+            <span style={{ overflow: 'hidden', minHeight: 0, opacity: open ? 1 : 0, transition: 'opacity .45s ease' }}><MentionText text={rest} /></span>
           </span>
           {!open && <span>… </span>}
           <button type="button" onClick={() => setOpen(o => !o)} style={{ display: 'block', marginTop: 4, color: '#2563EB', fontWeight: 700, fontSize: 13.5 }}>{open ? 'Show less' : 'View details'}</button>
@@ -56,6 +58,8 @@ function Caption({ p }) {
 
 export function PostCard({ p, onLike, onShare }) {
   const nav = useNavigate();
+  const rx = useReactions('post', [p.id]);
+  const [rm, setRm] = React.useState(false);
   return (
     <div className="card" style={{ marginBottom: 14, overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 12, cursor: 'pointer' }} onClick={() => nav('/socials/creator/' + p.username)}>
@@ -71,10 +75,13 @@ export function PostCard({ p, onLike, onShare }) {
         <button onClick={() => nav('/socials/post/' + p.id + '/comments')} aria-label="Comments" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13 }}>
           <MessageCircle size={22} color="#475569" /> {p.comments}
         </button>
+        <button onClick={() => setRm(true)} aria-label="React" style={{ fontSize: 20 }}>😊</button>
         <button onClick={() => onShare(p)} aria-label="Share" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13, marginLeft: 'auto' }}>
           <Share2 size={21} color="#475569" /> Share
         </button>
       </div>
+      <ReactionChip s={rx.map[p.id]} mine={false} onTap={() => rx.set(p.id, rx.map[p.id] && rx.map[p.id].mine ? null : 'like')} />
+      {rm && <MsgMenu current={rx.map[p.id] && rx.map[p.id].mine} text={p.description} onReact={(k) => { rx.set(p.id, k); setRm(false); }} onReply={() => { setRm(false); nav('/socials/post/' + p.id + '/comments'); }} onClose={() => setRm(false)} />}
       <Caption p={p} />
       <ProductTiles products={p.products} />
       {Array.isArray(p.links) && p.links.filter(l => l && /^https?:\/\/\S+$/i.test(l.url || '')).length > 0 && (

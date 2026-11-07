@@ -128,3 +128,14 @@ form.gc-compose div.gc-field input.gc-input:hover {
   -webkit-appearance: none;
   appearance: none;
 }
+
+/* user search bar + message-only sheet */
+.gc-search { display: flex; align-items: center; gap: 8px; margin: 8px 12px 0; padding: 11px 14px; border: 1px solid rgba(15, 23, 42, .06); border-radius: 999px; background: #fff; color: var(--muted); font-size: 13.5px; font-weight: 600; text-align: left; box-shadow: var(--neu-raised-sm); }
+.gc-ov { position: fixed; inset: 0; z-index: 3000; background: rgba(15, 23, 42, .45); display: flex; align-items: flex-end; justify-content: center; }
+.gc-sheet { width: 100%; max-width: 560px; background: #fff; border-radius: 24px 24px 0 0; padding: 22px 18px calc(18px + env(safe-area-inset-bottom, 0px)); text-align: center; animation: gcIn .18s ease-out both; }
+.gc-sheet-av { width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 26px; }
+.gc-sheet-name { font-size: 17px; font-weight: 800; margin-bottom: 16px; }
+.gc-sheet-btn { width: 100%; padding: 14px; border: none; border-radius: 14px; color: #fff; font-size: 15px; font-weight: 800; background: linear-gradient(135deg, #3B82F6, #2563EB); box-shadow: 0 10px 18px -12px rgba(37, 99, 235, .9); }
+.gc-sheet-btn:disabled { opacity: .6; }
+.gc-sheet-cancel { width: 100%; margin-top: 8px; padding: 12px; border: none; background: transparent; color: var(--muted); font-weight: 700; font-size: 14px; }
+.gc-msgs { margin-left: auto; width: 40px; height: 40px; border: none; border-radius: 50%; background: #fff; color: var(--text); display: flex; align-items: center; justify-content: center; box-shadow: var(--neu-raised-sm); }

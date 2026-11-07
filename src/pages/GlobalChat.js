@@ -1,7 +1,9 @@
 import VipBadge from '../components/VipBadge';
+import useReactions from '../lib/useReactions';
+import { MentionText, MentionSuggest, replaceMention, ReplyQuote, ReactionChip, MsgMenu, useLongPress } from '../components/MsgKit';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Send } from 'lucide-react';
+import { Send, Search, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import './GlobalChat.css';
@@ -20,10 +22,10 @@ const dayLabel = (d) => {
   return x.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
 
-function Avatar({ m }) {
+function Avatar({ m, onPick }) {
   const name = m.username || 'X';
   return (
-    <div className="gc-av" style={{ background: colorOf(m.user_id) }}>
+    <div className="gc-av" role="button" onClick={() => onPick && onPick({ id: m.user_id, name: m.username })} style={{ background: colorOf(m.user_id), cursor: 'pointer' }}>
       {name[0].toUpperCase()}
       {m.avatar_url && <img src={m.avatar_url} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
     </div>
@@ -39,6 +41,21 @@ export default function GlobalChat() {
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [showDown, setShowDown] = useState(false);
+  const [peer, setPeer] = useState(null);
+  const [menu, setMenu] = useState(null);
+  const [replyTo, setReplyTo] = useState(null);
+  const lp = useLongPress((m) => setMenu(m));
+  const rx = useReactions('global', msgs.map((m) => m.id).slice(-300));
+  const [opening, setOpening] = useState(false);
+  const openDm = async () => {
+    if (!peer || opening) return;
+    setOpening(true);
+    const { data, error: err } = await supabase.rpc('dm_open', { p_other: peer.id });
+    setOpening(false);
+    setPeer(null);
+    if (err || !data || !data.ok) { setError((data && data.error) || 'Could not open the chat.'); return; }
+    nav('/messages/' + data.thread_id);
+  };
   const listRef = useRef(null);
   const stick = useRef(true);
 
@@ -104,13 +121,13 @@ export default function GlobalChat() {
     const body = text.trim();
     if (!body || sending) return;
     setSending(true); setError(''); stick.current = true;
-    const [{ data, error: err }] = await Promise.all([supabase.from('global_messages').insert({ body }).select().single(), new Promise((r) => setTimeout(r, 350))]);
+    const [{ data, error: err }] = await Promise.all([supabase.from('global_messages').insert({ body, reply_to: replyTo ? replyTo.id : null }).select().single(), new Promise((r) => setTimeout(r, 350))]);
     setSending(false);
     if (err) {
       setError(String(err.message || '').includes('too fast') ? 'You are sending messages too fast.' : 'Could not send. Try again.');
       return;
     }
-    setText('');
+    setText(''); setReplyTo(null);
     add(data);
   };
 
@@ -118,6 +135,7 @@ export default function GlobalChat() {
     <div className="gc-head">
       <h2 className="gc-title">Global Chat</h2>
       <span className="gc-live" aria-label="Live" />
+      <button type="button" className="gc-msgs" aria-label="Messages" onClick={() => nav("/messages")}><MessageCircle size={20} /></button>
     </div>
   );
 
@@ -144,13 +162,15 @@ export default function GlobalChat() {
     if (newDay) rows.push(<div key={'d' + m.id} className="gc-day"><span>{dayLabel(m.created_at)}</span></div>);
     rows.push(
       <div key={m.id} className={'gc-row' + (mine ? ' mine' : '') + (first ? ' first' : '')}>
-        {!mine && (last ? <Avatar m={m} /> : <span className="gc-av-spacer" />)}
+        {!mine && (last ? <Avatar m={m} onPick={setPeer} /> : <span className="gc-av-spacer" />)}
         <div className="gc-col">
-          {!mine && first && <div className="gc-name">{m.username || 'XMARKET user'}{m.is_vip && <VipBadge active />}</div>}
-          <div className={'gc-bubble' + (m.is_vip ? ' vip' : '')}>
-            <span className="gc-text">{m.body}</span>
+          {!mine && first && <div className="gc-name" style={{ cursor: 'pointer' }} onClick={() => setPeer({ id: m.user_id, name: m.username })}>{m.username || 'XMARKET user'}{m.is_vip && <VipBadge active />}</div>}
+          <div className={'gc-bubble' + (m.is_vip ? ' vip' : '')} {...lp(m)}>
+            {m.reply_text && <ReplyQuote name={m.reply_name} text={m.reply_text} />}
+            <span className="gc-text"><MentionText text={m.body} /></span>
             <span className="gc-time">{fmtTime(m.created_at)}</span>
           </div>
+          <ReactionChip s={rx.map[m.id]} mine={mine} onTap={() => rx.set(m.id, rx.map[m.id] && rx.map[m.id].mine ? null : 'like')} />
         </div>
       </div>
     );
@@ -159,6 +179,7 @@ export default function GlobalChat() {
   return (
     <div className="page-enter gc-page">
       {head}
+      <button type="button" className="gc-search" onClick={() => nav('/chat-search')}><Search size={16} /> Search users by username</button>
 
       <div className="gc-listwrap">
         <div className="gc-list" ref={listRef} onScroll={onScroll}>
@@ -182,6 +203,8 @@ export default function GlobalChat() {
 
       {error && <div className="gc-error">{error}</div>}
       <form className="gc-compose" onSubmit={send}>
+        {replyTo && (<div className="mk-replybar" style={{ margin: '0 0 6px' }}><span>Replying to <b>@{replyTo.username || 'user'}</b>: {String(replyTo.body).slice(0, 60)}</span><button type="button" aria-label="Cancel reply" onClick={() => setReplyTo(null)}>✕</button></div>)}
+        <MentionSuggest text={text} onPick={(u) => setText(replaceMention(text, u))} />
         <div className="gc-field">
           <input
             className="gc-input"
@@ -196,6 +219,22 @@ export default function GlobalChat() {
           </button>
         </div>
       </form>
+      {menu && (
+        <MsgMenu current={rx.map[menu.id] && rx.map[menu.id].mine} text={menu.body}
+          onReact={(k) => { rx.set(menu.id, k); setMenu(null); }}
+          onReply={() => { setReplyTo(menu); setMenu(null); }}
+          onClose={() => setMenu(null)} />
+      )}
+      {peer && (
+        <div className="gc-ov" onClick={() => setPeer(null)}>
+          <div className="gc-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="gc-sheet-av" style={{ background: colorOf(peer.id) }}>{(peer.name || 'X')[0].toUpperCase()}</div>
+            <div className="gc-sheet-name">@{peer.name || 'user'}</div>
+            <button type="button" className="gc-sheet-btn" onClick={openDm} disabled={opening}>{opening ? 'Opening…' : 'Send message'}</button>
+            <button type="button" className="gc-sheet-cancel" onClick={() => setPeer(null)}>Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
