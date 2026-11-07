@@ -1,3 +1,4 @@
+import { Coins } from 'lucide-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight } from 'lucide-react';
@@ -56,17 +57,19 @@ export default function Xwallet() {
           </div>
         </div>
 
+        <div className="card" onClick={() => nav('/rewards')} style={{ padding: 14, marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ width: 40, height: 40, borderRadius: 13, background: '#F59E0B1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}><Coins size={20} color="#D97706" /></span>
+          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, fontSize: 14 }}>Loyalty points</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Tap to view and exchange</div></div>
+          <b style={{ fontSize: 16 }}>{pts === null ? '...' : Number(pts).toLocaleString()} pts</b>
+          <ChevronRight size={18} color="#94a3b8" />
+        </div>
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {mini('Bank', on ? 'Earning 1.5% p.a.' : 'Daily interest 1.5% p.a.', TrendingUp, '/xwallet/bank', on ? 'ACTIVE' : 'OFF')}
           {mini('History', `${txns.length} records`, Clock, '/xwallet/history')}
         </div>
 
-        <div className="card" onClick={() => nav('/rewards')} style={{ padding: 14, marginBottom: 16, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ width: 40, height: 40, borderRadius: 13, background: '#F59E0B1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🪙</span>
-          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, fontSize: 14 }}>Loyalty points</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Tap to view and exchange</div></div>
-          <b style={{ fontSize: 16 }}>{pts === null ? '...' : Number(pts).toLocaleString()} pts</b>
-          <ChevronRight size={18} color="#94a3b8" />
-        </div>
+        
 
         <div className="card" style={{ padding: '16px 8px', marginBottom: 18, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', rowGap: 18 }}>
           {ACTIONS.map(([label, Icon, to]) => (

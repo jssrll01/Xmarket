@@ -67,9 +67,9 @@ export function Choices({ options, value, onChange, disabled, cols }) {
 }
 
 const DESC = {
-  coinflip: 'Call it in the air! One toss, two sides, and a 1.8x win. 🪙',
+  coinflip: 'Call it in the air! One toss, two sides, and a 1.8x win.',
   color: 'Six colors, one roll. Match the winning color and win 1.8x. 🎨',
-  hilo: 'Higher or lower? Read the next card and win 1.8x. 🃏',
+  hilo: 'Higher or lower? Read the next card and win 1.8x.',
   redblack: 'Red or black? Call the card and win 1.8x. ♥️♠️',
 };
 

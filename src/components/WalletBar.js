@@ -1,3 +1,4 @@
+import { CreditCard, Coins as CoinsI, Gamepad2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Wallet, CreditCard } from 'lucide-react';
@@ -60,12 +61,12 @@ export default function WalletBar() {
           icon={<Wallet size={18} color="#fff" />} label="Xwallet"
           sub={user ? (balance === null ? '...' : '₱' + Number(balance).toFixed(2)) : 'Sign in'} />
         {divider}
-        <Cell to="/xcards" grad="linear-gradient(135deg, #6366F1, #7C3AED)" icon={<span style={{ fontSize: 18, lineHeight: 1 }}>💳</span>} label="Xcards" sub="Gift cards" />
+        <Cell to="/xcards" grad="linear-gradient(135deg, #6366F1, #7C3AED)" icon={<CreditCard size={18} color="#fff" />} label="Xcards" sub="Gift cards" />
         {divider}
-        <Cell to="/xcoin" grad="linear-gradient(135deg, #3B82F6, #2563EB)" icon={<span style={{ fontSize: 18, lineHeight: 1 }}>🪙</span>} label="XCOIN" sub="Market" />
+        <Cell to="/xcoin" grad="linear-gradient(135deg, #3B82F6, #2563EB)" icon={<CoinsI size={18} color="#fff" />} label="XCOIN" sub="Market" />
         {divider}
         <Cell to="/play-time" grad="linear-gradient(135deg, #F59E0B, #EF4444)"
-          icon={<span style={{ fontSize: 18, lineHeight: 1 }}>🎮</span>} label="Play Time" sub="Earn points" />
+          icon={<Gamepad2 size={18} color="#fff" />} label="Play Time" sub="Earn points" />
       </div>
     </div>
   );

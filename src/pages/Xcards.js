@@ -71,7 +71,10 @@ export default function Xcards() {
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
 
-      <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>Xcards</h2>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+        <button onClick={() => nav(-1)} className="icon-btn" aria-label="Back"><ArrowLeft size={20} /></button>
+        <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Xcards</h2>
+      </div>
       <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
         Digital gift cards from XMARKET. Send to anyone, redeem once at checkout.
       </p>
@@ -163,7 +166,6 @@ export default function Xcards() {
                 border: used ? '1px dashed var(--border)' : 'none',
                 opacity: used ? 0.7 : 1,
               }}>
-      <button onClick={() => nav(-1)} className="icon-btn" aria-label="Back" style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                   <span style={{ fontSize: 18, fontWeight: 900 }}>₱{Number(c.value).toLocaleString()}</span>
                   <span style={{

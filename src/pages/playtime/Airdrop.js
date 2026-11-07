@@ -87,7 +87,7 @@ export default function Airdrop() {
       <style>{CSS}</style>
       <button onClick={() => nav('/play-time')} className="icon-btn" style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
       <h2 style={{ margin: 0 }}>{t.label}</h2>
-      <p style={{ fontSize: 13, color: 'var(--muted)', margin: '2px 0 0' }}>{`Pick a number from 1 to ${t.max_n}. ${t.win_count} winning numbers are drawn every 10 minutes. Match one and win big! 🎁`}</p>
+      <p style={{ fontSize: 13, color: 'var(--muted)', margin: '2px 0 0' }}>{`Pick a number from 1 to ${t.max_n}. ${t.win_count} winning numbers are drawn every 10 minutes. Match one and win big!`}</p>
       
       <Balances status={status} />
 

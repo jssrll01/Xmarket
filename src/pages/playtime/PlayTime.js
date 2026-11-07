@@ -60,7 +60,7 @@ export default function PlayTime() {
             const body = (
               <div className="card" style={{ padding: 14, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, opacity: off ? 0.75 : 1 }}>
                 <div style={{ width: 46, height: 46, borderRadius: 14, background: off ? '#CBD5E1' : g.grad, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <span style={{ fontSize: 22, lineHeight: 1 }}>🎮</span>
+                  <g.Icon size={24} color="#fff" />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 15, fontWeight: 800 }}>{g.title}</div>

@@ -32,7 +32,7 @@ export function PlayHeader({ title, subtitle, back }) {
   const nav = useNavigate();
   return (
     <div style={{ marginBottom: 14 }}>
-      <button onClick={() => nav(back || '/play-time')} className="icon-btn" style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
+      <button onClick={() => { if (back === 'last') { const i = window.history.state && window.history.state.idx; if (typeof i === 'number' && i > 0) nav(-1); else nav('/play-time'); } else nav(back || '/play-time'); }} className="icon-btn" style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
       <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 2 }}>{title}</h2>
       {subtitle && <p style={{ fontSize: 13, color: 'var(--muted)' }}>{subtitle}</p>}
     </div>
