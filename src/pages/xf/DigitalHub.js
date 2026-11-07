@@ -4,12 +4,6 @@ import { Zap, Package, CheckSquare, Heart } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { XF_CSS, peso, useMe } from './xfUi';
 
-const STEPS = [
-  ['Choose', 'Pick a drop, product, poll or project.'],
-  ['Pay with Xwallet', 'Your balance is checked before you continue.'],
-  ['Get updates', 'We message you using the details you give.'],
-];
-
 export default function DigitalHub() {
   const { me } = useMe();
   const [st, setSt] = useState(null);
@@ -68,21 +62,13 @@ export default function DigitalHub() {
             st ? (
               <>
                 <div className="xf-bar" style={{ marginBottom: 4 }}><i style={{ width: pct + '%' }} /></div>
-                <span className="xf-meta">{peso(st.raised)} raised of {peso(st.target || 2000)}</span>
+                <span className="xf-meta">{st.target ? peso(st.raised) + ' raised of ' + peso(st.target) : 'No fund open yet'}</span>
               </>
             ) : <div className="sk sk-line" style={{ width: '60%', height: 12, marginTop: 12 }} />
           ) : tg ? <span className="tag">{tg}</span>
             : <div className="sk sk-line" style={{ width: '35%', height: 22, marginTop: 12, borderRadius: 99 }} />}
         </Link>
       ))}
-      <div className="xf-card"><div className="xf-body">
-        <h3>How it works</h3>
-        {STEPS.map(([t, d], i) => <div className="xf-how" key={t}><i>{i + 1}</i><div><b>{t}</b><span>{d}</span></div></div>)}
-      </div></div>
-      <div className="xf-card"><div className="xf-body">
-        <h3>Good to know</h3>
-        <p>All purchases use Xwallet only. If your balance is not enough, you will be asked to top up first. Contact details come from your account, so keep your profile up to date.</p>
-      </div></div>
     </div>
   );
 }
