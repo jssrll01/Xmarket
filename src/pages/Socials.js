@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, X, PenSquare } from 'lucide-react';
+import { ArrowLeft, Search, X, PenSquare, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import { PostCard, Avatar, Sk, SkStyle, toggleLike, sharePost } from './socialsUi';
@@ -48,6 +48,7 @@ export default function Socials() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
         
         <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, flex: 1 }}>Socials</h2>
+        <button className="icon-btn" aria-label="Messages" onClick={() => nav('/messages')}><MessageCircle size={20} /></button>
         {isCreator && <button className="btn-primary" onClick={() => nav('/creator-studio/post')} style={{ padding: '9px 14px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><PenSquare size={15} /> New post</button>}
       </div>
       <div style={{ position: 'relative', marginBottom: 14 }}>

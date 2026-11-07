@@ -31,6 +31,12 @@ export default function SocialsCreator() {
     if (r && r.ok) setPosts(a => a.map(x => x.id === p.id ? { ...x, liked: r.liked, likes: r.likes } : x));
   };
   const share = async (p) => { const r = await sharePost(p); if (r === 'copied') show('Link copied'); };
+  const openDm = async () => {
+    const { data, error } = await supabase.rpc('dm_open', { p_other: prof.creator_id });
+    if (error) return show(error.message);
+    if (!data.ok) return show(data.error);
+    nav('/messages/' + data.thread_id);
+  };
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
@@ -55,6 +61,7 @@ export default function SocialsCreator() {
             {prof.mine && <button className="btn-ghost" onClick={() => nav('/creator-studio/profile')} style={{ marginTop: 10, padding: '8px 14px', fontSize: 13 }}>Edit profile</button>}
           </div>
         )}
+        {!prof.mine && <button className="btn-ghost" onClick={openDm} style={{ width: '100%', padding: 12, marginBottom: 10 }}>Message</button>}
         {!prof.mine && <FollowButton creatorId={prof.creator_id} initial={prof.following} count={prof.followers} onCount={setFc} />}
         <FollowerList creatorId={prof.creator_id} />
         {posts.length === 0 && <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 30 }}>No posts yet.</div>}

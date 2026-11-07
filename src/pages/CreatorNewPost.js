@@ -23,6 +23,18 @@ export default function CreatorNewPost() {
   const [preview, setPreview] = useState('');
   const [agree, setAgree] = useState(false);
   const [links, setLinks] = useState([]);
+  const [picked, setPicked] = useState([]);
+  const [pq, setPq] = useState('');
+  const [pres, setPres] = useState([]);
+  useEffect(() => {
+    const t = pq.trim();
+    if (t.length < 2) { setPres([]); return undefined; }
+    const h = setTimeout(async () => {
+      const { data } = await supabase.from('products').select('id,name,images').ilike('name', '%' + t.replace(/[%_,()]/g, ' ') + '%').limit(6);
+      setPres(data || []);
+    }, 300);
+    return () => clearTimeout(h);
+  }, [pq]);
   const PRESETS = ['Facebook', 'Instagram', 'TikTok', 'YouTube', 'Referral link'];
   const addLink = (label) => setLinks((p) => (p.length >= 5 ? p : [...p, { label: label || '', url: '' }]));
   const setLink = (i, k, v) => setLinks((p) => p.map((x, j) => (j === i ? { ...x, [k]: v } : x)));
@@ -67,7 +79,7 @@ export default function CreatorNewPost() {
       setPct(100);
       if (!j.secure_url) throw new Error('Picture upload failed. Try again.');
       await supabase.rpc('creator_accept_rules');
-      const { data, error } = await supabase.rpc('creator_create_post', { p_description: desc, p_image_url: j.secure_url, p_links: cleanLinks });
+      const { data, error } = await supabase.rpc('creator_create_post', { p_description: desc, p_image_url: j.secure_url, p_links: cleanLinks, p_products: picked.map((x) => x.id) });
       if (error) throw new Error(error.message);
       if (!data.ok) throw new Error(data.error);
       setPct(0); show('Posted to XMARKET Socials'); nav('/socials');
@@ -121,6 +133,22 @@ export default function CreatorNewPost() {
               </div>
               <input value={l.url} maxLength={500} inputMode="url" autoCapitalize="none" onChange={(e) => setLink(i, 'url', e.target.value)} placeholder="https://" style={{ padding: 10, borderRadius: 10, border: '1px solid #CBD5E1', fontSize: 14 }} />
             </div>
+          ))}
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#64748B', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 8 }}>Tag products (optional, up to 3)</div>
+          {picked.map((x) => (
+            <div key={x.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: 8, border: '1px solid #BFDBFE', background: '#EFF6FF', borderRadius: 12, marginBottom: 6 }}>
+              <span style={{ flex: 1, fontSize: 13.5, fontWeight: 700 }}>{x.name}</span>
+              <button type="button" aria-label="Remove product" onClick={() => setPicked(picked.filter((y) => y.id !== x.id))} style={{ color: '#DC2626', fontWeight: 800 }}>✕</button>
+            </div>
+          ))}
+          {picked.length < 3 && <input value={pq} onChange={(e) => setPq(e.target.value)} placeholder="Search products by name" style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #CBD5E1', fontSize: 14 }} />}
+          {pres.filter((x) => !picked.some((y) => y.id === x.id)).map((x) => (
+            <button key={x.id} type="button" onClick={() => { setPicked([...picked, x]); setPq(''); setPres([]); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: 8, marginTop: 6, border: '1px solid #E2E8F0', borderRadius: 12, background: '#fff' }}>
+              {Array.isArray(x.images) && x.images[0] ? <img src={x.images[0]} alt="" style={{ width: 38, height: 38, borderRadius: 8, objectFit: 'cover' }} /> : null}
+              <span style={{ fontSize: 13.5 }}>{x.name}</span>
+            </button>
           ))}
         </div>
         <button className="btn-primary" disabled={busy} onClick={submit} style={{ width: '100%', padding: 14, fontSize: 14, marginTop: 8 }}>{busy ? 'Posting…' : 'Post to Socials'}</button>

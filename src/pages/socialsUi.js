@@ -76,6 +76,7 @@ export function PostCard({ p, onLike, onShare }) {
         </button>
       </div>
       <Caption p={p} />
+      <ProductTiles products={p.products} />
       {Array.isArray(p.links) && p.links.filter(l => l && /^https?:\/\/\S+$/i.test(l.url || '')).length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 12px 14px' }}>
           {p.links.filter(l => l && /^https?:\/\/\S+$/i.test(l.url || '')).map((l, i) => (
@@ -105,6 +106,26 @@ export function SocialLinks({ socials }) {
         <a key={k} href={socials[k]} target="_blank" rel="noopener noreferrer nofollow" aria-label={SOC[k][0]} style={{ width: 38, height: 38, borderRadius: '50%', background: SOC[k][1], display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 14px -8px rgba(15,23,42,.6)' }}>
           <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">{SOC[k][2]}</svg>
         </a>
+      ))}
+    </div>
+  );
+}
+
+export function ProductTiles({ products }) {
+  const nav = useNavigate();
+  const list = Array.isArray(products) ? products : [];
+  if (!list.length) return null;
+  return (
+    <div style={{ display: 'flex', gap: 10, overflowX: 'auto', padding: '0 12px 14px' }}>
+      {list.map(pr => (
+        <button key={pr.id} type="button" onClick={() => nav('/product/' + pr.id)} style={{ flex: '0 0 140px', textAlign: 'left', border: '1px solid #BFDBFE', borderRadius: 14, background: '#fff', overflow: 'hidden' }}>
+          {pr.image ? <img src={pr.image} alt="" loading="lazy" style={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }} /> : <div style={{ height: 110, background: '#EFF6FF' }} />}
+          <div style={{ padding: 8 }}>
+            <div style={{ fontSize: 12.5, fontWeight: 700, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{pr.name}</div>
+            {pr.price != null && <div style={{ color: '#1D4ED8', fontWeight: 800, fontSize: 13, marginTop: 2 }}>₱{Number(pr.price).toLocaleString('en-PH')}</div>}
+            <div style={{ fontSize: 11.5, color: '#2563EB', fontWeight: 700, marginTop: 4 }}>Shop now ›</div>
+          </div>
+        </button>
       ))}
     </div>
   );

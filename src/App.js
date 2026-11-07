@@ -45,6 +45,7 @@ import PlayCoinFlip from './pages/playtime/CoinFlip';
 import PlayAirdrop from './pages/playtime/Airdrop';
 import CreatorEditProfile from './pages/CreatorEditProfile';
 import CreatorShareCard from './pages/CreatorShareCard';
+import DmInbox, { DmChat } from './pages/DirectMessages';
 import PriceDrops, { PriceDropBuy, PriceDropOrder } from './pages/xf/PriceDrops';
 import DigitalProducts from './pages/xf/DigitalProducts';
 import DemandPolls from './pages/xf/DemandPolls';
@@ -189,6 +190,8 @@ function Router() {
         <Route path="/creator-studio/posts" element={<CreatorPostHistory />} />
         <Route path="/creator-studio/profile" element={<CreatorEditProfile />} />
         <Route path="/creator-studio/share-card" element={<CreatorShareCard />} />
+        <Route path="/messages" element={<DmInbox />} />
+        <Route path="/messages/:tid" element={<DmChat />} />
         <Route path="/vip" element={<Vip />} />
         <Route path="/my-reports" element={<MyReports />} />
         <Route path="/report/bug" element={<BugReport />} />
