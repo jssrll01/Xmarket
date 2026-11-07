@@ -45,7 +45,34 @@ const CSS = `
 .xc2-meta{font-size:11.5px;color:#64748B;margin-top:3px}
 .xc2-val{margin-left:auto;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
 .xc2-copy{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:7px 11px;border:1px solid #D7DCE3;border-radius:9px;background:#fff;margin-top:6px}
-.xc2-empty{padding:30px 16px;text-align:center;color:#64748B;font-size:13px}.xc2-empty b{display:block;color:#0F172A;font-size:14px;margin:8px 0 3px}
+.xc2-empty{padding:30px 16px;text-align:center;color:#64748B;font-size:13px}
+@keyframes xcUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes xcFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes xcSheen{0%,55%{transform:translateX(-120%)}100%{transform:translateX(420%)}}
+@keyframes xcPop{0%{transform:scale(.94)}60%{transform:scale(1.03)}100%{transform:scale(1)}}
+.xc2 .xc2-card{color:#1D4ED8;background:linear-gradient(135deg,#FFFFFF 0%,#EFF6FF 55%,#DBEAFE 100%);border:1px solid #BFDBFE;box-shadow:0 18px 30px -22px rgba(37,99,235,.55);animation:xcUp .5s cubic-bezier(.2,.8,.2,1) both}
+.xc2 .xc2-card::after{content:"";position:absolute;top:0;left:0;width:30%;height:100%;background:linear-gradient(100deg,transparent,rgba(37,99,235,.14),transparent);animation:xcSheen 5s ease-in-out infinite;pointer-events:none}
+.xc2 .xc2-brand{color:#1E3A8A}
+.xc2 .xc2-tag,.xc2 .xc2-foot{color:#3B82F6}
+.xc2 .xc2-amt{color:#1D4ED8}
+.xc2 .xc2-chip{border:1px solid #BFDBFE;background:linear-gradient(135deg,#FFFFFF,#DBEAFE)}
+.xc2 .xc2-seg button{transition:background .2s,color .2s,transform .2s}
+.xc2 .xc2-seg button:active{transform:scale(.96)}
+.xc2 .xc2-seg button.on{background:#2563EB;color:#fff;animation:xcPop .3s ease both}
+.xc2 .xc2-buy{background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 10px 20px -12px rgba(37,99,235,.75);transition:transform .15s,box-shadow .2s,opacity .2s}
+.xc2 .xc2-buy:not(:disabled):active{transform:scale(.98)}
+.xc2 .xc2-buy:disabled{opacity:.55}
+.xc2 .xc2-warn button{color:#2563EB}
+.xc2 .xc2-stats>*{animation:xcUp .5s both}
+.xc2 .xc2-stats>*:nth-child(2){animation-delay:.08s}
+.xc2 .xc2-stats>*:nth-child(3){animation-delay:.16s}
+.xc2 .xc2-empty svg{animation:xcFloat 3.2s ease-in-out infinite;color:#3B82F6}
+.xc2 .xc2-item{animation:xcUp .45s both}
+.xc2 .xc2-steps li{animation:xcUp .5s both}
+.xc2 .xc2-steps li:nth-child(2){animation-delay:.07s}
+.xc2 .xc2-steps li:nth-child(3){animation-delay:.14s}
+.xc2 .xc2-steps li:nth-child(4){animation-delay:.21s}
+@media(prefers-reduced-motion:reduce){.xc2 *,.xc2 .xc2-card::after{animation:none!important}}.xc2-empty b{display:block;color:#0F172A;font-size:14px;margin:8px 0 3px}
 .xc2-steps{list-style:none;border-top:1px solid #E5E7EB}
 .xc2-steps li{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #E5E7EB}
 .xc2-steps i{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#94A3B8;width:18px;padding-top:2px}
