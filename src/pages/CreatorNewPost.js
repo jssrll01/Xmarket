@@ -22,6 +22,11 @@ export default function CreatorNewPost() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState('');
   const [agree, setAgree] = useState(false);
+  const [links, setLinks] = useState([]);
+  const PRESETS = ['Facebook', 'Instagram', 'TikTok', 'YouTube', 'Referral link'];
+  const addLink = (label) => setLinks((p) => (p.length >= 5 ? p : [...p, { label: label || '', url: '' }]));
+  const setLink = (i, k, v) => setLinks((p) => p.map((x, j) => (j === i ? { ...x, [k]: v } : x)));
+  const delLink = (i) => setLinks((p) => p.filter((_, j) => j !== i));
   const [busy, setBusy] = useState(false);
   const [pct, setPct] = useState(0);
   useEffect(() => { if (!busy) return undefined; const h = (e) => { e.preventDefault(); e.returnValue = ''; }; window.addEventListener('beforeunload', h); return () => window.removeEventListener('beforeunload', h); }, [busy]);
@@ -41,6 +46,11 @@ export default function CreatorNewPost() {
     if (busy) return;
     if (!file) return show('Add a picture for your post.');
     if (!desc.trim()) return show('Write a description.');
+    const cleanLinks = links.map((l) => ({ label: l.label.trim(), url: l.url.trim() })).filter((l) => l.label || l.url);
+    for (const l of cleanLinks) {
+      if (!l.label) return show('Give each link a label.');
+      if (!/^https?:\/\/\S+\.\S+$/i.test(l.url)) return show('Links must start with http:// or https://');
+    }
     if (!agree) return show('Accept the posting rules first.');
     setBusy(true);
     try {
@@ -57,7 +67,7 @@ export default function CreatorNewPost() {
       setPct(100);
       if (!j.secure_url) throw new Error('Picture upload failed. Try again.');
       await supabase.rpc('creator_accept_rules');
-      const { data, error } = await supabase.rpc('creator_create_post', { p_description: desc, p_image_url: j.secure_url });
+      const { data, error } = await supabase.rpc('creator_create_post', { p_description: desc, p_image_url: j.secure_url, p_links: cleanLinks });
       if (error) throw new Error(error.message);
       if (!data.ok) throw new Error(data.error);
       setPct(0); show('Posted to XMARKET Socials'); nav('/socials');
@@ -97,6 +107,22 @@ export default function CreatorNewPost() {
         </button>
         <textarea value={desc} maxLength={3000} onChange={e => setDesc(e.target.value)} placeholder="Write a description…" style={{ width: '100%', minHeight: 110, marginTop: 12, padding: 12, fontSize: 14 }} />
         <div style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'right' }}>{desc.length}/3000</div>
+        <div style={{ marginTop: 12 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, color: '#64748B', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 8 }}>Add links (optional, up to 5)</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+            {PRESETS.map((p) => <button key={p} type="button" disabled={links.length >= 5} onClick={() => addLink(p)} style={{ padding: '7px 12px', borderRadius: 99, border: '1px solid #BFDBFE', background: '#EFF6FF', color: '#1D4ED8', fontSize: 12.5, fontWeight: 700 }}>+ {p}</button>)}
+            <button type="button" disabled={links.length >= 5} onClick={() => addLink('')} style={{ padding: '7px 12px', borderRadius: 99, border: '1px solid #CBD5E1', background: '#fff', color: '#475569', fontSize: 12.5, fontWeight: 700 }}>+ Other</button>
+          </div>
+          {links.map((l, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: 10, border: '1px solid #E2E8F0', borderRadius: 12, marginBottom: 8 }}>
+              <div style={{ display: 'flex', gap: 6 }}>
+                <input value={l.label} maxLength={30} onChange={(e) => setLink(i, 'label', e.target.value)} placeholder="Label" style={{ flex: 1, padding: 10, borderRadius: 10, border: '1px solid #CBD5E1', fontSize: 14 }} />
+                <button type="button" onClick={() => delLink(i)} aria-label="Remove link" style={{ padding: '0 12px', borderRadius: 10, border: '1px solid #FECACA', background: '#fff', color: '#DC2626', fontWeight: 800 }}>✕</button>
+              </div>
+              <input value={l.url} maxLength={500} inputMode="url" autoCapitalize="none" onChange={(e) => setLink(i, 'url', e.target.value)} placeholder="https://" style={{ padding: 10, borderRadius: 10, border: '1px solid #CBD5E1', fontSize: 14 }} />
+            </div>
+          ))}
+        </div>
         <button className="btn-primary" disabled={busy} onClick={submit} style={{ width: '100%', padding: 14, fontSize: 14, marginTop: 8 }}>{busy ? 'Posting…' : 'Post to Socials'}</button>
         <p style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'center', marginTop: 10 }}>You can post once per day. The day resets at midnight (Manila time).</p>
       </div>
