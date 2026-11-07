@@ -89,3 +89,23 @@ export function PostCard({ p, onLike, onShare }) {
     </div>
   );
 }
+
+const SOC = {
+  tiktok: ['TikTok', '#000000', <path key="t" d="M16 3c.3 2.2 1.8 3.8 4 4v3a7 7 0 0 1-4-1.3V15a6 6 0 1 1-6-6c.3 0 .7 0 1 .1v3.1a3 3 0 1 0 2 2.8V3h3Z" fill="#fff" />],
+  youtube: ['YouTube', '#FF0000', <g key="y"><rect x="3" y="6" width="18" height="12" rx="4" fill="#fff" /><path d="m10 9.5 5 2.5-5 2.5v-5Z" fill="#FF0000" /></g>],
+  facebook: ['Facebook', '#1877F2', <path key="f" d="M13.5 21v-7.5H16l.5-3h-3V8.7c0-.9.3-1.5 1.6-1.5h1.5V4.5c-.3 0-1.2-.1-2.2-.1-2.3 0-3.8 1.4-3.8 3.9v2.2H8v3h2.6V21h2.9Z" fill="#fff" />],
+  instagram: ['Instagram', 'linear-gradient(45deg,#F9A825,#E1306C,#7B3FE4)', <g key="i" fill="none" stroke="#fff" strokeWidth="2"><rect x="4" y="4" width="16" height="16" rx="5" /><circle cx="12" cy="12" r="3.7" /><circle cx="17" cy="7" r=".6" fill="#fff" /></g>],
+};
+export function SocialLinks({ socials }) {
+  const items = ['tiktok', 'youtube', 'facebook', 'instagram'].filter(k => socials && /^https:\/\/\S+$/i.test(socials[k] || ''));
+  if (!items.length) return null;
+  return (
+    <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+      {items.map(k => (
+        <a key={k} href={socials[k]} target="_blank" rel="noopener noreferrer nofollow" aria-label={SOC[k][0]} style={{ width: 38, height: 38, borderRadius: '50%', background: SOC[k][1], display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 6px 14px -8px rgba(15,23,42,.6)' }}>
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">{SOC[k][2]}</svg>
+        </a>
+      ))}
+    </div>
+  );
+}

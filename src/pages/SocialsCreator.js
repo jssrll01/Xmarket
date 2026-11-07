@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
-import { PostCard, Avatar, Sk, SkStyle, toggleLike, sharePost } from './socialsUi';
+import { PostCard, Avatar, Sk, SkStyle, toggleLike, sharePost, SocialLinks } from './socialsUi';
 import FollowButton from './FollowButton';
 import FollowerList from './FollowerList';
 
@@ -48,6 +48,13 @@ export default function SocialsCreator() {
             </div>
           </div>
         </div>
+        {(prof.bio || (prof.socials && Object.keys(prof.socials).length > 0) || prof.mine) && (
+          <div className="card" style={{ padding: 14, marginBottom: 14 }}>
+            {prof.bio && <div style={{ fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>{prof.bio}</div>}
+            <SocialLinks socials={prof.socials} />
+            {prof.mine && <button className="btn-ghost" onClick={() => nav('/creator-studio/profile')} style={{ marginTop: 10, padding: '8px 14px', fontSize: 13 }}>Edit profile</button>}
+          </div>
+        )}
         {!prof.mine && <FollowButton creatorId={prof.creator_id} initial={prof.following} count={prof.followers} onCount={setFc} />}
         <FollowerList creatorId={prof.creator_id} />
         {posts.length === 0 && <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 30 }}>No posts yet.</div>}
