@@ -43,3 +43,13 @@
 .vv-sheet-f { padding: 8px 12px calc(10px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid #E2E8F0; }
 .vv-sheet-f .row { display: flex; gap: 8px; }
 .vv-sheet-f input { flex: 1; padding: 11px 14px; font-size: 14px; }
+
+/* full-screen, non-interactive player */
+.vv-frame { position: absolute; inset: 0; width: auto; aspect-ratio: auto; background: #000; overflow: hidden; }
+.vv-poster { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.vv-frame.short .vv-poster { object-fit: cover; }
+.vv-frame iframe { position: absolute; left: 0; top: 50%; transform: translateY(-50%); width: 100%; height: auto; aspect-ratio: 16 / 9; border: 0; opacity: 0; transition: opacity .25s ease; }
+.vv-frame iframe.on { opacity: 1; }
+.vv-frame.short iframe { top: 0; transform: none; height: 100%; aspect-ratio: auto; }
+.vv-shield { position: absolute; inset: 0; z-index: 1; }
+.vv-info, .vv-actions { z-index: 2; }

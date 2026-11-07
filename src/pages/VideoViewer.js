@@ -53,6 +53,32 @@ function CommentSheet({ video, onClose, onAdded }) {
   );
 }
 
+function Player({ v, active, near }) {
+  const ref = useRef(null);
+  const first = useRef(active);
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    if (!ready || !ref.current) return undefined;
+    const send = () => {
+      const w = ref.current && ref.current.contentWindow;
+      if (w) w.postMessage(JSON.stringify({ event: 'command', func: active ? 'playVideo' : 'pauseVideo', args: [] }), '*');
+    };
+    send();
+    const t = setTimeout(send, 500);
+    return () => clearTimeout(t);
+  }, [active, ready]);
+  const src = 'https://www.youtube-nocookie.com/embed/' + v.youtube_id
+    + '?enablejsapi=1&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=' + v.youtube_id
+    + '&autoplay=' + (first.current ? 1 : 0);
+  return (
+    <div className={'vv-frame' + (v.is_short ? ' short' : '')}>
+      <img className="vv-poster" src={thumb(v.youtube_id)} alt="" />
+      {near && <iframe ref={ref} className={ready ? 'on' : ''} title={v.title || 'video'} src={src} onLoad={() => setReady(true)} allow="autoplay; encrypted-media" tabIndex={-1} />}
+      <div className="vv-shield" />
+    </div>
+  );
+}
+
 export default function VideoViewer() {
   const { id } = useParams();
   const [sp] = useSearchParams();
@@ -125,11 +151,7 @@ export default function VideoViewer() {
         {!loading && list.length === 0 && <div className="vv-item"><div className="vv-end"><b>Video not found</b>It may have been removed.</div></div>}
         {list.map((v, i) => (
           <section className="vv-item" key={v.id}>
-            <div className="vv-frame">
-              {i === active
-                ? <iframe title={v.title || 'video'} src={'https://www.youtube-nocookie.com/embed/' + v.youtube_id + '?autoplay=1&playsinline=1&rel=0&modestbranding=1'} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen />
-                : <img src={thumb(v.youtube_id)} alt="" />}
-            </div>
+            <Player v={v} active={i === active} near={Math.abs(i - active) <= 1} />
             <div className="vv-info">
               <div className="vv-user">
                 <button type="button" onClick={() => nav('/socials/creator/' + v.username)} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#fff', fontWeight: 800 }}>
