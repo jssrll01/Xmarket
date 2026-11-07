@@ -53,6 +53,7 @@ export default function CreatorEditProfile() {
           </div>
         ))}
         <button className="btn-primary" disabled={busy} onClick={save} style={{ width: '100%', padding: 14, fontSize: 14, marginTop: 6 }}>{busy ? 'Saving…' : 'Save profile'}</button>
+        <button className="btn-ghost" onClick={() => nav('/creator-studio/share-card')} style={{ width: '100%', padding: 12, marginTop: 8 }}>Referral share card</button>
         <button className="btn-ghost" onClick={() => nav('/socials/creator/' + name)} style={{ width: '100%', padding: 12, marginTop: 8 }}>View my public profile</button>
       </div>
     </div>

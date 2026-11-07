@@ -111,7 +111,7 @@ export default function ProductReviews({ product }) {
     setRating(5);
     clearPhoto();
     setEligibleOrderId(null);
-    showToast('Review submitted');
+    showToast(rating === 5 && photoUrl ? 'Review submitted. Your ₱0.50 reward is on its way.' : 'Review submitted');
     const { items } = await fetchProductReviews(product.uuid);
     setReviews(items);
   };
@@ -187,7 +187,7 @@ export default function ProductReviews({ product }) {
           ) : (
             <button type="button" className="btn-ghost" onClick={() => fileRef.current && fileRef.current.click()}
               style={{ marginTop: 8, padding: '8px 12px', fontSize: 12.5, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <ImagePlus size={15} /> Add a photo (1 max)
+              <ImagePlus size={15} /> Add a photo (1 max) · 5★ with photo earns ₱0.50
             </button>
           )}
           <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
