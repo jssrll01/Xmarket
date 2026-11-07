@@ -22,19 +22,8 @@ export default function CreatorNewVideo() {
     if (tt) {
       const full = /tiktok\.com\/@[^/]+\/video\/\d{10,25}/i.test(u);
       try {
-        const r = await fetch('https://www.tiktok.com/oembed?url=' + encodeURIComponent(u));
-        if (r.ok) {
-          const j = await r.json();
-          title = j.title || null;
-          thumb = j.thumbnail_url || null;
-          if (!full) {
-            const html = String(j.html || '');
-            const cite = (html.match(/cite="([^"]+)"/) || [])[1];
-            const id = String(j.embed_product_id || '') || (html.match(/data-video-id="(\d+)"/) || [])[1];
-            if (cite && /tiktok\.com\/@[^/]+\/video\/\d{10,25}/i.test(cite)) link = cite;
-            else if (id && j.author_url) link = String(j.author_url).replace(/\/$/, '') + '/video/' + id;
-          }
-        }
+        const { data: d } = await supabase.functions.invoke('resolve-tiktok', { body: { url: u } });
+        if (d && d.ok) { link = d.link; title = d.title || null; thumb = d.thumb || null; }
       } catch (e) { /* lookup failed */ }
       if (!/tiktok\.com\/@[^/]+\/video\/\d{10,25}/i.test(link)) {
         setBusy(false);
