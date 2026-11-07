@@ -14,6 +14,7 @@ import XwLoad from './pages/xw/XwLoad';
 import XwWithdrawPage from './pages/xw/XwWithdrawPage';
 import XwBank from './pages/xw/XwBank';
 import XwHistory from './pages/xw/XwHistory';
+import XwQr from './pages/xw/XwQr';
 import { CartProvider } from './CartContext';
 import { ToastProvider } from './components/Toast';
 import useScrollTop from './hooks/useScrollTop';
@@ -170,6 +171,7 @@ function Router() {
         <Route path="/xwallet/withdraw" element={<XwWithdrawPage />} />
         <Route path="/xwallet/bank" element={<XwBank />} />
         <Route path="/xwallet/history" element={<XwHistory />} />
+        <Route path="/xwallet/qr" element={<XwQr />} />
         <Route path="/xcards" element={<Xcards />} />
         <Route path="/price-drops" element={<PriceDrops />} />
         <Route path="/price-drops/:id/buy" element={<PriceDropBuy />} />

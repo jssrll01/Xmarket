@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+const QP = new URLSearchParams(window.location.search);
+const QAMT = Number(QP.get('amt')) > 0 ? String(Math.round(Number(QP.get('amt')) * 100) / 100) : '';
 import { useToast } from '../../components/Toast';
 import { transferByEmail } from '../../lib/xwallet';
 import useWallet from './useWallet';
@@ -7,8 +10,8 @@ import { Shell, SignIn, Confirm, peso } from './ui';
 export default function XwSend() {
   const { user, balance, refresh } = useWallet();
   const { show } = useToast();
-  const [email, setEmail] = useState('');
-  const [amount, setAmount] = useState('');
+  const [email, setEmail] = useState((QP.get('to') || '').slice(0, 120));
+  const [amount, setAmount] = useState(QAMT);
   const [busy, setBusy] = useState(false);
   const [ask, setAsk] = useState(false);
   if (!user) return <SignIn />;
@@ -37,6 +40,7 @@ export default function XwSend() {
     <Shell title="Send Money">
       <div className="card" style={{ padding: 16 }}>
         <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12 }}>Available balance <b style={{ color: 'var(--text)' }}>{peso(balance)}</b></div>
+        <Link to="/xwallet/qr" style={{ display: 'block', textAlign: 'center', padding: 11, marginBottom: 14, borderRadius: 12, border: '1px solid #BFDBFE', background: '#EFF6FF', color: '#1D4ED8', fontWeight: 700, fontSize: 13.5, textDecoration: 'none' }}>Scan or show a QR code</Link>
         <label style={lbl}>Recipient email</label>
         <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="friend@example.com" style={inp} />
         <label style={lbl}>Amount (₱)</label>
