@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import './BottomNav.css';
 
 // The bar only shows on the main tabs. Every other page hides it.
-const SHOW = ['/global-chat', '/socials', '/vip'];
+const SHOW = ['/global-chat', '/socials', '/vip', '/digital-hub'];
 
 const svg = (children) => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{children}</svg>
@@ -11,7 +11,7 @@ const svg = (children) => (
 
 const ITEMS = [
   { to: '/', label: 'Home', icon: svg(<><path d="M3 11.5 12 4l9 7.5" /><path d="M5 10v10h5v-6h4v6h5V10" /></>) },
-  { soon: true, label: 'Coming soon', icon: svg(<><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>) },
+  { to: '/digital-hub', label: 'Digital Hub', icon: svg(<><rect x="3" y="3" width="7" height="7" rx="2" /><rect x="14" y="3" width="7" height="7" rx="2" /><rect x="3" y="14" width="7" height="7" rx="2" /><rect x="14" y="14" width="7" height="7" rx="2" /></>) },
   { to: '/global-chat', label: 'Global Chat', center: true, icon: svg(<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20.5l1.2-4.3A8 8 0 1 1 21 12Z" />) },
   { to: '/socials', label: 'Socials', icon: svg(<><rect x="3" y="3" width="18" height="18" rx="5" /><path d="M10 8.5v7l6-3.5-6-3.5Z" /></>) },
   { to: '/vip', label: 'VIP', icon: svg(<path d="m3 8 4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z" />) },
