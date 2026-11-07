@@ -1,13 +1,56 @@
 import { WalletSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Gift, Copy, Check, Sparkles, Wallet, ShieldCheck, Ticket } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Ticket } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { fetchWallet } from '../lib/xwallet';
 import { purchaseXcard, fetchMyXcards } from '../lib/xcards';
 
 const DENOMS = [100, 200, 500, 1000];
+const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+const CSS = `
+.xc2{padding:16px 16px 70px;max-width:560px;margin:0 auto}
+.xc2-head{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.xc2-head h1{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.xc2-head p{font-size:12.5px;color:#64748B;margin-top:3px}
+.xc2-card{position:relative;overflow:hidden;border-radius:16px;padding:20px;height:188px;display:flex;flex-direction:column;justify-content:space-between;color:#F8FAFC;background:#0B1220;background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.035) 0 1px,transparent 1px 9px);box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 18px 30px -22px rgba(11,18,32,.7)}
+.xc2-row{display:flex;justify-content:space-between;align-items:center}
+.xc2-brand{font-size:12px;font-weight:700;letter-spacing:.22em}
+.xc2-tag{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#94A3B8}
+.xc2-chip{width:34px;height:24px;border-radius:5px;border:1px solid rgba(255,255,255,.28);background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.04))}
+.xc2-amt{font-size:38px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+.xc2-foot{display:flex;justify-content:space-between;font-size:11px;color:#94A3B8;letter-spacing:.04em}
+.xc2-sec{margin-top:26px}
+.xc2-lab{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#64748B;margin-bottom:10px}
+.xc2-bal{display:flex;justify-content:space-between;align-items:baseline;padding:14px 0;border-top:1px solid #E5E7EB;border-bottom:1px solid #E5E7EB;margin-bottom:18px}
+.xc2-bal span{font-size:13px;color:#475569}.xc2-bal b{font-size:18px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.xc2-seg{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #D7DCE3;border-radius:12px;overflow:hidden;margin-bottom:14px}
+.xc2-seg button{padding:13px 0;font-size:14px;font-weight:600;background:#fff;color:#0F172A;border-right:1px solid #D7DCE3;font-variant-numeric:tabular-nums}
+.xc2-seg button:last-child{border-right:0}
+.xc2-seg button.on{background:#0B1220;color:#fff}
+.xc2-buy{width:100%;padding:15px;border-radius:12px;background:#0B1220;color:#fff;font-size:14.5px;font-weight:600;letter-spacing:.01em}
+.xc2-buy:disabled{opacity:.4}
+.xc2-warn{font-size:12.5px;color:#92400E;margin-bottom:12px}.xc2-warn button{font-weight:700;color:#0B1220;text-decoration:underline;margin-left:6px}
+.xc2-note{font-size:11.5px;color:#94A3B8;text-align:center;margin-top:10px}
+.xc2-stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #E5E7EB;border-radius:12px;background:#fff}
+.xc2-stats div{padding:14px 12px;border-right:1px solid #E5E7EB}.xc2-stats div:last-child{border-right:0}
+.xc2-stats b{display:block;font-size:19px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.xc2-stats span{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:#64748B}
+.xc2-list{border:1px solid #E5E7EB;border-radius:12px;background:#fff}
+.xc2-item{display:flex;align-items:center;gap:12px;padding:14px;border-bottom:1px solid #EEF1F5}.xc2-item:last-child{border-bottom:0}
+.xc2-code{font-family:ui-monospace,Menlo,monospace;font-size:13.5px;font-weight:600;letter-spacing:.08em}
+.xc2-item.used{opacity:.5}.xc2-item.used .xc2-code{text-decoration:line-through}
+.xc2-meta{font-size:11.5px;color:#64748B;margin-top:3px}
+.xc2-val{margin-left:auto;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.xc2-copy{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:7px 11px;border:1px solid #D7DCE3;border-radius:9px;background:#fff;margin-top:6px}
+.xc2-empty{padding:30px 16px;text-align:center;color:#64748B;font-size:13px}.xc2-empty b{display:block;color:#0F172A;font-size:14px;margin:8px 0 3px}
+.xc2-steps{list-style:none;border-top:1px solid #E5E7EB}
+.xc2-steps li{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #E5E7EB}
+.xc2-steps i{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#94A3B8;width:18px;padding-top:2px}
+.xc2-steps b{display:block;font-size:13.5px}.xc2-steps span{font-size:12.5px;color:#64748B;line-height:1.45}
+`;
 
 export default function Xcards() {
   const nav = useNavigate();
@@ -25,7 +68,6 @@ export default function Xcards() {
     const [b, c] = await Promise.all([fetchWallet(user.id), fetchMyXcards(user.id)]);
     setBalance(b); setCards(c); setLoading(false);
   };
-
   useEffect(() => { refresh(); /* eslint-disable-line */ }, [user]);
 
   if (!user) {
@@ -51,170 +93,84 @@ export default function Xcards() {
     showToast(`Xcard ₱${selected} purchased`);
     refresh();
   };
-
   const copyCode = async (code) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(code);
-      showToast('Code copied');
-      setTimeout(() => setCopied(null), 2000);
-    } catch { showToast('Copy failed'); }
+    try { await navigator.clipboard.writeText(code); setCopied(code); showToast('Code copied'); setTimeout(() => setCopied(null), 2000); }
+    catch { showToast('Copy failed'); }
   };
-
   const steps = [
-    ['Choose an amount', 'Pick a denomination and buy it with your Xwallet balance.'],
+    ['Choose an amount', 'Buy a denomination with your Xwallet balance.'],
     ['Get your code', 'A unique code starting with XC appears under My Xcards.'],
     ['Share or keep it', 'Send the code to any XMARKET account, or use it yourself.'],
-    ['Redeem at checkout', 'Enter the code in the Xcard code field. Each code works once.'],
+    ['Redeem at checkout', 'Enter the code in the Xcard field. Each code works once.'],
   ];
 
   return (
-    <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+    <div className="page-enter xc2">
+      <style>{CSS}</style>
+      <header className="xc2-head">
         <button onClick={() => nav(-1)} className="icon-btn" aria-label="Back"><ArrowLeft size={20} /></button>
-        <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Xcards</h2>
-      </div>
-      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 16 }}>
-        Digital gift cards from XMARKET. Send to anyone, redeem once at checkout.
-      </p>
+        <div><h1>Xcards</h1><p>Digital gift cards. Redeem once at checkout.</p></div>
+      </header>
 
-      {/* Card preview */}
-      <div style={{
-        position: 'relative', overflow: 'hidden', borderRadius: 20, padding: 22, marginBottom: 14,
-        background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 55%, #7C3AED 100%)',
-        color: '#fff', boxShadow: '0 12px 30px rgba(37,99,235,0.28)', minHeight: 150,
-      }}>
-        <Gift size={110} style={{ position: 'absolute', right: -18, bottom: -22, opacity: 0.12 }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.2 }}>XMARKET</span>
-          <span style={{ fontSize: 11, fontWeight: 700, opacity: 0.85, textTransform: 'uppercase', letterSpacing: 0.8 }}>Gift card</span>
+      <div className="xc2-card">
+        <div className="xc2-row"><span className="xc2-brand">XMARKET</span><span className="xc2-tag">Gift card</span></div>
+        <div className="xc2-chip" />
+        <div>
+          <div className="xc2-amt">₱{selected.toLocaleString()}</div>
+          <div className="xc2-foot" style={{ marginTop: 10 }}><span>One-time use</span><span>No expiry</span></div>
         </div>
-        <div style={{ fontSize: 40, fontWeight: 900, marginTop: 22, lineHeight: 1 }}>₱{selected.toLocaleString()}</div>
-        <div style={{ fontSize: 11.5, opacity: 0.85, marginTop: 8 }}>One-time use · Does not expire</div>
       </div>
 
-      {/* Buy panel */}
-      <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: 12, background: 'var(--card)', marginBottom: 14 }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5, fontWeight: 700, color: 'var(--muted)' }}>
-            <Wallet size={15} /> Xwallet balance
-          </span>
-          <span style={{ fontWeight: 800, fontSize: 15 }}>₱{balance.toFixed(2)}</span>
+      <div className="xc2-sec">
+        <div className="xc2-bal"><span>Xwallet balance</span><b>{peso(balance)}</b></div>
+        <div className="xc2-lab">Amount</div>
+        <div className="xc2-seg">
+          {DENOMS.map(d => <button key={d} className={selected === d ? 'on' : ''} onClick={() => setSelected(d)}>₱{d.toLocaleString()}</button>)}
         </div>
+        {insufficient && <div className="xc2-warn">You need {peso(selected - balance)} more.<button onClick={() => nav('/xwallet/topup')}>Top up</button></div>}
+        <button className="xc2-buy" onClick={buy} disabled={buying || insufficient}>{buying ? 'Purchasing…' : `Buy ₱${selected.toLocaleString()} Xcard`}</button>
+        <div className="xc2-note">Deducted from your Xwallet immediately.</div>
+      </div>
 
-        <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 8 }}>Choose an amount</div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
-          {DENOMS.map(d => (
-            <button key={d} onClick={() => setSelected(d)}
-              style={{
-                padding: '14px 0', borderRadius: 12, cursor: 'pointer', fontWeight: 800, fontSize: 15,
-                border: selected === d ? '2px solid var(--primary)' : '1px solid var(--border)',
-                background: selected === d ? 'var(--primary)' : 'var(--card)',
-                color: selected === d ? '#fff' : 'var(--text)',
-              }}>
-              ₱{d.toLocaleString()}
-            </button>
-          ))}
+      <div className="xc2-sec">
+        <div className="xc2-stats">
+          <div><b>{available.length}</b><span>Available</span></div>
+          <div><b>{redeemed}</b><span>Redeemed</span></div>
+          <div><b>₱{availableValue.toLocaleString()}</b><span>Value left</span></div>
         </div>
+      </div>
 
-        {insufficient && (
-          <div style={{ padding: '10px 12px', borderRadius: 10, background: '#FEF3C7', color: '#92400E', fontSize: 12.5, fontWeight: 600, marginBottom: 12, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-            <span>You need ₱{(selected - balance).toFixed(2)} more to buy this card.</span>
-            <button onClick={() => nav('/xwallet')} style={{ border: 'none', background: '#92400E', color: '#fff', borderRadius: 8, padding: '6px 10px', fontSize: 12, fontWeight: 800, cursor: 'pointer', flexShrink: 0 }}>Top up</button>
+      <div className="xc2-sec">
+        <div className="xc2-lab">My Xcards</div>
+        {loading ? <WalletSkeleton /> : cards.length === 0 ? (
+          <div className="xc2-list xc2-empty"><Ticket size={26} color="#94A3B8" /><b>No Xcards yet</b>Buy one above and it will appear here.</div>
+        ) : (
+          <div className="xc2-list">
+            {cards.map(c => {
+              const used = !!c.redeemed_by;
+              const d = used ? c.redeemed_at : c.purchased_at;
+              return (
+                <div key={c.id} className={'xc2-item' + (used ? ' used' : '')}>
+                  <div>
+                    <div className="xc2-code">{c.code}</div>
+                    <div className="xc2-meta">{used ? 'Redeemed' : 'Purchased'} {d ? new Date(d).toLocaleDateString() : ''}</div>
+                  </div>
+                  <div className="xc2-val">
+                    <div>₱{Number(c.value).toLocaleString()}</div>
+                    {!used && <button className="xc2-copy" onClick={() => copyCode(c.code)}>{copied === c.code ? <Check size={13} /> : <Copy size={13} />}{copied === c.code ? 'Copied' : 'Copy'}</button>}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
-
-        <button onClick={buy} disabled={buying || insufficient} className="btn-primary"
-          style={{ width: '100%', padding: 14, fontSize: 14, fontWeight: 800, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, opacity: insufficient ? 0.6 : 1 }}>
-          <Sparkles size={15} />
-          {buying ? 'Purchasing…' : `Buy ₱${selected.toLocaleString()} Xcard`}
-        </button>
-        <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 10, textAlign: 'center' }}>
-          The amount is deducted from your Xwallet balance right away.
-        </p>
       </div>
 
-      {/* Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 18 }}>
-        {[['Available', available.length], ['Redeemed', redeemed], ['Value left', `₱${availableValue.toLocaleString()}`]].map(([k, v]) => (
-          <div key={k} className="card" style={{ padding: '12px 10px', textAlign: 'center' }}>
-            <div style={{ fontSize: 17, fontWeight: 900 }}>{v}</div>
-            <div style={{ fontSize: 10.5, color: 'var(--muted)', fontWeight: 700, marginTop: 2, textTransform: 'uppercase', letterSpacing: 0.5 }}>{k}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* My cards */}
-      <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 10 }}>My Xcards</h3>
-      {loading ? (
-        <WalletSkeleton />
-      ) : cards.length === 0 ? (
-        <div className="card" style={{ padding: 24, textAlign: 'center', marginBottom: 18 }}>
-          <Ticket size={32} color="var(--muted)" style={{ marginBottom: 8 }} />
-          <div style={{ fontSize: 14, fontWeight: 800 }}>No Xcards yet</div>
-          <div style={{ fontSize: 12.5, color: 'var(--muted)', marginTop: 4 }}>Buy one above and it will show up here.</div>
-        </div>
-      ) : (
-        <div style={{ marginBottom: 18 }}>
-          {cards.map(c => {
-            const used = !!c.redeemed_by;
-            return (
-              <div key={c.id} style={{
-                borderRadius: 16, padding: 14, marginBottom: 10, color: used ? 'var(--text)' : '#fff',
-                background: used ? 'var(--card)' : 'linear-gradient(135deg, #2563EB, #7C3AED)',
-                border: used ? '1px dashed var(--border)' : 'none',
-                opacity: used ? 0.7 : 1,
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                  <span style={{ fontSize: 18, fontWeight: 900 }}>₱{Number(c.value).toLocaleString()}</span>
-                  <span style={{
-                    fontSize: 10.5, fontWeight: 800, padding: '3px 10px', borderRadius: 999, textTransform: 'uppercase', letterSpacing: 0.5,
-                    background: used ? '#E2E8F0' : 'rgba(255,255,255,0.22)', color: used ? '#475569' : '#fff',
-                  }}>{used ? 'Redeemed' : 'Available'}</span>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: 15, letterSpacing: 1.5, textDecoration: used ? 'line-through' : 'none', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.code}</div>
-                    <div style={{ fontSize: 11, opacity: 0.8, marginTop: 4 }}>
-                      {used
-                        ? `Redeemed ${c.redeemed_at ? new Date(c.redeemed_at).toLocaleDateString() : ''}`
-                        : `Purchased ${c.purchased_at ? new Date(c.purchased_at).toLocaleDateString() : ''}`}
-                    </div>
-                  </div>
-                  {!used && (
-                    <button onClick={() => copyCode(c.code)}
-                      style={{ border: 'none', background: '#fff', color: '#2563EB', borderRadius: 10, padding: '8px 12px', fontSize: 12, fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-                      {copied === c.code ? <Check size={13} /> : <Copy size={13} />}
-                      {copied === c.code ? 'Copied' : 'Copy'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* How it works */}
-      <h3 style={{ fontSize: 16, fontWeight: 800, marginBottom: 10 }}>How Xcards work</h3>
-      <div className="card" style={{ padding: 16, marginBottom: 14 }}>
-        {steps.map(([t, d], i) => (
-          <div key={t} style={{ display: 'flex', gap: 12, padding: '10px 0', borderBottom: i === steps.length - 1 ? 'none' : '1px solid var(--border, #EEF2F7)' }}>
-            <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#EFF6FF', color: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900, flexShrink: 0 }}>{i + 1}</div>
-            <div>
-              <div style={{ fontSize: 13.5, fontWeight: 800 }}>{t}</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, lineHeight: 1.5 }}>{d}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="card" style={{ padding: 14, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-        <ShieldCheck size={20} color="#16A34A" style={{ flexShrink: 0, marginTop: 2 }} />
-        <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>
-          <b style={{ color: 'var(--text)' }}>Keep your codes private.</b> Anyone with an Xcard code can redeem it, so only share it with the person you're gifting.
-        </div>
+      <div className="xc2-sec">
+        <div className="xc2-lab">How it works</div>
+        <ol className="xc2-steps">
+          {steps.map(([t, d], i) => <li key={t}><i>0{i + 1}</i><div><b>{t}</b><span>{d}</span></div></li>)}
+        </ol>
       </div>
     </div>
   );
