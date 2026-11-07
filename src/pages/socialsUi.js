@@ -31,6 +31,29 @@ export async function sharePost(p) {
   try { await navigator.clipboard.writeText(url); return 'copied'; } catch (e) { return 'fail'; }
 }
 
+const CAP = 200;
+function Caption({ p }) {
+  const full = String(p.description || '');
+  const long = full.length > CAP;
+  const [open, setOpen] = React.useState(false);
+  const cut = long ? full.slice(0, CAP).replace(/\s+\S*$/, '') : full;
+  const rest = long ? full.slice(cut.length) : '';
+  return (
+    <div style={{ padding: '4px 12px 14px', fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+      <b>@{p.username}</b> {cut}
+      {long && (
+        <>
+          <span style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows .45s ease', }}>
+            <span style={{ overflow: 'hidden', minHeight: 0, opacity: open ? 1 : 0, transition: 'opacity .45s ease' }}>{rest}</span>
+          </span>
+          {!open && <span>… </span>}
+          <button type="button" onClick={() => setOpen(o => !o)} style={{ display: 'block', marginTop: 4, color: '#2563EB', fontWeight: 700, fontSize: 13.5 }}>{open ? 'Show less' : 'View details'}</button>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function PostCard({ p, onLike, onShare }) {
   const nav = useNavigate();
   return (
@@ -52,7 +75,7 @@ export function PostCard({ p, onLike, onShare }) {
           <Share2 size={21} color="#475569" /> Share
         </button>
       </div>
-      <div style={{ padding: '4px 12px 14px', fontSize: 14, lineHeight: 1.5, whiteSpace: 'pre-wrap' }}><b>@{p.username}</b> {p.description}</div>
+      <Caption p={p} />
       {Array.isArray(p.links) && p.links.filter(l => l && /^https?:\/\/\S+$/i.test(l.url || '')).length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 12px 14px' }}>
           {p.links.filter(l => l && /^https?:\/\/\S+$/i.test(l.url || '')).map((l, i) => (
