@@ -58,6 +58,13 @@ function Player({ v, active, near }) {
   const first = useRef(active);
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [flash, setFlash] = useState(false);
+  const tapIt = () => {
+    if (!active) return;
+    setPaused((x) => !x);
+    setFlash(true);
+    setTimeout(() => setFlash(false), 1000);
+  };
   useEffect(() => { if (!active) setPaused(false); }, [active]);
   useEffect(() => {
     if (!ready || !ref.current) return undefined;
@@ -77,8 +84,8 @@ function Player({ v, active, near }) {
     <div className={'vv-frame' + (v.is_short ? ' short' : '')}>
       <img className="vv-poster" src={thumb(v)} alt="" />
       {near && <iframe ref={ref} className={ready ? 'on' : ''} title={v.title || 'video'} src={src} onLoad={() => setReady(true)} allow="autoplay; encrypted-media" tabIndex={-1} />}
-      <div className="vv-shield" onClick={() => { if (active) setPaused((x) => !x); }}>
-        {paused && <span className="vv-playic"><Play size={44} fill="#fff" color="#fff" /></span>}
+      <div className="vv-shield" onClick={tapIt}>
+        {flash && <span className="vv-playic"><Play size={44} fill="#fff" color="#fff" /></span>}
       </div>
     </div>
   );
