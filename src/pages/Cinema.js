@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Play, Lock, Film, X, Check } from 'lucide-react';
+import { ArrowLeft, Play, Lock, Film, X, Check, Maximize } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { rpcPin, showReceipt } from '../lib/pinBus';
 import { imgUrl } from '../lib/img';
@@ -85,6 +85,18 @@ export default function Cinema() {
   };
 
   const act = (m) => (m.owned ? play(m) : unlock(m));
+  const wrapRef = React.useRef(null);
+  const goLandscape = async () => {
+    try {
+      const el = wrapRef.current;
+      if (el && el.requestFullscreen && !document.fullscreenElement) await el.requestFullscreen();
+      if (window.screen.orientation && window.screen.orientation.lock) await window.screen.orientation.lock('landscape');
+    } catch (e) { show('Rotate your phone sideways, or use the fullscreen button in the player.'); }
+  };
+  const closePlayer = () => {
+    try { if (document.fullscreenElement) document.exitFullscreen(); if (window.screen.orientation && window.screen.orientation.unlock) window.screen.orientation.unlock(); } catch (e) {}
+    setPlayer(null);
+  };
   const feat = movies && movies[0];
 
   return (
@@ -137,10 +149,14 @@ export default function Cinema() {
       )}
 
       {player && (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 200, background: '#000', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <button aria-label="Close player" onClick={() => setPlayer(null)} style={{ position: 'absolute', top: 'calc(12px + env(safe-area-inset-top, 0px))', right: 12, width: 40, height: 40, borderRadius: 99, border: 0, background: 'rgba(255,255,255,.18)', color: '#fff', display: 'grid', placeItems: 'center', zIndex: 2 }}><X size={20} /></button>
-          <div style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
-            <iframe title="Movie" src={`https://www.youtube-nocookie.com/embed/${player}?autoplay=1&rel=0&modestbranding=1&playsinline=1`}
+        <div ref={wrapRef} style={{ position: 'fixed', inset: 0, zIndex: 200, background: '#000', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          <div style={{ position: 'absolute', top: 'calc(12px + env(safe-area-inset-top, 0px))', right: 12, display: 'flex', gap: 8, zIndex: 2 }}>
+            <button aria-label="Landscape fullscreen" onClick={goLandscape} style={{ width: 40, height: 40, borderRadius: 99, border: 0, background: 'rgba(255,255,255,.18)', color: '#fff', display: 'grid', placeItems: 'center' }}><Maximize size={18} /></button>
+            <button aria-label="Close player" onClick={closePlayer} style={{ width: 40, height: 40, borderRadius: 99, border: 0, background: 'rgba(255,255,255,.18)', color: '#fff', display: 'grid', placeItems: 'center' }}><X size={20} /></button>
+          </div>
+          <style>{'@media (orientation: landscape){.cn-frame{aspect-ratio:auto!important;height:100%!important}}'}</style>
+          <div className="cn-frame" style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
+            <iframe title="Movie" src={`https://www.youtube-nocookie.com/embed/${player}?autoplay=1&rel=0&modestbranding=1&playsinline=1&fs=1`}
               allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen
               style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }} />
           </div>
