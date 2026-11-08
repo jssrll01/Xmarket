@@ -26,7 +26,7 @@ export default function AddressBook({ mode = 'page', selectedId, onSelect, onClo
     if (!/^(09|\+?639)\d{9}$/.test(a.phone.replace(/[\s()-]/g, ''))) return show('Enter a valid mobile number (09XXXXXXXXX)');
     if (!a.province.trim() || !a.city.trim() || !a.barangay.trim()) return show('Enter province, city and barangay');
     if (!a.address.trim()) return show('Enter street name, building, house no.');
-    if (a.postal_code && !/^\d{4}$/.test(a.postal_code.trim())) return show('Postal code must be 4 digits');
+    if (!/^\d{4}$/.test((a.postal_code || '').trim())) return show('Postal code is required (4 digits)');
     setBusy(true);
     const { data, error } = await saveAddress(user.id, a);
     setBusy(false);
@@ -70,8 +70,8 @@ export default function AddressBook({ mode = 'page', selectedId, onSelect, onClo
             <input style={fld} value={edit.city} onChange={e => upd('city', e.target.value)} />
             <label style={lab}>Barangay</label>
             <input style={fld} value={edit.barangay} onChange={e => upd('barangay', e.target.value)} />
-            <label style={lab}>Postal Code</label>
-            <input style={fld} value={edit.postal_code || ''} onChange={e => upd('postal_code', e.target.value)} inputMode="numeric" maxLength={4} />
+            <label style={lab}>Postal Code *</label>
+            <input style={fld} value={edit.postal_code || ''} onChange={e => upd('postal_code', e.target.value.replace(/\D/g, '').slice(0, 4))} inputMode="numeric" maxLength={4} />
             <label style={lab}>Street Name, Building, House No.</label>
             <input style={fld} value={edit.address} onChange={e => upd('address', e.target.value)} />
             <label style={lab}>Nearest Landmark (optional)</label>
