@@ -11,15 +11,16 @@ export default function DemandPolls() {
   const [mine, setMine] = useState({});
   const [res, setRes] = useState({});
   const [msg, setMsg] = useState({});
+  const [fresh, setFresh] = useState({});
   const load = async () => {
     const { data } = await supabase.from('demand_polls').select('*').order('created_at', { ascending: false });
     const list = data || [];
-    setPolls(list);
     if (user) {
       const v = await supabase.from('demand_poll_votes').select('poll_id,option_index').eq('user_id', user.id);
       const m = {}; (v.data || []).forEach((x) => { m[x.poll_id] = x.option_index; });
       setMine(m);
     }
+    setPolls(list);
     const r = {};
     for (const p of list) { const x = await supabase.rpc('demand_poll_results', { p_poll: p.id }); r[p.id] = x.data || {}; }
     setRes(r);
@@ -30,6 +31,7 @@ export default function DemandPolls() {
     if (!user) { nav('/signin'); return; }
     const { data, error } = await supabase.rpc('vote_demand_poll', { p_poll: p.id, p_option: i });
     if (error || !data || !data.ok) { setMsg({ ...msg, [p.id]: { bad: true, t: (error && error.message) || (data && data.message) || 'Vote failed.' } }); return; }
+    setFresh((f) => ({ ...f, [p.id]: true }));
     setMsg({ ...msg, [p.id]: { t: 'Thanks for voting! ' + peso(data.reward) + ' added to your Xwallet.' } });
     reload(); load();
   };
@@ -43,7 +45,8 @@ export default function DemandPolls() {
       <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b></div>
       {polls === null && <XfSkel kind="polls" />}
       {polls && !polls.length && <div className="xf-card xf-empty">No active polls right now.</div>}
-      {(polls || []).map((p) => {
+      {polls && polls.length > 0 && !polls.some((p) => mine[p.id] === undefined || fresh[p.id]) && <div className="xf-card xf-empty">You have voted on all polls. New polls will show up here.</div>}
+      {(polls || []).filter((p) => mine[p.id] === undefined || fresh[p.id]).map((p) => {
         const voted = mine[p.id] !== undefined;
         const r = res[p.id] || {};
         const total = Object.values(r).reduce((a, b) => a + Number(b), 0);
