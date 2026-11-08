@@ -58,12 +58,13 @@ export function DmChat() {
   const lp = useLongPress((m) => setMenu(m));
   const rx = useReactions('dm', d && d.messages ? d.messages.map((m) => m.id) : []);
   const end = useRef(null);
+  const typedAt = useRef(0);
   const last = useRef(0);
   const load = useCallback(async () => {
     const { data } = await supabase.rpc('dm_thread', { p_thread: tid });
     setD(data && data.ok ? { ...data, messages: (data.messages || []).filter(m => Date.now() - new Date(m.created_at).getTime() < DAY_MS) } : { ok: false });
   }, [tid]);
-  useEffect(() => { load(); const t = setInterval(load, 5000); return () => clearInterval(t); }, [load]);
+  useEffect(() => { load(); const t = setInterval(load, 2500); return () => clearInterval(t); }, [load]);
   useEffect(() => {
     const n = d && d.messages ? d.messages.length : 0;
     if (n !== last.current) { last.current = n; if (end.current) end.current.scrollIntoView({ behavior: 'smooth' }); }
@@ -78,6 +79,12 @@ export function DmChat() {
     if (!data.ok) return show(data.error);
     setText(''); setReply(null); load();
   };
+  const typing = () => {
+    const n = Date.now();
+    if (n - typedAt.current < 3000) return;
+    typedAt.current = n;
+    supabase.rpc('dm_typing', { p_thread: tid });
+  };
   const wrap = { display: 'flex', flexDirection: 'column', height: '100dvh', maxWidth: 560, margin: '0 auto' };
   if (!d) return <div style={wrap}><div className="sk" style={{ height: 60, margin: 16, borderRadius: 16 }} /></div>;
   if (!d.ok) return <div style={{ padding: 16 }}><button className="icon-btn" aria-label="Back" onClick={() => nav('/messages')}><ArrowLeft size={20} /></button><div className="card" style={{ padding: 20, textAlign: 'center', marginTop: 14 }}>Conversation not found.</div></div>;
@@ -86,17 +93,19 @@ export function DmChat() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderBottom: '1px solid #E2E8F0', background: '#fff' }}>
         <button className="icon-btn" aria-label="Back" onClick={() => nav('/messages')}><ArrowLeft size={20} /></button>
         <Avatar name={d.other.name} url={d.other.avatar} />
-        <div style={{ fontWeight: 800, fontSize: 15 }}>@{d.other.name}</div>
+        <div><div style={{ fontWeight: 800, fontSize: 15 }}>@{d.other.name}</div>{d.other_typing && <div style={{ fontSize: 11.5, color: '#2563EB', fontWeight: 700 }}>typing...</div>}</div>
       </div>
       <div style={{ padding: '6px 12px', textAlign: 'center', fontSize: 11.5, color: '#64748B', background: '#F1F5F9' }}>Messages disappear 24 hours after they are sent.</div>
       <div style={{ flex: 1, overflowY: 'auto', padding: 14, display: 'flex', flexDirection: 'column', gap: 8, background: '#F8FAFC' }}>
         {d.messages.length === 0 && <div style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 13, marginTop: 30 }}>Say hello 👋</div>}
         {d.messages.map(m => {
           const mine = m.sender === d.me;
+          const lm = d.messages.filter((x) => x.sender === d.me).slice(-1)[0];
+          const seen = mine && lm && lm.id === m.id && d.other_read_at && new Date(d.other_read_at) >= new Date(m.created_at);
           return (
             <div key={m.id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
               {m.kind === 'packet' ? <PacketBubble m={m} onClaimed={load} onToast={show} /> : m.kind === 'share' && m.share ? <ShareCard s={m.share} /> : m.kind === 'thanks' ? <div style={{ padding: '10px 14px', borderRadius: 16, background: '#FEF3C7', color: '#92400E', border: '1px solid #FCD34D', fontSize: 14, fontWeight: 800 }}>🙏 {m.body}</div> : <div style={{ padding: '9px 13px', borderRadius: 16, background: mine ? '#2563EB' : '#fff', color: mine ? '#fff' : '#0F172A', border: mine ? 'none' : '1px solid #E2E8F0', fontSize: 14, lineHeight: 1.45, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }} {...lp(m)}>{m.reply_text && <ReplyQuote name={m.reply_name} text={m.reply_text} />}<MentionText text={m.body} /></div>}
-              <div style={{ fontSize: 10.5, color: 'var(--muted)', textAlign: mine ? 'right' : 'left', marginTop: 2 }}>{hm(m.created_at)}</div>
+              <div style={{ fontSize: 10.5, color: 'var(--muted)', textAlign: mine ? 'right' : 'left', marginTop: 2 }}>{hm(m.created_at)}{seen ? ' · Seen' : ''}</div>
               <ReactionChip s={rx.map[m.id]} mine={mine} onTap={() => rx.set(m.id, rx.map[m.id] && rx.map[m.id].mine ? null : 'like')} />
             </div>
           );
@@ -107,7 +116,7 @@ export function DmChat() {
       <div style={{ background: '#fff', padding: '0 10px' }}><MentionSuggest text={text} onPick={(u) => setText(replaceMention(text, u))} /></div>
       <div style={{ display: 'flex', gap: 8, padding: 10, borderTop: '1px solid #E2E8F0', background: '#fff' }}>
         <button type="button" aria-label="Red packet" onClick={() => setPk(true)} style={{ width: 46, height: 46, borderRadius: '50%', fontSize: 22, flexShrink: 0, background: '#FEE2E2' }}>🧧</button>
-        <input value={text} maxLength={1000} onChange={e => setText(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') send(); }} placeholder="Write a message…" style={{ flex: 1, padding: '11px 14px', borderRadius: 99, border: '1px solid #CBD5E1', fontSize: 14 }} />
+        <input value={text} maxLength={1000} onChange={e => { setText(e.target.value); typing(); }} onKeyDown={e => { if (e.key === 'Enter') send(); }} placeholder="Write a message…" style={{ flex: 1, padding: '11px 14px', borderRadius: 99, border: '1px solid #CBD5E1', fontSize: 14 }} />
         <button className="btn-primary" disabled={busy || !text.trim()} onClick={send} aria-label="Send" style={{ width: 46, height: 46, borderRadius: '50%', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Send size={18} /></button>
       </div>
       {menu && (
