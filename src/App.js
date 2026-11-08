@@ -1,5 +1,6 @@
 import XCoin from './XCoin';
 import PinHost from './components/PinHost';
+import ChangePin from './pages/ChangePin';
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import CreatorStudio from './pages/CreatorStudio';
@@ -191,6 +192,7 @@ function Router() {
         <Route path="/global-chat" element={<GlobalChat />} />
         <Route path="/chat-search" element={<ChatSearch />} />
         <Route path="/socials" element={<Socials />} />
+        <Route path="/xwallet/change-pin" element={<ChangePin />} />
         <Route path="/socials/creator/:username" element={<SocialsCreator />} />
         <Route path="/socials/video/:id" element={<VideoViewer />} />
         <Route path="/creator-studio/video" element={<CreatorNewVideo />} />

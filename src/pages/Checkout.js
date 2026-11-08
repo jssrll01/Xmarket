@@ -1,4 +1,5 @@
 import { useVip } from '../lib/vip';
+import { rpcPin } from '../lib/pinBus';
 import { getShippingFeeSync, fetchShippingTiers } from '../lib/shipping';
 import OrderTotals from '../components/OrderTotals';
 import { itemDiscount, loadDiscountRules } from '../lib/discount';
@@ -295,7 +296,7 @@ export default function Checkout() {
           variant: i.variant || ''
         }));
 
-        const { data: res, error: oErr } = await supabase.rpc('create_order', {
+        const { data: res, error: oErr } = await rpcPin('create_order', {
           p_order_code: newOrderId,
           p_items: payloadItems,
           p_shipping: form,

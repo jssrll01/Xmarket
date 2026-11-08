@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { rpcPin } from '../lib/pinBus';
 
 const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const left = (iso) => {
@@ -68,7 +69,7 @@ export function PacketCreate({ thread, onClose, onDone, onToast }) {
     const a = Number(amt);
     if (!a || a < 1 || a > 5000) { onToast('Enter ₱1 to ₱5,000.'); return; }
     setBusy(true);
-    const { data, error } = await supabase.rpc('dm_packet_create', { p_thread: thread, p_amount: a, p_note: note || null });
+    const { data, error } = await rpcPin('dm_packet_create', { p_thread: thread, p_amount: a, p_note: note || null });
     setBusy(false);
     if (error) { onToast(error.message); return; }
     if (!data || !data.ok) { onToast((data && data.error) || 'Could not send.'); return; }
