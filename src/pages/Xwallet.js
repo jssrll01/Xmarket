@@ -59,18 +59,6 @@ export default function Xwallet() {
           </div>
         </div>
 
-        <div className="card" onClick={() => nav('/market-shop')} style={{ padding: 14, marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 22 }}>🛍️</span>
-          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, fontSize: 14 }}>Market Shop</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Buy with Xwallet or gift a friend</div></div>
-          <ChevronRight size={18} color="#94a3b8" />
-        </div>
-
-        <div className="card" onClick={() => nav('/xwallet/change-pin')} style={{ padding: 14, marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 22 }}>🔒</span>
-          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, fontSize: 14 }}>Change PIN</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Confirm your password first</div></div>
-          <ChevronRight size={18} color="#94a3b8" />
-        </div>
-
         <div className="card" onClick={() => nav('/rewards')} style={{ padding: 14, marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ width: 40, height: 40, borderRadius: 13, background: '#F59E0B1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}><Coins size={20} color="#D97706" /></span>
           <div style={{ flex: 1 }}><div style={{ fontWeight: 800, fontSize: 14 }}>Loyalty points</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Tap to view and exchange</div></div>
@@ -78,10 +66,15 @@ export default function Xwallet() {
           <ChevronRight size={18} color="#94a3b8" />
         </div>
 
-        <div className="card" onClick={() => nav('/points-shop')} style={{ padding: 14, marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ width: 40, height: 40, borderRadius: 13, background: '#2563EB1A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShoppingBag size={20} color="#2563EB" /></span>
-          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, fontSize: 14 }}>Points Shop</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Spend your points on rewards</div></div>
-          <ChevronRight size={18} color="#94a3b8" />
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+          <div className="card" onClick={() => nav('/market-shop')} style={{ padding: 14, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span style={{ width: 40, height: 40, borderRadius: 13, background: '#2563EB1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🛍️</span>
+            <div><div style={{ fontWeight: 800, fontSize: 14 }}>Market Shop</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Buy or gift a friend</div></div>
+          </div>
+          <div className="card" onClick={() => nav('/points-shop')} style={{ padding: 14, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span style={{ width: 40, height: 40, borderRadius: 13, background: '#2563EB1A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShoppingBag size={20} color="#2563EB" /></span>
+            <div><div style={{ fontWeight: 800, fontSize: 14 }}>Points Shop</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Spend points on rewards</div></div>
+          </div>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
