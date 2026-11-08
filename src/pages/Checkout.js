@@ -266,6 +266,10 @@ export default function Checkout() {
       // Base required fields
       const requiredFields = ['fullName', 'mobile', 'email'];
       if (gift.on) requiredFields.push('address', 'province', 'city', 'barangay', 'postalCode');
+      if (gift.on && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test((gift.email || '').trim())) {
+        showToast("Enter your friend's XMARKET email for the gift");
+        return;
+      }
       if (form.delivery === 'express' || form.delivery === 'doortodoor') {
         requiredFields.push('address', 'province', 'city', 'barangay', 'postalCode');
       }
@@ -585,8 +589,11 @@ export default function Checkout() {
               <input type="checkbox" checked={gift.on} onChange={(e) => setGift({ ...gift, on: e.target.checked })} /> 🎁 This order is a gift for someone else
             </label>
             {gift.on && (<>
+              <div style={{ margin: '8px 0', padding: '10px 12px', borderRadius: 12, border: '1px solid #BFDBFE', background: '#EFF6FF', color: '#1D4ED8', fontSize: 13, fontWeight: 700, lineHeight: 1.45 }}>
+                Make sure the selected delivery address is your friend's address, not yours.
+              </div>
               <div style={{ fontSize: 12, color: 'var(--muted)', margin: '6px 0' }}>Enter your friend's name, mobile and address above. We deliver to them.</div>
-              <input value={gift.email} onChange={(e) => setGift({ ...gift, email: e.target.value })} placeholder="Friend's XMARKET email (optional, to notify them)" autoCapitalize="off" style={{ width: '100%', padding: 10, marginBottom: 6, fontSize: 13 }} />
+              <input value={gift.email} onChange={(e) => setGift({ ...gift, email: e.target.value })} placeholder="Friend's XMARKET email (required)" required autoCapitalize="off" style={{ width: '100%', padding: 10, marginBottom: 6, fontSize: 13 }} />
               <input value={gift.message} maxLength={120} onChange={(e) => setGift({ ...gift, message: e.target.value })} placeholder="Gift message (optional)" style={{ width: '100%', padding: 10, fontSize: 13 }} />
             </>)}
           </div>
