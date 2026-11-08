@@ -7,39 +7,23 @@ import { useToast } from '../components/Toast';
 export default function CreatorNewVideo() {
   const nav = useNavigate();
   const { show } = useToast();
-  const [platform, setPlatform] = useState('youtube');
   const [url, setUrl] = useState('');
   const [busy, setBusy] = useState(false);
-  const tt = platform === 'tiktok';
 
   const submit = async () => {
     const u = url.trim();
-    if (!u) return show('Paste your ' + (tt ? 'TikTok' : 'YouTube') + ' link.');
-    let title = null;
-    let thumb = null;
+    if (!u) return show('Paste your YouTube link.');
     setBusy(true);
-    let link = u;
-    if (tt) {
-      const full = /tiktok\.com\/@[^/]+\/video\/\d{10,25}/i.test(u);
-      try {
-        const { data: d } = await supabase.functions.invoke('resolve-tiktok', { body: { url: u } });
-        if (d && d.ok) { link = d.link; title = d.title || null; thumb = d.thumb || null; }
-      } catch (e) { /* lookup failed */ }
-      if (!/tiktok\.com\/@[^/]+\/video\/\d{10,25}/i.test(link)) {
-        setBusy(false);
-        return show('Could not read that TikTok link. Open it in your browser, copy the full address (tiktok.com/@name/video/...), and paste that.');
-      }
-    } else {
-      const sm = u.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/i);
-      const check = sm ? 'https://www.youtube.com/watch?v=' + sm[1] : u;
-      try {
-        const r = await fetch('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent(check));
-        if (!r.ok) { setBusy(false); return show('That video is private, removed, or cannot be embedded.'); }
-        const j = await r.json();
-        title = j.title || null;
-      } catch (e) { /* check skipped, the server still validates the link */ }
-    }
-    const { data, error } = await supabase.rpc('creator_add_video', { p_platform: platform, p_url: link, p_title: title, p_thumb: thumb });
+    let title = null;
+    const sm = u.match(/youtube\.com\/shorts\/([A-Za-z0-9_-]{11})/i);
+    const check = sm ? 'https://www.youtube.com/watch?v=' + sm[1] : u;
+    try {
+      const r = await fetch('https://www.youtube.com/oembed?format=json&url=' + encodeURIComponent(check));
+      if (!r.ok) { setBusy(false); return show('That video is private, removed, or cannot be embedded.'); }
+      const j = await r.json();
+      title = j.title || null;
+    } catch (e) { /* check skipped, the server still validates the link */ }
+    const { data, error } = await supabase.rpc('creator_add_video', { p_platform: 'youtube', p_url: u, p_title: title, p_thumb: null });
     setBusy(false);
     if (error) return show(error.message);
     if (!data.ok) return show(data.error);
@@ -54,18 +38,12 @@ export default function CreatorNewVideo() {
         <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Post a video</h2>
       </div>
       <div className="card" style={{ padding: 16 }}>
-        <div className="vp-tabs" style={{ marginTop: 0 }}>
-          <button type="button" className={!tt ? 'on' : ''} onClick={() => setPlatform('youtube')}>YouTube</button>
-          <button type="button" className={tt ? 'on' : ''} onClick={() => setPlatform('tiktok')}>TikTok</button>
-        </div>
-        <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>{tt ? 'TikTok video link' : 'YouTube video link'}</label>
-        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder={tt ? 'https://www.tiktok.com/@name/video/...' : 'https://www.youtube.com/watch?v=...'} autoCapitalize="off" autoCorrect="off" style={{ width: '100%', padding: 12, marginTop: 6, marginBottom: 12, fontSize: 14 }} />
+        <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>YouTube video link</label>
+        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." autoCapitalize="off" autoCorrect="off" style={{ width: '100%', padding: 12, marginTop: 6, marginBottom: 12, fontSize: 14 }} />
         <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5, marginBottom: 14 }}>
-          {tt
-            ? 'Post it on TikTok first, then paste the full link here. Share links like vt.tiktok.com work too. Only your own videos. One video per day.'
-            : 'YouTube videos and Shorts are allowed. Post it on YouTube first, then paste the link here. Only your own videos. One video per day.'}
+          YouTube videos and Shorts are allowed. Post it on YouTube first, then paste the link here. Only your own videos. One video per day.
         </div>
-        <button className="btn-primary" disabled={busy} onClick={submit} style={{ width: '100%', padding: 14, fontWeight: 800 }}>{busy ? 'Posting…' : 'Post video'}</button>
+        <button className="btn-primary" disabled={busy} onClick={submit} style={{ width: '100%', padding: 13, fontWeight: 800 }}>{busy ? 'Posting…' : 'Post video'}</button>
       </div>
     </div>
   );
