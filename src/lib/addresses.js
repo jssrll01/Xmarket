@@ -7,6 +7,7 @@ export async function fetchAddresses(userId) {
 }
 
 export async function saveAddress(userId, a) {
+  if (!/^[0-9]{4}$/.test(String(a.postal_code || '').trim())) return { data: null, error: { message: 'Postal code is required (4 digits).' } };
   const row = {
     full_name: a.full_name.trim(), phone: a.phone.trim(), address: a.address.trim(),
     barangay: a.barangay.trim(), city: a.city.trim(), province: a.province.trim(),
