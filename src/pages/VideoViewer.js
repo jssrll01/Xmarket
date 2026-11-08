@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import { thumb } from '../components/VideoRail';
 import { MentionText, MentionSuggest, replaceMention } from '../components/MsgKit';
-import { Avatar } from './socialsUi';
+import { Avatar, ProductTiles } from './socialsUi';
 import GiftSheet from '../components/GiftSheet';
 import ShareSheet from '../components/ShareSheet';
 import '../videos.css';
@@ -172,6 +172,7 @@ export default function VideoViewer() {
                 {!v.mine && <button type="button" className={'vv-follow' + (v.following ? ' on' : '')} onClick={() => follow(v)}>{v.following ? 'Following' : 'Follow'}</button>}
               </div>
               {v.title && <div className="vv-title">{v.title}</div>}
+              <ProductTiles products={v.products} />
             </div>
             <div className="vv-actions">
               <button type="button" className={v.liked ? 'on' : ''} onClick={() => like(v)}><span className="ic"><Heart size={24} fill={v.liked ? '#fff' : 'none'} /></span>{v.likes}</button>
