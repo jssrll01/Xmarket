@@ -1,4 +1,5 @@
 import DiscountTag from '../components/DiscountTag';
+import ProductQA from '../components/ProductQA';
 import { firstNumber } from '../lib/discount';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -346,6 +347,7 @@ export default function ProductDetails() {
       </div>
 
       <ProductReviews product={product} />
+      <ProductQA productId={product.id} />
 
       {related.length > 0 && (
         <div style={{ padding: '12px 16px' }}>

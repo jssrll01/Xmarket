@@ -83,6 +83,7 @@ export default function Checkout() {
   const [placed, setPlaced] = useState(null);
   const [orderError, setOrderError] = useState('');
   const [receipt, setReceipt] = useState(null);
+  const [gift, setGift] = useState({ on: false, email: '', message: '' });
   const [promoInput, setPromoInput] = useState('');
   const [promo, setPromo] = useState(null);
   const [xcardInput, setXcardInput] = useState('');
@@ -303,7 +304,8 @@ export default function Checkout() {
           p_payment: form.payment === 'xwallet' ? 'xwallet' : paymentLabel,
           p_delivery: deliveryLabel,
           p_promo_code: null,
-          p_xcard_code: xcardInput || null
+          p_xcard_code: xcardInput || null,
+          p_gift: gift.on ? gift : null
         });
 
         if (oErr) throw oErr;
@@ -577,6 +579,16 @@ export default function Checkout() {
       {['gcash', 'maya', 'gotyme'].includes(form.payment) && (
         <div className="card" style={{ padding: 16, marginBottom: 12 }}>
           <h3 style={{ marginBottom: 8 }}>Payment Receipt</h3>
+          <div style={{ margin: '12px 0', padding: 12, borderRadius: 14, border: '1px solid var(--border)', background: '#fff' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 14 }}>
+              <input type="checkbox" checked={gift.on} onChange={(e) => setGift({ ...gift, on: e.target.checked })} /> 🎁 This order is a gift for someone else
+            </label>
+            {gift.on && (<>
+              <div style={{ fontSize: 12, color: 'var(--muted)', margin: '6px 0' }}>Enter your friend's name, mobile and address above. We deliver to them.</div>
+              <input value={gift.email} onChange={(e) => setGift({ ...gift, email: e.target.value })} placeholder="Friend's XMARKET email (optional, to notify them)" autoCapitalize="off" style={{ width: '100%', padding: 10, marginBottom: 6, fontSize: 13 }} />
+              <input value={gift.message} maxLength={120} onChange={(e) => setGift({ ...gift, message: e.target.value })} placeholder="Gift message (optional)" style={{ width: '100%', padding: 10, fontSize: 13 }} />
+            </>)}
+          </div>
           <label className="btn-outline" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             gap: 8, padding: 12, cursor: 'pointer', width: '100%', borderRadius: 10
