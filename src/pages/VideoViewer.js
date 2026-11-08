@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Heart, MessageCircle, Share2, Send, X } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, Share2, Send, X, Play } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import { thumb } from '../components/VideoRail';
@@ -57,29 +57,29 @@ function Player({ v, active, near }) {
   const ref = useRef(null);
   const first = useRef(active);
   const [ready, setReady] = useState(false);
-  const tt = v.platform === 'tiktok';
+  const [paused, setPaused] = useState(false);
+  useEffect(() => { if (!active) setPaused(false); }, [active]);
   useEffect(() => {
     if (!ready || !ref.current) return undefined;
+    const go = active && !paused;
     const send = () => {
       const w = ref.current && ref.current.contentWindow;
-      if (!w) return;
-      if (tt) w.postMessage({ type: active ? 'play' : 'pause', 'x-tiktok-player': true }, '*');
-      else w.postMessage(JSON.stringify({ event: 'command', func: active ? 'playVideo' : 'pauseVideo', args: [] }), '*');
+      if (w) w.postMessage(JSON.stringify({ event: 'command', func: go ? 'playVideo' : 'pauseVideo', args: [] }), '*');
     };
     send();
     const t = setTimeout(send, 500);
     return () => clearTimeout(t);
-  }, [active, ready, tt]);
-  const src = tt
-    ? 'https://www.tiktok.com/player/v1/' + v.youtube_id + '?controls=0&progress_bar=0&play_button=0&volume_control=0&fullscreen_button=0&timestamp=0&music_info=0&description=0&rel=0&native_context_menu=0&loop=1&autoplay=' + (first.current ? 1 : 0)
-    : 'https://www.youtube-nocookie.com/embed/' + v.youtube_id
-      + '?enablejsapi=1&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=' + v.youtube_id
-      + '&autoplay=' + (first.current ? 1 : 0);
+  }, [active, paused, ready]);
+  const src = 'https://www.youtube-nocookie.com/embed/' + v.youtube_id
+    + '?enablejsapi=1&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=' + v.youtube_id
+    + '&autoplay=' + (first.current ? 1 : 0);
   return (
-    <div className={'vv-frame' + (v.is_short || tt ? ' short' : '')}>
+    <div className={'vv-frame' + (v.is_short ? ' short' : '')}>
       <img className="vv-poster" src={thumb(v)} alt="" />
       {near && <iframe ref={ref} className={ready ? 'on' : ''} title={v.title || 'video'} src={src} onLoad={() => setReady(true)} allow="autoplay; encrypted-media" tabIndex={-1} />}
-      <div className="vv-shield" />
+      <div className="vv-shield" onClick={() => { if (active) setPaused((x) => !x); }}>
+        {paused && <span className="vv-playic"><Play size={44} fill="#fff" color="#fff" /></span>}
+      </div>
     </div>
   );
 }
@@ -142,11 +142,6 @@ export default function VideoViewer() {
       await navigator.clipboard.writeText(url); show('Link copied');
     } catch (e) { /* cancelled */ }
   };
-  const remove = async (v) => {
-    if (!window.confirm('Remove this video?')) return;
-    const { data } = await supabase.rpc('creator_remove_video', { p_video: v.id });
-    if (data && data.ok) { setList((a) => a.filter((x) => x.id !== v.id)); show('Video removed'); }
-  };
 
   return (
     <div className="vv-root">
@@ -165,7 +160,6 @@ export default function VideoViewer() {
                 {!v.mine && <button type="button" className={'vv-follow' + (v.following ? ' on' : '')} onClick={() => follow(v)}>{v.following ? 'Following' : 'Follow'}</button>}
               </div>
               {v.title && <div className="vv-title">{v.title}</div>}
-              {v.mine && <button type="button" className="vv-rm" onClick={() => remove(v)}>Remove video</button>}
             </div>
             <div className="vv-actions">
               <button type="button" className={v.liked ? 'on' : ''} onClick={() => like(v)}><span className="ic"><Heart size={24} fill={v.liked ? '#fff' : 'none'} /></span>{v.likes}</button>

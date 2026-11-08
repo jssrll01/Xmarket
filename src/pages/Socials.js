@@ -56,7 +56,7 @@ export default function Socials() {
           <button className="icon-btn" aria-label="Messages" onClick={() => nav('/messages')}><MessageCircle size={20} /></button>
           <DmBadge count={dmUnread} />
         </span>
-        {isCreator && <button className="btn-primary" onClick={() => nav('/creator-studio/post')} style={{ padding: '9px 14px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><PenSquare size={15} /> New post</button>}
+        {isCreator && <button className="btn-primary" onClick={() => nav('/creator-studio/create')} style={{ padding: '9px 14px', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><PenSquare size={15} /> New post</button>}
       </div>
       <div style={{ position: 'relative', marginBottom: 14 }}>
         <Search size={16} style={{ position: 'absolute', left: 13, top: 15, color: 'var(--muted)' }} />
@@ -75,7 +75,6 @@ export default function Socials() {
         </div>
       )}
 
-      {isCreator && <button className="btn-ghost" onClick={() => nav('/creator-studio/video')} style={{ width: '100%', padding: 11, marginBottom: 12, fontWeight: 800 }}>+ Post a video</button>}
       {!q.trim() && <VideoRail />}
       {loading && [0, 1].map(i => <Sk key={i} h={380} r={18} style={{ marginBottom: 14 }} />)}
       {!loading && posts.length === 0 && <div style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--muted)' }}><b style={{ color: 'var(--text)' }}>No posts yet</b><div style={{ fontSize: 13, marginTop: 4 }}>Creator posts will show up here.</div></div>}

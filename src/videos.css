@@ -57,3 +57,5 @@
 /* crop YouTube's title bar and bottom buttons out of view */
 .vv-frame iframe { clip-path: inset(16% 0 10% 0); }
 .vv-frame.short iframe { clip-path: none; transform: scale(1.25); transform-origin: center; }
+.vv-shield { display: flex; align-items: center; justify-content: center; }
+.vv-playic { width: 84px; height: 84px; border-radius: 50%; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; padding-left: 6px; }
