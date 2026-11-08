@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Award, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { fetchLoyalty, fetchLoyaltyLedger } from '../lib/promos';
-import { PointsShopList } from './xf/PointsShop';
 
 const TIERS = [
   { name: 'Bronze', min: 300,  color: '#B45309' },
@@ -85,12 +84,6 @@ export default function Rewards() {
       </div>
 
 
-      <h3 style={{ fontSize: 15, fontWeight: 800, margin: '16px 0 4px' }}>Points Shop</h3>
-      <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12 }}>Spend your loyalty points on rewards.</div>
-      <PointsShopList hideBalance onRedeemed={() => {
-        fetchLoyalty(user.id).then(p => setPoints(p ?? 0));
-        fetchLoyaltyLedger(user.id).then(l => setLedger(Array.isArray(l) ? l : []));
-      }} />
 
       <h3 style={{ fontSize: 15, fontWeight: 800, margin: '16px 0 10px' }}>Activity</h3>
       {loading ? (

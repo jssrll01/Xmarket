@@ -2,7 +2,7 @@ import { Coins } from 'lucide-react';
 import { PinGate } from '../components/PinHost';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight } from 'lucide-react';
 import useWallet from './xw/useWallet';
 import { fetchLoyalty } from '../lib/promos';
 import { SignIn, Sk, SkStyle, Row, txnItem, peso } from './xw/ui';
@@ -70,10 +70,6 @@ export default function Xwallet() {
           <div className="card" onClick={() => nav('/market-shop')} style={{ padding: 14, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 8 }}>
             <span style={{ width: 40, height: 40, borderRadius: 13, background: '#2563EB1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🛍️</span>
             <div><div style={{ fontWeight: 800, fontSize: 14 }}>Market Shop</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Buy or gift a friend</div></div>
-          </div>
-          <div className="card" onClick={() => nav('/points-shop')} style={{ padding: 14, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <span style={{ width: 40, height: 40, borderRadius: 13, background: '#2563EB1A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><ShoppingBag size={20} color="#2563EB" /></span>
-            <div><div style={{ fontWeight: 800, fontSize: 14 }}>Points Shop</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Spend points on rewards</div></div>
           </div>
         </div>
 

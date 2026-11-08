@@ -55,7 +55,6 @@ import DemandPolls from './pages/xf/DemandPolls';
 import Sponsorships from './pages/xf/Sponsorships';
 import DigitalHub from './pages/xf/DigitalHub';
 import LaunchPopups from './components/LaunchPopups';
-import PointsShop from './pages/xf/PointsShop';
 import Xmall from './pages/Xmall';
 import Xwallet from './pages/Xwallet';
 import XwalletTopup from './pages/XwalletTopup';
@@ -189,7 +188,6 @@ function Router() {
         <Route path="/digital-products" element={<DigitalProducts />} />
         <Route path="/demand-polls" element={<DemandPolls />} />
         <Route path="/sponsorships" element={<Sponsorships />} />
-        <Route path="/points-shop" element={<PointsShop />} />
         <Route path="/digital-hub" element={<DigitalHub />} />
         <Route path="/global-chat" element={<GlobalChat />} />
         <Route path="/chat-search" element={<ChatSearch />} />
@@ -237,32 +235,11 @@ function Router() {
   );
 }
 
-function NewDeviceAlert() {
-  React.useEffect(() => {
-    const handler = () => {
-      const id = 'xmarket-new-device-toast';
-      let el = document.getElementById(id);
-      if (!el) {
-        el = document.createElement('div');
-        el.id = id;
-        el.style.cssText = 'position:fixed;top:16px;left:16px;right:16px;z-index:9999;padding:14px 16px;background:#FEF3C7;color:#78350F;border-radius:12px;font-size:13px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,0.1)';
-        el.textContent = 'New sign-in from this device. If this wasn\'t you, change your password.';
-        document.body.appendChild(el);
-        setTimeout(() => el && el.remove(), 7000);
-      }
-    };
-    window.addEventListener('xmarket:new-device', handler);
-    return () => window.removeEventListener('xmarket:new-device', handler);
-  }, []);
-  return null;
-}
-
 export default function App() {
   return (
     <AuthProvider>
       <CartProvider>
         <ToastProvider>
-          <NewDeviceAlert />
           <ErrorBoundary>
             <Router />
           </ErrorBoundary>
