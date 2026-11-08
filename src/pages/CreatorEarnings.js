@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { TrendingUp, Wallet } from 'lucide-react';
+import { TrendingUp, Wallet, Gift } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { MUTED, peso, card, inp, btn, StatCard, Sk, SkStyle } from './creatorUi';
 import CreatorShell from './creatorPage';
@@ -12,12 +12,15 @@ export default function CreatorEarnings() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
   const refKey = useRef(null);
+  const [g, setG] = useState({ total: 0, count: 0 });
 
   const load = useCallback(async () => {
     const [a, w] = await Promise.all([
       supabase.rpc('creator_dashboard'),
       supabase.from('creator_withdrawals').select('*').order('created_at', { ascending: false }).limit(50),
     ]);
+    const gr = await supabase.rpc('creator_gifts_received');
+    if (gr.data && gr.data.ok) setG(gr.data);
     setD(a.data); setWds(w.data || []); setLoaded(true);
   }, []);
   useEffect(() => { load(); }, [load]);
@@ -72,6 +75,7 @@ export default function CreatorEarnings() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
         <StatCard icon={TrendingUp} label="Lifetime earnings" value={peso(d.lifetime)} />
         <StatCard icon={Wallet} label="Total withdrawn" value={peso(d.withdrawn)} accent="#059669" />
+        <StatCard icon={Gift} label={"Gifts received (" + g.count + ")"} value={peso(g.total)} accent="#DC2626" />
       </div>
 
       <div style={card}>

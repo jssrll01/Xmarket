@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Heart, MessageCircle, Share2, Send, X, Play } from 'lucide-react';
+import { ArrowLeft, Heart, MessageCircle, Share2, Send, X, Play, Gift } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import { thumb } from '../components/VideoRail';
 import { MentionText, MentionSuggest, replaceMention } from '../components/MsgKit';
 import { Avatar } from './socialsUi';
+import GiftSheet from '../components/GiftSheet';
 import '../videos.css';
 
 function CommentSheet({ video, onClose, onAdded }) {
@@ -103,6 +104,7 @@ export default function VideoViewer() {
   const [loading, setLoading] = useState(true);
   const [active, setActive] = useState(0);
   const [sheet, setSheet] = useState(null);
+  const [gift, setGift] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -172,6 +174,7 @@ export default function VideoViewer() {
             <div className="vv-actions">
               <button type="button" className={v.liked ? 'on' : ''} onClick={() => like(v)}><span className="ic"><Heart size={24} fill={v.liked ? '#fff' : 'none'} /></span>{v.likes}</button>
               <button type="button" onClick={() => setSheet(v)}><span className="ic"><MessageCircle size={24} /></span>{v.comments}</button>
+              {!v.mine && <button type="button" onClick={() => setGift(v)}><span className="ic"><Gift size={24} /></span>Gift</button>}
               <button type="button" onClick={() => share(v)}><span className="ic"><Share2 size={22} /></span>Share</button>
             </div>
           </section>
@@ -180,6 +183,7 @@ export default function VideoViewer() {
           <section className="vv-item"><div className="vv-end"><b>You reached the end</b>Take a break.</div></section>
         )}
       </div>
+      {gift && <GiftSheet type="video" id={gift.id} username={gift.username} onClose={() => setGift(null)} />}
       {sheet && <CommentSheet video={sheet} onClose={() => setSheet(null)} onAdded={() => patch(sheet.id, (x) => ({ comments: Number(x.comments) + 1 }))} />}
     </div>
   );
