@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Package, CheckSquare, Heart } from 'lucide-react';
+import { Zap, Package, CheckSquare, Heart, Store, Film, Newspaper, GraduationCap, Briefcase } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { XF_CSS, peso, useMe } from './xfUi';
 
@@ -32,6 +32,11 @@ export default function DigitalHub() {
     ['/digital-products', 'Digital Products', 'Buy digital items with your Xwallet and get them delivered digitally.', Package, tag(st && st.products, 'available', 'available')],
     ['/demand-polls', 'Demand Polls', 'Vote on what XMARKET should add next and earn cash for every vote.', CheckSquare, tag(st && st.polls, 'open poll', 'open polls')],
     ['/sponsorships', 'Sponsorships', 'Help fund XMARKET projects. Every contribution is tracked openly.', Heart, null],
+    ['/market-shop', 'Market Shop', 'Buy VIP membership for yourself or gift it to a friend.', Store, 'Shop'],
+    ['/cinema', 'Cinema', 'Watch movies. Pay once and keep lifetime access.', Film, 'Pay once'],
+    ['/articles', 'Weekly Articles', 'Read the latest articles published by XMARKET.', Newspaper, 'New weekly'],
+    ['/scholarships', 'Scholarships', 'Scholarship opportunities available through XMARKET.', GraduationCap, 'Apply'],
+    ['/freelance', 'Freelance Work', 'Freelance work available at XMARKET.', Briefcase, 'Find work'],
   ];
   return (
     <div className="page-enter xf" style={{ paddingBottom: 120 }}>

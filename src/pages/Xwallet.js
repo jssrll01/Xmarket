@@ -1,7 +1,6 @@
 import { Coins } from 'lucide-react';
 import { PinGate } from '../components/PinHost';
 import React from 'react';
-import FeatureRows from '../components/FeatureRows';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight } from 'lucide-react';
 import useWallet from './xw/useWallet';
@@ -67,7 +66,6 @@ export default function Xwallet() {
           <ChevronRight size={18} color="#94a3b8" />
         </div>
 
-        <FeatureRows />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {mini('Bank', on ? 'Earning 1.5% p.a.' : 'Daily interest 1.5% p.a.', TrendingUp, '/xwallet/bank', on ? 'ACTIVE' : 'OFF')}
