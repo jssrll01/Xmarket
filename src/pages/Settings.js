@@ -142,6 +142,7 @@ export default function SettingsPage() {
       <Section title="Account">
         <Row icon={User} label="Profile" hint="Name, photo and contact details" onClick={go('/profile')} />
         <Row icon={MapPin} label="My account" hint="Addresses and account information" onClick={go('/account')} />
+        <Row icon={Lock} label="Change PIN" hint="Confirm your password first" onClick={go('/xwallet/change-pin')} />
         <Row icon={Ticket} label="Vouchers" hint="Your available vouchers" onClick={go('/vouchers')} />
         <Row icon={ShieldCheck} label="Security reports" hint="Report suspicious activity" onClick={go('/report/security')} last />
       </Section>
