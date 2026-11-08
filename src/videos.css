@@ -53,3 +53,7 @@
 .vv-frame.short iframe { top: 0; transform: none; height: 100%; aspect-ratio: auto; }
 .vv-shield { position: absolute; inset: 0; z-index: 1; }
 .vv-info, .vv-actions { z-index: 2; }
+
+/* crop YouTube's title bar and bottom buttons out of view */
+.vv-frame iframe { clip-path: inset(16% 0 10% 0); }
+.vv-frame.short iframe { clip-path: none; transform: scale(1.25); transform-origin: center; }
