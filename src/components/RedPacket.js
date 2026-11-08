@@ -16,6 +16,8 @@ export function PacketBubble({ m, onClaimed, onToast }) {
   const p = m.packet;
   const [sheet, setSheet] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [thx, setThx] = useState(false);
+  const [thanked, setThanked] = useState(!!(m.packet && m.packet.thanked));
   if (!p) return <div style={{ padding: 12, fontSize: 13, color: 'var(--muted)' }}>🧧 Red packet (expired)</div>;
 
   const expired = p.status === 'refunded' || (p.status === 'open' && !left(p.expires_at));
@@ -31,6 +33,14 @@ export function PacketBubble({ m, onClaimed, onToast }) {
     if (!data || !data.ok) { onToast((data && data.error) || 'Could not claim.'); onClaimed(); return; }
     setSheet(data.amount);
     onClaimed();
+  };
+
+  const thank = async () => {
+    if (thx) return;
+    setThx(true);
+    const { data, error } = await supabase.rpc('dm_packet_thank', { p_packet: p.id });
+    if (error || !data || !data.ok) { setThx(false); onToast((error && error.message) || (data && data.error) || 'Could not send.'); return; }
+    setThanked(true); onClaimed(); onToast('Thank-you sent');
   };
 
   return (
@@ -53,7 +63,10 @@ export function PacketBubble({ m, onClaimed, onToast }) {
             <div style={{ fontSize: 15, fontWeight: 800, marginTop: 6 }}>You received a red packet!</div>
             <div style={{ fontSize: 34, fontWeight: 900, color: '#DC2626', margin: '8px 0' }}>{peso(sheet)}</div>
             <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>Added to your Xwallet.</div>
-            <button className="btn-primary" onClick={() => setSheet(null)} style={{ width: '100%', marginTop: 16, padding: 13, fontWeight: 800 }}>Done</button>
+            {thanked
+              ? <div style={{ marginTop: 14, fontSize: 13, fontWeight: 800, color: '#059669' }}>Thank-you sent 🙏</div>
+              : <button type="button" disabled={thx} onClick={thank} style={{ width: '100%', marginTop: 14, padding: 12, borderRadius: 14, background: '#FEF3C7', color: '#92400E', fontWeight: 800, fontSize: 13.5, border: '1px solid #FCD34D' }}>{thx ? 'Sending…' : 'Fēicháng gǎnxiè nǐ (Thank you very much) 🙏'}</button>}
+            <button className="btn-primary" onClick={() => setSheet(null)} style={{ width: '100%', marginTop: 10, padding: 13, fontWeight: 800 }}>Done</button>
           </div>
         </div>
       )}
