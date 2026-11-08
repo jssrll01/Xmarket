@@ -62,10 +62,6 @@ export function PacketBubble({ m, onClaimed, onToast }) {
             <div style={{ fontSize: 54 }}>🧧</div>
             <div style={{ fontSize: 15, fontWeight: 800, marginTop: 6 }}>You received a red packet!</div>
             <div style={{ fontSize: 34, fontWeight: 900, color: '#DC2626', margin: '8px 0' }}>{peso(sheet)}</div>
-            <div style={{ fontSize: 12.5, color: 'var(--muted)' }}>Added to your Xwallet.</div>
-            {thanked
-              ? <div style={{ marginTop: 14, fontSize: 13, fontWeight: 800, color: '#059669' }}>Thank-you sent 🙏</div>
-              : <button type="button" disabled={thx} onClick={thank} style={{ width: '100%', marginTop: 14, padding: 12, borderRadius: 14, background: '#FEF3C7', color: '#92400E', fontWeight: 800, fontSize: 13.5, border: '1px solid #FCD34D' }}>{thx ? 'Sending…' : 'Fēicháng gǎnxiè nǐ (Thank you very much) 🙏'}</button>}
             <button className="btn-primary" onClick={() => setSheet(null)} style={{ width: '100%', marginTop: 10, padding: 13, fontWeight: 800 }}>Done</button>
           </div>
         </div>
