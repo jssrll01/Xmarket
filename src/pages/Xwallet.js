@@ -1,6 +1,7 @@
 import { Coins } from 'lucide-react';
 import { PinGate } from '../components/PinHost';
 import React from 'react';
+import FeatureRows from '../components/FeatureRows';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight } from 'lucide-react';
 import useWallet from './xw/useWallet';
@@ -66,12 +67,7 @@ export default function Xwallet() {
           <ChevronRight size={18} color="#94a3b8" />
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-          <div className="card" onClick={() => nav('/market-shop')} style={{ padding: 14, cursor: 'pointer', display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <span style={{ width: 40, height: 40, borderRadius: 13, background: '#2563EB1A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>🛍️</span>
-            <div><div style={{ fontWeight: 800, fontSize: 14 }}>Market Shop</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Buy or gift a friend</div></div>
-          </div>
-        </div>
+        <FeatureRows />
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {mini('Bank', on ? 'Earning 1.5% p.a.' : 'Daily interest 1.5% p.a.', TrendingUp, '/xwallet/bank', on ? 'ACTIVE' : 'OFF')}

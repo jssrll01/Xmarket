@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Crown } from 'lucide-react';
+import { ArrowLeft, Crown, Gift } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { rpcPin, showReceipt } from '../lib/pinBus';
 import { imgUrl } from '../lib/img';
@@ -71,7 +71,10 @@ export default function MarketShop() {
             <div style={{ fontWeight: 800, fontSize: 14 }}>{it.name}</div>
             {it.description && <div style={{ fontSize: 12, color: 'var(--muted)', margin: '2px 0 6px' }}>{it.description}</div>}
             <div style={{ fontWeight: 900, color: '#2563EB', margin: 'auto 0 8px' }}>{peso(it.price)}</div>
-            <button className="btn-primary" disabled={it.sold_out} onClick={() => { if (!user) return nav('/signin'); setSel(it); }} style={{ padding: 10, fontWeight: 800, fontSize: 13 }}>{it.sold_out ? 'Sold out' : 'Buy'}</button>
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button className="btn-primary" disabled={it.sold_out} onClick={() => { if (!user) return nav('/signin'); setGift(false); setSel(it); }} style={{ flex: 1, padding: 10, fontWeight: 800, fontSize: 13 }}>{it.sold_out ? 'Sold out' : 'Buy'}</button>
+              {!it.sold_out && <button aria-label={'Gift ' + it.name} onClick={() => { if (!user) return nav('/signin'); setGift(true); setSel(it); }} style={{ flex: 1, padding: 10, fontWeight: 800, fontSize: 13, borderRadius: 99, border: '1.5px solid #2563EB', color: '#2563EB', background: '#fff', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: 5 }}><Gift size={14} /> Gift</button>}
+            </div>
           </div>
         ))}
       </div>
@@ -80,7 +83,7 @@ export default function MarketShop() {
         {mine.map((p) => (
           <div key={p.id} className="card" style={{ padding: 12, marginBottom: 8, fontSize: 13 }}>
             <b>{p.item_name}</b> · {peso(p.price)} · <span style={{ textTransform: 'capitalize' }}>{p.status}</span>
-            {p.gift_from && <div style={{ color: '#059669' }}>🎁 Gift from @{p.gift_from}{p.gift_message ? ': ' + p.gift_message : ''}</div>}
+            {p.gift_from && <div style={{ color: '#059669' }}>Gift from @{p.gift_from}{p.gift_message ? ': ' + p.gift_message : ''}</div>}
             {p.gift_to && <div style={{ color: 'var(--muted)' }}>Sent as a gift to {p.gift_to}{p.gift_message ? ': ' + p.gift_message : ''}</div>}
           </div>
         ))}
