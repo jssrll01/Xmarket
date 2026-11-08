@@ -548,7 +548,7 @@ export default function Checkout() {
         {selectedPayment?.qr && (
           <div style={{ marginTop: 10, padding: 16, textAlign: 'center', background: 'var(--card)', borderRadius: 12 }}>
             <div style={{ fontSize: 12, color: 'var(--text)', fontWeight: 700, marginBottom: 8 }}>SCAN TO PAY</div>
-            <img src={selectedPayment.qr} alt="QR code"
+            <img decoding="async" src={selectedPayment.qr} alt="QR code"
               style={{ width: 200, height: 200, objectFit: 'contain', borderRadius: 8 }} />
           </div>
         )}

@@ -443,7 +443,7 @@ export default function Home() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 4px' }}>
           <div className="brand-row">
             <div className="brand-badge">
-              <img src="/icons/icon.svg" alt="XMARKET" />
+              <img decoding="async" src="/icons/icon.svg" alt="XMARKET" />
             </div>
             <div className="brand-text">
               <div className="brand-name">X<span className="accent">MARKET</span></div>
@@ -646,7 +646,7 @@ export default function Home() {
                     return (
                       <button key={n} className="ss-term" onClick={() => { setSearch(n); addRecent(n); }}>
                         <span className="ss-icon-wrap">
-                          {thumb ? <img src={thumb} alt="" /> : <Search size={13} />}
+                          {thumb ? <img loading="lazy" decoding="async" src={thumb} alt="" /> : <Search size={13} />}
                         </span>
                         <span className="ss-body">
                           <span className="ss-primary">{n}</span>

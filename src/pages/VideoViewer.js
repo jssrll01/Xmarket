@@ -84,7 +84,7 @@ function Player({ v, active, near }) {
     + '&autoplay=' + (first.current ? 1 : 0);
   return (
     <div className={'vv-frame' + (v.is_short ? ' short' : '')}>
-      <img className="vv-poster" src={thumb(v)} alt="" />
+      <img decoding="async" className="vv-poster" src={thumb(v)} alt="" />
       {near && <iframe ref={ref} className={ready ? 'on' : ''} title={v.title || 'video'} src={src} onLoad={() => setReady(true)} allow="autoplay; encrypted-media" tabIndex={-1} />}
       <div className="vv-mask" />
       <div className="vv-shield" onClick={tapIt}>

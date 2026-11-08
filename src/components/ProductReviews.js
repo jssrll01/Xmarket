@@ -178,7 +178,7 @@ export default function ProductReviews({ product }) {
           <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" onChange={pickPhoto} style={{ display: 'none' }} />
           {photo ? (
             <div style={{ position: 'relative', display: 'inline-block', marginTop: 8 }}>
-              <img src={photo.preview} alt="Your photo" style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 10, display: 'block' }} />
+              <img decoding="async" src={photo.preview} alt="Your photo" style={{ width: 96, height: 96, objectFit: 'cover', borderRadius: 10, display: 'block' }} />
               <button type="button" onClick={clearPhoto} aria-label="Remove photo"
                 style={{ position: 'absolute', top: -8, right: -8, width: 24, height: 24, borderRadius: '50%', background: '#DC2626', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>
                 <X size={14} />
@@ -220,7 +220,7 @@ export default function ProductReviews({ product }) {
               {r.comment}
             </div>
             {cld(r.photo_url, 'w_300,c_limit,f_auto,q_auto') && (
-              <img src={cld(r.photo_url, 'w_300,c_limit,f_auto,q_auto')} alt="Review photo" loading="lazy"
+              <img decoding="async" src={cld(r.photo_url, 'w_300,c_limit,f_auto,q_auto')} alt="Review photo" loading="lazy"
                 onClick={() => setZoom(r.photo_url)}
                 style={{ maxWidth: 140, maxHeight: 140, borderRadius: 10, marginBottom: 8, cursor: 'zoom-in', display: 'block' }} />
             )}
@@ -254,7 +254,7 @@ export default function ProductReviews({ product }) {
       {zoom && (
         <div onClick={() => setZoom(null)}
           style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.85)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
-          <img src={cld(zoom, 'w_1200,c_limit,f_auto,q_auto')} alt="Review photo" style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 12 }} />
+          <img loading="lazy" decoding="async" src={cld(zoom, 'w_1200,c_limit,f_auto,q_auto')} alt="Review photo" style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 12 }} />
         </div>
       )}
     </div>

@@ -20,7 +20,7 @@ function useVideos(username, limit) {
 
 const Card = ({ v, onOpen }) => (
   <button type="button" className="vr-card" onClick={onOpen}>
-    <img src={thumb(v)} alt="" loading="lazy" />
+    <img decoding="async" src={thumb(v)} alt="" loading="lazy" />
     <span className="vr-play"><Play size={14} fill="#fff" color="#fff" /></span>
     <span className="vr-meta"><b>@{v.username}</b>{v.title && <i>{v.title}</i>}</span>
   </button>

@@ -120,7 +120,7 @@ export default function SellerProfile() {
       <div style={{ position: 'relative', height: 150, background: 'linear-gradient(135deg, #1E3A8A, #7C3AED)', overflow: 'hidden' }}>
         {(infoLoading || (info?.banner_url && !bannerLoaded)) && <div className="sk" style={{ position: 'absolute', inset: 0, borderRadius: 0 }} />}
         {info?.banner_url && (
-          <img src={info.banner_url} alt="" onLoad={() => setBannerLoaded(true)} onError={() => setBannerLoaded(true)}
+          <img loading="lazy" decoding="async" src={info.banner_url} alt="" onLoad={() => setBannerLoaded(true)} onError={() => setBannerLoaded(true)}
             style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: bannerLoaded ? 1 : 0, transition: 'opacity .25s' }} />
         )}
         <button onClick={goBackSafe} className="icon-btn" style={{ position: 'absolute', top: 12, left: 12 }}><ArrowLeft size={20} /></button>
@@ -132,7 +132,7 @@ export default function SellerProfile() {
           <div style={{ width: 80, height: 80, borderRadius: '50%', border: '3px solid var(--bg, #fff)', background: 'linear-gradient(135deg, #2563EB, #7C3AED)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
             {(infoLoading || (info?.logo_url && !logoLoaded)) && <div className="sk" style={{ position: 'absolute', inset: 0, borderRadius: '50%' }} />}
             {!infoLoading && (info?.logo_url
-              ? <img src={info.logo_url} alt={decodedStore} onLoad={() => setLogoLoaded(true)} onError={() => setLogoLoaded(true)}
+              ? <img loading="lazy" decoding="async" src={info.logo_url} alt={decodedStore} onLoad={() => setLogoLoaded(true)} onError={() => setLogoLoaded(true)}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: logoLoaded ? 1 : 0, transition: 'opacity .25s' }} />
               : <Store size={32} color="#fff" />)}
           </div>

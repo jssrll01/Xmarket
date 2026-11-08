@@ -72,7 +72,7 @@ export default function Bundles() {
             <div key={b.id} className="bn-card">
               <div className="bn-image">
                 {b.image_url ? (
-                  <img src={b.image_url} alt={b.title} />
+                  <img loading="lazy" decoding="async" src={b.image_url} alt={b.title} />
                 ) : (
                   <div className="bn-image-placeholder">
                     <Package size={32} />

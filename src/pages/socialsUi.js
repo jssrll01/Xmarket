@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { MentionText } from '../components/MsgKit';
 import GiftSheet from '../components/GiftSheet';
 import ShareSheet from '../components/ShareSheet';
+import { imgUrl } from '../lib/img';
 
 export const BLUE = '#2563EB';
 export const time12 = (d) => new Date(d).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
@@ -18,7 +19,7 @@ export const SkStyle = () => <style>{'@keyframes socsk{0%,100%{opacity:.45}50%{o
 
 export function Avatar({ name, url, size = 40 }) {
   return url
-    ? <img src={url} alt="" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+    ? <img src={imgUrl(url, size * 2)} alt="" width={size} height={size} loading="lazy" decoding="async" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
     : <span style={{ width: size, height: size, borderRadius: '50%', background: 'linear-gradient(135deg,#2563EB,#60A5FA)', color: '#fff', fontWeight: 800, fontSize: size * 0.38, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{initials(name)}</span>;
 }
 
@@ -69,7 +70,7 @@ export function PostCard({ p, onLike, onShare, onPin }) {
         {!p.mine && p.creator_id && <FollowChip creatorId={p.creator_id} initial={p.following} />}
       </div>
       {p.pinned_at && <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px 8px', fontSize: 12, fontWeight: 800, color: '#2563EB' }}><Pin size={13} fill="#2563EB" /> Pinned</div>}
-      <img src={p.image_url} alt="" loading="lazy" style={{ width: '100%', display: 'block', maxHeight: 520, objectFit: 'cover', background: '#EEF1F6' }} />
+      <img src={imgUrl(p.image_url, 800)} alt="" width="800" height="600" loading="lazy" decoding="async" style={{ width: '100%', height: 'auto', display: 'block', maxHeight: 520, objectFit: 'cover', background: '#EEF1F6' }} />
       <div style={{ display: 'flex', gap: 18, padding: '10px 12px 4px' }}>
         <button onClick={() => onLike(p)} aria-label="Like" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13 }}>
           <Heart size={22} color={p.liked ? '#DC2626' : '#475569'} fill={p.liked ? '#DC2626' : 'none'} /> {p.likes}
@@ -137,7 +138,7 @@ export function ProductTiles({ products }) {
     <div style={{ display: 'flex', gap: 10, overflowX: 'auto', padding: '0 12px 14px' }}>
       {list.map(pr => (
         <button key={pr.id} type="button" onClick={() => nav('/product/' + pr.id)} style={{ flex: '0 0 140px', textAlign: 'left', border: '1px solid #BFDBFE', borderRadius: 14, background: '#fff', overflow: 'hidden' }}>
-          {pr.image ? <img src={pr.image} alt="" loading="lazy" style={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }} /> : <div style={{ height: 110, background: '#EFF6FF' }} />}
+          {pr.image ? <img src={imgUrl(pr.image, 300)} alt="" width="140" height="110" loading="lazy" decoding="async" style={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }} /> : <div style={{ height: 110, background: '#EFF6FF' }} />}
           <div style={{ padding: 8 }}>
             <div style={{ fontSize: 12.5, fontWeight: 700, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{pr.name}</div>
             {pr.price != null && <div style={{ color: '#1D4ED8', fontWeight: 800, fontSize: 13, marginTop: 2 }}>₱{Number(pr.price).toLocaleString('en-PH')}</div>}

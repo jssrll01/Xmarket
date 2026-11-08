@@ -115,7 +115,7 @@ export default function CreatorNewPost() {
       <div className="card" style={{ padding: 14 }}>
         <input ref={pick} type="file" accept="image/*" onChange={choose} style={{ display: 'none' }} />
         <button type="button" onClick={() => pick.current && pick.current.click()} style={{ width: '100%', minHeight: 160, borderRadius: 16, border: '2px dashed #CBD5E1', background: '#F8FAFC', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 6, overflow: 'hidden', color: 'var(--muted)', fontWeight: 700 }}>
-          {preview ? <img src={preview} alt="" style={{ width: '100%', maxHeight: 340, objectFit: 'cover' }} /> : <><ImagePlus size={30} />Add picture</>}
+          {preview ? <img decoding="async" src={preview} alt="" style={{ width: '100%', maxHeight: 340, objectFit: 'cover' }} /> : <><ImagePlus size={30} />Add picture</>}
         </button>
         <textarea value={desc} maxLength={3000} onChange={e => setDesc(e.target.value)} placeholder="Write a description…" style={{ width: '100%', minHeight: 110, marginTop: 12, padding: 12, fontSize: 14 }} />
         <div style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'right' }}>{desc.length}/3000</div>
@@ -146,7 +146,7 @@ export default function CreatorNewPost() {
           {picked.length < 3 && <input value={pq} onChange={(e) => setPq(e.target.value)} placeholder="Search products by name" style={{ width: '100%', padding: 10, borderRadius: 10, border: '1px solid #CBD5E1', fontSize: 14 }} />}
           {pres.filter((x) => !picked.some((y) => y.id === x.id)).map((x) => (
             <button key={x.id} type="button" onClick={() => { setPicked([...picked, x]); setPq(''); setPres([]); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: 8, marginTop: 6, border: '1px solid #E2E8F0', borderRadius: 12, background: '#fff' }}>
-              {Array.isArray(x.images) && x.images[0] ? <img src={x.images[0]} alt="" style={{ width: 38, height: 38, borderRadius: 8, objectFit: 'cover' }} /> : null}
+              {Array.isArray(x.images) && x.images[0] ? <img loading="lazy" decoding="async" src={x.images[0]} alt="" style={{ width: 38, height: 38, borderRadius: 8, objectFit: 'cover' }} /> : null}
               <span style={{ fontSize: 13.5 }}>{x.name}</span>
             </button>
           ))}

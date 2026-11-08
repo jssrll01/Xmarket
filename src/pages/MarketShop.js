@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { rpcPin, showReceipt } from '../lib/pinBus';
+import { imgUrl } from '../lib/img';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 
@@ -51,7 +52,7 @@ export default function MarketShop() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {items && items.map((it) => (
           <div key={it.id} className="card" style={{ padding: 10, display: 'flex', flexDirection: 'column' }}>
-            {it.image_url && <img src={it.image_url} alt="" loading="lazy" style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 12, marginBottom: 8 }} />}
+            {it.image_url && <img src={imgUrl(it.image_url, 400)} alt="" loading="lazy" decoding="async" style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 12, marginBottom: 8 }} />}
             <div style={{ fontWeight: 800, fontSize: 14 }}>{it.name}</div>
             {it.description && <div style={{ fontSize: 12, color: 'var(--muted)', margin: '2px 0 6px' }}>{it.description}</div>}
             <div style={{ fontWeight: 900, color: '#2563EB', margin: 'auto 0 8px' }}>{peso(it.price)}</div>

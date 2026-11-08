@@ -83,7 +83,7 @@ export function DmChat() {
     const n = Date.now();
     if (n - typedAt.current < 3000) return;
     typedAt.current = n;
-    supabase.rpc('dm_typing', { p_thread: tid });
+    supabase.rpc('dm_typing', { p_thread: tid }).then(() => {});
   };
   const wrap = { display: 'flex', flexDirection: 'column', height: '100dvh', maxWidth: 560, margin: '0 auto' };
   if (!d) return <div style={wrap}><div className="sk" style={{ height: 60, margin: 16, borderRadius: 16 }} /></div>;

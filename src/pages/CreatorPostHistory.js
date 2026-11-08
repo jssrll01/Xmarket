@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, MessageCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Sk, SkStyle, time12 } from './socialsUi';
+import { imgUrl } from '../lib/img';
 
 export default function CreatorPostHistory() {
   const nav = useNavigate();
@@ -19,7 +20,7 @@ export default function CreatorPostHistory() {
       {rows && rows.length === 0 && <div className="card" style={{ padding: 24, textAlign: 'center', color: 'var(--muted)' }}>You have not posted yet.</div>}
       {rows && rows.map(p => (
         <div key={p.id} className="card" onClick={() => p.status === 'active' && nav('/socials/post/' + p.id + '/comments')} style={{ padding: 10, marginBottom: 10, display: 'flex', gap: 12, cursor: p.status === 'active' ? 'pointer' : 'default', opacity: p.status === 'active' ? 1 : 0.6 }}>
-          <img src={p.image_url} alt="" style={{ width: 84, height: 84, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} />
+          <img src={imgUrl(p.image_url, 200)} alt="" width="84" height="84" loading="lazy" decoding="async" style={{ width: 84, height: 84, borderRadius: 12, objectFit: 'cover', flexShrink: 0 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 11, color: 'var(--muted)' }}>{time12(p.created_at)}{p.status !== 'active' ? ' · Removed' : ''}</div>
             <div style={{ fontSize: 13.5, margin: '3px 0 6px', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{p.description}</div>

@@ -59,7 +59,7 @@ export default function XwQr() {
       <div className="card" style={{ padding: 16, textAlign: 'center' }}>
         {tab === 'mine' && (<>
           <div style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 10 }}>Others scan this to send money to you{cleanAmt(amt) ? ' (' + peso(cleanAmt(amt)) + ' requested)' : ''}.</div>
-          {img ? <img src={img} alt="Your payment QR" style={{ width: '100%', maxWidth: 280, borderRadius: 14, border: '1px solid #BFDBFE' }} /> : <div className="sk" style={{ height: 260, borderRadius: 14 }} />}
+          {img ? <img decoding="async" src={img} alt="Your payment QR" style={{ width: '100%', maxWidth: 280, borderRadius: 14, border: '1px solid #BFDBFE' }} /> : <div className="sk" style={{ height: 260, borderRadius: 14 }} />}
           <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 8 }}>{email}</div>
           <input type="number" inputMode="decimal" value={amt} onChange={(e) => setAmt(e.target.value)} placeholder="Request an amount (optional)" style={{ width: '100%', padding: 12, marginTop: 12, fontSize: 14 }} />
           <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 8 }}>This QR contains your account email. Only share it with people you want to be paid by.</div>

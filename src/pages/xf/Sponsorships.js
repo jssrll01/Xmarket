@@ -53,7 +53,7 @@ export default function Sponsorships() {
             </div>
             {f.images && f.images.length > 0 && (
               <><h4 style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.08em', textTransform: 'uppercase', color: '#3B82F6', margin: '14px 0 0' }}>Transparency</h4>
-                <div className="xf-gal">{f.images.map((s, k) => <a key={k} href={s} target="_blank" rel="noreferrer"><img src={s} alt="" loading="lazy" /></a>)}</div></>
+                <div className="xf-gal">{f.images.map((s, k) => <a key={k} href={s} target="_blank" rel="noreferrer"><img decoding="async" src={s} alt="" loading="lazy" /></a>)}</div></>
             )}
             <label className="xf-lab">Contribute (min ₱5)</label>
             <div className="xf-chips" style={{ marginTop: 0 }}>

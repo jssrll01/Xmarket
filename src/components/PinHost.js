@@ -129,7 +129,7 @@ export default function PinHost() {
       )}
       {rc && (
         <div style={box} onClick={() => setRc(null)}><div style={{ ...card, maxWidth: 360 }} onClick={(e) => e.stopPropagation()}>
-          {img ? <img src={img.url} alt="Receipt" style={{ width: '100%', borderRadius: 12, marginBottom: 12 }} /> : <div style={{ padding: 40 }}>Preparing receipt…</div>}
+          {img ? <img decoding="async" src={img.url} alt="Receipt" style={{ width: '100%', borderRadius: 12, marginBottom: 12 }} /> : <div style={{ padding: 40 }}>Preparing receipt…</div>}
           <button className="btn-primary" onClick={share} style={{ width: '100%', padding: 13, fontWeight: 800 }}>Share or save receipt</button>
           <button onClick={() => setRc(null)} style={{ width: '100%', marginTop: 8, padding: 10, color: 'var(--muted)', fontWeight: 700 }}>Close</button>
         </div></div>

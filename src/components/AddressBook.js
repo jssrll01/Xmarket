@@ -110,6 +110,9 @@ export default function AddressBook({ mode = 'page', selectedId, onSelect, onClo
       {bar(mode === 'select' ? 'Address Selection' : 'My Addresses', onClose)}
       <div style={{ flex: 1, overflowY: 'auto', paddingBottom: 90 }}>
         <div style={{ padding: '10px 16px', fontSize: 12.5, color: 'var(--muted)' }}>Address</div>
+        {list && list.some((a) => !/^\d{4}$/.test(String(a.postal_code || '').trim())) && (
+          <div style={{ margin: '0 12px 10px', padding: '10px 12px', borderRadius: 12, background: '#FEF3C7', border: '1px solid #FCD34D', color: '#92400E', fontSize: 13, fontWeight: 700 }}>Some saved addresses have no postal code. Tap Edit and add the 4-digit code so your orders can be delivered.</div>
+        )}
         {list === null ? <p style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>Loading…</p>
           : list.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '50px 24px', color: 'var(--muted)' }}>

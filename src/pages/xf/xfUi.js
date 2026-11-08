@@ -35,7 +35,7 @@ export function Carousel({ images, h = 200 }) {
   return (
     <div className="xf-car" style={{ height: h }}>
       <div className="xf-track" ref={ref} onScroll={(e) => setI(Math.round(e.target.scrollLeft / e.target.clientWidth))}>
-        {images.map((s, k) => <img key={k} src={s} alt="" loading="lazy" />)}
+        {images.map((s, k) => <img decoding="async" key={k} src={s} alt="" loading="lazy" />)}
       </div>
       {n > 1 && <div className="xf-dots">{images.map((_, k) => <i key={k} className={k === i ? 'on' : ''} />)}</div>}
     </div>

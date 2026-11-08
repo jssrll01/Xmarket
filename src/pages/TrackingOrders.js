@@ -122,7 +122,7 @@ function OrderCard({ o, items, sh, imgs }) {
       {items.map((it) => (
         <div key={it.id} style={{ display: 'flex', gap: 10, alignItems: 'center', marginTop: 10 }}>
           <div style={{ width: 52, height: 52, borderRadius: 10, background: '#F1F5F9', overflow: 'hidden', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-            {imgs[it.product_id] ? <img src={imgs[it.product_id]} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Package size={20} color="#94A3B8" />}
+            {imgs[it.product_id] ? <img decoding="async" src={imgs[it.product_id]} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Package size={20} color="#94A3B8" />}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontWeight: 600, fontSize: 14 }}>{it.name}</div>

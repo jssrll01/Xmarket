@@ -88,7 +88,7 @@ export default function Profile() {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           color: '#fff', fontSize: 26, fontWeight: 800,
         }}>
-          {avatar ? <img src={avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : initial}
+          {avatar ? <img loading="lazy" decoding="async" src={avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : initial}
         </div>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 18, fontWeight: 800 }}>

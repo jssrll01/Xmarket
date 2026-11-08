@@ -134,7 +134,7 @@ export default function XwalletTopup() {
         {selected?.qr && (
           <div style={{ marginTop: 10, padding: 16, textAlign: 'center', background: 'var(--card)', borderRadius: 12 }}>
             <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 8 }}>SCAN TO PAY</div>
-            <img src={selected.qr} alt="QR" style={{ width: 200, height: 200, objectFit: 'contain', borderRadius: 8 }} />
+            <img decoding="async" src={selected.qr} alt="QR" style={{ width: 200, height: 200, objectFit: 'contain', borderRadius: 8 }} />
           </div>
         )}
       </div>

@@ -28,7 +28,7 @@ function Avatar({ m, onPick }) {
   return (
     <div className="gc-av" role="button" onClick={() => onPick && onPick({ id: m.user_id, name: m.username })} style={{ background: colorOf(m.user_id), cursor: 'pointer' }}>
       {name[0].toUpperCase()}
-      {m.avatar_url && <img src={m.avatar_url} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
+      {m.avatar_url && <img loading="lazy" decoding="async" src={m.avatar_url} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
     </div>
   );
 }

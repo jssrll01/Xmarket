@@ -105,7 +105,7 @@ export default function CreatorDashboard() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 16 }}>
-          <div style={{ width: 46, height: 46, borderRadius: 14, background: 'rgba(255,255,255,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, overflow: 'hidden' }}>{avatar ? <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials(name)}</div>
+          <div style={{ width: 46, height: 46, borderRadius: 14, background: 'rgba(255,255,255,.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, overflow: 'hidden' }}>{avatar ? <img loading="lazy" decoding="async" src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : initials(name)}</div>
           <div style={{ flex: 1, minWidth: 0 }}><div style={{ fontWeight: 800 }}>{name}</div><div style={{ fontSize: 12, opacity: 0.85 }}>@{d.profile.username} · {d.code}</div></div>
           <button type="button" onClick={() => nav('/creator-studio/profile')} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 12, border: '1px solid rgba(255,255,255,.5)', background: 'rgba(255,255,255,.15)', color: '#fff', fontWeight: 800, fontSize: 12, cursor: 'pointer', flexShrink: 0 }}><Pencil size={14} /> Edit profile</button>
         </div>

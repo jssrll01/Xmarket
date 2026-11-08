@@ -3,6 +3,7 @@ import ProductQA from '../components/ProductQA';
 import { firstNumber } from '../lib/discount';
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import useTrackView from '../lib/useTrackView';
 import {
   ArrowLeft, Share2, Minus, Plus, BadgeCheck, Store, Heart
 } from 'lucide-react';
@@ -56,6 +57,7 @@ function Description({ text }) {
 
 export default function ProductDetails() {
   const { id } = useParams();
+  useTrackView(id);
   const navigate = useNavigate();
   const { dispatch } = useCart();
   const { user } = useAuth();

@@ -3,12 +3,35 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search, X, Clock, Trash2, TrendingUp, PackageSearch } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import useRecentSearches from '../hooks/useRecentSearches';
+import { imgUrl } from '../lib/img';
 
 const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { maximumFractionDigits: 2 });
 const clean = (s) => String(s || '').replace(/[%,()*\\]/g, ' ').trim();
 const minPrice = (vp) => { const v = Object.values(vp || {}).map(Number).filter(n => n > 0); return v.length ? Math.min(...v) : 0; };
 const SORTS = [['rel', 'Relevance'], ['new', 'Latest'], ['sold', 'Top Sales'], ['pa', 'Price ↑'], ['pd', 'Price ↓']];
 const COLS = 'id,name,category,store,images,sold,variant_prices,created_at';
+
+function ProductRow({ title, items }) {
+  if (!items || items.length === 0) return null;
+  return (
+    <div style={{ padding: '8px 0 4px' }}>
+      <b style={{ fontSize: 15, padding: '0 16px', display: 'block', margin: '12px 0 10px' }}>{title}</b>
+      <div style={{ display: 'flex', gap: 10, overflowX: 'auto', padding: '0 16px 6px' }}>
+        {items.map((p) => (
+          <Link key={p.id} to={'/product/' + p.id} className="card" style={{ flex: '0 0 130px', overflow: 'hidden', display: 'block' }}>
+            <div style={{ aspectRatio: '1 / 1', background: '#EEF1F6' }}>
+              {p.images && p.images[0] && <img src={imgUrl(p.images[0], 300)} alt="" width="130" height="130" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+            </div>
+            <div style={{ padding: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3, height: 32, overflow: 'hidden' }}>{p.name}</div>
+              <div style={{ fontWeight: 800, fontSize: 14, color: '#DC2626', marginTop: 4 }}>{peso(minPrice(p.variant_prices))}</div>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function SearchPage() {
   const nav = useNavigate();
@@ -20,11 +43,19 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [sugg, setSugg] = useState([]);
   const [popular, setPopular] = useState([]);
+  const [recs, setRecs] = useState([]);
+  const [seen, setSeen] = useState([]);
   const { recent, add, remove, clear } = useRecentSearches();
   const inputRef = useRef(null);
 
   useEffect(() => { if (!q && inputRef.current) inputRef.current.focus(); }, [q]);
   useEffect(() => { setText(q); }, [q]);
+  useEffect(() => {
+    let alive = true;
+    supabase.rpc('recommend_products', { p_limit: 12 }).then(({ data }) => { if (alive) setRecs(Array.isArray(data) ? data : []); });
+    supabase.rpc('recent_products', { p_limit: 12 }).then(({ data }) => { if (alive) setSeen(Array.isArray(data) ? data : []); });
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     supabase.from('products').select('name').order('sold', { ascending: false }).limit(8)
@@ -117,6 +148,11 @@ export default function SearchPage() {
         </div>
       )}
 
+      {!q && sugg.length === 0 && (<>
+        <ProductRow title="Recently viewed" items={seen} />
+        <ProductRow title="Recommended for you" items={recs} />
+      </>)}
+
       {q && (<>
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto', padding: '4px 16px 10px' }}>
           {SORTS.map(([id, label]) => (
@@ -129,7 +165,7 @@ export default function SearchPage() {
           {!loading && list.map(p => (
             <Link key={p.id} to={'/product/' + p.id} className="card" style={{ overflow: 'hidden', display: 'block' }}>
               <div style={{ aspectRatio: '1 / 1', background: '#EEF1F6' }}>
-                {p.images && p.images[0] && <img src={p.images[0]} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+                {p.images && p.images[0] && <img src={imgUrl(p.images[0], 400)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
               </div>
               <div style={{ padding: 10 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.3, height: 34, overflow: 'hidden' }}>{p.name}</div>
