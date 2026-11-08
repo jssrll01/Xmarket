@@ -18,7 +18,17 @@ export function useMe() {
   return { user, me, reload };
 }
 
-export function Carousel({ images, h = 200 }) {
+function Slide({ src }) {
+  const [ok, setOk] = useState(false);
+  return (
+    <div style={{ flex: '0 0 100%', position: 'relative', scrollSnapAlign: 'center', height: '100%' }}>
+      {!ok && <div className="sk" style={{ position: 'absolute', inset: 0, borderRadius: 0 }} />}
+      <img src={src} alt="" loading="lazy" onLoad={() => setOk(true)} onError={() => setOk(true)} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', opacity: ok ? 1 : 0, transition: 'opacity .3s' }} />
+    </div>
+  );
+}
+
+export function Carousel({ images }) {
   const ref = useRef(null);
   const [i, setI] = useState(0);
   const n = (images || []).length;
@@ -31,14 +41,38 @@ export function Carousel({ images, h = 200 }) {
     }, 3500);
     return () => clearInterval(t);
   }, [n]);
-  if (!n) return <div className="xf-noimg" style={{ height: h }}>No image</div>;
+  if (!n) return <div className="xf-noimg" style={{ aspectRatio: '16 / 9' }}>No image</div>;
   return (
-    <div className="xf-car" style={{ height: h }}>
-      <div className="xf-track" ref={ref} onScroll={(e) => setI(Math.round(e.target.scrollLeft / e.target.clientWidth))}>
-        {images.map((s, k) => <img decoding="async" key={k} src={s} alt="" loading="lazy" />)}
+    <div className="xf-car" style={{ aspectRatio: '16 / 9' }}>
+      <div className="xf-track" ref={ref} style={{ position: 'absolute', inset: 0 }} onScroll={(e) => setI(Math.round(e.target.scrollLeft / e.target.clientWidth))}>
+        {images.map((s, k) => <Slide key={k} src={s} />)}
       </div>
       {n > 1 && <div className="xf-dots">{images.map((_, k) => <i key={k} className={k === i ? 'on' : ''} />)}</div>}
     </div>
+  );
+}
+
+const CAP = 200;
+export function Desc({ text }) {
+  const full = String(text || '');
+  const [open, setOpen] = useState(false);
+  if (!full) return null;
+  const long = full.length > CAP;
+  const cut = long ? full.slice(0, CAP).replace(/\s+\S*$/, '') : full;
+  const rest = long ? full.slice(cut.length) : '';
+  return (
+    <p>
+      {cut}
+      {long && (
+        <>
+          <span style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows .45s ease' }}>
+            <span style={{ overflow: 'hidden', minHeight: 0, opacity: open ? 1 : 0, transition: 'opacity .45s ease' }}>{rest}</span>
+          </span>
+          {!open && <span>… </span>}
+          <button type="button" onClick={() => setOpen((o) => !o)} style={{ display: 'block', marginTop: 4, color: '#2563EB', fontWeight: 700, fontSize: 13.5 }}>{open ? 'Show less' : 'View all'}</button>
+        </>
+      )}
+    </p>
   );
 }
 
@@ -110,7 +144,7 @@ export function XfSkel({ kind = 'cards' }) {
   if (kind === 'cards') {
     return [0, 1].map((i) => (
       <div className="xf-card" key={i} style={{ animationDelay: i * 70 + 'ms' }}>
-        <div className="sk" style={{ width: '100%', height: 220, borderRadius: 0 }} />
+        <div className="sk" style={{ width: '100%', aspectRatio: '16 / 9', borderRadius: 0 }} />
         <div className="xf-body">
           {L('60%', 18)}{L('95%', 12, 10)}{L('75%', 12, 6)}{L('35%', 24, 14)}
           <div className="sk sk-btn" style={{ marginTop: 14, height: 46, borderRadius: 12 }} />

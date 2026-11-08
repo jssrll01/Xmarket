@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { Carousel, XF_CSS, peso, useMe, XfSkel } from './xfUi';
+import { Carousel, XF_CSS, peso, useMe, XfSkel, Desc } from './xfUi';
 
 const Head = ({ title, sub, nav }) => (
   <header className="xf-head">
@@ -43,9 +43,9 @@ export default function PriceDrops() {
             <Carousel images={d.images} h={220} />
             <div className="xf-body">
               <h3>{d.title}</h3>
-              {d.description && <p>{d.description}</p>}
+              <Desc text={d.description} />
               <div className="xf-price">{peso(d.price)}</div>
-              <div className="xf-meta">{out ? 'Sold out' : 'Only 1 left'}</div>
+              {out && <div className="xf-meta">Sold out</div>}
               {note === d.id && <div className="xf-warn">Not enough Xwallet balance. You need {peso(d.price - Number((me && me.xwallet_balance) || 0))} more. <button style={{ fontWeight: 700, color: '#2563EB', textDecoration: 'underline' }} onClick={() => nav('/xwallet/topup')}>Top up</button></div>}
               <button className="xf-btn" disabled={out} onClick={() => purchase(d)}>{out ? 'Sold out' : 'Purchase'}</button>
             </div>
