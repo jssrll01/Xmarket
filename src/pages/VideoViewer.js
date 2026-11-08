@@ -60,6 +60,7 @@ function Player({ v, active, near }) {
   const first = useRef(active);
   const last = useRef(null);
   const [ready, setReady] = useState(false);
+  const [playing, setPlaying] = useState(false);
   const [paused, setPaused] = useState(false);
   const [flash, setFlash] = useState(false);
   const tapIt = () => {
@@ -68,6 +69,27 @@ function Player({ v, active, near }) {
     setFlash(true);
     setTimeout(() => setFlash(false), 1000);
   };
+  useEffect(() => {
+    const onMsg = (e) => {
+      const w = ref.current && ref.current.contentWindow;
+      if (!w || e.source !== w) return;
+      let d = e.data;
+      if (typeof d === 'string') { try { d = JSON.parse(d); } catch (er) { return; } }
+      if (!d) return;
+      let st = null;
+      if (d.event === 'onStateChange' && typeof d.info === 'number') st = d.info;
+      else if (d.event === 'infoDelivery' && d.info && typeof d.info.playerState === 'number') st = d.info.playerState;
+      if (st === null) return;
+      setPlaying(st === 1 || st === 2);
+    };
+    window.addEventListener('message', onMsg);
+    return () => window.removeEventListener('message', onMsg);
+  }, []);
+  useEffect(() => {
+    if (!ready || !active || playing) return undefined;
+    const t = setTimeout(() => setPlaying(true), 6000);
+    return () => clearTimeout(t);
+  }, [ready, active, playing]);
   useEffect(() => { if (!active) setPaused(false); }, [active]);
   useEffect(() => {
     if (!ready || !ref.current) return undefined;
@@ -85,8 +107,9 @@ function Player({ v, active, near }) {
   return (
     <div className={'vv-frame' + (v.is_short ? ' short' : '')}>
       <img decoding="async" className="vv-poster" src={thumb(v)} alt="" />
-      {near && <iframe ref={ref} className={ready ? 'on' : ''} title={v.title || 'video'} src={src} onLoad={() => setReady(true)} allow="autoplay; encrypted-media" tabIndex={-1} />}
+      {near && <iframe ref={ref} className={playing ? 'on' : ''} title={v.title || 'video'} src={src} onLoad={() => { setReady(true); const w = ref.current && ref.current.contentWindow; if (w) w.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*'); }} allow="autoplay; encrypted-media" tabIndex={-1} />}
       <div className="vv-mask" />
+      {active && !playing && !paused && <div className="vv-spin" />}
       <div className="vv-shield" onClick={tapIt}>
         {flash && <span className="vv-playic"><Play size={44} fill="#fff" color="#fff" /></span>}
       </div>
