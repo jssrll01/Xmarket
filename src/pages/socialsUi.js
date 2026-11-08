@@ -5,6 +5,7 @@ import { Heart, MessageCircle, Share2, Gift } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { MentionText } from '../components/MsgKit';
 import GiftSheet from '../components/GiftSheet';
+import ShareSheet from '../components/ShareSheet';
 
 export const BLUE = '#2563EB';
 export const time12 = (d) => new Date(d).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
@@ -59,6 +60,7 @@ function Caption({ p }) {
 export function PostCard({ p, onLike, onShare }) {
   const nav = useNavigate();
   const [gift, setGift] = React.useState(false);
+  const [sh, setSh] = React.useState(false);
   return (
     <div className="card" style={{ marginBottom: 14, overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 12, cursor: 'pointer' }} onClick={() => nav('/socials/creator/' + p.username)}>
@@ -79,12 +81,13 @@ export function PostCard({ p, onLike, onShare }) {
             <Gift size={21} color="#DC2626" /> Gift
           </button>
         )}
-        <button onClick={() => onShare(p)} aria-label="Share" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13, marginLeft: 'auto' }}>
+        <button onClick={() => setSh(true)} aria-label="Share" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13, marginLeft: 'auto' }}>
           <Share2 size={21} color="#475569" /> Share
         </button>
       </div>
       <Caption p={p} />
       {gift && <GiftSheet type="post" id={p.id} username={p.username} onClose={() => setGift(false)} />}
+      {sh && <ShareSheet type="post" id={p.id} onClose={() => setSh(false)} onExternal={() => { setSh(false); onShare(p); }} />}
       <ProductTiles products={p.products} />
       {Array.isArray(p.links) && p.links.filter(l => l && /^https?:\/\/\S+$/i.test(l.url || '')).length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 12px 14px' }}>

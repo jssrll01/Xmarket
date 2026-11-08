@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import { Avatar } from './socialsUi';
 import { PacketBubble, PacketCreate } from '../components/RedPacket';
+import { ShareCard } from '../components/ShareSheet';
 import useReactions from '../lib/useReactions';
 import { MentionText, MentionSuggest, replaceMention, ReplyQuote, ReactionChip, MsgMenu, useLongPress } from '../components/MsgKit';
 
@@ -94,7 +95,7 @@ export function DmChat() {
           const mine = m.sender === d.me;
           return (
             <div key={m.id} style={{ alignSelf: mine ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
-              {m.kind === 'packet' ? <PacketBubble m={m} onClaimed={load} onToast={show} /> : m.kind === 'thanks' ? <div style={{ padding: '10px 14px', borderRadius: 16, background: '#FEF3C7', color: '#92400E', border: '1px solid #FCD34D', fontSize: 14, fontWeight: 800 }}>🙏 {m.body}</div> : <div style={{ padding: '9px 13px', borderRadius: 16, background: mine ? '#2563EB' : '#fff', color: mine ? '#fff' : '#0F172A', border: mine ? 'none' : '1px solid #E2E8F0', fontSize: 14, lineHeight: 1.45, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }} {...lp(m)}>{m.reply_text && <ReplyQuote name={m.reply_name} text={m.reply_text} />}<MentionText text={m.body} /></div>}
+              {m.kind === 'packet' ? <PacketBubble m={m} onClaimed={load} onToast={show} /> : m.kind === 'share' && m.share ? <ShareCard s={m.share} /> : m.kind === 'thanks' ? <div style={{ padding: '10px 14px', borderRadius: 16, background: '#FEF3C7', color: '#92400E', border: '1px solid #FCD34D', fontSize: 14, fontWeight: 800 }}>🙏 {m.body}</div> : <div style={{ padding: '9px 13px', borderRadius: 16, background: mine ? '#2563EB' : '#fff', color: mine ? '#fff' : '#0F172A', border: mine ? 'none' : '1px solid #E2E8F0', fontSize: 14, lineHeight: 1.45, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }} {...lp(m)}>{m.reply_text && <ReplyQuote name={m.reply_name} text={m.reply_text} />}<MentionText text={m.body} /></div>}
               <div style={{ fontSize: 10.5, color: 'var(--muted)', textAlign: mine ? 'right' : 'left', marginTop: 2 }}>{hm(m.created_at)}</div>
               <ReactionChip s={rx.map[m.id]} mine={mine} onTap={() => rx.set(m.id, rx.map[m.id] && rx.map[m.id].mine ? null : 'like')} />
             </div>

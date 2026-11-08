@@ -1,4 +1,5 @@
 import VipBadge from '../components/VipBadge';
+import { ShareCard } from '../components/ShareSheet';
 import useReactions from '../lib/useReactions';
 import { MentionText, MentionSuggest, replaceMention, ReplyQuote, ReactionChip, MsgMenu, useLongPress } from '../components/MsgKit';
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
@@ -167,7 +168,7 @@ export default function GlobalChat() {
           {!mine && first && <div className="gc-name" style={{ cursor: 'pointer' }} onClick={() => setPeer({ id: m.user_id, name: m.username })}>{m.username || 'XMARKET user'}{m.is_vip && <VipBadge active />}</div>}
           <div className={'gc-bubble' + (m.is_vip ? ' vip' : '')} {...lp(m)}>
             {m.reply_text && <ReplyQuote name={m.reply_name} text={m.reply_text} />}
-            <span className="gc-text"><MentionText text={m.body} /></span>
+            {m.kind === 'share' && m.share ? <ShareCard s={m.share} /> : <span className="gc-text"><MentionText text={m.body} /></span>}
             <span className="gc-time">{fmtTime(m.created_at)}</span>
           </div>
           <ReactionChip s={rx.map[m.id]} mine={mine} onTap={() => rx.set(m.id, rx.map[m.id] && rx.map[m.id].mine ? null : 'like')} />
