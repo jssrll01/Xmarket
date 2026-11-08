@@ -54,6 +54,7 @@ import DigitalProducts from './pages/xf/DigitalProducts';
 import DemandPolls from './pages/xf/DemandPolls';
 import Sponsorships from './pages/xf/Sponsorships';
 import DigitalHub from './pages/xf/DigitalHub';
+import LaunchPopups from './components/LaunchPopups';
 import PointsShop from './pages/xf/PointsShop';
 import Xmall from './pages/Xmall';
 import Xwallet from './pages/Xwallet';
@@ -230,6 +231,7 @@ function Router() {
         <Route path="*" element={<NotFound />} />
       <Route path="/xcoin" element={<XCoin />} />
 </Routes>
+      <LaunchPopups />
       <BottomNav />
     </>
   );
