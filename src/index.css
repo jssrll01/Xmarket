@@ -2666,3 +2666,6 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):focus, select:foc
 .drawer.open > *:nth-child(2) { transition-delay: 170ms; }
 .drawer.open > *:nth-child(3) { transition-delay: 220ms; }
 .drawer.open > *:nth-child(4) { transition-delay: 270ms; }
+
+input[type="radio"], input[type="checkbox"] { outline: none !important; box-shadow: none !important; -webkit-tap-highlight-color: transparent; }
+input[type="radio"]:focus, input[type="radio"]:focus-visible, input[type="checkbox"]:focus, input[type="checkbox"]:focus-visible, input[type="radio"]:active, input[type="checkbox"]:active { outline: none !important; box-shadow: none !important; }

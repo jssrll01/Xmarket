@@ -584,18 +584,37 @@ export default function Checkout() {
       {['gcash', 'maya', 'gotyme'].includes(form.payment) && (
         <div className="card" style={{ padding: 16, marginBottom: 12 }}>
           <h3 style={{ marginBottom: 8 }}>Payment Receipt</h3>
-          <div style={{ margin: '12px 0', padding: 12, borderRadius: 14, border: '1px solid var(--border)', background: '#fff' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 700, fontSize: 14 }}>
-              <input type="checkbox" checked={gift.on} onChange={(e) => setGift({ ...gift, on: e.target.checked })} /> 🎁 This order is a gift for someone else
-            </label>
-            {gift.on && (<>
-              <div style={{ margin: '8px 0', padding: '10px 12px', borderRadius: 12, border: '1px solid #BFDBFE', background: '#EFF6FF', color: '#1D4ED8', fontSize: 13, fontWeight: 700, lineHeight: 1.45 }}>
-                Make sure the selected delivery address is your friend's address, not yours.
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', margin: '6px 0' }}>Enter your friend's name, mobile and address above. We deliver to them.</div>
-              <input value={gift.email} onChange={(e) => setGift({ ...gift, email: e.target.value })} placeholder="Friend's XMARKET email (required)" required autoCapitalize="off" style={{ width: '100%', padding: 10, marginBottom: 6, fontSize: 13 }} />
-              <input value={gift.message} maxLength={120} onChange={(e) => setGift({ ...gift, message: e.target.value })} placeholder="Gift message (optional)" style={{ width: '100%', padding: 10, fontSize: 13 }} />
-            </>)}
+          <style>{`
+.gf{margin:12px 0;border-radius:16px;border:1px solid #BFDBFE;background:linear-gradient(135deg,#fff,#EFF6FF);overflow:hidden}
+.gf-top{display:flex;align-items:center;gap:12px;padding:14px;cursor:pointer}
+.gf-ic{width:40px;height:40px;border-radius:12px;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+.gf-t{flex:1}.gf-t b{display:block;font-size:14.5px;color:#0F172A}.gf-t span{font-size:12px;color:#64748B}
+.gf-sw{width:46px;height:26px;border-radius:99px;background:#CBD5E1;position:relative;transition:background .25s;flex:none}
+.gf-sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.25);transition:transform .25s}
+.gf-sw.on{background:#2563EB}.gf-sw.on::after{transform:translateX(20px)}
+.gf-body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s ease}
+.gf-body.open{grid-template-rows:1fr}
+.gf-in{overflow:hidden;min-height:0}
+.gf-pad{padding:0 14px 14px}
+.gf-lab{display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#64748B;margin:10px 0 5px}
+.gf-inp{width:100%;padding:11px 12px;border-radius:12px;border:1px solid #CBD5E1;font-size:14px;background:#fff}
+.gf-note{margin-top:12px;padding:10px 12px;border-radius:12px;border:1px solid #BFDBFE;background:#EFF6FF;color:#1D4ED8;font-size:13px;font-weight:700;line-height:1.45}
+@media(prefers-reduced-motion:reduce){.gf-body,.gf-sw,.gf-sw::after{transition:none}}
+`}</style>
+          <div className="gf">
+            <div className="gf-top" onClick={() => setGift({ ...gift, on: !gift.on })} role="switch" aria-checked={gift.on}>
+              <div className="gf-ic">🎁</div>
+              <div className="gf-t"><b>Send as a gift</b><span>This order is a gift for someone else</span></div>
+              <div className={'gf-sw' + (gift.on ? ' on' : '')} />
+            </div>
+            <div className={'gf-body' + (gift.on ? ' open' : '')}><div className="gf-in"><div className="gf-pad">
+              <div style={{ fontSize: 12.5, color: '#64748B' }}>Enter your friend's name, mobile and address above. We deliver to them.</div>
+              <div className="gf-lab"><span>Friend's XMARKET email *</span></div>
+              <input className="gf-inp" type="email" value={gift.email} onChange={(e) => setGift({ ...gift, email: e.target.value })} placeholder="friend@example.com" autoCapitalize="off" />
+              <div className="gf-lab"><span>Gift message (optional)</span><span>{(gift.message || '').length}/120</span></div>
+              <input className="gf-inp" value={gift.message} maxLength={120} onChange={(e) => setGift({ ...gift, message: e.target.value })} placeholder="Write a short message" />
+              <div className="gf-note">Make sure the selected delivery address is your friend's address, not yours.</div>
+            </div></div></div>
           </div>
           <label className="btn-outline" style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center',
