@@ -1,4 +1,5 @@
 import XCoin from './XCoin';
+import PinHost from './components/PinHost';
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import CreatorStudio from './pages/CreatorStudio';
@@ -123,7 +124,8 @@ function Router() {
 
   return (
     <>
-<Routes>
+<PinHost />
+      <Routes>
         <Route path="/landing-page" element={<LandingPage />} />
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetails />} />

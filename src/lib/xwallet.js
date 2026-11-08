@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { askPin, showReceipt } from './pinBus';
 
 export async function fetchWallet(userId) {
   const { data } = await supabase
@@ -57,10 +58,14 @@ export async function fetchMyTopups(userId) {
 // BUY LOAD
 // ============================================================
 export async function buyLoad(userId, network, mobile, amount) {
+  const pin = await askPin();
+  if (pin === null) return { error: { message: 'Cancelled' } };
   const { data, error } = await supabase.rpc('buy_load', {
-    p_network: network, p_mobile: mobile, p_amount: Number(amount),
+    p_network: network, p_mobile: mobile, p_amount: Number(amount), p_pin: pin,
   });
   if (error) return { error: { message: error.message } };
+  if (data && data.error) return { error: { message: data.error } };
+  if (data && data.receipt) showReceipt(data.receipt);
   return { load: data, error: null };
 }
 
@@ -77,12 +82,17 @@ export async function fetchMyLoads(userId) {
 // TRANSFER BY EMAIL
 // ============================================================
 export async function transferByEmail(fromUserId, toEmail, amount, note = null) {
-  return supabase.rpc('xwallet_transfer_by_email', {
+  const pin = await askPin();
+  if (pin === null) return { data: { error: 'Cancelled' }, error: null };
+  const res = await supabase.rpc('xwallet_transfer_by_email', {
     from_user: fromUserId,
     to_email: toEmail.trim().toLowerCase(),
     amt: amount,
     note,
+    p_pin: pin,
   });
+  if (res.data && res.data.receipt) showReceipt(res.data.receipt);
+  return res;
 }
 
 // Legacy - kept for compatibility
@@ -113,11 +123,15 @@ export async function submitTopupBilling({ userId, email, amount, payment, fee, 
 }
 
 export async function requestWithdrawal({ method, amount, accountName, accountNumber, bankName, ref }) {
+  const pin = await askPin();
+  if (pin === null) return { error: { message: 'Cancelled' } };
   const { data, error } = await supabase.rpc('xwallet_request_withdrawal', {
     p_method: method, p_amount: Number(amount), p_account_name: accountName,
-    p_account_number: accountNumber, p_bank_name: bankName || null, p_ref: ref || null,
+    p_account_number: accountNumber, p_bank_name: bankName || null, p_ref: ref || null, p_pin: pin,
   });
   if (error) return { error: { message: error.message } };
+  if (data && data.ok === false) return { error: { message: data.error || 'Request failed' } };
+  if (data && data.receipt) showReceipt(data.receipt);
   return { data, error: null };
 }
 

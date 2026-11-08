@@ -1,4 +1,5 @@
 import { Coins } from 'lucide-react';
+import { PinGate } from '../components/PinHost';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight, ShoppingBag } from 'lucide-react';
@@ -37,6 +38,7 @@ export default function Xwallet() {
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
       <SkStyle />
+      <PinGate />
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <button className="icon-btn" aria-label="Back" onClick={() => nav('/', { replace: true })}><ArrowLeft size={20} /></button>
         <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Xwallet</h2>
