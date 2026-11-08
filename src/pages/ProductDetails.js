@@ -247,7 +247,7 @@ export default function ProductDetails() {
             setSlide(Math.round(e.currentTarget.scrollLeft / w));
           }}>
           {product.images.map((img, i) => (
-            <SmartImage key={i} src={img} alt={'view ' + (i + 1)} style={{ flex: '0 0 100%' }} />
+            <SmartImage key={i} src={img} alt={'view ' + (i + 1)} eager={i === 0} style={{ flex: '0 0 100%' }} />
           ))}
         </div>
         {product.images.length > 1 && (
