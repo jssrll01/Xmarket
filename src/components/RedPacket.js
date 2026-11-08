@@ -39,7 +39,6 @@ export function PacketBubble({ m, onClaimed, onToast }) {
         <div style={{ padding: '14px 14px 10px', background: 'linear-gradient(135deg,#EF4444,#DC2626)', color: '#fff' }}>
           <div style={{ fontSize: 30, lineHeight: 1 }}>🧧</div>
           <div style={{ fontWeight: 800, fontSize: 15, marginTop: 6 }}>{p.note || 'Good luck!'}</div>
-          {p.amount != null && <div style={{ fontSize: 13, fontWeight: 700, marginTop: 2, opacity: 0.95 }}>{peso(p.amount)}</div>}
         </div>
         <div style={{ padding: '7px 14px', background: '#FEF3C7', color: '#92400E', fontSize: 11.5, fontWeight: 800, display: 'flex', justifyContent: 'space-between' }}>
           <span>{busy ? 'Opening…' : state}</span>
