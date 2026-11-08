@@ -71,7 +71,7 @@ export default function Checkout() {
 
   const [form, setForm] = useState({
     fullName: '', mobile: '', email: '', address: '', landmark: '', province: '',
-    city: '', barangay: '', instructions: '', note: '',
+    city: '', barangay: '', postalCode: '', instructions: '', note: '',
     payment: 'gcash',
     delivery: 'doortodoor'
   });
@@ -146,7 +146,7 @@ export default function Checkout() {
   const applyAddress = (a) => {
     setAddrId(a.id); setAddrView(a);
     setForm(f => ({ ...f, fullName: a.full_name, mobile: a.phone, address: a.address, landmark: a.landmark || '',
-      province: a.province, city: a.city, barangay: a.barangay }));
+      province: a.province, city: a.city, barangay: a.barangay, postalCode: a.postal_code || '' }));
     try { localStorage.setItem('xm_ship_addr', a.id); } catch (e) { /* ignore */ }
   };
 
@@ -184,7 +184,7 @@ export default function Checkout() {
   const LABELS = {
     fullName: 'Full Name', mobile: 'Mobile Number', email: 'Email Address', address: 'Delivery Address',
     landmark: 'Nearest Landmark', province: 'Province', city: 'City / Municipality',
-    barangay: 'Barangay'
+    barangay: 'Barangay', postalCode: 'Postal Code'
   };
   const REQUIRED = Object.keys(LABELS);
 
@@ -265,8 +265,9 @@ export default function Checkout() {
     try {
       // Base required fields
       const requiredFields = ['fullName', 'mobile', 'email'];
+      if (gift.on) requiredFields.push('address', 'province', 'city', 'barangay', 'postalCode');
       if (form.delivery === 'express' || form.delivery === 'doortodoor') {
-        requiredFields.push('address', 'province', 'city', 'barangay');
+        requiredFields.push('address', 'province', 'city', 'barangay', 'postalCode');
       }
       const missingFields = requiredFields.filter(k => !form[k] || !form[k].trim());
 
