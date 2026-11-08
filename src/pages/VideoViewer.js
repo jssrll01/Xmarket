@@ -56,6 +56,7 @@ function CommentSheet({ video, onClose, onAdded }) {
 function Player({ v, active, near }) {
   const ref = useRef(null);
   const first = useRef(active);
+  const last = useRef(null);
   const [ready, setReady] = useState(false);
   const [paused, setPaused] = useState(false);
   const [flash, setFlash] = useState(false);
@@ -69,13 +70,12 @@ function Player({ v, active, near }) {
   useEffect(() => {
     if (!ready || !ref.current) return undefined;
     const go = active && !paused;
-    const send = () => {
-      const w = ref.current && ref.current.contentWindow;
-      if (w) w.postMessage(JSON.stringify({ event: 'command', func: go ? 'playVideo' : 'pauseVideo', args: [] }), '*');
-    };
-    send();
-    const t = setTimeout(send, 500);
-    return () => clearTimeout(t);
+    if (last.current === go) return undefined;
+    if (last.current === null && go && first.current) { last.current = go; return undefined; }
+    last.current = go;
+    const w = ref.current && ref.current.contentWindow;
+    if (w) w.postMessage(JSON.stringify({ event: 'command', func: go ? 'playVideo' : 'pauseVideo', args: [] }), '*');
+    return undefined;
   }, [active, paused, ready]);
   const src = 'https://www.youtube-nocookie.com/embed/' + v.youtube_id
     + '?enablejsapi=1&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&modestbranding=1&playsinline=1&loop=1&playlist=' + v.youtube_id
@@ -84,6 +84,7 @@ function Player({ v, active, near }) {
     <div className={'vv-frame' + (v.is_short ? ' short' : '')}>
       <img className="vv-poster" src={thumb(v)} alt="" />
       {near && <iframe ref={ref} className={ready ? 'on' : ''} title={v.title || 'video'} src={src} onLoad={() => setReady(true)} allow="autoplay; encrypted-media" tabIndex={-1} />}
+      <div className="vv-mask" />
       <div className="vv-shield" onClick={tapIt}>
         {flash && <span className="vv-playic"><Play size={44} fill="#fff" color="#fff" /></span>}
       </div>
