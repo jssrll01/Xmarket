@@ -2,7 +2,6 @@ import XCoin from './XCoin';
 import PinHost from './components/PinHost';
 import ChangePin from './pages/ChangePin';
 import MarketShop from './pages/MarketShop';
-import Cinema from './pages/Cinema';
 import Articles from './pages/Articles';
 import Scholarships from './pages/Scholarships';
 import Freelance from './pages/Freelance';
@@ -198,7 +197,6 @@ function Router() {
         <Route path="/socials" element={<Socials />} />
         <Route path="/xwallet/change-pin" element={<ChangePin />} />
         <Route path="/market-shop" element={<MarketShop />} />
-        <Route path="/cinema" element={<Cinema />} />
         <Route path="/articles" element={<Articles />} />
         <Route path="/scholarships" element={<Scholarships />} />
         <Route path="/freelance" element={<Freelance />} />
