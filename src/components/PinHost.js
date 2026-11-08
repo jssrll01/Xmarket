@@ -7,7 +7,7 @@ const card = { width: '100%', maxWidth: 340, background: '#fff', borderRadius: 2
 const inp = { width: '100%', padding: 13, fontSize: 22, letterSpacing: 10, textAlign: 'center', marginBottom: 10 };
 const digits = (s) => String(s).replace(/\D/g, '').slice(0, 4);
 const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const LABEL = { transfer: 'Send Money', withdraw: 'Withdrawal', load: 'Buy Load' };
+const LABEL = { transfer: 'Send Money', withdraw: 'Withdrawal', load: 'Buy Load', market: 'Market Shop' };
 
 function SetForm({ onDone }) {
   const [a, setA] = useState('');

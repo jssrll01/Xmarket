@@ -59,6 +59,12 @@ export default function Xwallet() {
           </div>
         </div>
 
+        <div className="card" onClick={() => nav('/market-shop')} style={{ padding: 14, marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 22 }}>🛍️</span>
+          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, fontSize: 14 }}>Market Shop</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Buy with Xwallet or gift a friend</div></div>
+          <ChevronRight size={18} color="#94a3b8" />
+        </div>
+
         <div className="card" onClick={() => nav('/xwallet/change-pin')} style={{ padding: 14, marginBottom: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 22 }}>🔒</span>
           <div style={{ flex: 1 }}><div style={{ fontWeight: 800, fontSize: 14 }}>Change PIN</div><div style={{ fontSize: 12, color: 'var(--muted)' }}>Confirm your password first</div></div>
