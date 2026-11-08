@@ -33,6 +33,15 @@ export default function SocialsCreator() {
     if (r && r.ok) setPosts(a => a.map(x => x.id === p.id ? { ...x, liked: r.liked, likes: r.likes } : x));
   };
   const share = async (p) => { const r = await sharePost(p); if (r === 'copied') show('Link copied'); };
+  const pin = async (p) => {
+    const un = !!p.pinned_at;
+    const { data, error } = un ? await supabase.rpc('creator_unpin_post') : await supabase.rpc('creator_pin_post', { p_post: p.id });
+    if (error) return show(error.message);
+    if (!data || !data.ok) return show((data && data.error) || 'Could not update.');
+    const b = await supabase.rpc('socials_feed', { p_before: null, p_username: username, p_limit: 30 });
+    setPosts(b.data || []);
+    show(un ? 'Post unpinned' : 'Post pinned');
+  };
   const openDm = async () => {
     const { data, error } = await supabase.rpc('dm_open', { p_other: prof.creator_id });
     if (error) return show(error.message);
@@ -70,7 +79,7 @@ export default function SocialsCreator() {
           <button type="button" className={tab === 'videos' ? 'on' : ''} onClick={() => setTab('videos')}>Videos</button>
         </div>
         {tab === 'posts' && posts.length === 0 && <div style={{ textAlign: 'center', color: 'var(--muted)', padding: 30 }}>No posts yet.</div>}
-        {tab === 'posts' && posts.map(p => <PostCard key={p.id} p={p} onLike={like} onShare={share} />)}
+        {tab === 'posts' && posts.map(p => <PostCard key={p.id} p={p} onLike={like} onShare={share} onPin={pin} />)}
         {tab === 'videos' && <ProfileVideos username={username} />}
       </>)}
     </div>

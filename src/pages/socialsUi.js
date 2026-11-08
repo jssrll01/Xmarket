@@ -1,7 +1,7 @@
 import FollowChip from './FollowChip';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Share2, Gift } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Gift, Pin } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { MentionText } from '../components/MsgKit';
 import GiftSheet from '../components/GiftSheet';
@@ -57,7 +57,7 @@ function Caption({ p }) {
   );
 }
 
-export function PostCard({ p, onLike, onShare }) {
+export function PostCard({ p, onLike, onShare, onPin }) {
   const nav = useNavigate();
   const [gift, setGift] = React.useState(false);
   const [sh, setSh] = React.useState(false);
@@ -68,6 +68,7 @@ export function PostCard({ p, onLike, onShare }) {
         <div><div style={{ fontWeight: 800, fontSize: 14 }}>@{p.username}</div><div style={{ fontSize: 11, color: 'var(--muted)' }}>{time12(p.created_at)}</div></div>
         {!p.mine && p.creator_id && <FollowChip creatorId={p.creator_id} initial={p.following} />}
       </div>
+      {p.pinned_at && <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px 8px', fontSize: 12, fontWeight: 800, color: '#2563EB' }}><Pin size={13} fill="#2563EB" /> Pinned</div>}
       <img src={p.image_url} alt="" loading="lazy" style={{ width: '100%', display: 'block', maxHeight: 520, objectFit: 'cover', background: '#EEF1F6' }} />
       <div style={{ display: 'flex', gap: 18, padding: '10px 12px 4px' }}>
         <button onClick={() => onLike(p)} aria-label="Like" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13 }}>
@@ -79,6 +80,11 @@ export function PostCard({ p, onLike, onShare }) {
         {!p.mine && (
           <button onClick={() => setGift(true)} aria-label="Gift creator" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13 }}>
             <Gift size={21} color="#DC2626" /> Gift
+          </button>
+        )}
+        {p.mine && onPin && (
+          <button onClick={() => onPin(p)} aria-label={p.pinned_at ? 'Unpin post' : 'Pin post'} style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13 }}>
+            <Pin size={20} color={p.pinned_at ? '#2563EB' : '#475569'} fill={p.pinned_at ? '#2563EB' : 'none'} /> {p.pinned_at ? 'Unpin' : 'Pin'}
           </button>
         )}
         <button onClick={() => setSh(true)} aria-label="Share" style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 700, fontSize: 13, marginLeft: 'auto' }}>
