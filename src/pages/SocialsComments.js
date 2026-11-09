@@ -25,7 +25,7 @@ export default function SocialsComments() {
     const { data } = await supabase.rpc('socials_comments', { p_post: id });
     setRows(data || []); setLoading(false);
   }, [id]);
-  useEffect(() => { load(); const t = setInterval(load, 15000); return () => clearInterval(t); }, [load]);
+  useEffect(() => { load(); }, [load]);
 
   const send = async () => {
     if (busy || !text.trim()) return;

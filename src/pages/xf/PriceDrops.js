@@ -140,7 +140,7 @@ export function PriceDropOrder() {
   const { oid } = useParams();
   const [o, setO] = useState(undefined);
   const load = () => supabase.from('price_drop_orders').select('*').eq('id', oid).single().then(({ data }) => setO(data || null));
-  useEffect(() => { load(); const t = setInterval(load, 15000); return () => clearInterval(t); // eslint-disable-next-line
+  useEffect(() => { load(); // eslint-disable-next-line
   }, [oid]);
   if (o === undefined) return <div className="xf"><style>{XF_CSS}</style><XfSkel kind="status" /></div>;
   if (!o) return <div className="xf"><style>{XF_CSS}</style><Head title="Order" nav={nav} /><div className="xf-card xf-empty">Order not found.</div></div>;

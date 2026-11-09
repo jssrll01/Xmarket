@@ -19,8 +19,7 @@ export default function DmInbox() {
     let alive = true;
     const load = () => supabase.rpc('dm_inbox').then(({ data }) => { if (alive) setRows(Array.isArray(data) ? data.filter(r => r.last_text) : []); });
     load();
-    const t = setInterval(load, 10000);
-    return () => { alive = false; clearInterval(t); };
+    return () => { alive = false; };
   }, []);
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60, maxWidth: 560, margin: '0 auto' }}>
@@ -64,7 +63,7 @@ export function DmChat() {
     const { data } = await supabase.rpc('dm_thread', { p_thread: tid });
     setD(data && data.ok ? { ...data, messages: (data.messages || []).filter(m => Date.now() - new Date(m.created_at).getTime() < DAY_MS) } : { ok: false });
   }, [tid]);
-  useEffect(() => { load(); const t = setInterval(load, 2500); return () => clearInterval(t); }, [load]);
+  useEffect(() => { load(); }, [load]);
   useEffect(() => {
     const n = d && d.messages ? d.messages.length : 0;
     if (n !== last.current) { last.current = n; if (end.current) end.current.scrollIntoView({ behavior: 'smooth' }); }

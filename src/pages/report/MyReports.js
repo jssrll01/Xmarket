@@ -42,7 +42,7 @@ export default function MyReports() {
       }
     };
     load();
-    const id = setInterval(load, 5000); // refresh every 5s
+    const id = null;
     return () => { alive = false; clearInterval(id); };
   }, [user]);
 

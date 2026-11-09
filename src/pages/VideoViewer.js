@@ -19,7 +19,7 @@ function CommentSheet({ video, onClose, onAdded }) {
     const { data } = await supabase.rpc('video_comments_list', { p_video: video.id });
     setRows(Array.isArray(data) ? data : []);
   }, [video.id]);
-  useEffect(() => { load(); const t = setInterval(load, 15000); return () => clearInterval(t); }, [load]);
+  useEffect(() => { load(); }, [load]);
   const send = async () => {
     if (busy || !text.trim()) return;
     setBusy(true);
