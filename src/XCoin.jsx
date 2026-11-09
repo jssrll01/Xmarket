@@ -119,6 +119,12 @@ export default function XCoin() {
   const [ticks, setTicks] = useState([]);
   const [hover, setHover] = useState(null);
   const [positions, setPositions] = useState([]);
+  const [supply, setSupply] = useState(null);
+  const loadSupply = useCallback(async () => {
+    const { data } = await supabase.rpc('xcoin_supply');
+    if (data) setSupply(data);
+  }, []);
+  useEffect(() => { loadSupply(); const t = setInterval(loadSupply, 15000); return () => clearInterval(t); }, [loadSupply]);
 
   const boxRef = useRef(null);
   const chartRef = useRef(null);
@@ -287,6 +293,7 @@ export default function XCoin() {
   const rangePos = hi > lo ? Math.min(100, Math.max(0, ((price - lo) / (hi - lo)) * 100)) : 50;
 
   const atLimit = positions.length >= 10;
+  const soldOut = !!(supply && supply.limited && Number(supply.available) <= 0);
 
   const closePosition = async (id) => {
     if (loading) return;
@@ -331,6 +338,7 @@ export default function XCoin() {
     if (!validAmt) { setMessage('Please enter a valid amount.'); setLoading(false); return; }
     if (amt > maxAmt + 1e-9) { setMessage(tradeType === 'buy' ? 'Not enough Xwallet balance.' : 'Not enough XCOIN balance.'); setLoading(false); return; }
     if (tradeType === 'buy' && atLimit) { setMessage('Maximum of 10 open positions reached. Close one first.'); setLoading(false); return; }
+    if (tradeType === 'buy' && supply && supply.limited && youGet > Number(supply.available) + 1e-9) { setMessage(soldOut ? 'XCOIN is sold out right now.' : 'Not enough XCOIN available. Only ' + Number(supply.available).toFixed(4) + ' left.'); setLoading(false); return; }
     const ref = 'XCOIN-' + Date.now() + '-' + Math.random().toString(36).substring(7);
     if (tradeType === 'buy') {
       const { data, error } = await supabase.rpc('xcoin_buy', { p_php_amount: amt, p_ref: ref });
@@ -342,6 +350,7 @@ export default function XCoin() {
       else setMessage(`Successfully sold ${amt} XCOIN for ₱${data.php_received.toFixed(2)} at ₱${data.execution_price.toFixed(2)}`);
     }
     await loadAccount();
+    loadSupply();
     setTradeAmount(''); setLoading(false);
   };
 
@@ -426,6 +435,7 @@ export default function XCoin() {
               <div className="xc-pcts">
                 {[0.25, 0.5, 0.75, 1].map((p) => <button type="button" key={p} onClick={() => setPct(p)}>{p === 1 ? 'MAX' : p * 100 + '%'}</button>)}
               </div>
+              {tradeType === 'buy' && supply && supply.limited && <div className="xc-row"><span>XCOIN available to buy</span><b style={{ color: soldOut ? DOWN : undefined }}>{soldOut ? 'Sold out' : Number(supply.available).toLocaleString('en-PH', { maximumFractionDigits: 4 })}</b></div>}
               <div className="xc-row"><span>Market price</span><b>{peso(price, 4)}</b></div>
               <div className="xc-row"><span>Execution price (±0.5% spread)</span><b>{peso(tradeType === 'buy' ? execBuy : execSell, 4)}</b></div>
               <div className="xc-row"><span>Spread cost</span><b>{peso(spreadCost, 2)}</b></div>
@@ -433,8 +443,8 @@ export default function XCoin() {
                 <span>{tradeType === 'buy' ? 'You receive' : 'You receive (PHP)'}</span>
                 <b style={{ fontSize: 15 }}>{tradeType === 'buy' ? `${youGet.toFixed(4)} XCOIN` : peso(youGet)}</b>
               </div>
-              <button disabled={loading || (tradeType === 'buy' && atLimit)} type="submit" className="xc-go" style={{ background: tradeType === 'buy' ? UP : DOWN, color: '#fff' }}>
-                {loading ? 'Processing...' : tradeType === 'buy' ? 'Buy XCOIN' : 'Sell XCOIN'}
+              <button disabled={loading || (tradeType === 'buy' && (atLimit || soldOut))} type="submit" className="xc-go" style={{ background: tradeType === 'buy' ? UP : DOWN, color: '#fff' }}>
+                {loading ? 'Processing...' : tradeType === 'buy' ? (soldOut ? 'Sold out' : 'Buy XCOIN') : 'Sell XCOIN'}
               </button>
             </form>
             {message && <div className="xc-msg" style={{ background: message.includes('Success') ? 'rgba(22,163,74,.10)' : 'rgba(220,38,38,.10)', color: message.includes('Success') ? UP : '#b91c1c' }}>{message}</div>}
