@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import GlobalProductPreview from './GlobalProductPreview';
 
 // Pages where a refresh would lose what the user is doing
 const SKIP = ['/play-time', '/checkout', '/creator-studio', '/signin', '/signup', '/forgot', '/product/', '/cart', '/video', '/chat'];
@@ -28,5 +29,5 @@ export default function LiveRoutes({ children }) {
     return () => { clearTimeout(t); supabase.removeChannel(ch); };
   }, []);
 
-  return <React.Fragment key={tick}>{children}</React.Fragment>;
+  return <><React.Fragment key={tick}>{children}</React.Fragment><GlobalProductPreview /></>;
 }

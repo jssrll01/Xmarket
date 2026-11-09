@@ -30,6 +30,7 @@ export default function LongPressPreview({ product, children, delay = 450 }) {
 
   return (
     <div
+      data-lp="1"
       onTouchStart={down} onTouchMove={move} onTouchEnd={up} onTouchCancel={up}
       onContextMenu={(e) => e.preventDefault()}
       onClickCapture={(e) => { if (fired.current) { e.preventDefault(); e.stopPropagation(); fired.current = false; } }}
