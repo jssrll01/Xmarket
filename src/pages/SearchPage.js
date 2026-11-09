@@ -4,12 +4,14 @@ import { ArrowLeft, Search, X, Clock, Trash2, TrendingUp, PackageSearch } from '
 import { supabase } from '../lib/supabase';
 import useRecentSearches from '../hooks/useRecentSearches';
 import { imgUrl } from '../lib/img';
+import VoiceButton from '../components/VoiceButton';
+import LongPressPreview from '../components/LongPressPreview';
 
 const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { maximumFractionDigits: 2 });
 const clean = (s) => String(s || '').replace(/[%,()*\\]/g, ' ').trim();
 const minPrice = (vp) => { const v = Object.values(vp || {}).map(Number).filter(n => n > 0); return v.length ? Math.min(...v) : 0; };
 const SORTS = [['rel', 'Relevance'], ['new', 'Latest'], ['sold', 'Top Sales'], ['pa', 'Price ↑'], ['pd', 'Price ↓']];
-const COLS = 'id,name,category,store,images,sold,variant_prices,created_at';
+const COLS = 'id,name,category,store,images,sold,variant_prices,created_at,description';
 
 function ProductRow({ title, items }) {
   if (!items || items.length === 0) return null;
@@ -114,6 +116,7 @@ export default function SearchPage() {
             style={{ width: '100%', height: 44, padding: '0 38px 0 36px', fontSize: 15 }} />
           {text && <button type="button" aria-label="Clear" onClick={() => { setText(''); setParams({}); if (inputRef.current) inputRef.current.focus(); }} style={{ position: 'absolute', right: 8, top: 10 }}><X size={18} /></button>}
         </form>
+        <VoiceButton onText={(t, fin) => { setText(t); if (fin) go(t); }} />
         <button onClick={() => go(text)} style={{ fontWeight: 800, color: 'var(--primary)', padding: '0 4px' }}>Search</button>
       </div>
 
@@ -163,7 +166,7 @@ export default function SearchPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, padding: '0 12px' }}>
           {loading && [0, 1, 2, 3].map(i => <div key={i} className="sk" style={{ borderRadius: 14, height: 250 }} />)}
           {!loading && list.map(p => (
-            <Link key={p.id} to={'/product/' + p.id} className="card" style={{ overflow: 'hidden', display: 'block' }}>
+            <LongPressPreview key={p.id} product={{ name: p.name, price: p.price, image: p.images && p.images[0] ? imgUrl(p.images[0], 700) : '', description: p.description }}><Link to={'/product/' + p.id} className="card" style={{ overflow: 'hidden', display: 'block' }}>
               <div style={{ aspectRatio: '1 / 1', background: '#EEF1F6' }}>
                 {p.images && p.images[0] && <img src={imgUrl(p.images[0], 400)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
               </div>
@@ -175,7 +178,7 @@ export default function SearchPage() {
                   <span>{p.sold || 0} sold</span>
                 </div>
               </div>
-            </Link>
+            </Link></LongPressPreview>
           ))}
         </div>
         {!loading && list.length === 0 && (

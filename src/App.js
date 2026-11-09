@@ -6,6 +6,7 @@ import Articles from './pages/Articles';
 import Scholarships from './pages/Scholarships';
 import Freelance from './pages/Freelance';
 import React from 'react';
+import LiveRoutes from './components/LiveRoutes';
 import { Routes, Route } from 'react-router-dom';
 import CreatorStudio from './pages/CreatorStudio';
 import CreatorReferrals from './pages/CreatorReferrals';
@@ -130,7 +131,7 @@ function Router() {
   return (
     <>
 <PinHost />
-      <Routes>
+      <LiveRoutes><Routes>
         <Route path="/landing-page" element={<LandingPage />} />
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetails />} />
@@ -234,7 +235,7 @@ function Router() {
         <Route path="/support" element={<Xupport />} />
         <Route path="*" element={<NotFound />} />
       <Route path="/xcoin" element={<XCoin />} />
-</Routes>
+</Routes></LiveRoutes>
       <LaunchPopups />
       <BottomNav />
     </>

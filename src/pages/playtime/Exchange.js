@@ -47,7 +47,7 @@ export default function Exchange() {
 
   const totalPts = (hist || []).reduce((a, t) => a + (t.spent || 0), 0);
   const totalPhp = (hist || []).reduce((a, t) => a + Number(t.wallet_credit || 0), 0);
-  const chip = { padding: '8px 14px', borderRadius: 999, border: '1px solid var(--border)', background: '#fff', fontWeight: 700, fontSize: 13 };
+  const chip = { padding: '8px 14px', borderRadius: 999, border: '1px solid var(--border)', background: 'var(--card,#fff)', color: 'var(--text)', fontWeight: 700, fontSize: 13 };
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
@@ -75,7 +75,7 @@ export default function Exchange() {
             {cfg.denominations.map(d => <button key={d} onClick={() => setAmount(String(d))} style={chip}>{fmt(d)}</button>)}
             <button onClick={() => setAmount(String(status.loyalty_points))} style={{ ...chip, borderColor: '#2563EB', color: '#2563EB' }}>All</button>
           </div>
-          <div style={{ marginTop: 14, padding: 12, borderRadius: 12, background: '#F1F5F9', display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+          <div style={{ marginTop: 14, padding: 12, borderRadius: 12, background: 'var(--bg,#F1F5F9)', display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
             <span style={{ color: 'var(--muted)' }}>You will receive</span><b style={{ color: '#059669', fontSize: 15 }}>{peso(n * rate)}</b>
           </div>
         </div>
@@ -103,13 +103,13 @@ export default function Exchange() {
 
       {ask && (
         <div onClick={() => !busy && setAsk(false)} style={{ position: 'fixed', inset: 0, zIndex: 3000, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'flex-end' }}>
-          <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: '#fff', borderRadius: '22px 22px 0 0', padding: 20, paddingBottom: 32 }}>
+          <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: 'var(--card,#fff)', color: 'var(--text)', borderRadius: '22px 22px 0 0', padding: 20, paddingBottom: 32 }}>
             <h3 style={{ fontSize: 17, fontWeight: 800, marginBottom: 8 }}>Confirm exchange</h3>
             <p style={{ fontSize: 13.5, lineHeight: 1.6, marginBottom: 6 }}>Exchange <b>{fmt(n)}</b> Loyalty Points for <b>{peso(n * rate)}</b> in your Xwallet.</p>
             <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6 }}><ShieldCheck size={14} /> This cannot be reversed.</p>
             <div style={{ display: 'flex', gap: 8 }}>
               <button className="btn-ghost" disabled={busy} onClick={() => setAsk(false)} style={{ flex: 1, padding: 13 }}>Cancel</button>
-              <button className="btn-primary" disabled={busy} onClick={doExchange} style={{ flex: 1, padding: 13 }}>{busy ? 'Processing…' : 'Confirm'}</button>
+              <button className="btn-primary" aria-busy={busy} disabled={busy} onClick={doExchange} style={{ flex: 1, padding: 13 }}>{busy ? 'Processing…' : 'Confirm'}</button>
             </div>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { CardListSkeleton } from './Skeleton';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, Calendar } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -21,7 +22,7 @@ export default function OppList({ title, rpc, kind, empty }) {
         <button className="icon-btn" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button>
         <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>{title}</h2>
       </div>
-      {rows === null && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>Loading…</div>}
+      {rows === null && <CardListSkeleton count={3} />}
       {rows && rows.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>{empty}</div>}
       {rows && rows.map((r) => {
         const isOpen = open === r.id;

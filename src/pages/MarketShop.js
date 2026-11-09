@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { CardListSkeleton } from '../components/Skeleton';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Crown, Gift } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -61,7 +62,7 @@ export default function MarketShop() {
           <Crown size={16} /> VIP active until {day(vip.expires_at)}
         </div>
       )}
-      {items === null && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>Loading…</div>}
+      {items === null && <CardListSkeleton count={3} />}
       {items && items.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>Nothing for sale yet.</div>}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
         {items && items.map((it) => (

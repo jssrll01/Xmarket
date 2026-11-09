@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { CardListSkeleton } from '../components/Skeleton';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Newspaper } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -105,7 +106,7 @@ export default function Articles() {
         <button className="icon-btn" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button>
         <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Weekly Articles</h2>
       </div>
-      {rows === null && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>Loading…</div>}
+      {rows === null && <CardListSkeleton count={3} />}
       {rows && rows.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>No articles yet.</div>}
       {loadingArt && <div style={{ textAlign: 'center', color: 'var(--muted)', marginBottom: 8 }}>Opening…</div>}
       {rows && rows.map((a) => (
