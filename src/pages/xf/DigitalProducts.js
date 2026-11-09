@@ -78,15 +78,15 @@ export default function DigitalProducts() {
         const own = mine[it.id];
         return (
           <div className="card" key={it.id} style={{ padding: 12, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ width: 44, height: 44, borderRadius: 12, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><FileText size={20} /></span>
+            <span style={{ width: 44, height: 44, minWidth: 44, borderRadius: 12, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><FileText size={20} /></span>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 800, fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis' }}>{it.title}</div>
+              <div title={it.title} style={{ fontWeight: 800, fontSize: 13, lineHeight: 1.3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', wordBreak: 'break-word' }}>{it.title}</div>
               <div style={{ fontSize: 12, color: 'var(--muted)' }}>{size(it.file_size)}{own ? ' · Purchased' : ' · Final sale'}</div>
               {!own && <div style={{ fontWeight: 900, color: '#2563EB', marginTop: 2 }}>{it.price > 0 ? peso(it.price) : 'Free'}</div>}
             </div>
             {own
               ? <button className="btn-primary" style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 6 }} onClick={() => dl(own.path, own.name)}><Download size={15} /> Download</button>
-              : <button className="btn-primary" style={{ padding: '10px 16px' }} disabled={!!busy} onClick={() => buy(it)}>{busy === it.id ? 'Paying…' : 'Buy'}</button>}
+              : <button className="btn-primary" style={{ padding: '10px 16px', flexShrink: 0 }} disabled={!!busy} onClick={() => buy(it)}>{busy === it.id ? 'Paying…' : 'Buy'}</button>}
           </div>
         );
       })}
