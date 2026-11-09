@@ -104,6 +104,20 @@ function aggregate(ticks, step) {
   return { candles, vols };
 }
 
+function ExpiryClock({ openedAt }) {
+  const [now, setNow] = React.useState(Date.now());
+  React.useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  if (!openedAt) return null;
+  const end = new Date(openedAt).getTime() + 12 * 60 * 60 * 1000;
+  const left = end - now;
+  const at = new Date(end).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+  if (left <= 0) return <div style={{ fontSize: 11, color: '#f59e0b', marginTop: 2 }}>Expiring now · {at}</div>;
+  const h = Math.floor(left / 3600000), m = Math.floor((left % 3600000) / 60000), sec = Math.floor((left % 60000) / 1000);
+  const pad = (n) => String(n).padStart(2, '0');
+  return <div style={{ fontSize: 11, color: '#f59e0b', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>Expires {at} · in {h}h {pad(m)}m {pad(sec)}s</div>;
+}
+
+
 export default function XCoin() {
   const navigate = useNavigate();
   const [market, setMarket] = useState({ current_price: 0, prev_price: 0, current_regime: 'Loading...', high_24h: 0, low_24h: 0, ath: 0, atl: 0, volume_24h: 0 });
@@ -329,7 +343,7 @@ export default function XCoin() {
             <div>
               <div><b>{Number(p.xcoin_amount).toFixed(4)} XCOIN</b> @ {peso(Number(p.entry_price), 4)}</div>
               <div style={{ opacity: 0.7 }}>Value {peso(val)} · <span style={{ color: pl >= 0 ? UP : DOWN, fontWeight: 700 }}>{pl >= 0 ? '+' : ''}{peso(pl)} ({plPct.toFixed(2)}%)</span></div>
-              {timeStr && <div style={{ fontSize: 11, color: '#f59e0b', marginTop: 2 }}>{timeStr === 'now' ? 'Expiring now' : 'Expires ' + timeStr}</div>}
+              <ExpiryClock openedAt={p.opened_at} />
             </div>
             <button type="button" disabled={loading} onClick={() => closePosition(p.id)} style={{ padding: '6px 12px', borderRadius: 8, border: 'none', background: DOWN, color: '#fff', fontWeight: 700, fontSize: 12 }}>Close</button>
           </div>
