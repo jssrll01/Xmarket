@@ -191,7 +191,7 @@ export default function Home() {
   const [showFilters, setShowFilters] = useState(false);
   const [storeFilter, setStoreFilter] = useState('');
   const [category, setCategory] = useState((() => { try { return sessionStorage.getItem('xm_home_cat') || 'All'; } catch (e) { return 'All'; } }));
-  const [sort, setSort] = useState((() => { try { return sessionStorage.getItem('xm_home_sort') || 'price'; } catch (e) { return 'price'; } }));
+  const [sort, setSort] = useState((() => { try { return sessionStorage.getItem('xm_home_sort') || 'random'; } catch (e) { return 'random'; } }));
   const [loadingId, setLoadingId] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [bannerIdx, setBannerIdx] = useState(0);
@@ -377,6 +377,11 @@ export default function Home() {
   }
   if (sort === 'rating')   filtered.sort((a,b) => ((stats[b.uuid]?.avgRating || 0) - (stats[a.uuid]?.avgRating || 0)));
   if (sort === 'newest')   filtered.sort((a,b) => (b.created_at || '') > (a.created_at || '') ? 1 : -1);
+  if (sort === 'random') {
+    const R = (window.__xmRnd = window.__xmRnd || new Map());
+    const rk = (x) => { const k = x.uuid || x.id; if (!R.has(k)) R.set(k, Math.random()); return R.get(k); };
+    filtered.sort((a, b) => rk(a) - rk(b));
+  }
   if (sort === 'relevance') { /* no sort override — natural order */ }
   filtered = sortByStock(filtered);
 
@@ -413,7 +418,7 @@ export default function Home() {
   const clearFilters = () => {
     setSearch('');
     setCategory('All');
-    setSort('price');
+    setSort('random');
     setMinRating(0);
     setMaxPrice(1000000);
     setMinDiscount(0);
@@ -759,8 +764,9 @@ export default function Home() {
               <span className="filters-dot" />
             )}
           </button>
-        <Dropdown value={sort} onChange={setSort}
+        <Dropdown value={sort} onChange={(v) => { if (v === 'random' && window.__xmRnd) window.__xmRnd.clear(); setSort(v); }}
           options={[
+            { value: 'random',     label: 'Random' },
             { value: 'relevance',  label: 'Sort by relevance' },
             { value: 'newest',     label: 'Sort by newest' },
             { value: 'price',      label: 'Sort by price' },
