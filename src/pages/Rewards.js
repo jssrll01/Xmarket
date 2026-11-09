@@ -3,19 +3,17 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Award, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { fetchLoyalty, fetchLoyaltyLedger } from '../lib/promos';
+import { fetchLoyalty, fetchLoyaltyLedger, fetchLoyaltyTiers } from '../lib/promos';
 
-const TIERS = [
-  { name: 'Bronze', min: 300,  color: '#B45309' },
-  { name: 'Silver', min: 700,  color: '#9CA3AF' },
-  { name: 'Gold',   min: 1000, color: '#F59E0B' },
-];
+// Tiers come from the database; only the badge colour is derived here.
+const tierColor = (i, n) => `hsl(${Math.round(28 + (i / Math.max(1, n - 1)) * 290)}, 80%, 58%)`;
 
 export default function Rewards() {
   const nav = useNavigate();
   const { user } = useAuth();
   const [points, setPoints] = useState(0);
   const [ledger, setLedger] = useState([]);
+  const [tiers, setTiers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -23,8 +21,9 @@ export default function Rewards() {
     Promise.all([
       fetchLoyalty(user.id),
       fetchLoyaltyLedger(user.id),
-    ]).then(([p, l]) => {
-      setPoints(p ?? 0); setLedger(Array.isArray(l) ? l : []); setLoading(false);
+      fetchLoyaltyTiers().catch(() => []),
+    ]).then(([p, l, t]) => {
+      setPoints(p ?? 0); setLedger(Array.isArray(l) ? l : []); setTiers(t); setLoading(false);
     }).catch(() => setLoading(false));
   }, [user]);
 
@@ -35,10 +34,13 @@ export default function Rewards() {
     </div>
   );
 
-  const tier = points >= 1000 ? 'Gold' : points >= 700 ? 'Silver' : 'Bronze';
-  const tierMeta = TIERS.find(t => t.name === tier);
-  const nextTier = TIERS.find(t => t.min > points);
-  const progress = nextTier ? Math.min(100, (points / nextTier.min) * 100) : 100;
+  const curIdx = tiers.reduce((acc, t, i) => (t.min <= points ? i : acc), -1);
+  const cur = curIdx >= 0 ? tiers[curIdx] : null;
+  const tier = cur ? cur.name : 'Loyalty';
+  const tierCol = cur ? tierColor(curIdx, tiers.length) : '#ffffff';
+  const nextTier = tiers.find(t => t.min > points);
+  const base = cur ? cur.min : 0;
+  const progress = nextTier ? Math.max(0, Math.min(100, ((points - base) / (nextTier.min - base)) * 100)) : 100;
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
@@ -63,7 +65,7 @@ export default function Rewards() {
       }}>
         <Sparkles size={80} style={{ position: 'absolute', top: -10, right: -20, opacity: 0.15 }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-          <Award size={18} color={tierMeta.color} fill={tierMeta.color} />
+          <Award size={18} color={tierCol} fill={tierCol} />
           <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', opacity: 0.9 }}>
             {tier} Member
           </span>

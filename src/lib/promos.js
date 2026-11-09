@@ -38,6 +38,16 @@ export async function fetchLoyalty(userId) {
   return data?.loyalty_points || 0;
 }
 
+// Tiers are edited in XADMIN (loyalty_tiers table). Sorted lowest to highest.
+export async function fetchLoyaltyTiers() {
+  const { data, error } = await supabase
+    .from('loyalty_tiers')
+    .select('name, min_points')
+    .order('min_points', { ascending: true });
+  if (error) throw error;
+  return (data || []).map(t => ({ name: t.name, min: Number(t.min_points) }));
+}
+
 export async function fetchLoyaltyLedger(userId) {
   const { data } = await supabase
     .from('loyalty_ledger')
