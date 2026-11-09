@@ -152,7 +152,7 @@ export default function CreatorNewPost() {
           ))}
         </div>
         <button className="btn-primary" aria-busy={busy} disabled={busy} onClick={submit} style={{ width: '100%', padding: 14, fontSize: 14, marginTop: 8 }}>{busy ? 'Posting…' : 'Post to Socials'}</button>
-        <p style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'center', marginTop: 10 }}>You can post once per day. The day resets at midnight (Manila time).</p>
+        <p style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'center', marginTop: 10 }}>You can post up to 10 times per day. The day resets at midnight (Manila time).</p>
       </div>
     </div>
   );
