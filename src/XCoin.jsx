@@ -318,11 +318,18 @@ export default function XCoin() {
         const val = Number(p.xcoin_amount) * execSell;
         const pl = val - cst;
         const plPct = cst ? (pl / cst) * 100 : 0;
+        
+        // Calculate Auto-Close Time (12 hours from created_at)
+        const created = p.created_at ? new Date(p.created_at) : new Date();
+        const autoClose = new Date(created.getTime() + 12 * 60 * 60 * 1000);
+        const timeStr = autoClose.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
         return (
           <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '8px 0', borderTop: '1px solid rgba(128,128,128,.25)', fontSize: 12 }}>
             <div>
               <div><b>{Number(p.xcoin_amount).toFixed(4)} XCOIN</b> @ {peso(Number(p.entry_price), 4)}</div>
               <div style={{ opacity: 0.7 }}>Value {peso(val)} · <span style={{ color: pl >= 0 ? UP : DOWN, fontWeight: 700 }}>{pl >= 0 ? '+' : ''}{peso(pl)} ({plPct.toFixed(2)}%)</span></div>
+              <div style={{ fontSize: 11, color: '#f59e0b', marginTop: 2 }}>Expires at {timeStr}</div>
             </div>
             <button type="button" disabled={loading} onClick={() => closePosition(p.id)} style={{ padding: '6px 12px', borderRadius: 8, border: 'none', background: DOWN, color: '#fff', fontWeight: 700, fontSize: 12 }}>Close</button>
           </div>
