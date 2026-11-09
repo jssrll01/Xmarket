@@ -12,7 +12,7 @@ export default function DigitalHub() {
       try {
         const [a, b, c, d] = await Promise.all([
           supabase.from('price_drops').select('id', { count: 'exact', head: true }).eq('status', 'active').gt('stock', 0),
-          supabase.from('digital_products').select('id', { count: 'exact', head: true }).gt('stock', 0),
+          supabase.from('digital_products').select('id', { count: 'exact', head: true }).eq('active', true),
           supabase.from('demand_polls').select('id', { count: 'exact', head: true }),
           supabase.from('sponsor_funds').select('raised,target'),
         ]);
