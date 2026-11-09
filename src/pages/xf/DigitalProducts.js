@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Carousel, XF_CSS, peso, useMe, XfSkel } from './xfUi';
+import DigitalFiles from './DigitalFiles';
 
 export default function DigitalProducts() {
   const nav = useNavigate();
@@ -40,6 +41,7 @@ export default function DigitalProducts() {
         <div><h1>Digital Products</h1><p>Pay with Xwallet. Delivered digitally.</p></div>
       </header>
       <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b></div>
+      <DigitalFiles onPaid={reload} />
       {items === null && <XfSkel kind="cards" />}
       {items && !items.length && <div className="xf-card xf-empty">No digital products yet.</div>}
       {(items || []).map((p) => {
