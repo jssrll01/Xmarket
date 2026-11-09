@@ -2669,3 +2669,10 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):focus, select:foc
 
 input[type="radio"], input[type="checkbox"] { outline: none !important; box-shadow: none !important; -webkit-tap-highlight-color: transparent; }
 input[type="radio"]:focus, input[type="radio"]:focus-visible, input[type="checkbox"]:focus, input[type="checkbox"]:focus-visible, input[type="radio"]:active, input[type="checkbox"]:active { outline: none !important; box-shadow: none !important; }
+
+
+/* button progress bar (round 17) */
+button[aria-busy="true"], .btn-busy { position: relative; overflow: hidden; pointer-events: none; }
+button[aria-busy="true"]::after, .btn-busy::after { content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 40%; background: currentColor; opacity: .85; border-radius: 3px; animation: btnProg 1.1s ease-in-out infinite; }
+@keyframes btnProg { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+@media (prefers-reduced-motion: reduce) { button[aria-busy="true"]::after { animation: none; width: 100%; opacity: .4; } }

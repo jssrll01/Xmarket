@@ -53,7 +53,7 @@ export default function CreatorNewVideo() {
         <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>YouTube video link</label>
         <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://www.youtube.com/watch?v=..." autoCapitalize="off" autoCorrect="off" style={{ width: '100%', padding: 12, marginTop: 6, marginBottom: 12, fontSize: 14 }} />
         <div style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5, marginBottom: 14 }}>
-          YouTube videos and Shorts are allowed. Post it on YouTube first, then paste the link here. Only your own videos. Up to 5 videos per day.
+          YouTube videos and Shorts are allowed. Post it on YouTube first, then paste the link here. Only your own videos. Up to 5 videos and 20 Shorts per day.
         </div>
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 12, fontWeight: 800, color: '#64748B', letterSpacing: '.06em', textTransform: 'uppercase', marginBottom: 8 }}>Tag products (optional, up to 3)</div>
@@ -71,7 +71,7 @@ export default function CreatorNewVideo() {
             </button>
           ))}
         </div>
-        <button className="btn-primary" disabled={busy} onClick={submit} style={{ width: '100%', padding: 13, fontWeight: 800 }}>{busy ? 'Posting…' : 'Post video'}</button>
+        <button className="btn-primary" aria-busy={busy} disabled={busy} onClick={submit} style={{ width: '100%', padding: 13, fontWeight: 800 }}>{busy ? 'Posting…' : 'Post video'}</button>
       </div>
     </div>
   );

@@ -88,7 +88,7 @@ export default function CreatorNewPost() {
   };
 
   const wrap = { padding: 16, paddingBottom: 60, maxWidth: 560, margin: '0 auto' };
-  const head = (<div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}><button className="icon-btn" aria-label="Back" onClick={() => nav('/creator-studio')}><ArrowLeft size={20} /></button><h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>New post</h2></div>);
+  const head = (<div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}><button className="icon-btn" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button><h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>New post</h2></div>);
 
   if (!state) return <div style={wrap}><SkStyle /><Sk h={40} style={{ marginBottom: 14 }} /><Sk h={220} r={18} style={{ marginBottom: 12 }} /><Sk h={120} r={18} /></div>;
   if (state !== 'approved') return <div style={wrap}>{head}<div className="card" style={{ padding: 20, textAlign: 'center' }}>{state === 'banned' ? 'This creator account is permanently banned.' : 'Only approved creators can post.'}</div></div>;
@@ -151,7 +151,7 @@ export default function CreatorNewPost() {
             </button>
           ))}
         </div>
-        <button className="btn-primary" disabled={busy} onClick={submit} style={{ width: '100%', padding: 14, fontSize: 14, marginTop: 8 }}>{busy ? 'Posting…' : 'Post to Socials'}</button>
+        <button className="btn-primary" aria-busy={busy} disabled={busy} onClick={submit} style={{ width: '100%', padding: 14, fontSize: 14, marginTop: 8 }}>{busy ? 'Posting…' : 'Post to Socials'}</button>
         <p style={{ fontSize: 11, color: 'var(--muted)', textAlign: 'center', marginTop: 10 }}>You can post once per day. The day resets at midnight (Manila time).</p>
       </div>
     </div>

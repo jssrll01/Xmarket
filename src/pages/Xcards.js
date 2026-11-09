@@ -77,6 +77,16 @@ const CSS = `
 .xc2-steps li{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid #E5E7EB}
 .xc2-steps i{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#94A3B8;width:18px;padding-top:2px}
 .xc2-steps b{display:block;font-size:13.5px}.xc2-steps span{font-size:12.5px;color:#64748B;line-height:1.45}
+
+.xc2-head p,.xc2-lab,.xc2-bal span,.xc2-stats span,.xc2-meta,.xc2-empty,.xc2-steps span,.xc2-note{color:var(--muted,#64748B)}
+.xc2-bal,.xc2-steps,.xc2-steps li{border-color:var(--border,#E5E7EB)}
+.xc2-bal b,.xc2-stats b,.xc2-steps b,.xc2-empty b,.xc2-code,.xc2-val{color:var(--text,#0F172A)}
+.xc2-seg,.xc2-stats,.xc2-list{background:var(--surface,#fff);border-color:var(--border,#D7DCE3)}
+.xc2-stats div,.xc2-seg button{border-color:var(--border,#D7DCE3)}
+.xc2 .xc2-seg button{background:var(--surface,#fff);color:var(--text,#0F172A)}
+.xc2 .xc2-seg button.on{background:#2563EB;color:#fff}
+.xc2-item{border-color:var(--border,#EEF1F5)}
+.xc2-copy{background:var(--surface,#fff);color:var(--text,#0F172A);border-color:var(--border,#D7DCE3)}
 `;
 
 export default function Xcards() {
@@ -155,7 +165,7 @@ export default function Xcards() {
           {DENOMS.map(d => <button key={d} className={selected === d ? 'on' : ''} onClick={() => setSelected(d)}>₱{d.toLocaleString()}</button>)}
         </div>
         {insufficient && <div className="xc2-warn">You need {peso(selected - balance)} more.<button onClick={() => nav('/xwallet/topup')}>Top up</button></div>}
-        <button className="xc2-buy" onClick={buy} disabled={buying || insufficient}>{buying ? 'Purchasing…' : `Buy ₱${selected.toLocaleString()} Xcard`}</button>
+        <button className="xc2-buy" aria-busy={buying} onClick={buy} disabled={buying || insufficient}>{buying ? 'Purchasing…' : `Buy ₱${selected.toLocaleString()} Xcard`}</button>
         <div className="xc2-note">Deducted from your Xwallet immediately.</div>
       </div>
 
