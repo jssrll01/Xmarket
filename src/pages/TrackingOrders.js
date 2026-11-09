@@ -218,10 +218,7 @@ export default function TrackingOrders() {
 
   useEffect(() => { fetchAll(false); }, [fetchAll]);
   useEffect(() => {
-    const tick = () => { if (!document.hidden) fetchAll(true); };
-    const t = setInterval(tick, 45000);
-    document.addEventListener('visibilitychange', tick);
-    return () => { clearInterval(t); document.removeEventListener('visibilitychange', tick); };
+    return undefined;
   }, [fetchAll]);
 
   if (authLoading || !user) return null;

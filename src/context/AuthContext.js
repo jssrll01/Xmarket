@@ -15,7 +15,7 @@ export function AuthProvider({ children }) {
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange(async (event, s) => {
-      setSession(s);
+      setSession((prev) => (prev && s && prev.user && s.user && prev.user.id === s.user.id && event !== 'USER_UPDATED' ? prev : s));
       if (event === 'SIGNED_IN' && s?.user) {
       }
     });
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
       .eq('id', session.user.id)
       .single()
       .then(({ data }) => setProfile(data));
-  }, [session]);
+  }, [session?.user?.id]);
 
   return (
     <AuthContext.Provider value={{ session, user: session?.user, profile, loading }}>

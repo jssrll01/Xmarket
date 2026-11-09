@@ -18,10 +18,6 @@ export default function useReactions(type, ids) {
   }, [type]);
 
   useEffect(() => { load(); }, [key, load]);
-  useEffect(() => {
-    const t = setInterval(() => { if (document.visibilityState === 'visible') load(); }, 7000);
-    return () => clearInterval(t);
-  }, [load]);
 
   const set = useCallback(async (id, kind) => {
     setMap((prev) => {

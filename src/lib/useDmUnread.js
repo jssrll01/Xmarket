@@ -11,10 +11,9 @@ export default function useDmUnread() {
       setCount(Array.isArray(data) ? data.reduce((s, r) => s + Number(r.unread || 0), 0) : 0);
     });
     load();
-    const t = setInterval(load, 15000);
     const onVis = () => { if (document.visibilityState === 'visible') load(); };
     document.addEventListener('visibilitychange', onVis);
-    return () => { alive = false; clearInterval(t); document.removeEventListener('visibilitychange', onVis); };
+    return () => { alive = false; document.removeEventListener('visibilitychange', onVis); };
   }, []);
   return count;
 }
