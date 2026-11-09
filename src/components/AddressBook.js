@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { CardListSkeleton } from './Skeleton';
 import { ArrowLeft, Plus, MapPin, Trash2, Check } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from './Toast';
@@ -113,7 +114,7 @@ export default function AddressBook({ mode = 'page', selectedId, onSelect, onClo
         {list && list.some((a) => !/^\d{4}$/.test(String(a.postal_code || '').trim())) && (
           <div style={{ margin: '0 12px 10px', padding: '10px 12px', borderRadius: 12, background: '#FEF3C7', border: '1px solid #FCD34D', color: '#92400E', fontSize: 13, fontWeight: 700 }}>Some saved addresses have no postal code. Tap Edit and add the 4-digit code so your orders can be delivered.</div>
         )}
-        {list === null ? <p style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>Loading…</p>
+        {list === null ? <CardListSkeleton count={2} />
           : list.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '50px 24px', color: 'var(--muted)' }}>
               <MapPin size={40} style={{ opacity: .4 }} />

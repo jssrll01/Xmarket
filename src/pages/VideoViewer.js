@@ -34,7 +34,7 @@ function CommentSheet({ video, onClose, onAdded }) {
       <div className="vv-sheet" onClick={(e) => e.stopPropagation()}>
         <div className="vv-sheet-h"><span>Comments</span><button type="button" aria-label="Close" onClick={onClose}><X size={20} /></button></div>
         <div className="vv-sheet-l">
-          {rows === null && <div className="vr-empty">Loading…</div>}
+          {rows === null && <div className="sk" style={{ height: 110, borderRadius: 14, margin: 12 }} />}
           {rows && rows.length === 0 && <div className="vr-empty">No comments yet. Comments disappear after 24 hours.</div>}
           {rows && rows.map((c) => (
             <div className="vv-cm" key={c.id}>
@@ -182,7 +182,7 @@ export default function VideoViewer() {
     <div className="vv-root">
       <button type="button" className="vv-back" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button>
       <div className="vv-scroll" ref={box} onScroll={onScroll}>
-        {loading && <div className="vv-item"><div className="vr-empty">Loading…</div></div>}
+        {loading && <div className="vv-item"><div className="sk" style={{ height: 110, borderRadius: 14, margin: 12 }} /></div>}
         {!loading && list.length === 0 && <div className="vv-item"><div className="vv-end"><b>Video not found</b>It may have been removed.</div></div>}
         {list.map((v, i) => (
           <section className="vv-item" key={v.id}>

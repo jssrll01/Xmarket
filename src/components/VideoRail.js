@@ -43,7 +43,7 @@ export default function VideoRail() {
 export function ProfileVideos({ username }) {
   const nav = useNavigate();
   const rows = useVideos(username, 30);
-  if (!rows) return <div className="vr-empty">Loading…</div>;
+  if (!rows) return <div className="sk" style={{ height: 110, borderRadius: 14, margin: 12 }} />;
   if (rows.length === 0) return <div className="vr-empty">No videos yet.</div>;
   return (
     <div className="vr-grid">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { ListRowsSkeleton, CardListSkeleton } from '../components/Skeleton';
 import { useNavigate } from 'react-router-dom';
 import { Crown, Truck, Headset, Sparkles, MessageCircle, Wallet, ShieldCheck, Clock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
@@ -225,7 +226,7 @@ function Dashboard({ user, profile, status, welcome, refresh }) {
 
       <div className="vip-panel">
         <div className="vip-sec">Subscription history</div>
-        {history === null && <div className="vip-note">Loading…</div>}
+        {history === null && <ListRowsSkeleton count={3} compact />}
         {history && history.length === 0 && <div className="vip-note">No purchases yet.</div>}
         {history && history.map((h) => {
           const live = new Date(h.expires_at) > new Date();
@@ -259,7 +260,7 @@ export default function Vip() {
 
   let body;
   if (authLoading || (user && loading)) {
-    body = <div className="vip-center">Loading…</div>;
+    body = <div className="vip-center"><CardListSkeleton count={3} /></div>;
   } else if (!user) {
     body = (
       <div className="vip-center">
