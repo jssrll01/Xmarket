@@ -41,27 +41,6 @@ const CSS = `
 .pt2-ex:active{transform:scale(.98)}
 .pt2-ex::after{content:"";position:absolute;top:0;left:0;width:35%;height:100%;background:linear-gradient(100deg,transparent,rgba(37,99,235,.14),transparent);animation:ptSheen 5s ease-in-out infinite;pointer-events:none}
 @media(prefers-reduced-motion:reduce){.pt2-g,.pt2-ic,.pt2-bal,.pt2-ex::after{animation:none!important}}
-.pt2-bal{background:linear-gradient(135deg,#2563EB 0%,#4F46E5 60%,#7C3AED 120%);border:0;box-shadow:0 18px 30px -18px rgba(37,99,235,.8);position:relative;overflow:hidden}
-.pt2-bal::before{content:"";position:absolute;right:-40px;top:-50px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.3),transparent 70%)}
-.pt2-bal div{position:relative}
-.pt2-bal div+div{border-left:1px solid rgba(255,255,255,.22)}
-.pt2-bal span{color:rgba(255,255,255,.78)}
-.pt2-bal b{color:#fff;font-size:28px}
-.pt2-rate{color:var(--muted,#64748B)}
-.pt2-list{box-shadow:0 12px 26px -20px rgba(15,23,42,.4)}
-.pt2-g:not(.off):nth-child(1) .pt2-ic{background:#FEF3C7;border-color:#FDE68A}
-.pt2-g:not(.off):nth-child(2) .pt2-ic{background:#EDE9FE;border-color:#DDD6FE}
-.pt2-g:not(.off):nth-child(3) .pt2-ic{background:#DCFCE7;border-color:#BBF7D0}
-.pt2-g:not(.off):nth-child(4) .pt2-ic{background:#FFE4E6;border-color:#FECDD3}
-.pt2-g:not(.off):nth-child(5) .pt2-ic{background:#CFFAFE;border-color:#A5F3FC}
-.pt2-g:not(.off):nth-child(6) .pt2-ic{background:#FFEDD5;border-color:#FED7AA}
-.pt2-g:not(.off) .pt2-x{background:#EFF6FF;color:#1D4ED8;padding:3px 9px;border-radius:99px}
-.pt2-ex{background:linear-gradient(135deg,#3B82F6,#2563EB);color:#fff;border:0;box-shadow:0 14px 24px -14px rgba(37,99,235,.9)}
-.pt2-ex span{color:rgba(255,255,255,.85)}
-.pt2-ex::after{background:linear-gradient(100deg,transparent,rgba(255,255,255,.3),transparent)}
-.pt2-steps i{background:#2563EB;color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10.5px;flex:none}
-.pt2-steps li{animation:ptUp .5s both}.pt2-steps li:nth-child(2){animation-delay:.07s}.pt2-steps li:nth-child(3){animation-delay:.14s}.pt2-steps li:nth-child(4){animation-delay:.21s}
-
 .pt2-steps{list-style:none;border-top:1px solid var(--border,#E5E7EB)}
 .pt2-steps li{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--border,#E5E7EB);font-size:13px;line-height:1.45}
 .pt2-steps i{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#94A3B8;width:18px}
