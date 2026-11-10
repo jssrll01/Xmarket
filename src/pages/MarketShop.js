@@ -77,10 +77,10 @@ export default function MarketShop() {
     if (rest.length) groups.push(['Other', rest]);
   }
 
-  const Row = ({ it }) => {
+  const Row = ({ it, tone }) => {
     const days = it.vip_days || it.perk_days;
     return (
-      <div style={{ background: '#fff', border: BORDER, borderRadius: 14, padding: 14, marginBottom: 10 }}>
+      <div className={'ms-row ms-' + String(tone).split(' ')[0].toLowerCase()} style={{ background: '#fff', border: BORDER, borderRadius: 14, padding: 14, marginBottom: 10 }}>
         {it.image_url && <img src={imgUrl(it.image_url, 400)} alt="" loading="lazy" decoding="async" style={{ width: '100%', aspectRatio: '2', objectFit: 'cover', borderRadius: 10, marginBottom: 10 }} />}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
           <div style={{ minWidth: 0 }}>
@@ -102,6 +102,16 @@ export default function MarketShop() {
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
+<style>{`
+@keyframes msUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.ms-row{position:relative;overflow:hidden;box-shadow:0 14px 26px -20px rgba(15,23,42,.45)!important;border-left:4px solid var(--a)!important;background:linear-gradient(135deg,var(--t),#fff 65%)!important;animation:msUp .5s cubic-bezier(.2,.8,.2,1) both}
+.ms-row .btn-primary{background:linear-gradient(135deg,var(--a),var(--b));box-shadow:0 10px 18px -12px var(--a)}
+.ms-vip{--a:#F59E0B;--b:#D97706;--t:#FFFBEB}
+.ms-badges{--a:#3B82F6;--b:#1D4ED8;--t:#EFF6FF}
+.ms-boosters{--a:#8B5CF6;--b:#6D28D9;--t:#F5F3FF}
+.ms-other{--a:#94A3B8;--b:#64748B;--t:#F8FAFC}
+@media(prefers-reduced-motion:reduce){.ms-row{animation:none}}
+`}</style>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <button className="icon-btn" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button>
         <h2 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Market Shop</h2>
@@ -117,7 +127,7 @@ export default function MarketShop() {
       {groups.map(([title, list]) => (
         <div key={title}>
           <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--muted)', margin: '22px 2px 10px' }}>{title}</div>
-          {list.map((it) => <Row key={it.id} it={it} />)}
+          {list.map((it) => <Row key={it.id} it={it} tone={title} />)}
         </div>
       ))}
       {mine.length > 0 && (<>

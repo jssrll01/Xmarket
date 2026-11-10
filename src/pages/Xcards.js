@@ -87,6 +87,18 @@ const CSS = `
 .xc2 .xc2-seg button.on{background:#2563EB;color:#fff}
 .xc2-item{border-color:var(--border,#EEF1F5)}
 .xc2-copy{background:var(--surface,#fff);color:var(--text,#0F172A);border-color:var(--border,#D7DCE3)}
+
+.xc2 .xc2-card{height:196px;box-shadow:0 24px 40px -24px rgba(37,99,235,.7),0 0 0 1px rgba(255,255,255,.6) inset}
+.xc2 .xc2-card::before{content:"";position:absolute;right:-50px;top:-60px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(59,130,246,.28),transparent 70%)}
+.xc2 .xc2-amt{background:linear-gradient(135deg,#1D4ED8,#7C3AED);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.xc2 .xc2-bal{border:1px solid #BFDBFE;border-radius:14px;padding:14px 16px;background:linear-gradient(135deg,#FFFFFF,#EFF6FF)}
+.xc2 .xc2-bal b{color:#1D4ED8}
+.xc2 .xc2-stats{box-shadow:0 12px 24px -20px rgba(15,23,42,.4);overflow:hidden}
+.xc2 .xc2-stats div:nth-child(1){background:linear-gradient(180deg,#ECFDF5,transparent)}
+.xc2 .xc2-stats div:nth-child(2){background:linear-gradient(180deg,#F5F3FF,transparent)}
+.xc2 .xc2-stats div:nth-child(3){background:linear-gradient(180deg,#FFFBEB,transparent)}
+.xc2 .xc2-list{box-shadow:0 12px 24px -20px rgba(15,23,42,.4)}
+.xc2 .xc2-steps i{background:#2563EB;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10.5px;padding-top:0}
 `;
 
 export default function Xcards() {

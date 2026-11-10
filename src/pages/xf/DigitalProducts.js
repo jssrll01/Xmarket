@@ -60,6 +60,18 @@ export default function DigitalProducts() {
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
+<style>{`
+@keyframes dpUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.dp-bal{background:linear-gradient(135deg,#2563EB,#4F46E5 65%,#7C3AED)!important;border:0!important;color:#fff;box-shadow:0 18px 30px -18px rgba(37,99,235,.85)}
+.dp-bal b{color:#fff!important}
+.dp-row{position:relative;overflow:hidden;box-shadow:0 12px 24px -20px rgba(15,23,42,.45);animation:dpUp .5s cubic-bezier(.2,.8,.2,1) both;transition:transform .15s}
+.dp-row:active{transform:scale(.985)}
+.dp-row:nth-child(n+4){animation-delay:.05s}.dp-row:nth-child(n+6){animation-delay:.1s}
+.dp-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#3B82F6,#7C3AED)}
+.dp-ic{background:linear-gradient(135deg,#EFF6FF,#EDE9FE)!important;border-color:#C7D2FE!important;color:#4338CA}
+.dp-row .btn-primary{background:linear-gradient(135deg,#3B82F6,#2563EB);box-shadow:0 10px 18px -12px rgba(37,99,235,.9)}
+@media(prefers-reduced-motion:reduce){.dp-row{animation:none}}
+`}</style>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
         <button className="icon-btn" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button>
         <div>
@@ -68,7 +80,7 @@ export default function DigitalProducts() {
         </div>
       </div>
       {user && bal !== null && (
-        <div className="card" style={{ padding: 14, marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="card dp-bal" style={{ padding: 14, marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 14 }}>Xwallet balance</span><b style={{ color: '#1D4ED8', fontSize: 18 }}>{peso(bal)}</b>
         </div>
       )}
@@ -77,8 +89,8 @@ export default function DigitalProducts() {
       {items && items.map((it) => {
         const own = mine[it.id];
         return (
-          <div className="card" key={it.id} style={{ padding: 12, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ width: 44, height: 44, minWidth: 44, borderRadius: 12, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><FileText size={20} /></span>
+          <div className="card dp-row" key={it.id} style={{ padding: 12, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span className="dp-ic" style={{ width: 44, height: 44, minWidth: 44, borderRadius: 12, border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><FileText size={20} /></span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div title={it.title} style={{ fontWeight: 800, fontSize: 13, lineHeight: 1.3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', wordBreak: 'break-word' }}>{it.title}</div>
               <div style={{ fontSize: 12, color: 'var(--muted)' }}>{size(it.file_size)}{own ? ' · Purchased' : ' · Final sale'}</div>
