@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Share2, Link2, Facebook, MessageCircle, Send } from 'lucide-react';
+import { Share2, Link2, MessageCircle, Send } from 'lucide-react';
+const Facebook = ({ size = 18, color = 'currentColor' }) => (<svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true"><path d="M13.5 21v-7.5H16l.5-3h-3V8.7c0-.9.3-1.5 1.6-1.5h1.5V4.5c-.3 0-1.2-.1-2.2-.1-2.3 0-3.8 1.4-3.8 3.9v2.2H8v3h2.6V21h2.9Z"/></svg>);
 import { useToast } from './Toast';
 import ShareSheet from './ShareSheet';
 

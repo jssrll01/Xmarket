@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import HubSearch from './HubSearch';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -16,6 +17,8 @@ export default function PriceDrops() {
   const { user, me, reload } = useMe();
   const [items, setItems] = useState(null);
   const [note, setNote] = useState('');
+  const [q, setQ] = useState('');
+  const hit = (s) => !q.trim() || String(s || '').toLowerCase().includes(q.trim().toLowerCase());
   const load = async () => {
     const { data } = await supabase.from('price_drops').select('*').order('created_at', { ascending: false });
     setItems(data || []);
@@ -34,9 +37,10 @@ export default function PriceDrops() {
       <style>{XF_CSS}</style>
       <Head title="Digital Price Drops" sub="Limited items. 1 stock each. Pay with Xwallet." nav={nav} />
       <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b></div>
+      <HubSearch value={q} onChange={setQ} placeholder="Search price drops" />
       {items === null && <XfSkel kind="cards" />}
       {items && !items.length && <div className="xf-card xf-empty">No price drops right now. Check back soon.</div>}
-      {(items || []).map((d) => {
+      {(items || []).filter((d) => hit(d.title)).map((d) => {
         const out = d.stock < 1 || d.status !== 'active';
         return (
           <div className="xf-card" key={d.id}>

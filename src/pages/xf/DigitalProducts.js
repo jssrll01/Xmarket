@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import HubSearch from './HubSearch';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, FileText } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
@@ -27,6 +28,8 @@ export default function DigitalProducts() {
   const [mine, setMine] = useState({});
   const [bal, setBal] = useState(null);
   const [busy, setBusy] = useState('');
+  const [q, setQ] = useState('');
+  const hit = (s) => !q.trim() || String(s || '').toLowerCase().includes(q.trim().toLowerCase());
   const refs = useRef({});
 
   const load = useCallback(async () => {
@@ -74,9 +77,11 @@ export default function DigitalProducts() {
           <span style={{ fontSize: 14 }}>Xwallet balance</span><span style={{ display: 'inline-flex', alignItems: 'center' }}><b style={{ color: '#1D4ED8', fontSize: 18 }}>{peso(bal)}</b><TopupButton /></span>
         </div>
       )}
+      <HubSearch value={q} onChange={setQ} placeholder="Search digital products" />
       {items === null && <CardListSkeleton count={4} />}
       {items && items.length === 0 && <div className="card" style={{ padding: 28, textAlign: 'center', color: 'var(--muted)' }}>No digital products yet.</div>}
-      {items && items.map((it) => {
+      {items && items.length > 0 && !items.some((it) => hit(it.title)) && <div className="card" style={{ padding: 28, textAlign: 'center', color: 'var(--muted)' }}>No matches.</div>}
+      {items && items.filter((it) => hit(it.title)).map((it) => {
         const own = mine[it.id];
         return (
           <div className="card neu-row" key={it.id} style={{ padding: 12, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
