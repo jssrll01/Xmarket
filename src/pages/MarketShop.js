@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import HubSearch from './xf/HubSearch';
 import { CardListSkeleton } from '../components/Skeleton';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Crown, Gift, Package, ShieldCheck, Zap } from 'lucide-react';
@@ -80,6 +81,7 @@ export default function MarketShop() {
   const [email, setEmail] = useState('');
   const [msg, setMsg] = useState('');
   const [busy, setBusy] = useState(false);
+  const [q, setQ] = useState('');
 
   const load = async () => {
     const a = await supabase.rpc('market_list');
@@ -158,14 +160,15 @@ export default function MarketShop() {
       </header>
       {vip && vip.active && <div className="ms-info">VIP active until {day(vip.expires_at)}</div>}
       <PerkStatus />
+      <HubSearch value={q} onChange={setQ} placeholder="Search Market Shop" />
       {items === null && <CardListSkeleton count={3} />}
       {items && items.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>Nothing for sale yet.</div>}
-      {groups.map(([title, list]) => (
+      {groups.map(([title, list0]) => { const list = q.trim() ? list0.filter((x) => ((x.item_name || '') + ' ' + (x.name || '') + ' ' + (x.title || '') + ' ' + (x.description || '')).toLowerCase().includes(q.trim().toLowerCase())) : list0; return list.length === 0 ? null : (
         <div key={title}>
           <div className="ms-lab">{title}</div>
           {list.map(row)}
         </div>
-      ))}
+      ); })}
       {mine.length > 0 && (<>
         <div className="ms-lab">My purchases and gifts</div>
         {mine.map((p) => (
