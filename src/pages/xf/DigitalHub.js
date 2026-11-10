@@ -2,7 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, Package, CheckSquare, Heart, Store, Newspaper, GraduationCap, Briefcase } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { XF_CSS, peso, useMe } from './xfUi';
+import { peso, useMe } from './xfUi';
+
+const CSS = `
+.hb{padding:16px 16px 120px;max-width:560px;margin:0 auto}
+.hb-head h1{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin:0}
+.hb-head p{font-size:12.5px;color:var(--muted);margin:3px 0 0}
+.hb-bal{display:flex;justify-content:space-between;align-items:center;margin:16px 0 18px;padding:13px 16px;border-radius:14px;background:var(--bg);box-shadow:var(--inset)}
+.hb-bal span{font-size:13px;color:var(--muted)}
+.hb-bal b{font-size:17px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+.hb-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.hb-t{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:18px;background:var(--card);box-shadow:var(--raised-sm);text-decoration:none;color:inherit;min-height:112px}
+.hb-t:active{box-shadow:var(--inset)}
+.hb-ic{width:40px;height:40px;border-radius:12px;background:var(--bg);box-shadow:var(--inset);display:flex;align-items:center;justify-content:center;color:var(--primary)}
+.hb-n{font-size:13.5px;font-weight:600;color:var(--text);line-height:1.25}
+.hb-g{margin-top:auto;font-size:11.5px;font-weight:600;color:var(--muted)}
+.hb-bar{height:6px;border-radius:99px;background:var(--bg);box-shadow:var(--inset);overflow:hidden;margin-top:auto}
+.hb-bar i{display:block;height:100%;background:var(--primary);border-radius:99px}
+`;
 
 export default function DigitalHub() {
   const { me } = useMe();
@@ -28,51 +45,32 @@ export default function DigitalHub() {
   const pct = st && st.target ? Math.min(100, (st.raised / st.target) * 100) : 0;
   const tag = (n, one, many) => (st ? n + ' ' + (n === 1 ? one : many) : null);
   const ITEMS = [
-    ['/price-drops', 'Digital Price Drops', 'Limited-time digital deals. Grab them before they are gone.', Zap, tag(st && st.drops, 'live now', 'live now')],
-    ['/digital-products', 'Digital Products', 'Buy digital items with your Xwallet and get them delivered digitally.', Package, tag(st && st.products, 'available', 'available')],
-    ['/demand-polls', 'Demand Polls', 'Vote on what XMARKET should add next and earn cash for every vote.', CheckSquare, tag(st && st.polls, 'open poll', 'open polls')],
-    ['/sponsorships', 'Sponsorships', 'Help fund XMARKET projects. Every contribution is tracked openly.', Heart, null],
-    ['/market-shop', 'Market Shop', 'Buy VIP membership for yourself or gift it to a friend.', Store, 'Shop'],
-    ['/articles', 'Weekly Articles', 'Read the latest articles published by XMARKET.', Newspaper, 'New weekly'],
-    ['/scholarships', 'Scholarships', 'Scholarship opportunities available through XMARKET.', GraduationCap, 'Apply'],
-    ['/freelance', 'Freelance Work', 'Freelance work available at XMARKET.', Briefcase, 'Find work'],
+    ['/price-drops', 'Price Drops', Zap, tag(st && st.drops, 'live now', 'live now')],
+    ['/digital-products', 'Digital Products', Package, tag(st && st.products, 'available', 'available')],
+    ['/demand-polls', 'Demand Polls', CheckSquare, tag(st && st.polls, 'open poll', 'open polls')],
+    ['/sponsorships', 'Sponsorships', Heart, st ? (st.target ? Math.round(pct) + '% funded' : 'No fund open') : null],
+    ['/market-shop', 'Market Shop', Store, 'VIP, badges, more'],
+    ['/articles', 'Weekly Articles', Newspaper, 'New weekly'],
+    ['/scholarships', 'Scholarships', GraduationCap, 'Apply'],
+    ['/freelance', 'Freelance Work', Briefcase, 'Find work'],
   ];
   return (
-    <div className="page-enter xf" style={{ paddingBottom: 120 }}>
-      <style>{XF_CSS + `
-.xf-hub{display:block;padding:16px;text-decoration:none;color:inherit;transition:transform .15s,background .2s}
-.xf-hub:active{transform:scale(.98);background:#F5F9FF}
-.xf-hub .top{display:flex;align-items:center;gap:14px}
-.xf-hub .ic{width:46px;height:46px;border-radius:14px;background:#EFF6FF;border:1px solid #BFDBFE;display:flex;align-items:center;justify-content:center;color:#2563EB;flex:none;animation:xfFloatH 3.4s ease-in-out infinite}
-.xf-hub b{display:block;font-size:15px}
-.xf-hub p{font-size:12.5px;color:#64748B;margin-top:3px;line-height:1.45}
-.xf-hub .tag{display:inline-block;margin-top:12px;padding:4px 10px;border-radius:99px;background:#DBEAFE;color:#1D4ED8;font-size:12px;font-weight:700}
-.xf-hub .go{margin-left:auto;color:#3B82F6;font-size:20px;flex:none}
-.xf-how{display:flex;gap:12px;padding:10px 0;align-items:flex-start}
-.xf-how i{width:26px;height:26px;border-radius:50%;background:#2563EB;color:#fff;font-style:normal;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
-.xf-how b{font-size:14px;display:block}.xf-how span{font-size:12.5px;color:#64748B}
-@keyframes xfFloatH{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}`}</style>
-      <header className="xf-head"><div><h1>Digital Hub</h1><p>Drops, products, polls and sponsorships.</p></div></header>
-      <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b></div>
-      {ITEMS.map(([to, t, d, Ic, tg], i) => (
-        <Link key={to} to={to} className="xf-card xf-hub" style={{ animationDelay: i * 70 + 'ms' }}>
-          <div className="top">
-            <div className="ic"><Ic size={22} /></div>
-            <div><b>{t}</b></div>
-            <span className="go">›</span>
-          </div>
-          <p>{d}</p>
-          {to === '/sponsorships' ? (
-            st ? (
-              <>
-                <div className="xf-bar" style={{ marginBottom: 4 }}><i style={{ width: pct + '%' }} /></div>
-                <span className="xf-meta">{st.target ? peso(st.raised) + ' raised of ' + peso(st.target) : 'No fund open yet'}</span>
-              </>
-            ) : <div className="sk sk-line" style={{ width: '60%', height: 12, marginTop: 12 }} />
-          ) : tg ? <span className="tag">{tg}</span>
-            : <div className="sk sk-line" style={{ width: '35%', height: 22, marginTop: 12, borderRadius: 99 }} />}
-        </Link>
-      ))}
+    <div className="page-enter hb">
+      <style>{CSS}</style>
+      <header className="hb-head"><h1>Digital Hub</h1><p>Drops, products, polls and more.</p></header>
+      <div className="hb-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b></div>
+      <div className="hb-grid">
+        {ITEMS.map(([to, t, Ic, tg]) => (
+          <Link key={to} to={to} className="hb-t">
+            <span className="hb-ic"><Ic size={20} /></span>
+            <span className="hb-n">{t}</span>
+            {to === '/sponsorships' && st && st.target > 0
+              ? <span className="hb-bar"><i style={{ width: pct + '%' }} /></span>
+              : tg ? <span className="hb-g">{tg}</span>
+                : <span className="sk sk-line" style={{ width: 70, height: 12, borderRadius: 99, marginTop: 'auto' }} />}
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

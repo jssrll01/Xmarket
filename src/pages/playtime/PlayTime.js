@@ -2,48 +2,44 @@ import { supabase } from '../../lib/supabase';
 import { GameListSkeleton } from '../../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Repeat, History as HistoryIcon, ChevronRight, Lock } from 'lucide-react';
-import { WheelIcon, BoxIcon, CoinIcon, PaletteIcon, HiLoIcon, CardsIcon } from './GameIcons';
+import { ArrowLeft, Repeat, History as HistoryIcon, Lock } from 'lucide-react';
+import { WheelIcon, BoxIcon, CoinIcon } from './GameIcons';
 import { fetchHistory, fmt, peso } from '../../lib/playtime';
 import { usePlay, gateReason, HistoryRow } from './common';
 import { miniGate } from './miniCommon';
 
 const CSS = `
-.pt2{padding:16px 16px 70px;max-width:560px;margin:0 auto}
-.pt2-head{display:flex;align-items:center;gap:14px;margin-bottom:20px}
-.pt2-head h1{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
-.pt2-head p{font-size:12.5px;color:var(--muted,#64748B);margin-top:3px}
-.pt2-bal{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border,#E5E7EB);border-radius:14px;background:var(--card,#fff)}
-.pt2-bal div{padding:16px}.pt2-bal div+div{border-left:1px solid var(--border,#E5E7EB)}
-.pt2-bal span{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#64748B)}
-.pt2-bal b{display:block;font-size:26px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;margin-top:6px}
-.pt2-rate{font-size:11.5px;color:#94A3B8;margin:8px 2px 0}
-.pt2-lab{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted,#64748B);margin:28px 0 10px;display:flex;justify-content:space-between;align-items:center}
-.pt2-lab a{display:flex;align-items:center;gap:5px;color:#2563EB;letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600}
-.pt2-list{border:1px solid var(--border,#E5E7EB);border-radius:14px;background:var(--card,#fff);overflow:hidden}
-.pt2-g{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--border,#EEF1F5);color:inherit;text-decoration:none}
-.pt2-g:last-child{border-bottom:0}
-.pt2-ic{width:38px;height:38px;border-radius:10px;border:1px solid var(--border,#E1E5EB);display:flex;align-items:center;justify-content:center;flex-shrink:0;background:var(--bg,#F8FAFC)}
-.pt2-t{font-size:14.5px;font-weight:600;letter-spacing:-.01em}
-.pt2-n{font-size:12px;color:var(--muted,#64748B);margin-top:2px}
-.pt2-g.off{opacity:.55}.pt2-g.off .pt2-n{display:flex;align-items:center;gap:5px}
-.pt2-x{margin-left:auto;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text,#0F172A);white-space:nowrap}
-.pt2-ex{width:100%;margin-top:14px;padding:15px 16px;border-radius:12px;background:linear-gradient(135deg,#FFFFFF,#EFF6FF);color:#1D4ED8;border:1px solid #BFDBFE;box-shadow:0 8px 18px -12px rgba(37,99,235,.55);display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:700;position:relative;overflow:hidden;transition:transform .2s}
-.pt2-ex span{margin-left:auto;font-size:12px;color:#3B82F6;font-weight:600}
-@keyframes ptUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-@keyframes ptFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-@keyframes ptSheen{0%,55%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
-.pt2-g{animation:ptUp .5s cubic-bezier(.2,.8,.2,1) both;transition:background .2s,transform .2s}
-.pt2-g:nth-child(2){animation-delay:.07s}.pt2-g:nth-child(3){animation-delay:.14s}
-.pt2-g:not(.off):hover,.pt2-g:not(.off):active{background:var(--bg,#F5F9FF);transform:translateX(3px)}
-.pt2-g:not(.off) .pt2-ic{background:#EFF6FF;border-color:#BFDBFE;animation:ptFloat 3.4s ease-in-out infinite}
-.pt2-bal{animation:ptUp .5s both}
-.pt2-ex:active{transform:scale(.98)}
-.pt2-ex::after{content:"";position:absolute;top:0;left:0;width:35%;height:100%;background:linear-gradient(100deg,transparent,rgba(37,99,235,.14),transparent);animation:ptSheen 5s ease-in-out infinite;pointer-events:none}
-@media(prefers-reduced-motion:reduce){.pt2-g,.pt2-ic,.pt2-bal,.pt2-ex::after{animation:none!important}}
-.pt2-steps{list-style:none;border-top:1px solid var(--border,#E5E7EB)}
-.pt2-steps li{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid var(--border,#E5E7EB);font-size:13px;line-height:1.45}
-.pt2-steps i{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#94A3B8;width:18px}
+.ar{padding:16px 16px 70px;max-width:560px;margin:0 auto}
+.ar-head{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.ar-head h1{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin:0}
+.ar-head p{font-size:12.5px;color:var(--muted);margin:3px 0 0}
+.ar-panel{background:var(--card);border-radius:22px;padding:12px;box-shadow:var(--raised)}
+.ar-score{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ar-lcd{background:var(--bg);box-shadow:var(--inset);border-radius:16px;padding:12px 14px;min-width:0}
+.ar-lcd span{display:block;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.ar-lcd b{display:block;margin-top:6px;font-family:ui-monospace,Menlo,monospace;font-size:23px;font-weight:700;letter-spacing:.03em;font-variant-numeric:tabular-nums;color:var(--text);overflow:hidden;text-overflow:ellipsis}
+.ar-rate{font-size:11.5px;color:var(--muted);text-align:center;margin:10px 0 2px}
+.ar-lab{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:26px 2px 12px;display:flex;justify-content:space-between;align-items:center}
+.ar-lab a{display:flex;align-items:center;gap:5px;color:var(--primary);letter-spacing:0;text-transform:none;font-size:12.5px;font-weight:600;text-decoration:none}
+.ar-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ar-g{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:16px 10px 14px;border-radius:22px;background:var(--card);box-shadow:var(--raised-sm);text-decoration:none;color:inherit}
+.ar-g:active{box-shadow:var(--inset)}
+.ar-dome{width:72px;height:72px;border-radius:50%;background:var(--bg);box-shadow:var(--inset);display:flex;align-items:center;justify-content:center;margin-bottom:6px}
+.ar-dome i{width:52px;height:52px;border-radius:50%;background:var(--card);box-shadow:var(--raised-sm);display:flex;align-items:center;justify-content:center;font-style:normal}
+.ar-t{font-size:13.5px;font-weight:600;color:var(--text);line-height:1.25}
+.ar-n{font-size:11px;color:var(--muted);line-height:1.35;display:flex;align-items:center;justify-content:center;gap:4px}
+.ar-x{margin-top:4px;padding:3px 11px;border-radius:99px;background:var(--bg);box-shadow:var(--inset);font-family:ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;color:var(--primary)}
+.ar-g.off{background:var(--bg);box-shadow:var(--inset);opacity:.7}
+.ar-g.off .ar-dome{box-shadow:none}
+.ar-g.off .ar-dome i{box-shadow:none;background:transparent}
+.ar-ex{width:100%;margin-top:16px;padding:15px 16px;border:0;border-radius:16px;background:var(--card);color:var(--text);box-shadow:var(--raised-sm);display:flex;align-items:center;gap:10px;font-size:14.5px;font-weight:600}
+.ar-ex:active{box-shadow:var(--inset)}
+.ar-ex svg{color:var(--primary)}
+.ar-ex span{margin-left:auto;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--muted)}
+.ar-steps{list-style:none;background:var(--card);border-radius:16px;box-shadow:var(--raised-sm);padding:4px 16px}
+.ar-steps li{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.45}
+.ar-steps li:last-child{border-bottom:0}
+.ar-steps i{font-style:normal;font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--muted);width:18px}
 `;
 
 export default function PlayTime() {
@@ -70,51 +66,51 @@ export default function PlayTime() {
   }
 
   return (
-    <div className="page-enter pt2">
+    <div className="page-enter ar">
       <style>{CSS}</style>
-      <header className="pt2-head">
+      <header className="ar-head">
         <button className="icon-btn" aria-label="Back" onClick={() => nav('/')}><ArrowLeft size={20} /></button>
         <div><h1>Play Time</h1><p>Play, earn points, exchange for Xwallet.</p></div>
       </header>
 
-      <div className="pt2-bal">
-        <div><span>Loyalty points</span><b>{status ? fmt(status.loyalty_points) : '—'}</b></div>
-        <div><span>Xwallet</span><b>{status ? peso(status.xwallet_balance) : '—'}</b></div>
+      <div className="ar-panel">
+        <div className="ar-score">
+          <div className="ar-lcd"><span>Loyalty points</span><b>{status ? fmt(status.loyalty_points) : '—'}</b></div>
+          <div className="ar-lcd"><span>Xwallet</span><b>{status ? peso(status.xwallet_balance) : '—'}</b></div>
+        </div>
+        <div className="ar-rate">1 Loyalty Point = ₱1 Xwallet balance</div>
       </div>
-      <div className="pt2-rate">1 Loyalty Point = ₱1 Xwallet balance</div>
       {error && <div style={{ color: '#991B1B', fontSize: 13, marginTop: 12 }}>{error}</div>}
       {!status && !error && <div style={{ marginTop: 20 }}><GameListSkeleton /></div>}
 
       {status && (<>
-        <div className="pt2-lab">Games</div>
-        <div className="pt2-list">
+        <div className="ar-lab">Games</div>
+        <div className="ar-grid">
           {games.map(g => {
             const reason = g.game === 'mini' ? miniGate(status, g.key) : gateReason(status, g.game, g.cost);
             const off = !!reason;
             const body = (<>
-              <span className="pt2-ic"><g.Icon size={20} color="var(--text)" /></span>
-              <div style={{ minWidth: 0 }}>
-                <div className="pt2-t">{g.title}</div>
-                <div className="pt2-n">{off ? <><Lock size={11} />{reason}</> : g.note}</div>
-              </div>
-              {off ? null : <><span className="pt2-x">{g.tag}</span><ChevronRight size={16} color="#94A3B8" /></>}
+              <span className="ar-dome"><i><g.Icon size={22} color="var(--text)" /></i></span>
+              <div className="ar-t">{g.title}</div>
+              <div className="ar-n">{off ? <><Lock size={11} />{reason}</> : g.note}</div>
+              {off ? null : <span className="ar-x">{g.tag}</span>}
             </>);
-            return off ? <div key={g.to} className="pt2-g off" aria-disabled="true">{body}</div> : <Link key={g.to} to={g.to} className="pt2-g">{body}</Link>;
+            return off ? <div key={g.to} className="ar-g off" aria-disabled="true">{body}</div> : <Link key={g.to} to={g.to} className="ar-g">{body}</Link>;
           })}
         </div>
 
-        <button className="pt2-ex" onClick={() => nav('/play-time/exchange')}>
+        <button className="ar-ex" onClick={() => nav('/play-time/exchange')}>
           <Repeat size={17} /> Points Exchange <span>1 pt = ₱1</span>
         </button>
 
-        <div className="pt2-lab">How it works</div>
-        <ol className="pt2-steps">
+        <div className="ar-lab">How it works</div>
+        <ol className="ar-steps">
           {['Pick a game and play with your Loyalty Points.', 'Winnings are added to your balance right away.', 'Exchange points for Xwallet any time: 1 point = ₱1.', 'Use your Xwallet balance for XMARKET purchases.'].map((s, i) => <li key={i}><i>0{i + 1}</i>{s}</li>)}
         </ol>
 
-        <div className="pt2-lab">Recent activity <Link to="/play-time/history"><HistoryIcon size={14} />View all</Link></div>
+        <div className="ar-lab">Recent activity <Link to="/play-time/history"><HistoryIcon size={14} />View all</Link></div>
         {recent.length === 0
-          ? <p style={{ color: '#64748B', fontSize: 13, textAlign: 'center', padding: 16 }}>No activity yet. Pick a game to get started.</p>
+          ? <p style={{ color: 'var(--muted)', fontSize: 13, textAlign: 'center', padding: 16 }}>No activity yet. Pick a game to get started.</p>
           : recent.map(t => <HistoryRow key={t.id} t={t} />)}
       </>)}
     </div>
