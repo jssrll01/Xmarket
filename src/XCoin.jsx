@@ -4,7 +4,9 @@ import { supabase } from './lib/supabase';
 import { createChart, CandlestickSeries, AreaSeries, CrosshairMode } from 'lightweight-charts';
 import { useNavigate } from 'react-router-dom';
 
-const TFS = [['1m', 60], ['5m', 300], ['15m', 900], ['1H', 3600], ['4H', 14400], ['1D', 86400]];
+// [label, candle seconds, hours of history]
+const TFS = [['12h', 900, 12], ['24h', 900, 24], ['48h', 3600, 48], ['72h', 3600, 72], ['96h', 3600, 96], ['120h', 3600, 120], ['144h', 3600, 144], ['168h', 3600, 168]];
+const MAX_HOURS = 168;
 const perMinute = (rows) => {
   const m = new Map();
   rows.forEach((t) => m.set(Math.floor(t.time / 60), t.value));
@@ -80,6 +82,9 @@ const peso = (n, d = 2) => '₱' + Number(n || 0).toLocaleString('en-PH', { mini
 const phtFmt = (sec, o) => new Date(sec * 1000).toLocaleString('en-PH', { timeZone: 'Asia/Manila', ...o });
 const phtTick = (sec, type) => (type >= 3 ? phtFmt(sec, { hour: 'numeric', minute: '2-digit', hour12: true }) : type === 2 ? phtFmt(sec, { month: 'short', day: 'numeric' }) : type === 1 ? phtFmt(sec, { month: 'short' }) : phtFmt(sec, { year: 'numeric' }));
 
+const hoursOf = (k) => TFS.find((x) => x[0] === k)[2];
+const inWindow = (ticks, k) => { const since = Date.now() / 1000 - hoursOf(k) * 3600; return ticks.filter((t) => t.time >= since); };
+
 function aggregate(ticks, step) {
   const candles = [];
   const vols = [];
@@ -128,7 +133,7 @@ export default function XCoin() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [phtTime, setPhtTime] = useState('');
-  const [tf, setTf] = useState('1m');
+  const [tf, setTf] = useState('12h');
   const [style, setStyle] = useState('line');
   const [ticks, setTicks] = useState([]);
   const [hover, setHover] = useState(null);
@@ -143,7 +148,7 @@ export default function XCoin() {
   const boxRef = useRef(null);
   const chartRef = useRef(null);
   const ticksRef = useRef([]);
-  const tfRef = useRef('1m');
+  const tfRef = useRef('12h');
   const pendRef = useRef(null);
   tfRef.current = tf;
 
@@ -182,7 +187,7 @@ export default function XCoin() {
         const b = Math.floor(t.time / 60);
         const pend = pendRef.current;
         if (pend && pend.bucket < b) {
-          ticksRef.current = [...ticksRef.current.slice(-4999), { time: pend.bucket * 60, value: pend.value }];
+          ticksRef.current = [...ticksRef.current.slice(-10999), { time: pend.bucket * 60, value: pend.value }];
           setTicks(ticksRef.current);
           const c = chartRef.current;
           if (c && c.series) {
@@ -212,8 +217,17 @@ export default function XCoin() {
     (async () => {
       let rows = null;
       // Preferred: one row per minute from the xcoin_price_minute view (see SQL). Falls back to raw ticks.
-      const v = await supabase.from('xcoin_price_minute').select('price, recorded_at').order('recorded_at', { ascending: false }).limit(1000);
-      if (!v.error && v.data && v.data.length) rows = v.data;
+      // Pull the last 168h (the longest timeframe), 1000 rows per request, newest first.
+      const sinceIso = new Date(Date.now() - MAX_HOURS * 3600 * 1000).toISOString();
+      const acc = [];
+      let verr = null;
+      for (let from = 0; from < 11000; from += 1000) {
+        const v = await supabase.from('xcoin_price_minute').select('price, recorded_at').gte('recorded_at', sinceIso).order('recorded_at', { ascending: false }).range(from, from + 999);
+        if (v.error) { verr = v.error; break; }
+        acc.push(...(v.data || []));
+        if (!v.data || v.data.length < 1000) break;
+      }
+      if (!verr && acc.length) rows = acc;
       if (!rows) {
         const r = await supabase.from('xcoin_price_history').select('price, recorded_at').order('recorded_at', { ascending: false }).limit(1000);
         if (r.data) rows = r.data;
@@ -243,7 +257,7 @@ export default function XCoin() {
       rightPriceScale: { borderColor: '#e2e8f0', scaleMargins: { top: 0.1, bottom: 0.1 } },
     });
     const step = TFS.find((x) => x[0] === tf)[1];
-    const { candles } = aggregate(ticks, step);
+    const { candles } = aggregate(inWindow(ticks, tf), step);
     let series;
     if (style === 'candles') {
       series = chart.addSeries(CandlestickSeries, { upColor: '#16a34a', downColor: '#dc2626', borderUpColor: '#16a34a', borderDownColor: '#dc2626', wickUpColor: '#16a34a', wickDownColor: '#dc2626' });
@@ -252,8 +266,7 @@ export default function XCoin() {
       series = chart.addSeries(AreaSeries, { lineColor: '#2563eb', topColor: 'rgba(37,99,235,.25)', bottomColor: 'rgba(59,130,246,0)', lineWidth: 2 });
       series.setData(candles.map((c) => ({ time: c.time, value: c.close })));
     }
-    const n = candles.length;
-    if (n > 80) chart.timeScale().setVisibleLogicalRange({ from: n - 80, to: n + 3 }); else chart.timeScale().fitContent();
+    chart.timeScale().fitContent();
     chart.subscribeCrosshairMove((p) => {
       const d = p.seriesData && p.seriesData.get(series);
       if (!d) { setHover(null); return; }
@@ -270,10 +283,14 @@ export default function XCoin() {
   const change = price - prev;
   const changePct = prev ? (change / prev) * 100 : 0;
   const isUp = change >= 0;
+  // price colour follows the last tick; unchanged keeps the previous colour
+  const dirRef = useRef(true);
+  if (change > 0) dirRef.current = true; else if (change < 0) dirRef.current = false;
+  const priceUp = dirRef.current;
 
   const win = useMemo(() => {
     const step = TFS.find((x) => x[0] === tf)[1];
-    const { candles } = aggregate(ticks, step);
+    const { candles } = aggregate(inWindow(ticks, tf), step);
     return candles;
   }, [ticks, tf]);
   const shown = hover || (win.length ? win[win.length - 1] : null);
@@ -398,9 +415,9 @@ export default function XCoin() {
           <div className="xc-card xc-a">
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
               <div>
-                <div className="xc-price" style={{ color: isUp ? UP : DOWN }}>{peso(price, 4)}</div>
+                <div className="xc-price" style={{ color: priceUp ? UP : DOWN }}>{peso(price, 4)}</div>
                 <div style={{ marginTop: 6, fontSize: 13, fontWeight: 800, color: isUp ? UP : DOWN }}>
-                  {isUp ? '▲' : '▼'} {Math.abs(change).toFixed(4)} 
+                  {change >= 0 ? '▲' : '▼'} {Math.abs(change).toFixed(4)} 
                   <span style={{ color: '#64748b', fontWeight: 600 }}> last tick</span>
                 </div>
               </div>
