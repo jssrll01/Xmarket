@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, Upload, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
@@ -37,6 +37,8 @@ function InfoNote({ text }) {
 export default function XwalletTopup() {
   const nav = useNavigate();
   const [params] = useSearchParams();
+  const loc = useLocation();
+  const backTo = loc.state && loc.state.from;
   const { user } = useAuth();
   const { show: showToast } = useToast();
 
@@ -98,7 +100,7 @@ export default function XwalletTopup() {
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <button onClick={() => nav(-1)} className="icon-btn" style={{ marginBottom: 12 }}>
+      <button onClick={() => (backTo ? nav(backTo, { replace: true }) : nav(-1))} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
 

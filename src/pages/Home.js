@@ -24,6 +24,7 @@ import { ProductGridSkeleton } from '../components/Skeleton';
 import BannerImage from '../components/BannerImage';
 import EmptyState from '../components/EmptyState';
 import useRecentSearches from '../hooks/useRecentSearches';
+import NewsStrip from '../components/NewsStrip';
 import { useNavigate as useNavToSearch } from 'react-router-dom';
 import UserMenu from '../components/UserMenu';
 import VariantPicker from '../components/VariantPicker';
@@ -684,6 +685,8 @@ export default function Home() {
             </div>
           )}
         </div>
+
+      <NewsStrip />
 
       <div className="chips">
         {categories.map(c => (

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { XF_CSS, peso, useMe, XfSkel } from './xfUi';
+import TopupButton from '../../components/TopupButton';
 
 export default function Sponsorships() {
   const nav = useNavigate();
@@ -35,7 +36,8 @@ export default function Sponsorships() {
         <button onClick={() => nav(-1)} className="icon-btn" aria-label="Back"><ArrowLeft size={20} /></button>
         <div><h1>Sponsorships</h1><p>Help fund XMARKET projects with your Xwallet.</p></div>
       </header>
-      <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b></div>
+      <button type="button" onClick={() => nav('/sponsorships/donors')} style={{ width: '100%', marginBottom: 12, padding: 13, border: 0, borderRadius: 14, background: 'var(--card)', color: 'var(--primary)', boxShadow: 'var(--raised-sm)', fontWeight: 700, fontSize: 14 }}>View donors list</button>
+      <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b><TopupButton /></div>
       {funds === null && <XfSkel kind="fund" />}
       {funds && !funds.length && <div className="xf-card xf-empty">No fund is open right now.</div>}
       {(funds || []).map((f) => {

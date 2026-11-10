@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { XF_CSS, peso, useMe, XfSkel } from './xfUi';
+import TopupButton from '../../components/TopupButton';
+import PollShare from '../../components/PollShare';
 
 export default function DemandPolls() {
   const nav = useNavigate();
@@ -42,7 +44,8 @@ export default function DemandPolls() {
         <button onClick={() => nav(-1)} className="icon-btn" aria-label="Back"><ArrowLeft size={20} /></button>
         <div><h1>Demand Polls</h1><p>Vote on what XMARKET should add. Earn Xwallet rewards.</p></div>
       </header>
-      <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b></div>
+      <button type="button" onClick={() => nav('/demand-polls/results')} style={{ width: '100%', marginBottom: 12, padding: 13, border: 0, borderRadius: 14, background: 'var(--card)', color: 'var(--primary)', boxShadow: 'var(--raised-sm)', fontWeight: 700, fontSize: 14 }}>View poll results</button>
+      <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b><TopupButton /></div>
       {polls === null && <XfSkel kind="polls" />}
       {polls && !polls.length && <div className="xf-card xf-empty">No active polls right now.</div>}
       {polls && polls.length > 0 && !polls.some((p) => mine[p.id] === undefined || fresh[p.id]) && <div className="xf-card xf-empty">You have voted on all polls. New polls will show up here.</div>}
@@ -55,6 +58,7 @@ export default function DemandPolls() {
           <div className="xf-card" key={p.id}><div className="xf-body">
             <div className="xf-meta">Earn {peso(p.reward)} for voting</div>
             <h3>{p.question}</h3>
+            <PollShare poll={p} />
             {p.description && <p>{p.description}</p>}
             {p.options.map((o, i) => {
               const c = Number(r[String(i)] || 0);

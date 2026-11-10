@@ -3,10 +3,9 @@ import { GameListSkeleton } from '../../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Repeat, History as HistoryIcon, Lock } from 'lucide-react';
-import { WheelIcon, BoxIcon, CoinIcon } from './GameIcons';
+import { WheelIcon, BoxIcon } from './GameIcons';
 import { fetchHistory, fmt, peso } from '../../lib/playtime';
 import { usePlay, gateReason, HistoryRow } from './common';
-import { miniGate } from './miniCommon';
 
 const CSS = `
 .ar{padding:16px 16px 70px;max-width:560px;margin:0 auto}
@@ -24,6 +23,7 @@ const CSS = `
 .ar-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .ar-g{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:16px 10px 14px;border-radius:22px;background:var(--card);box-shadow:var(--raised-sm);text-decoration:none;color:inherit}
 .ar-g:active{box-shadow:var(--inset)}
+.ar-g.low .ar-dome{opacity:.75}
 .ar-dome{width:72px;height:72px;border-radius:50%;background:var(--bg);box-shadow:var(--inset);display:flex;align-items:center;justify-content:center;margin-bottom:6px}
 .ar-dome i{width:52px;height:52px;border-radius:50%;background:var(--card);box-shadow:var(--raised-sm);display:flex;align-items:center;justify-content:center;font-style:normal}
 .ar-t{font-size:13.5px;font-weight:600;color:var(--text);line-height:1.25}
@@ -52,17 +52,13 @@ export default function PlayTime() {
 
   let games = [];
   if (status) {
-    const mini = status.config.mini || {};
     const box = status.config.boxes && status.config.boxes.mystery;
     games = [{ to: '/play-time/spin', title: 'Wheels of Fortune', note: 'Spin to win', tag: 'Up to 20x', cost: status.config.spin.cost, game: 'spin', Icon: WheelIcon }];
     if (box) games.push({ to: '/play-time/mystery-box', title: 'Box of Mystery', note: 'Open for a prize', tag: 'Up to 10x', cost: box.cost, game: 'box', Icon: BoxIcon });
     [
       ['airdrop', 'Airdrop', '4x'], ['mega', 'Mega Airdrop', '6x'], ['ultra', 'Ultra Airdrop', '11x'],
       ['max', 'Max Airdrop', '16x'], ['extreme', 'Extreme Airdrop', '16x'], ['nightmare', 'Nightmare Airdrop', '26x'],
-    ].filter(a => airOn && airOn.includes(a[0])).forEach(a => games.push({ to: '/play-time/airdrop/' + a[0], title: a[1], note: 'Drawn every 10 minutes', tag: a[2], cost: 0, game: 'airdrop', Icon: BoxIcon }));
-    [
-      ['coinflip', '/play-time/coin-flip', 'Head or Tails', 'Call heads or tails', CoinIcon],
-    ].filter(x => mini[x[0]]).forEach(x => games.push({ to: x[1], title: x[2], note: x[3], tag: `${mini[x[0]].payout}x`, game: 'mini', key: x[0], Icon: x[4] }));
+    ].filter(a => airOn && airOn.includes(a[0])).forEach(a => games.push({ to: '/play-time/airdrop/' + a[0], title: a[1], note: 'Draws every ' + ({ airdrop: '3 hours', mega: '3 hours', ultra: '6 hours', max: '6 hours', extreme: '12 hours', nightmare: '12 hours' }[a[0]] || '3 hours'), tag: a[2], cost: 0, game: 'airdrop', Icon: BoxIcon }));
   }
 
   return (
@@ -87,15 +83,15 @@ export default function PlayTime() {
         <div className="ar-lab">Games</div>
         <div className="ar-grid">
           {games.map(g => {
-            const reason = g.game === 'mini' ? miniGate(status, g.key) : gateReason(status, g.game, g.cost);
+            const reason = gateReason(status, g.game, g.cost);
             const off = !!reason;
             const body = (<>
               <span className="ar-dome"><i><g.Icon size={22} color="var(--text)" /></i></span>
               <div className="ar-t">{g.title}</div>
               <div className="ar-n">{off ? <><Lock size={11} />{reason}</> : g.note}</div>
-              {off ? null : <span className="ar-x">{g.tag}</span>}
+              <span className="ar-x">{g.tag}</span>
             </>);
-            return off ? <div key={g.to} className="ar-g off" aria-disabled="true">{body}</div> : <Link key={g.to} to={g.to} className="ar-g">{body}</Link>;
+            return <Link key={g.to} to={g.to} className={'ar-g' + (off ? ' low' : '')}>{body}</Link>;
           })}
         </div>
 

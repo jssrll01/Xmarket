@@ -56,7 +56,9 @@ import DmInbox, { DmChat } from './pages/DirectMessages';
 import PriceDrops, { PriceDropBuy, PriceDropOrder } from './pages/xf/PriceDrops';
 import DigitalProducts from './pages/xf/DigitalProducts';
 import DemandPolls from './pages/xf/DemandPolls';
+import PollResults from './pages/xf/PollResults';
 import Sponsorships from './pages/xf/Sponsorships';
+import SponsorDonors from './pages/xf/SponsorDonors';
 import DigitalHub from './pages/xf/DigitalHub';
 import LaunchPopups from './components/LaunchPopups';
 import Xmall from './pages/Xmall';
@@ -67,6 +69,7 @@ import GlobalChat from './pages/GlobalChat';
 import Socials from './pages/Socials';
 import SocialsCreator from './pages/SocialsCreator';
 import SocialsComments from './pages/SocialsComments';
+import SocialsPost from './pages/SocialsPost';
 import CreatorNewPost from './pages/CreatorNewPost';
 import CreatorPostHistory from './pages/CreatorPostHistory';
 import Vip from './pages/Vip';
@@ -191,7 +194,9 @@ function Router() {
         <Route path="/price-drops/order/:oid" element={<PriceDropOrder />} />
         <Route path="/digital-products" element={<DigitalProducts />} />
         <Route path="/demand-polls" element={<DemandPolls />} />
+        <Route path="/demand-polls/results" element={<PollResults />} />
         <Route path="/sponsorships" element={<Sponsorships />} />
+        <Route path="/sponsorships/donors" element={<SponsorDonors />} />
         <Route path="/digital-hub" element={<DigitalHub />} />
         <Route path="/global-chat" element={<GlobalChat />} />
         <Route path="/chat-search" element={<ChatSearch />} />
@@ -206,6 +211,7 @@ function Router() {
         <Route path="/creator-studio/video" element={<CreatorNewVideo />} />
         <Route path="/creator-studio/create" element={<CreatorCreate />} />
         <Route path="/socials/post/:id/comments" element={<SocialsComments />} />
+        <Route path="/socials/post/:id" element={<SocialsPost />} />
         <Route path="/creator-studio/post" element={<CreatorNewPost />} />
         <Route path="/creator-studio/posts" element={<CreatorPostHistory />} />
         <Route path="/creator-studio/profile" element={<CreatorEditProfile />} />

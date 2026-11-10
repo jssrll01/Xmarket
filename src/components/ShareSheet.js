@@ -6,12 +6,12 @@ import { useToast } from './Toast';
 export function ShareCard({ s }) {
   const nav = useNavigate();
   if (!s) return null;
-  const go = () => nav(s.type === 'video' ? '/socials/video/' + s.id : '/socials/post/' + s.id + '/comments');
+  const go = () => nav(s.type === 'poll' ? '/demand-polls/results' : s.type === 'video' ? '/socials/video/' + s.id : '/socials/post/' + s.id);
   return (
     <button type="button" onClick={go} style={{ display: 'flex', gap: 10, alignItems: 'center', width: 230, maxWidth: '100%', textAlign: 'left', padding: 8, borderRadius: 14, background: '#fff', color: '#0F172A', border: '1px solid #BFDBFE' }}>
       {s.image ? <img src={s.image} alt="" width="56" height="56" loading="lazy" decoding="async" style={{ width: 56, height: 56, borderRadius: 10, objectFit: 'cover', flexShrink: 0 }} /> : <div style={{ width: 56, height: 56, borderRadius: 10, background: '#EFF6FF', flexShrink: 0 }} />}
       <div style={{ minWidth: 0 }}>
-        <div style={{ fontSize: 11, fontWeight: 800, color: '#2563EB' }}>{s.type === 'video' ? '▶ Video' : '🖼 Post'} · @{s.username}</div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: '#2563EB' }}>{s.type === 'poll' ? '📊 Poll' : s.type === 'video' ? '▶ Video' : '🖼 Post'} · @{s.username}</div>
         <div style={{ fontSize: 12.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{s.title || 'Open'}</div>
       </div>
     </button>
@@ -24,6 +24,7 @@ export default function ShareSheet({ type, id, onClose, onExternal }) {
   const [rows, setRows] = useState([]);
   const [inbox, setInbox] = useState([]);
   const [busy, setBusy] = useState(false);
+  const sendShare = (tid) => (type === 'poll' ? supabase.rpc('dm_send_share_poll', { p_thread: tid, p_id: id }) : supabase.rpc('dm_send_share', { p_thread: tid, p_type: type, p_id: id }));
 
   useEffect(() => { supabase.rpc('dm_inbox').then(({ data }) => setInbox(Array.isArray(data) ? data.slice(0, 6) : [])); }, []);
   useEffect(() => {
@@ -46,13 +47,13 @@ export default function ShareSheet({ type, id, onClose, onExternal }) {
   const toGlobal = async () => {
     if (busy) return;
     setBusy(true);
-    const { data, error } = await supabase.rpc('global_share', { p_type: type, p_id: id });
+    const { data, error } = await (type === 'poll' ? supabase.rpc('global_share_poll', { p_id: id }) : supabase.rpc('global_share', { p_type: type, p_id: id }));
     finish(data, error, 'Shared to Global Chat');
   };
   const toThread = async (tid) => {
     if (busy) return;
     setBusy(true);
-    const { data, error } = await supabase.rpc('dm_send_share', { p_thread: tid, p_type: type, p_id: id });
+    const { data, error } = await sendShare(tid);
     finish(data, error, 'Sent');
   };
   const toUser = async (u) => {
@@ -60,7 +61,7 @@ export default function ShareSheet({ type, id, onClose, onExternal }) {
     setBusy(true);
     const o = await supabase.rpc('dm_open', { p_other: u.user_id });
     if (o.error || !o.data || !o.data.ok) { setBusy(false); return show((o.data && o.data.error) || 'Could not open the chat.'); }
-    const { data, error } = await supabase.rpc('dm_send_share', { p_thread: o.data.thread_id, p_type: type, p_id: id });
+    const { data, error } = await sendShare(o.data.thread_id);
     finish(data, error, 'Sent');
   };
 
@@ -68,7 +69,7 @@ export default function ShareSheet({ type, id, onClose, onExternal }) {
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 4000, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
       <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 560, maxHeight: '80vh', overflowY: 'auto', background: '#fff', color: '#0F172A', borderRadius: '24px 24px 0 0', padding: '20px 18px calc(18px + env(safe-area-inset-bottom, 0px))' }}>
-        <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 8 }}>Share {type === 'video' ? 'video' : 'post'}</div>
+        <div style={{ fontSize: 18, fontWeight: 900, marginBottom: 8 }}>Share {type === 'poll' ? 'poll' : type === 'video' ? 'video' : 'post'}</div>
         <button type="button" disabled={busy} onClick={toGlobal} style={row}>🌐 Global Chat</button>
         {inbox.map((r) => <button key={r.thread_id} type="button" disabled={busy} onClick={() => toThread(r.thread_id)} style={row}>💬 @{r.name}</button>)}
         <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search a user by username" style={{ width: '100%', padding: 12, fontSize: 14, margin: '12px 0 4px' }} />

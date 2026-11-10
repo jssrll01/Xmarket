@@ -5,6 +5,8 @@ import { supabase } from '../../lib/supabase';
 import { rpcPin, showReceipt } from '../../lib/pinBus';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../components/Toast';
+import { CardListSkeleton } from '../../components/Skeleton';
+import TopupButton from '../../components/TopupButton';
 
 const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const size = (b) => (!b ? '' : b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB');
@@ -69,10 +71,10 @@ export default function DigitalProducts() {
       </div>
       {user && bal !== null && (
         <div className="card neu-bal" style={{ padding: 14, marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: 14 }}>Xwallet balance</span><b style={{ color: '#1D4ED8', fontSize: 18 }}>{peso(bal)}</b>
+          <span style={{ fontSize: 14 }}>Xwallet balance</span><span style={{ display: 'inline-flex', alignItems: 'center' }}><b style={{ color: '#1D4ED8', fontSize: 18 }}>{peso(bal)}</b><TopupButton /></span>
         </div>
       )}
-      {items === null && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>Loading…</div>}
+      {items === null && <CardListSkeleton count={4} />}
       {items && items.length === 0 && <div className="card" style={{ padding: 28, textAlign: 'center', color: 'var(--muted)' }}>No digital products yet.</div>}
       {items && items.map((it) => {
         const own = mine[it.id];

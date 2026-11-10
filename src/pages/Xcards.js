@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { fetchWallet } from '../lib/xwallet';
 import { purchaseXcard, fetchMyXcards } from '../lib/xcards';
+import TopupButton from '../components/TopupButton';
 
 const DENOMS = [100, 200, 500, 1000];
 const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -123,7 +124,7 @@ export default function Xcards() {
       </div>
 
       <div className="xcn-sec">
-        <div className="xcn-bal"><span>Xwallet balance</span><b>{peso(balance)}</b></div>
+        <div className="xcn-bal"><span>Xwallet balance</span><span style={{ display: 'inline-flex', alignItems: 'center' }}><b>{peso(balance)}</b><TopupButton /></span></div>
         <div className="xcn-lab">Amount</div>
         <div className="xcn-seg">
           {DENOMS.map(d => <button key={d} className={selected === d ? 'on' : ''} onClick={() => setSelected(d)}>₱{d.toLocaleString()}</button>)}

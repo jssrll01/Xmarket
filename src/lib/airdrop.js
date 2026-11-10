@@ -28,3 +28,24 @@ export const fetchMyBet = async (drawId) => {
   const { data } = await supabase.from('airdrop_bets').select('*').eq('draw_id', drawId).maybeSingle();
   return data;
 };
+export const fetchLastDraw = async (tier) => {
+  const { data } = await supabase.from('airdrop_draws').select('*')
+    .eq('tier', tier).eq('status', 'done').order('draw_at', { ascending: false }).limit(1).maybeSingle();
+  return data;
+};
+export const fetchMyBets = async (drawId, uid) => {
+  if (!drawId || !uid) return [];
+  const { data } = await supabase.from('airdrop_bets').select('*')
+    .eq('draw_id', drawId).eq('user_id', uid).order('created_at', { ascending: true });
+  return data || [];
+};
+export const fetchBetHistory = async (tier, uid) => {
+  if (!uid) return [];
+  const { data } = await supabase.from('airdrop_bets').select('*')
+    .eq('tier', tier).eq('user_id', uid).order('created_at', { ascending: false }).limit(30);
+  return data || [];
+};
+export const fetchLockSeconds = async () => {
+  const { data } = await supabase.rpc('airdrop_settings_public');
+  return data && data.lock_seconds != null ? Number(data.lock_seconds) : 10;
+};

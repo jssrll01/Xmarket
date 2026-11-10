@@ -42,7 +42,7 @@ export default function Articles() {
   const [art, setArt] = useState(null);
   const [loadingArt, setLoadingArt] = useState(false);
 
-  useEffect(() => { supabase.rpc('articles_list').then(({ data }) => setRows(Array.isArray(data) ? data : [])); }, []);
+  useEffect(() => { supabase.rpc('articles_list').then(({ data }) => setRows(Array.isArray(data) ? data.slice().sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0)) : [])); }, []);
 
   const read = async (id) => {
     setLoadingArt(true);
