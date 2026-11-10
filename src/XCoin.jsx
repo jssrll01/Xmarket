@@ -5,7 +5,7 @@ import { createChart, CandlestickSeries, AreaSeries, CrosshairMode } from 'light
 import { useNavigate } from 'react-router-dom';
 
 // [label, candle seconds, hours of history]
-const TFS = [['12h', 900, 12], ['24h', 900, 24], ['48h', 3600, 48], ['72h', 3600, 72], ['96h', 3600, 96], ['120h', 3600, 120], ['144h', 3600, 144], ['168h', 3600, 168]];
+const TFS = [['24h', 900, 24], ['168h', 3600, 168]];
 const MAX_HOURS = 168;
 const perMinute = (rows) => {
   const m = new Map();
@@ -133,8 +133,8 @@ export default function XCoin() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [phtTime, setPhtTime] = useState('');
-  const [tf, setTf] = useState('12h');
-  const [style, setStyle] = useState('line');
+  const [tf, setTf] = useState('24h');
+  const [style, setStyle] = useState('candles');
   const [ticks, setTicks] = useState([]);
   const [hover, setHover] = useState(null);
   const [positions, setPositions] = useState([]);
@@ -148,7 +148,7 @@ export default function XCoin() {
   const boxRef = useRef(null);
   const chartRef = useRef(null);
   const ticksRef = useRef([]);
-  const tfRef = useRef('12h');
+  const tfRef = useRef('24h');
   const pendRef = useRef(null);
   tfRef.current = tf;
 
