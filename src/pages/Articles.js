@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import HubSearch from './xf/HubSearch';
 import { CardListSkeleton } from '../components/Skeleton';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Newspaper } from 'lucide-react';
@@ -41,6 +42,8 @@ export default function Articles() {
   const [rows, setRows] = useState(null);
   const [art, setArt] = useState(null);
   const [loadingArt, setLoadingArt] = useState(false);
+  const [q, setQ] = useState('');
+  const hit = (s) => !q.trim() || String(s || '').toLowerCase().includes(q.trim().toLowerCase());
 
   useEffect(() => { supabase.rpc('articles_list').then(({ data }) => setRows(Array.isArray(data) ? data.slice().sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0)) : [])); }, []);
 
@@ -109,7 +112,8 @@ export default function Articles() {
       {rows === null && <CardListSkeleton count={3} />}
       {rows && rows.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>No articles yet.</div>}
       {loadingArt && <div style={{ textAlign: 'center', color: 'var(--muted)', marginBottom: 8 }}>Opening…</div>}
-      {rows && rows.map((a) => (
+      {rows && <HubSearch value={q} onChange={setQ} placeholder="Search articles" />}
+      {rows && rows.filter((a) => hit((a.title || '') + ' ' + (a.summary || ''))).map((a) => (
         <div key={a.id} className="card" onClick={() => read(a.id)} style={{ padding: 0, marginBottom: 12, overflow: 'hidden', cursor: 'pointer' }}>
           {a.cover_url && <img src={imgUrl(a.cover_url, 700)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: 150, objectFit: 'cover', display: 'block' }} />}
           <div style={{ padding: 14 }}>
