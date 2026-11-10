@@ -3,6 +3,7 @@ import { CardListSkeleton } from './Skeleton';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ExternalLink, Calendar } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import HubSearch from '../pages/xf/HubSearch';
 
 const day = (d) => new Date(d + 'T00:00:00').toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
 const safe = (u) => (/^https?:\/\//i.test(u || '') ? u : '');
@@ -11,6 +12,7 @@ export default function OppList({ title, rpc, kind, empty }) {
   const nav = useNavigate();
   const [rows, setRows] = useState(null);
   const [open, setOpen] = useState(null);
+  const [q, setQ] = useState('');
 
   useEffect(() => {
     supabase.rpc(rpc).then(({ data }) => setRows(Array.isArray(data) ? data : []));
@@ -24,7 +26,8 @@ export default function OppList({ title, rpc, kind, empty }) {
       </div>
       {rows === null && <CardListSkeleton count={3} />}
       {rows && rows.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>{empty}</div>}
-      {rows && rows.map((r) => {
+      {rows && <HubSearch value={q} onChange={setQ} placeholder={'Search ' + String(title || '').toLowerCase()} />}
+      {rows && rows.filter((r) => !q.trim() || ((r.title || '') + ' ' + (r.name || '') + ' ' + (r.provider || '') + ' ' + (r.description || '')).toLowerCase().includes(q.trim().toLowerCase())).map((r) => {
         const isOpen = open === r.id;
         const link = safe(r.apply_url);
         return (
