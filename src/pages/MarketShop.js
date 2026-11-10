@@ -163,6 +163,7 @@ export default function MarketShop() {
       <HubSearch value={q} onChange={setQ} placeholder="Search Market Shop" />
       {items === null && <CardListSkeleton count={3} />}
       {items && items.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>Nothing for sale yet.</div>}
+      {items && items.length > 0 && q.trim() && !items.some((x) => ((x.item_name || '') + ' ' + (x.name || '') + ' ' + (x.title || '') + ' ' + (x.description || '')).toLowerCase().includes(q.trim().toLowerCase())) && <div className="card" style={{ padding: 28, textAlign: 'center', color: 'var(--muted)' }}>No matches.</div>}
       {groups.map(([title, list0]) => { const list = q.trim() ? list0.filter((x) => ((x.item_name || '') + ' ' + (x.name || '') + ' ' + (x.title || '') + ' ' + (x.description || '')).toLowerCase().includes(q.trim().toLowerCase())) : list0; return list.length === 0 ? null : (
         <div key={title}>
           <div className="ms-lab">{title}</div>
