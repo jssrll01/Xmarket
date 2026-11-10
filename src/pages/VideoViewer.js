@@ -9,6 +9,7 @@ import { Avatar, ProductTiles } from './socialsUi';
 import GiftSheet from '../components/GiftSheet';
 import ShareSheet from '../components/ShareSheet';
 import '../videos.css';
+import { NameLabel } from '../components/PerkBadges';
 
 function CommentSheet({ video, onClose, onAdded }) {
   const { show } = useToast();
@@ -39,7 +40,7 @@ function CommentSheet({ video, onClose, onAdded }) {
           {rows && rows.map((c) => (
             <div className="vv-cm" key={c.id}>
               <Avatar name={c.username} url={c.avatar_url} size={32} />
-              <div className="b"><b>@{c.username}</b><div><MentionText text={c.body} /></div></div>
+              <div className="b"><b><NameLabel username={c.username} verified creator /></b><div><MentionText text={c.body} /></div></div>
             </div>
           ))}
         </div>
@@ -190,7 +191,7 @@ export default function VideoViewer() {
             <div className="vv-info">
               <div className="vv-user">
                 <button type="button" onClick={() => nav('/socials/creator/' + v.username)} style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#fff', fontWeight: 800 }}>
-                  <Avatar name={v.username} url={v.avatar_url} size={34} />@{v.username}
+                  <Avatar name={v.username} url={v.avatar_url} size={34} /><NameLabel username={v.username} creator />
                 </button>
                 {!v.mine && <button type="button" className={'vv-follow' + (v.following ? ' on' : '')} onClick={() => follow(v)}>{v.following ? 'Following' : 'Follow'}</button>}
               </div>

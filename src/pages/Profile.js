@@ -9,11 +9,13 @@ import { Sparkles as CreatorIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import useMyAvatar from '../lib/useMyAvatar';
+import { useVip } from '../lib/vip';
 
 export default function Profile() {
   const nav = useNavigate();
   const { user, profile } = useAuth();
   const avatar = useMyAvatar();
+  const { isVip: vipFrame } = useVip();
   const [stats, setStats] = useState({ orders: 0, wishlist: 0, following: 0, extra: null });
   const [statsLoaded, setStatsLoaded] = useState(false);
 
@@ -82,7 +84,7 @@ export default function Profile() {
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 24 }}>
-        <div style={{
+        <div className={vipFrame ? 'vip-frame' : undefined} style={{
           width: 64, height: 64, borderRadius: '50%',
           background: 'linear-gradient(135deg, #2563EB, #7C3AED)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',

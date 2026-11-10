@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { Avatar } from './socialsUi';
+import { NameLabel } from '../components/PerkBadges';
 
 export default function FollowerList({ creatorId }) {
   const [rows, setRows] = useState(null);
@@ -14,7 +15,7 @@ export default function FollowerList({ creatorId }) {
       <h3 style={{ fontSize: 15, fontWeight: 800, margin: '0 0 10px' }}>Followers</h3>
       {rows.map((r) => (
         <div key={r.username} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
-          <Avatar name={r.username} url={r.avatar_url} size={32} /><b style={{ fontSize: 14 }}>@{r.username}</b>
+          <Avatar name={r.username} url={r.avatar_url} size={32} /><b style={{ fontSize: 14 }}><NameLabel username={r.username} creator /></b>
         </div>
       ))}
     </div>

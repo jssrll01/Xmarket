@@ -4,6 +4,7 @@ import { ArrowLeft, Users } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Avatar } from './socialsUi';
 import { card, MUTED } from './creatorUi';
+import { NameLabel } from '../components/PerkBadges';
 
 export default function CreatorFollowers() {
   const nav = useNavigate();
@@ -33,7 +34,7 @@ export default function CreatorFollowers() {
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderTop: i ? '1px solid rgba(148,163,184,.25)' : 'none' }}>
               <Avatar name={r.username} url={r.avatar_url} size={40} />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontWeight: 700, fontSize: 14 }}>@{r.username}</div>
+                <div style={{ fontWeight: 700, fontSize: 14 }}><NameLabel username={r.username} creator /></div>
                 <div style={{ fontSize: 11.5, color: MUTED }}>Followed {new Date(r.at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
               </div>
             </div>

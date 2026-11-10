@@ -27,6 +27,7 @@ import useRecentSearches from '../hooks/useRecentSearches';
 import { useNavigate as useNavToSearch } from 'react-router-dom';
 import UserMenu from '../components/UserMenu';
 import VariantPicker from '../components/VariantPicker';
+import { BoosterTag } from '../components/PerkBadges';
 
 
 // Banner copy — parallel to `banners` array in lib/products.js (index-aligned).
@@ -853,6 +854,7 @@ export default function Home() {
                     position: 'absolute', top: 8, left: 8, zIndex: 4,
                     display: 'flex', flexDirection: 'column', gap: 4,
                   }}>
+                    <BoosterTag />
                     {p.preorder && <span style={{ display: "inline-block", fontSize: 9, padding: "3px 6px", borderRadius: 4, background: "#7C3AED", color: "#fff", fontWeight: 700, letterSpacing: 0.5, boxShadow: "0 2px 6px rgba(15,23,42,0.15)" }}>PRE-ORDER</span>}
                     {p.instant && !p.preorder && <span style={{ display: "inline-block", fontSize: 9, padding: "3px 6px", borderRadius: 4, background: "#10B981", color: "#fff", fontWeight: 700, letterSpacing: 0.5, boxShadow: "0 2px 6px rgba(15,23,42,0.15)" }}>INSTANT</span>}
                   </div>
