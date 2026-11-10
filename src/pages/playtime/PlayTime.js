@@ -84,7 +84,7 @@ export default function PlayTime() {
         <div className="ar-grid">
           {games.map(g => {
             const reason = gateReason(status, g.game, g.cost);
-            const off = !!reason;
+            const off = !!reason && g.game === 'mini';
             const body = (<>
               <span className="ar-dome"><i><g.Icon size={22} color="var(--text)" /></i></span>
               <div className="ar-t">{g.title}</div>
