@@ -27,6 +27,7 @@ export default function OppList({ title, rpc, kind, empty }) {
       {rows === null && <CardListSkeleton count={3} />}
       {rows && rows.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>{empty}</div>}
       {rows && <HubSearch value={q} onChange={setQ} placeholder={'Search ' + String(title || '').toLowerCase()} />}
+      {rows && rows.length > 0 && !rows.some((r) => ((r.title || '') + ' ' + (r.name || '') + ' ' + (r.provider || '') + ' ' + (r.description || '')).toLowerCase().includes(q.trim().toLowerCase())) && <div className="card" style={{ padding: 28, textAlign: 'center', color: 'var(--muted)' }}>No matches.</div>}
       {rows && rows.filter((r) => !q.trim() || ((r.title || '') + ' ' + (r.name || '') + ' ' + (r.provider || '') + ' ' + (r.description || '')).toLowerCase().includes(q.trim().toLowerCase())).map((r) => {
         const isOpen = open === r.id;
         const link = safe(r.apply_url);

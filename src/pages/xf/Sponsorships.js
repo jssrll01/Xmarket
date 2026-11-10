@@ -44,6 +44,7 @@ export default function Sponsorships() {
       <HubSearch value={q} onChange={setQ} placeholder="Search sponsorships" />
       {funds === null && <XfSkel kind="fund" />}
       {funds && !funds.length && <div className="xf-card xf-empty">No fund is open right now.</div>}
+      {funds && funds.length > 0 && !funds.some((f) => hit((f.title || '') + ' ' + (f.project || ''))) && <div className="xf-card xf-empty">No matches.</div>}
       {(funds || []).filter((f) => hit((f.title || '') + ' ' + (f.project || ''))).map((f) => {
         const pct = Math.min(100, (Number(f.raised) / Number(f.target || 1)) * 100);
         const m = msg[f.id];

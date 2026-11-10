@@ -113,6 +113,7 @@ export default function Articles() {
       {rows && rows.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>No articles yet.</div>}
       {loadingArt && <div style={{ textAlign: 'center', color: 'var(--muted)', marginBottom: 8 }}>Opening…</div>}
       {rows && <HubSearch value={q} onChange={setQ} placeholder="Search articles" />}
+      {rows && rows.length > 0 && !rows.some((a) => hit((a.title || '') + ' ' + (a.summary || ''))) && <div className="card" style={{ padding: 28, textAlign: 'center', color: 'var(--muted)' }}>No matches.</div>}
       {rows && rows.filter((a) => hit((a.title || '') + ' ' + (a.summary || ''))).map((a) => (
         <div key={a.id} className="card" onClick={() => read(a.id)} style={{ padding: 0, marginBottom: 12, overflow: 'hidden', cursor: 'pointer' }}>
           {a.cover_url && <img src={imgUrl(a.cover_url, 700)} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: 150, objectFit: 'cover', display: 'block' }} />}

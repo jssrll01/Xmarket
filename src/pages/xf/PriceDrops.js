@@ -40,6 +40,7 @@ export default function PriceDrops() {
       <HubSearch value={q} onChange={setQ} placeholder="Search price drops" />
       {items === null && <XfSkel kind="cards" />}
       {items && !items.length && <div className="xf-card xf-empty">No price drops right now. Check back soon.</div>}
+      {items && items.length > 0 && !items.some((d) => hit(d.title)) && <div className="xf-card xf-empty">No matches.</div>}
       {(items || []).filter((d) => hit(d.title)).map((d) => {
         const out = d.stock < 1 || d.status !== 'active';
         return (

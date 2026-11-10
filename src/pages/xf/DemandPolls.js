@@ -53,6 +53,7 @@ export default function DemandPolls() {
       {polls === null && <XfSkel kind="polls" />}
       {polls && !polls.length && <div className="xf-card xf-empty">No active polls right now.</div>}
       {polls && polls.length > 0 && !polls.some((p) => mine[p.id] === undefined || fresh[p.id]) && <div className="xf-card xf-empty">You have voted on all polls. New polls will show up here.</div>}
+      {polls && polls.some((p) => mine[p.id] === undefined || fresh[p.id]) && !polls.some((p) => (mine[p.id] === undefined || fresh[p.id]) && hit(p.question)) && <div className="xf-card xf-empty">No matches.</div>}
       {(polls || []).filter((p) => (mine[p.id] === undefined || fresh[p.id]) && hit(p.question)).map((p) => {
         const voted = mine[p.id] !== undefined;
         const r = res[p.id] || {};
