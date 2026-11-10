@@ -31,7 +31,7 @@ export async function toggleLike(id) {
 }
 
 export async function sharePost(p) {
-  const url = window.location.origin + '/socials/post/' + p.id + '/comments';
+  const url = window.location.origin + '/socials/post/' + p.id;
   const text = '@' + p.username + ' on XMARKET: ' + String(p.description).slice(0, 80);
   if (navigator.share) { try { await navigator.share({ title: 'XMARKET Socials', text, url }); return 'shared'; } catch (e) { return 'cancel'; } }
   try { await navigator.clipboard.writeText(url); return 'copied'; } catch (e) { return 'fail'; }
