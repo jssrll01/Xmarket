@@ -7,10 +7,17 @@ import { rpcPin, showReceipt } from '../lib/pinBus';
 import { imgUrl } from '../lib/img';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
+import { PerkStatus } from '../components/PerkBadges';
 
 const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const day = (d) => new Date(d).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' });
 const EMAIL = /^\S+@\S+\.\S+$/;
+const PERK_LABEL = { verified: 'Verified badge', creator_verified: 'Creator verified badge', booster: 'Cashback booster ×2' };
+const PERK_DESC = {
+  verified: 'A verified badge next to your name in Global Chat, messages and post comments.',
+  creator_verified: 'A verified badge on your creator account, shown on your posts, videos and creator profile. Approved creators only.',
+  booster: 'Earn ×2 loyalty points on your purchases while it is active.'
+};
 
 export default function MarketShop() {
   const nav = useNavigate();
@@ -48,6 +55,8 @@ export default function MarketShop() {
     if (!data.ok) { if (data.error !== 'Cancelled') show(data.error); return; }
     setSel(null); setGift(false); setEmail(''); setMsg('');
     load();
+    window.dispatchEvent(new Event('xmarket:perks-changed'));
+    window.dispatchEvent(new Event('xmarket:vip-changed'));
     if (data.receipt) showReceipt(data.receipt); else show('Purchase complete');
   };
 
@@ -62,6 +71,7 @@ export default function MarketShop() {
           <Crown size={16} /> VIP active until {day(vip.expires_at)}
         </div>
       )}
+      <PerkStatus />
       {items === null && <CardListSkeleton count={3} />}
       {items && items.length === 0 && <div style={{ textAlign: 'center', padding: 30, color: 'var(--muted)' }}>Nothing for sale yet.</div>}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
@@ -70,6 +80,7 @@ export default function MarketShop() {
             {it.image_url && <img src={imgUrl(it.image_url, 400)} alt="" loading="lazy" decoding="async" style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: 12, marginBottom: 8 }} />}
             {it.vip_days && <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, alignSelf: 'flex-start', padding: '2px 8px', borderRadius: 99, background: '#FEF3C7', color: '#92400E', fontSize: 11, fontWeight: 800, marginBottom: 6 }}><Crown size={12} /> {it.vip_days} days VIP</div>}
             <div style={{ fontWeight: 800, fontSize: 14 }}>{it.name}</div>
+            {it.perk_kind && <div style={{ fontSize: 11, fontWeight: 800, color: '#92400E', margin: '0 0 2px' }}>{PERK_LABEL[it.perk_kind]} · {it.perk_days} days</div>}
             {it.description && <div style={{ fontSize: 12, color: 'var(--muted)', margin: '2px 0 6px' }}>{it.description}</div>}
             <div style={{ fontWeight: 900, color: '#2563EB', margin: 'auto 0 8px' }}>{peso(it.price)}</div>
             <div style={{ display: 'flex', gap: 6 }}>
@@ -94,6 +105,7 @@ export default function MarketShop() {
           <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', background: '#fff', color: '#0F172A', borderRadius: '22px 22px 0 0', padding: '20px 18px calc(18px + env(safe-area-inset-bottom, 0px))' }}>
             <div style={{ fontWeight: 900, fontSize: 17 }}>{sel.name}</div>
             <div style={{ fontWeight: 900, color: '#2563EB', margin: '4px 0 6px' }}>{peso(sel.price)} from your Xwallet</div>
+            {sel.perk_kind && <div style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 10 }}>{PERK_DESC[sel.perk_kind]} Lasts {sel.perk_days} days and adds to any time you already have.</div>}
             {sel.vip_days && <div style={{ fontSize: 12.5, color: 'var(--muted)', marginBottom: 10 }}>{sel.vip_days} days of VIP, active right away. It adds to any VIP time already active.</div>}
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 700, marginBottom: 10 }}>
               <input type="checkbox" checked={gift} onChange={(e) => setGift(e.target.checked)} /> Send as a gift to a friend

@@ -1,4 +1,6 @@
 import FollowChip from './FollowChip';
+import { NameLabel } from '../components/PerkBadges';
+import { usePerkFlags } from '../lib/perks';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Share2, Gift, Pin } from 'lucide-react';
@@ -17,7 +19,7 @@ export const Sk = ({ h = 16, w = '100%', r = 12, style }) => (
 );
 export const SkStyle = () => <style>{'@keyframes socsk{0%,100%{opacity:.45}50%{opacity:1}}'}</style>;
 
-export function Avatar({ name, url, size = 40 }) {
+function AvatarBase({ name, url, size = 40 }) {
   return url
     ? <img src={imgUrl(url, size * 2)} alt="" width={size} height={size} loading="lazy" decoding="async" style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
     : <span style={{ width: size, height: size, borderRadius: '50%', background: 'linear-gradient(135deg,#2563EB,#60A5FA)', color: '#fff', fontWeight: 800, fontSize: size * 0.38, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{initials(name)}</span>;
@@ -66,7 +68,7 @@ export function PostCard({ p, onLike, onShare, onPin }) {
     <div className="card" style={{ marginBottom: 14, overflow: 'hidden' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 12, cursor: 'pointer' }} onClick={() => nav('/socials/creator/' + p.username)}>
         <Avatar name={p.username} url={p.avatar_url} />
-        <div><div style={{ fontWeight: 800, fontSize: 14 }}>@{p.username}</div><div style={{ fontSize: 11, color: 'var(--muted)' }}>{time12(p.created_at)}</div></div>
+        <div><div style={{ fontWeight: 800, fontSize: 14 }}><NameLabel username={p.username} creator /></div><div style={{ fontSize: 11, color: 'var(--muted)' }}>{time12(p.created_at)}</div></div>
         {!p.mine && p.creator_id && <FollowChip creatorId={p.creator_id} initial={p.following} />}
       </div>
       {p.pinned_at && <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 12px 8px', fontSize: 12, fontWeight: 800, color: '#2563EB' }}><Pin size={13} fill="#2563EB" /> Pinned</div>}
@@ -148,4 +150,16 @@ export function ProductTiles({ products }) {
       ))}
     </div>
   );
+}
+
+export function Avatar(props) {
+  const f = usePerkFlags(props.name)
+  if (f && f.vip) {
+    return (
+      <span className="vip-frame" style={{ display: 'inline-flex', flexShrink: 0, borderRadius: '50%' }}>
+        <AvatarBase {...props} />
+      </span>
+    )
+  }
+  return <AvatarBase {...props} />
 }

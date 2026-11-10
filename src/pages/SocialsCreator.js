@@ -6,6 +6,7 @@ import { useToast } from '../components/Toast';
 import { PostCard, Avatar, Sk, SkStyle, toggleLike, sharePost, SocialLinks } from './socialsUi';
 import FollowButton from './FollowButton';
 import FollowerList from './FollowerList';
+import { NameLabel } from '../components/PerkBadges';
 import { ProfileVideos } from '../components/VideoRail';
 
 export default function SocialsCreator() {
@@ -59,7 +60,7 @@ export default function SocialsCreator() {
         <div className="card" style={{ padding: 18, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 14 }}>
           <Avatar name={prof.username} url={prof.avatar_url} size={64} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 18, fontWeight: 800 }}>@{prof.username}</div>
+            <div style={{ fontSize: 18, fontWeight: 800 }}><NameLabel username={prof.username} creator /></div>
             <div style={{ display: 'flex', gap: 18, marginTop: 6, fontSize: 13 }}>
               <span><b>{prof.posts}</b> posts</span><span><b>{fc ?? Number(prof.followers || 0)}</b> followers</span><span><b>{prof.likes}</b> likes</span>
             </div>

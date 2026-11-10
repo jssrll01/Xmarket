@@ -1,4 +1,4 @@
-import VipBadge from '../components/VipBadge';
+import { NameLabel } from '../components/PerkBadges';
 import { ShareCard } from '../components/ShareSheet';
 import useReactions from '../lib/useReactions';
 import { MentionText, MentionSuggest, replaceMention, ReplyQuote, ReactionChip, MsgMenu, useLongPress } from '../components/MsgKit';
@@ -26,7 +26,7 @@ const dayLabel = (d) => {
 function Avatar({ m, onPick }) {
   const name = m.username || 'X';
   return (
-    <div className="gc-av" role="button" onClick={() => onPick && onPick({ id: m.user_id, name: m.username })} style={{ background: colorOf(m.user_id), cursor: 'pointer' }}>
+    <div className={'gc-av' + (m.is_vip ? ' gc-av-vip' : '')} role="button" onClick={() => onPick && onPick({ id: m.user_id, name: m.username })} style={{ background: colorOf(m.user_id), cursor: 'pointer' }}>
       {name[0].toUpperCase()}
       {m.avatar_url && <img loading="lazy" decoding="async" src={m.avatar_url} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
     </div>
@@ -165,7 +165,7 @@ export default function GlobalChat() {
       <div key={m.id} className={'gc-row' + (mine ? ' mine' : '') + (first ? ' first' : '')}>
         {!mine && (last ? <Avatar m={m} onPick={setPeer} /> : <span className="gc-av-spacer" />)}
         <div className="gc-col">
-          {!mine && first && <div className="gc-name" style={{ cursor: 'pointer' }} onClick={() => setPeer({ id: m.user_id, name: m.username })}>{m.username || 'XMARKET user'}{m.is_vip && <VipBadge active />}</div>}
+          {!mine && first && <div className="gc-name" style={{ cursor: 'pointer' }} onClick={() => setPeer({ id: m.user_id, name: m.username })}><NameLabel username={m.username} prefix="" fallback="XMARKET user" vip={m.is_vip} verified /></div>}
           <div className={'gc-bubble' + (m.is_vip ? ' vip' : '')} {...lp(m)}>
             {m.reply_text && <ReplyQuote name={m.reply_name} text={m.reply_text} />}
             {m.kind === 'share' && m.share ? <ShareCard s={m.share} /> : <span className="gc-text"><MentionText text={m.body} /></span>}

@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import useDmUnread from '../lib/useDmUnread';
 import DmBadge from '../components/DmBadge';
+import { NameLabel } from '../components/PerkBadges';
 import VideoRail from '../components/VideoRail';
 import { PostCard, Avatar, Sk, SkStyle, toggleLike, sharePost } from './socialsUi';
 
@@ -69,7 +70,7 @@ export default function Socials() {
           {found.length === 0 && <div style={{ padding: 14, fontSize: 13, color: 'var(--muted)' }}>No creators found.</div>}
           {found.map(c => (
             <div key={c.username} onClick={() => nav('/socials/creator/' + c.username)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', cursor: 'pointer' }}>
-              <Avatar name={c.username} url={c.avatar_url} /><div style={{ flex: 1 }}><b style={{ fontSize: 14 }}>@{c.username}</b><div style={{ fontSize: 11, color: 'var(--muted)' }}>{c.posts} posts</div></div>
+              <Avatar name={c.username} url={c.avatar_url} /><div style={{ flex: 1 }}><b style={{ fontSize: 14 }}><NameLabel username={c.username} creator /></b><div style={{ fontSize: 11, color: 'var(--muted)' }}>{c.posts} posts</div></div>
             </div>
           ))}
         </div>

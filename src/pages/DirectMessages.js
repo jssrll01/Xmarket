@@ -4,6 +4,7 @@ import { ArrowLeft, Send } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
 import { Avatar } from './socialsUi';
+import { NameLabel } from '../components/PerkBadges';
 import { PacketBubble, PacketCreate } from '../components/RedPacket';
 import { ShareCard } from '../components/ShareSheet';
 import useReactions from '../lib/useReactions';
@@ -34,7 +35,7 @@ export default function DmInbox() {
         <div key={r.thread_id} className="card" onClick={() => nav('/messages/' + r.thread_id)} style={{ padding: 12, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
           <Avatar name={r.name} url={r.avatar} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontWeight: 800, fontSize: 14 }}>@{r.name}</div>
+            <div style={{ fontWeight: 800, fontSize: 14 }}><NameLabel username={r.name} verified /></div>
             <div style={{ fontSize: 13, color: 'var(--muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{r.last_text}</div>
           </div>
           {r.unread > 0 && <span style={{ background: '#2563EB', color: '#fff', borderRadius: 99, minWidth: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, padding: '0 6px' }}>{r.unread}</span>}
@@ -92,7 +93,7 @@ export function DmChat() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 12, borderBottom: '1px solid #E2E8F0', background: '#fff' }}>
         <button className="icon-btn" aria-label="Back" onClick={() => nav('/messages')}><ArrowLeft size={20} /></button>
         <Avatar name={d.other.name} url={d.other.avatar} />
-        <div><div style={{ fontWeight: 800, fontSize: 15 }}>@{d.other.name}</div>{d.other_typing && <div style={{ fontSize: 11.5, color: '#2563EB', fontWeight: 700 }}>typing...</div>}</div>
+        <div><div style={{ fontWeight: 800, fontSize: 15 }}><NameLabel username={d.other.name} verified /></div>{d.other_typing && <div style={{ fontSize: 11.5, color: '#2563EB', fontWeight: 700 }}>typing...</div>}</div>
       </div>
       <div style={{ padding: '6px 12px', textAlign: 'center', fontSize: 11.5, color: '#64748B', background: '#F1F5F9' }}>Messages disappear 24 hours after they are sent.</div>
       <div style={{ flex: 1, overflowY: 'auto', padding: 14, display: 'flex', flexDirection: 'column', gap: 8, background: '#F8FAFC' }}>
