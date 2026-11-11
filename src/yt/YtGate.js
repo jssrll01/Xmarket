@@ -16,7 +16,7 @@ export default function YtGate({ children }) {
   useEffect(() => {
     if (loading) return;
     if (!user) { nav('/signin', { replace: true }); return; }
-    supabase.rpc('yt_is_unlocked').then(({ data }) => setOk(data === true));
+    setOk(false);
   }, [user, loading, nav]);
 
   const submit = async (e) => {
@@ -33,7 +33,7 @@ export default function YtGate({ children }) {
   if (ok) return children;
   return (
     <div className="page-enter" style={{ padding: 16 }}>
-      <button className="icon-btn" aria-label="Back" onClick={() => nav(-1)} style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
+      <button className="icon-btn" aria-label="Back" onClick={() => (window.history.state && window.history.state.idx > 0 ? nav(-1) : nav('/digital-hub', { replace: true }))} style={{ marginBottom: 12 }}><ArrowLeft size={20} /></button>
       <form onSubmit={submit} className="card" style={{ padding: 24, textAlign: 'center' }}>
         <Lock size={34} color="var(--primary)" />
         <div style={{ fontWeight: 800, fontSize: 18, margin: '10px 0 6px' }}>YouTube Premium</div>
