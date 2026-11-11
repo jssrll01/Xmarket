@@ -174,7 +174,7 @@ export default function Profile() {
       </Link>
       <Link to="/yt" style={menuRow}>
         <span style={{ flex: 1, fontWeight: 700 }}>YouTube Premium</span>
-        <span style={{ fontSize: 11.5, color: "var(--muted)" }}>VIP benefit</span>
+        <span style={{ fontSize: 11.5, color: "var(--muted)" }}>PIN protected</span>
       </Link>
 
       <Link to="/creator-studio" style={menuRow}>
