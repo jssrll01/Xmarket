@@ -1,0 +1,31 @@
+{
+  "name": "xmarket",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.2",
+    "firebase": "^13.0.0",
+    "lightweight-charts": "^5.2.1",
+    "lucide-react": "^1.46.0",
+    "qrcode": "^1.5.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.30.6",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "HOST=127.0.0.1 react-scripts start",
+    "build": "react-scripts build",
+    "dev": "HOST=127.0.0.1 react-scripts start"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version"
+    ]
+  }
+}

@@ -1,0 +1,513 @@
+/* eslint-disable no-unused-vars */
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { supabase } from './lib/supabase';
+import { createChart, CandlestickSeries, AreaSeries, CrosshairMode } from 'lightweight-charts';
+import { useNavigate } from 'react-router-dom';
+
+// [label, candle seconds, hours of history]
+const TFS = [['24h', 900, 24], ['168h', 3600, 168]];
+const MAX_HOURS = 168;
+const perMinute = (rows) => {
+  const m = new Map();
+  rows.forEach((t) => m.set(Math.floor(t.time / 60), t.value));
+  return [...m.entries()].sort((a, b) => a[0] - b[0]).map(([b, v]) => ({ time: b * 60, value: v }));
+};
+const BUY_SPREAD = 1.005;
+const SELL_SPREAD = 0.995;
+const UP = '#16a34a';
+const DOWN = '#dc2626';
+
+const CSS = `
+.xc{background:#f4f6fb;min-height:100vh;color:#0f172a;font-family:Inter,system-ui,sans-serif;padding-bottom:40px}
+.xc *{box-sizing:border-box}
+.xc-top{background:#ffffff;border-bottom:1px solid #e2e8f0;padding:12px 14px;position:sticky;top:0;z-index:20}
+.xc-top-in{max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}
+.xc-back{background:none;border:0;color:#64748b;font-size:13px;cursor:pointer;padding:0}
+.xc-pair{display:flex;align-items:center;gap:10px}
+.xc-logo{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#ef4444);display:flex;align-items:center;justify-content:center;font-weight:900;color:#fff}
+.xc-pair b{font-size:16px}.xc-pair small{display:block;color:#64748b;font-size:11px}
+.xc-chip{font-size:10px;font-weight:800;padding:2px 7px;border-radius:6px;background:#dbeafe;color:#1d4ed8;margin-left:6px}
+.xc-clock{font-family:ui-monospace,monospace;color:#0284c7;font-size:13px;font-weight:700}
+.xc-wal{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:6px 12px;text-align:right}
+.xc-wal small{display:block;color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.8px}
+.xc-wal b{font-size:16px}
+.xc-wrap{max-width:1240px;margin:0 auto;padding:12px 12px 0;display:grid;gap:12px;grid-template-columns:minmax(0,1fr);align-items:start}
+@media(min-width:1000px){
+  .xc-wrap{grid-template-columns:minmax(0,1fr) 340px}
+  .xc-a{grid-column:1;grid-row:1 / span 2}
+  .xc-b{grid-column:2;grid-row:1}
+  .xc-c{grid-column:2;grid-row:2}
+  .xc-d{grid-column:1;grid-row:3 / span 1}
+}
+.xc-card{background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.xc-ticker{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 14px}
+@media(min-width:700px){.xc-ticker{grid-template-columns:repeat(6,1fr)}}
+.xc-stat small{display:block;color:#64748b;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
+.xc-stat b{font-size:13.5px}
+.xc-price{font-size:34px;font-weight:900;letter-spacing:-1px;line-height:1.05}
+.xc-bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:12px 0 8px}
+.xc-tf{background:#f1f5f9;border:1px solid #e2e8f0;color:#475569;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:700;cursor:pointer}
+.xc-tf.on{background:#2563eb;color:#fff;border-color:#2563eb}
+.xc-sp{flex:1}
+.xc-chart{border-radius:10px;overflow:hidden;background:#ffffff;border:1px solid #eef2f7;height:380px}
+.xc-ohlc{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#64748b;margin-top:8px;font-family:ui-monospace,monospace}
+.xc-seg{display:grid;grid-template-columns:1fr 1fr;background:#f1f5f9;border-radius:10px;padding:3px;margin-bottom:12px}
+.xc-seg button{border:0;border-radius:8px;padding:10px;font-weight:800;font-size:14px;cursor:pointer;background:transparent;color:#64748b}
+.xc-lbl{display:flex;justify-content:space-between;font-size:11.5px;color:#64748b;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.xc-inp{display:flex;align-items:center;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;padding:0 12px}
+.xc-inp:focus-within{border-color:#2563eb;background:#fff}
+.xc-inp span{color:#64748b;font-weight:800}
+.xc-inp input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:#0f172a;font-size:18px;font-weight:700;padding:13px 8px}
+.xc-pcts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 12px}
+.xc-pcts button{background:#f1f5f9;border:1px solid #e2e8f0;color:#334155;border-radius:8px;padding:6px 0;font-size:12px;font-weight:700;cursor:pointer}
+.xc-row{display:flex;justify-content:space-between;font-size:13px;color:#64748b;margin:6px 0}
+.xc-row b{color:#0f172a}
+.xc-go{width:100%;border:0;border-radius:10px;padding:14px;font-weight:900;font-size:15px;color:#fff;cursor:pointer;margin-top:10px}
+.xc-go:disabled{opacity:.55;cursor:not-allowed}
+.xc-msg{margin-top:10px;padding:10px 12px;border-radius:8px;font-size:13px;font-weight:600}
+.xc-h{font-size:14px;font-weight:800;margin:0 0 10px;display:flex;justify-content:space-between;align-items:center}
+.xc-pf{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.xc-pf small{display:block;color:#64748b;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px}
+.xc-pf b{font-size:16px}
+.xc-ticks{max-height:260px;overflow:auto}
+.xc-tk{display:grid;grid-template-columns:1fr 1fr 1fr;font-family:ui-monospace,monospace;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9}
+.xc-tk span:nth-child(2){text-align:right}.xc-tk span:nth-child(3){text-align:right;color:#64748b}
+.xc-gauge{height:8px;border-radius:6px;background:#e2e8f0;overflow:hidden;margin-top:6px}
+.xc-gauge i{display:block;height:100%;background:linear-gradient(90deg,#ef4444,#f59e0b,#22c55e)}
+.xc-note{font-size:11px;color:#64748b;margin-top:8px;line-height:1.4}
+`;
+
+const peso = (n, d = 2) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+const phtFmt = (sec, o) => new Date(sec * 1000).toLocaleString('en-PH', { timeZone: 'Asia/Manila', ...o });
+const phtTick = (sec, type) => (type >= 3 ? phtFmt(sec, { hour: 'numeric', minute: '2-digit', hour12: true }) : type === 2 ? phtFmt(sec, { month: 'short', day: 'numeric' }) : type === 1 ? phtFmt(sec, { month: 'short' }) : phtFmt(sec, { year: 'numeric' }));
+
+const hoursOf = (k) => TFS.find((x) => x[0] === k)[2];
+const inWindow = (ticks, k) => { const since = Date.now() / 1000 - hoursOf(k) * 3600; return ticks.filter((t) => t.time >= since); };
+
+function aggregate(ticks, step) {
+  const candles = [];
+  const vols = [];
+  let cur = null;
+  for (const t of ticks) {
+    const b = Math.floor(t.time / step) * step;
+    if (!cur || cur.time !== b) {
+      cur = { time: b, open: t.value, high: t.value, low: t.value, close: t.value, n: 1 };
+      candles.push(cur);
+    } else {
+      cur.high = Math.max(cur.high, t.value);
+      cur.low = Math.min(cur.low, t.value);
+      cur.close = t.value;
+      cur.n += 1;
+    }
+  }
+  for (let i = 1; i < candles.length; i++) {
+    candles[i].open = candles[i - 1].close;
+    candles[i].high = Math.max(candles[i].high, candles[i].open);
+    candles[i].low = Math.min(candles[i].low, candles[i].open);
+  }
+  return { candles, vols };
+}
+
+function ExpiryClock({ openedAt }) {
+  const [now, setNow] = React.useState(Date.now());
+  React.useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
+  if (!openedAt) return null;
+  const end = new Date(openedAt).getTime() + 12 * 60 * 60 * 1000;
+  const left = end - now;
+  const at = new Date(end).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+  if (left <= 0) return <div style={{ fontSize: 11, color: '#f59e0b', marginTop: 2 }}>Expiring now · {at}</div>;
+  const h = Math.floor(left / 3600000), m = Math.floor((left % 3600000) / 60000), sec = Math.floor((left % 60000) / 1000);
+  const pad = (n) => String(n).padStart(2, '0');
+  return <div style={{ fontSize: 11, color: '#f59e0b', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>Expires {at} · in {h}h {pad(m)}m {pad(sec)}s</div>;
+}
+
+
+export default function XCoin() {
+  const navigate = useNavigate();
+  const [market, setMarket] = useState({ current_price: 0, prev_price: 0, current_regime: 'Loading...', high_24h: 0, low_24h: 0, ath: 0, atl: 0, volume_24h: 0 });
+  const [wallet, setWallet] = useState({ real_balance: 0, avg_buy_price: 0 });
+  const [xwalletBalance, setXwalletBalance] = useState(0);
+  const [tradeAmount, setTradeAmount] = useState('');
+  const [tradeType, setTradeType] = useState('buy');
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [phtTime, setPhtTime] = useState('');
+  const [tf, setTf] = useState('24h');
+  const [style, setStyle] = useState('candles');
+  const [ticks, setTicks] = useState([]);
+  const [hover, setHover] = useState(null);
+  const [positions, setPositions] = useState([]);
+  const [supply, setSupply] = useState(null);
+  const loadSupply = useCallback(async () => {
+    const { data } = await supabase.rpc('xcoin_supply');
+    if (data) setSupply(data);
+  }, []);
+  useEffect(() => { loadSupply(); const t = setInterval(loadSupply, 15000); return () => clearInterval(t); }, [loadSupply]);
+
+  const boxRef = useRef(null);
+  const chartRef = useRef(null);
+  const ticksRef = useRef([]);
+  const tfRef = useRef('24h');
+  const pendRef = useRef(null);
+  tfRef.current = tf;
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const p = new Date(Date.now() + 8 * 3600 * 1000);
+      let h = p.getUTCHours(); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+      setPhtTime(`${String(h).padStart(2, '0')}:${String(p.getUTCMinutes()).padStart(2, '0')}:${String(p.getUTCSeconds()).padStart(2, '0')} ${ap}`);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const loadAccount = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    const { data: w } = await supabase.from('xcoin_wallets').select('*').eq('user_id', user.id).single();
+    if (w) setWallet(w);
+    const { data: ps } = await supabase.from('xcoin_positions').select('*').eq('user_id', user.id).eq('status', 'open').order('opened_at');
+    setPositions(ps || []);
+    const { data: p } = await supabase.from('profiles').select('xwallet_balance').eq('id', user.id).single();
+    if (p) setXwalletBalance(Number(p.xwallet_balance) || 0);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const { data: m } = await supabase.from('xcoin_market_state').select('*').eq('id', 1).single();
+      if (m) setMarket(m);
+      loadAccount();
+    })();
+    const marketSub = supabase.channel('xcoin_market')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'xcoin_market_state' }, (payload) => setMarket(payload.new)).subscribe();
+    const historySub = supabase.channel('xcoin_history')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'xcoin_price_history' }, (payload) => {
+        // The database ticks every second; we publish ONE tick per minute (the last price of each finished minute).
+        const t = { time: Math.floor(new Date(payload.new.recorded_at).getTime() / 1000), value: Number(payload.new.price) };
+        const b = Math.floor(t.time / 60);
+        const pend = pendRef.current;
+        if (pend && pend.bucket < b) {
+          ticksRef.current = [...ticksRef.current.slice(-10999), { time: pend.bucket * 60, value: pend.value }];
+          setTicks(ticksRef.current);
+          const c = chartRef.current;
+          if (c && c.series) {
+            const step = TFS.find((x) => x[0] === tfRef.current)[1];
+            const { candles } = aggregate(ticksRef.current, step);
+            const last = candles[candles.length - 1];
+            if (last) {
+              if (c.style === 'candles') c.series.update(last); else c.series.update({ time: last.time, value: last.close });
+            }
+          }
+        }
+        pendRef.current = { bucket: b, value: t.value };
+        const cc = chartRef.current;
+        if (cc && cc.series) {
+          const lastClosed = ticksRef.current[ticksRef.current.length - 1];
+          const live = [...ticksRef.current, { time: b * 60, value: t.value }];
+          const stepL = TFS.find((x) => x[0] === tfRef.current)[1];
+          const { candles: cl } = aggregate(live, stepL);
+          const lc = cl[cl.length - 1];
+          if (lc) { if (cc.style === 'candles') cc.series.update(lc); else cc.series.update({ time: lc.time, value: lc.close }); }
+        }
+      }).subscribe();
+    return () => { supabase.removeChannel(marketSub); supabase.removeChannel(historySub); };
+  }, [loadAccount]);
+
+  useEffect(() => {
+    (async () => {
+      let rows = null;
+      // Preferred: one row per minute from the xcoin_price_minute view (see SQL). Falls back to raw ticks.
+      // Pull the last 168h (the longest timeframe), 1000 rows per request, newest first.
+      const sinceIso = new Date(Date.now() - MAX_HOURS * 3600 * 1000).toISOString();
+      const acc = [];
+      let verr = null;
+      for (let from = 0; from < 11000; from += 1000) {
+        const v = await supabase.from('xcoin_price_minute').select('price, recorded_at').gte('recorded_at', sinceIso).order('recorded_at', { ascending: false }).range(from, from + 999);
+        if (v.error) { verr = v.error; break; }
+        acc.push(...(v.data || []));
+        if (!v.data || v.data.length < 1000) break;
+      }
+      if (!verr && acc.length) rows = acc;
+      if (!rows) {
+        const r = await supabase.from('xcoin_price_history').select('price, recorded_at').order('recorded_at', { ascending: false }).limit(1000);
+        if (r.data) rows = r.data;
+      }
+      if (rows) {
+        let list = perMinute(rows.reverse().map((d) => ({ time: Math.floor(new Date(d.recorded_at).getTime() / 1000), value: Number(d.price) })));
+        const nowB = Math.floor(Date.now() / 60000);
+        const last = list[list.length - 1];
+        if (last && last.time / 60 >= nowB) { pendRef.current = { bucket: last.time / 60, value: last.value }; list = list.slice(0, -1); }
+        ticksRef.current = list;
+        setTicks(list);
+      }
+    })();
+  }, []);
+
+  // (Re)build the chart whenever timeframe / style / history changes.
+  useEffect(() => {
+    if (!boxRef.current) return;
+    const el = boxRef.current;
+    const chart = createChart(el, {
+      layout: { background: { type: 'solid', color: '#ffffff' }, textColor: '#475569', fontSize: 11 },
+      grid: { vertLines: { color: '#eef2f7' }, horzLines: { color: '#eef2f7' } },
+      width: el.clientWidth, height: 380,
+      crosshair: { mode: CrosshairMode.Normal },
+      localization: { timeFormatter: (t) => phtFmt(t, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true }) },
+      timeScale: { timeVisible: true, secondsVisible: false, borderColor: '#e2e8f0', rightOffset: 3, tickMarkFormatter: phtTick },
+      rightPriceScale: { borderColor: '#e2e8f0', scaleMargins: { top: 0.1, bottom: 0.1 } },
+    });
+    const step = TFS.find((x) => x[0] === tf)[1];
+    const { candles } = aggregate(inWindow(ticks, tf), step);
+    let series;
+    if (style === 'candles') {
+      series = chart.addSeries(CandlestickSeries, { upColor: '#16a34a', downColor: '#dc2626', borderUpColor: '#16a34a', borderDownColor: '#dc2626', wickUpColor: '#16a34a', wickDownColor: '#dc2626' });
+      series.setData(candles);
+    } else {
+      series = chart.addSeries(AreaSeries, { lineColor: '#2563eb', topColor: 'rgba(37,99,235,.25)', bottomColor: 'rgba(59,130,246,0)', lineWidth: 2 });
+      series.setData(candles.map((c) => ({ time: c.time, value: c.close })));
+    }
+    chart.timeScale().fitContent();
+    chart.subscribeCrosshairMove((p) => {
+      const d = p.seriesData && p.seriesData.get(series);
+      if (!d) { setHover(null); return; }
+      setHover(d.open !== undefined ? d : { open: d.value, high: d.value, low: d.value, close: d.value });
+    });
+    chartRef.current = { chart, series, style };
+    const onResize = () => chart.applyOptions({ width: el.clientWidth });
+    window.addEventListener('resize', onResize);
+    return () => { window.removeEventListener('resize', onResize); chart.remove(); chartRef.current = null; };
+  }, [tf, style, ticks.length === 0]);
+
+  const price = Number(market.current_price) || 0;
+  const prev = Number(market.prev_price) || price;
+  const change = price - prev;
+  const changePct = prev ? (change / prev) * 100 : 0;
+  const isUp = change >= 0;
+  // price colour follows the last tick; unchanged keeps the previous colour
+  const dirRef = useRef(true);
+  if (change > 0) dirRef.current = true; else if (change < 0) dirRef.current = false;
+  const priceUp = dirRef.current;
+
+  const win = useMemo(() => {
+    const step = TFS.find((x) => x[0] === tf)[1];
+    const { candles } = aggregate(inWindow(ticks, tf), step);
+    return candles;
+  }, [ticks, tf]);
+  const shown = hover || (win.length ? win[win.length - 1] : null);
+
+  const day = useMemo(() => {
+    const since = Date.now() / 1000 - 86400;
+    const d = ticks.filter((t) => t.time >= since);
+    if (!d.length) return null;
+    return { open: d[0].value, ticks: d.length };
+  }, [ticks]);
+  const change24 = day && day.open ? ((price - day.open) / day.open) * 100 : null;
+
+  const balCoin = Number(wallet.real_balance) || 0;
+  const avg = Number(wallet.avg_buy_price) || 0;
+  const posValue = balCoin * price;
+  const cost = balCoin * avg;
+  const pnl = posValue - cost;
+  const pnlPct = cost ? (pnl / cost) * 100 : 0;
+
+  const amt = parseFloat(tradeAmount);
+  const validAmt = !isNaN(amt) && amt > 0;
+  const execBuy = price * BUY_SPREAD;
+  const execSell = price * SELL_SPREAD;
+  const youGet = !validAmt ? 0 : tradeType === 'buy' ? amt / execBuy : amt * execSell;
+  const spreadCost = !validAmt ? 0 : tradeType === 'buy' ? amt - amt / execBuy * price : amt * price - amt * execSell;
+  const maxAmt = tradeType === 'buy' ? xwalletBalance : balCoin;
+  const setPct = (p) => setTradeAmount(String(Math.floor(maxAmt * p * 10000) / 10000));
+
+  const lo = Number(market.low_24h) || 0;
+  const hi = Number(market.high_24h) || 0;
+  const rangePos = hi > lo ? Math.min(100, Math.max(0, ((price - lo) / (hi - lo)) * 100)) : 50;
+
+  const atLimit = positions.length >= 10;
+  const soldOut = !!(supply && supply.limited && Number(supply.available) <= 0);
+
+  const closePosition = async (id) => {
+    if (loading) return;
+    setLoading(true); setMessage('');
+    const ref = 'XCOIN-' + Date.now() + '-' + Math.random().toString(36).substring(7);
+    const { data, error } = await supabase.rpc('xcoin_sell_position', { p_position_id: id, p_ref: ref });
+    if (error) setMessage(error.message);
+    else setMessage(`Closed position for ₱${data.php_received.toFixed(2)} at ₱${data.execution_price.toFixed(2)}`);
+    await loadAccount();
+    setLoading(false);
+  };
+
+  const positionsPanel = (
+    <div style={{ margin: '8px 0 12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
+        <span>Open positions</span><span>{positions.length}/10</span>
+      </div>
+      {positions.length === 0 ? (
+        <div style={{ fontSize: 12, opacity: 0.6 }}>No open positions.</div>
+      ) : positions.map(p => {
+        const cst = Number(p.php_cost) || 0;
+        const val = Number(p.xcoin_amount) * execSell;
+        const pl = val - cst;
+        const plPct = cst ? (pl / cst) * 100 : 0;
+        
+        // Calculate Auto-Close Time (12 hours from created_at)
+        const created = p.opened_at ? new Date(p.opened_at) : null;
+        const autoClose = created ? new Date(created.getTime() + 12 * 60 * 60 * 1000) : null;
+        const timeStr = !autoClose ? '' : autoClose.getTime() <= Date.now() ? 'now' : autoClose.toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+
+        return (
+          <div key={p.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, padding: '8px 0', borderTop: '1px solid rgba(128,128,128,.25)', fontSize: 12 }}>
+            <div>
+              <div><b>{Number(p.xcoin_amount).toFixed(4)} XCOIN</b> @ {peso(Number(p.entry_price), 4)}</div>
+              <div style={{ opacity: 0.7 }}>Value {peso(val)} · <span style={{ color: pl >= 0 ? UP : DOWN, fontWeight: 700 }}>{pl >= 0 ? '+' : ''}{peso(pl)} ({plPct.toFixed(2)}%)</span></div>
+              <ExpiryClock openedAt={p.opened_at} />
+            </div>
+            <button type="button" disabled={loading} onClick={() => closePosition(p.id)} style={{ padding: '6px 12px', borderRadius: 8, border: 'none', background: DOWN, color: '#fff', fontWeight: 700, fontSize: 12 }}>Close</button>
+          </div>
+        );
+      })}
+      <div style={{ fontSize: 10, opacity: 0.55, marginTop: 4 }}>Estimated before the trading fee. Max 10 open positions.</div>
+    </div>
+  );
+
+  const executeTrade = async (e) => {
+    e.preventDefault();
+    setLoading(true); setMessage('');
+    if (!validAmt) { setMessage('Please enter a valid amount.'); setLoading(false); return; }
+    if (amt > maxAmt + 1e-9) { setMessage(tradeType === 'buy' ? 'Not enough Xwallet balance.' : 'Not enough XCOIN balance.'); setLoading(false); return; }
+    if (tradeType === 'buy' && atLimit) { setMessage('Maximum of 10 open positions reached. Close one first.'); setLoading(false); return; }
+    if (tradeType === 'buy' && supply && supply.limited && youGet > Number(supply.available) + 1e-9) { setMessage(soldOut ? 'XCOIN is sold out right now.' : 'Not enough XCOIN available. Only ' + Number(supply.available).toFixed(4) + ' left.'); setLoading(false); return; }
+    const ref = 'XCOIN-' + Date.now() + '-' + Math.random().toString(36).substring(7);
+    if (tradeType === 'buy') {
+      const { data, error } = await supabase.rpc('xcoin_buy', { p_php_amount: amt, p_ref: ref });
+      if (error) setMessage(error.message);
+      else setMessage(`Successfully bought ${data.xcoin_bought.toFixed(4)} XCOIN at ₱${data.execution_price.toFixed(2)}`);
+    } else {
+      const { data, error } = await supabase.rpc('xcoin_sell', { p_xcoin_amount: amt, p_ref: ref });
+      if (error) setMessage(error.message);
+      else setMessage(`Successfully sold ${amt} XCOIN for ₱${data.php_received.toFixed(2)} at ₱${data.execution_price.toFixed(2)}`);
+    }
+    await loadAccount();
+    loadSupply();
+    setTradeAmount(''); setLoading(false);
+  };
+
+  const recent = ticks.slice(-40).reverse();
+
+  return (
+    <div className="xc">
+      <style>{CSS}</style>
+      <div className="xc-top">
+        <div className="xc-top-in">
+          <div>
+            <button className="xc-back" onClick={() => navigate(-1)}>← Return</button>
+            <div className="xc-pair" style={{ marginTop: 4 }}>
+              <div className="xc-logo">X</div>
+              <div><b>XCOIN / PHP<span className="xc-chip">2.0</span></b><small>XTRADE market</small></div>
+            </div>
+          </div>
+          <div className="xc-clock">PHT {phtTime}</div>
+          <div className="xc-wal"><small>Xwallet balance</small><b>{peso(xwalletBalance)}</b></div>
+        </div>
+      </div>
+
+      <div className="xc-wrap">
+          <div className="xc-card xc-a">
+            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, flexWrap: 'wrap' }}>
+              <div>
+                <div className="xc-price" style={{ color: priceUp ? UP : DOWN }}>{peso(price, 4)}</div>
+                <div style={{ marginTop: 6, fontSize: 13, fontWeight: 800, color: isUp ? UP : DOWN }}>
+                  {change >= 0 ? '▲' : '▼'} {Math.abs(change).toFixed(4)} 
+                  <span style={{ color: '#64748b', fontWeight: 600 }}> last tick</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="xc-ticker" style={{ marginTop: 14 }}>
+              <div className="xc-stat"><small>24h change</small><b style={{ color: change24 == null ? '#64748b' : change24 >= 0 ? UP : DOWN }}>{change24 == null ? '—' : `${change24 >= 0 ? '+' : ''}${change24.toFixed(2)}%`}</b></div>
+              <div className="xc-stat"><small>24h high</small><b>{peso(hi)}</b></div>
+              <div className="xc-stat"><small>24h low</small><b>{peso(lo)}</b></div>
+              <div className="xc-stat"><small>24h volume</small><b>{peso(market.volume_24h, 0)}</b></div>
+              <div className="xc-stat"><small>All-time high</small><b>{peso(market.ath)}</b></div>
+              <div className="xc-stat"><small>All-time low</small><b>{peso(market.atl)}</b></div>
+            </div>
+
+            <div className="xc-bar">
+              {TFS.map(([k]) => <button key={k} className={'xc-tf' + (tf === k ? ' on' : '')} onClick={() => setTf(k)}>{k}</button>)}
+              <span className="xc-sp" />
+              <button className={'xc-tf' + (style === 'candles' ? ' on' : '')} onClick={() => setStyle('candles')}>Candles</button>
+              <button className={'xc-tf' + (style === 'line' ? ' on' : '')} onClick={() => setStyle('line')}>Line</button>
+            </div>
+            <div ref={boxRef} className="xc-chart" />
+          </div>
+
+          <div className="xc-card xc-b">
+            <div className="xc-h">Your position</div>
+            {positionsPanel}
+            <div className="xc-pf">
+              <div><small>Holdings</small><b>{balCoin.toFixed(4)} <span style={{ fontSize: 11, color: '#64748b' }}>XCOIN</span></b></div>
+              <div><small>Market value</small><b>{peso(posValue)}</b></div>
+              <div><small>Avg. buy price</small><b>{peso(avg, 4)}</b></div>
+              <div><small>Cost basis</small><b>{peso(cost)}</b></div>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <small>Unrealized P/L</small>
+                <b style={{ color: pnl >= 0 ? UP : DOWN, fontSize: 20 }}>{pnl >= 0 ? '+' : '-'}{peso(Math.abs(pnl))} <span style={{ fontSize: 13 }}>({pnlPct >= 0 ? '+' : ''}{pnlPct.toFixed(2)}%)</span></b>
+              </div>
+            </div>
+          </div>
+
+          <div className="xc-card xc-c">
+            <div className="xc-seg">
+              <button onClick={() => { setTradeType('buy'); setTradeAmount(''); }} style={{ background: tradeType === 'buy' ? UP : 'transparent', color: tradeType === 'buy' ? '#ffffff' : '#64748b' }}>Buy</button>
+              <button onClick={() => { setTradeType('sell'); setTradeAmount(''); }} style={{ background: tradeType === 'sell' ? DOWN : 'transparent', color: tradeType === 'sell' ? '#fff' : '#64748b' }}>Sell</button>
+            </div>
+            <form onSubmit={executeTrade}>
+              <div className="xc-lbl">
+                <span>{tradeType === 'buy' ? 'Amount (PHP)' : 'Amount (XCOIN)'}</span>
+                <span>Avail: {tradeType === 'buy' ? peso(xwalletBalance) : balCoin.toFixed(4)}</span>
+              </div>
+              <div className="xc-inp">
+                <span>{tradeType === 'buy' ? '₱' : 'X'}</span>
+                <input type="number" step="any" inputMode="decimal" value={tradeAmount} onChange={(e) => setTradeAmount(e.target.value)} placeholder="0.00" />
+              </div>
+              <div className="xc-pcts">
+                {[0.25, 0.5, 0.75, 1].map((p) => <button type="button" key={p} onClick={() => setPct(p)}>{p === 1 ? 'MAX' : p * 100 + '%'}</button>)}
+              </div>
+              {tradeType === 'buy' && supply && supply.limited && <div className="xc-row"><span>XCOIN available to buy</span><b style={{ color: soldOut ? DOWN : undefined }}>{soldOut ? 'Sold out' : Number(supply.available).toLocaleString('en-PH', { maximumFractionDigits: 4 })}</b></div>}
+              <div className="xc-row"><span>Market price</span><b>{peso(price, 4)}</b></div>
+              <div className="xc-row"><span>Execution price (±0.5% spread)</span><b>{peso(tradeType === 'buy' ? execBuy : execSell, 4)}</b></div>
+              <div className="xc-row"><span>Spread cost</span><b>{peso(spreadCost, 2)}</b></div>
+              <div className="xc-row" style={{ borderTop: '1px solid #e2e8f0', paddingTop: 8 }}>
+                <span>{tradeType === 'buy' ? 'You receive' : 'You receive (PHP)'}</span>
+                <b style={{ fontSize: 15 }}>{tradeType === 'buy' ? `${youGet.toFixed(4)} XCOIN` : peso(youGet)}</b>
+              </div>
+              <button disabled={loading || (tradeType === 'buy' && (atLimit || soldOut))} type="submit" className="xc-go" style={{ background: tradeType === 'buy' ? UP : DOWN, color: '#fff' }}>
+                {loading ? 'Processing...' : tradeType === 'buy' ? (soldOut ? 'Sold out' : 'Buy XCOIN') : 'Sell XCOIN'}
+              </button>
+            </form>
+            {message && <div className="xc-msg" style={{ background: message.includes('Success') ? 'rgba(22,163,74,.10)' : 'rgba(220,38,38,.10)', color: message.includes('Success') ? UP : '#b91c1c' }}>{message}</div>}
+            <div className="xc-note">Estimates use the current price; the final fill price is set by the market when your order executes.</div>
+          </div>
+
+          <div className="xc-card xc-d">
+            <div className="xc-h">Recent price ticks <small style={{ color: '#64748b', fontWeight: 600 }}>1 tick / minute</small></div>
+            <div className="xc-tk" style={{ color: '#64748b', fontSize: 11 }}><span>Price (PHP)</span><span>Change</span><span>Time</span></div>
+            <div className="xc-ticks">
+              {recent.map((t, i) => {
+                const before = recent[i + 1];
+                const d = before ? t.value - before.value : 0;
+                return (
+                  <div className="xc-tk" key={t.time + '-' + i}>
+                    <span style={{ color: d >= 0 ? UP : DOWN }}>{t.value.toFixed(4)}</span>
+                    <span style={{ color: d >= 0 ? UP : DOWN }}>{d >= 0 ? '+' : ''}{d.toFixed(4)}</span>
+                    <span>{new Date(t.time * 1000).toLocaleTimeString('en-PH', { hour12: false })}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+      </div>
+    </div>
+  );
+}

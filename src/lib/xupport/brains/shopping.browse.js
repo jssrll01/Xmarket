@@ -1,0 +1,173 @@
+export const topic = 'shopping/browse';
+export const triggers = ['browse', 'search', 'filter', 'sort', 'categories', 'find product', 'shop'];
+
+export default [
+  {
+    id: 'shop_browse',
+    keywords: ['browse products', 'browse shop', 'shop products', 'view products', 'find products'],
+    answer: "Open the XMARKET Shop to browse available products. You can explore product categories, search for specific items, and open a product listing to view its details.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'shop_search',
+    keywords: ['search product', 'search products', 'find a product', 'product search', 'how do I search'],
+    answer: "Use the search bar to enter the product, brand, or keyword you are looking for. Review the search results and select a product to see its full listing.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'shop_search_no_results',
+    keywords: ['no search results', 'product not found', 'cannot find product', 'search no results', 'item not showing'],
+    answer: "If your search returns no results, try a shorter or different keyword, check the spelling, or browse the available categories instead.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'shop_filter',
+    keywords: ['filter products', 'product filters', 'filter search', 'filter items', 'how to filter'],
+    answer: "Use the available product filters to narrow results based on the options provided, such as category, price, availability, or other supported attributes.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'shop_sort',
+    keywords: ['sort products', 'sort search results', 'product sorting', 'sort by price', 'sort items'],
+    answer: "Use the available sorting controls to arrange products according to the options provided, such as price or other supported sorting criteria.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'shop_categories',
+    keywords: ['categories', 'product categories', 'browse categories', 'category list', 'find category'],
+    answer: "Browse XMARKET's product categories to discover items grouped by their product type or marketplace classification.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'product_compare',
+    keywords: ['compare products', 'product comparison', 'compare items', 'which product is better', 'compare prices'],
+    answer: "Compare product listings by reviewing their prices, specifications, variations, ratings, reviews, seller information, and applicable shipping details.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'product_share',
+    keywords: ['share product', 'send product link', 'share item', 'product link', 'copy product link'],
+    answer: "Open the product listing and use the available share or link option to send the product to another person.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'product_link',
+    keywords: ['product url', 'product page link', 'copy product url', 'product website link', 'item link'],
+    answer: "Open the product listing and use the available sharing or link controls to copy or share its product page.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'product_sale',
+    keywords: ['sale product', 'sale items', 'discounted products', 'products on sale', 'sale deals'],
+    answer: "Check the XMARKET Shop and available promotions for products currently offered at discounted prices. Review the final checkout amount before placing an order.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'product_flash_deal',
+    keywords: ['flash deal', 'flash sale', 'limited time deal', 'flash discount', 'flash sale product'],
+    answer: "Flash Deals are limited promotions that may have specific time, stock, or purchase conditions. Check the promotion details and checkout price before confirming your order.",
+    links: [{ label: 'Flash Deals', to: '/flash-deals' }],
+  },
+  {
+    id: 'product_promo',
+    keywords: ['promotions', 'promos', 'product promotion', 'special offers', 'deals'],
+    answer: "Browse XMARKET's available promotions and product deals to find eligible offers. Promotion terms, availability, and expiration can vary.",
+    links: [{ label: 'Promotions', to: '/promotions' }],
+  },
+  {
+    id: 'product_price_drop',
+    keywords: ['price drop', 'price lowered', 'product became cheaper', 'price reduction', 'lower price'],
+    answer: "Product prices can change based on seller pricing and promotions. The price shown at the time you place the order is the applicable purchase price.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+  {
+    id: 'product_report',
+    keywords: ['report product', 'report listing', 'bad product listing', 'inappropriate product', 'report item'],
+    answer: "If a product listing appears misleading, prohibited, fraudulent, or otherwise problematic, use the available reporting option or contact XMARKET Support with the listing details.",
+    links: [{ label: 'Help Center', to: '/help' }],
+  },
+{
+    id: 'shop_search_not_found',
+    keywords: ['product not found', 'cannot find product', 'search no results', 'item not showing', 'product missing from search'],
+    answer: "Try a shorter or different search term, check the spelling, or browse the relevant category. A product may also be unavailable, hidden, or no longer listed.",
+    links: [{ label: 'Shop', to: '/shop' }, { label: 'Categories', to: '/categories' }],
+  },
+{
+    id: 'shop_category_not_found',
+    keywords: ['category not found', 'missing category', 'cannot find category', 'category unavailable', 'no category'],
+    answer: "If you cannot find a category, try searching directly for the product or browsing related categories. Available categories depend on the current XMARKET catalog.",
+    links: [{ label: 'Categories', to: '/categories' }, { label: 'Shop', to: '/shop' }],
+  },
+{
+    id: 'shop_sort_products',
+    keywords: ['sort products', 'sort items', 'product sorting', 'sort by price', 'sort by newest'],
+    answer: "Use the available sorting controls in the Shop or category page to organize results by supported criteria such as price, relevance, popularity, or newest listings.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+{
+    id: 'shop_filter_products',
+    keywords: ['filter products', 'product filters', 'filter items', 'narrow search', 'shop filters'],
+    answer: "Use available product filters to narrow results based on supported criteria such as category, price, availability, seller, rating, or other product attributes.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+{
+    id: 'shop_price_filter',
+    keywords: ['price filter', 'filter by price', 'cheap products', 'products under price', 'price range'],
+    answer: "Use the available price filter to narrow products to your preferred price range. The final purchase total may still include shipping and applicable charges.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+{
+    id: 'shop_best_seller',
+    keywords: ['best sellers', 'best selling products', 'popular products', 'top products', 'most sold'],
+    answer: "Browse the available Best Sellers or popular-product section to discover products that are currently highlighted based on marketplace activity.",
+    links: [{ label: 'Best Sellers', to: '/best-sellers' }],
+  },
+{
+    id: 'shop_new_products',
+    keywords: ['new products', 'new arrivals', 'latest products', 'new items', 'recent products'],
+    answer: "Use the New Arrivals or relevant Shop section to discover recently listed products when the feature is available.",
+    links: [{ label: 'New Arrivals', to: '/new-arrivals' }],
+  },
+{
+    id: 'shop_deals',
+    keywords: ['deals', 'great deals', 'discounted products', 'cheap deals', 'shop deals'],
+    answer: "Visit the Deals or promotional sections to discover products currently offered with discounts or special pricing.",
+    links: [{ label: 'Deals', to: '/deals' }],
+  },
+{
+    id: 'shop_featured',
+    keywords: ['featured products', 'featured items', 'featured shop', 'recommended products', 'featured listings'],
+    answer: "Featured products are selected or highlighted by the marketplace according to available merchandising or promotional criteria. Browse the Featured section to explore them.",
+    links: [{ label: 'Featured', to: '/featured' }],
+  },
+{
+    id: 'shop_recently_viewed',
+    keywords: ['recently viewed', 'viewed products', 'recent products viewed', 'browsing history', 'product history'],
+    answer: "If Recently Viewed is available, open it from the Shop or account area to revisit products you previously viewed.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+{
+    id: 'shop_recommendations',
+    keywords: ['recommendations', 'recommended for me', 'suggested products', 'product recommendations', 'you may like'],
+    answer: "Recommended products are suggestions based on available marketplace information and activity. Always review the actual product listing before purchasing.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+{
+    id: 'shop_product_trending',
+    keywords: ['trending products', 'trending items', 'popular items', 'what is trending', 'hot products'],
+    answer: "Explore the available trending, popular, or featured sections to discover products currently receiving marketplace attention.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+{
+    id: 'shop_product_gift_ideas',
+    keywords: ['gift ideas', 'gifts', 'gift products', 'what gift to buy', 'gift shopping'],
+    answer: "Browse product categories, featured products, and deals to find gift options. Consider the recipient's preferences, budget, delivery address, and expected delivery time.",
+    links: [{ label: 'Shop', to: '/shop' }, { label: 'Deals', to: '/deals' }],
+  },
+{
+    id: 'shop_product_budget',
+    keywords: ['budget shopping', 'products under budget', 'shop on budget', 'cheap shopping', 'affordable products'],
+    answer: "Set a budget before shopping and use available price filters to narrow the catalog. Remember to include shipping and other applicable charges when calculating your final budget.",
+    links: [{ label: 'Shop', to: '/shop' }],
+  },
+];

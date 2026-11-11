@@ -1,0 +1,45 @@
+# dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# production build
+/build
+
+# logs & misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+start.log
+run.log
+*.log
+
+# editor
+.vscode/
+.idea/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# service accounts / secrets
+service-account.json
+*-service-account.json
+*-firebase-adminsdk-*.json
+server/service-account.json
+server/firebase-service-account.json
+server/xmarket-pwa-service-account.json
+
+# backup / scratch file patterns (never commit these)
+*.bak
+*.pre*
+*.preWS*
+*.preFix*
+*.preQV*
+*.preSchemaFix
+*.ws2bak
+*.removed
+*.orig
+*.rej
+*~
