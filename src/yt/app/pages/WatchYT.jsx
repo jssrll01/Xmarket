@@ -41,7 +41,7 @@ export default function WatchYT() {
     return portal(
       <div className="watch watch--missing">
         <h1>Video not found</h1>
-        <Link to="/search" className="btn btn-play">Back to Search</Link>
+        <Link to="/search" className="yt-btn btn-play">Back to Search</Link>
       </div>
     )
   }

@@ -7,8 +7,8 @@
   .browse__controls { flex-direction: row; align-items: center; justify-content: space-between; }
 }
 
-.chips { display: flex; gap: var(--space-2); overflow-x: auto; padding-bottom: 2px; }
-.chip {
+.yt-chips { display: flex; gap: var(--space-2); overflow-x: auto; padding-bottom: 2px; }
+.yt-chip {
   flex: none;
   padding: 6px 18px;
   border-radius: 999px;
@@ -18,8 +18,8 @@
   border: 1px solid var(--border);
   transition: background var(--t-fast) var(--ease);
 }
-.chip:hover { background: var(--surface-2); }
-.chip.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.yt-chip:hover { background: var(--surface-2); }
+.yt-chip.is-active { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 .browse__sort { display: flex; align-items: center; gap: var(--space-2); font-size: 0.85rem; color: var(--text-dim); }
 .browse__sort select {
@@ -36,4 +36,4 @@
   grid-template-columns: repeat(auto-fill, minmax(var(--card-w), 1fr));
   gap: var(--space-5) var(--row-gap);
 }
-.browse__grid .card:not(.card--rank), .browse__grid .card__body { width: 100%; }
+.browse__grid .yt-card:not(.card--rank), .browse__grid .card__body { width: 100%; }

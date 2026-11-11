@@ -161,13 +161,13 @@ export default function SettingsPanel() {
 
       <Section id="storage" title="Storage">
         <Field label="Watch history" hint={`${historyCount} saved`}>
-          <button type="button" className="btn btn-info sp-btn" onClick={() => confirmThen('Clear your watch history?', clearHistory, 'Watch history cleared.')}>Clear</button>
+          <button type="button" className="yt-btn btn-info sp-btn" onClick={() => confirmThen('Clear your watch history?', clearHistory, 'Watch history cleared.')}>Clear</button>
         </Field>
         <Field label="My List" hint={`${list.length} titles`}>
-          <button type="button" className="btn btn-info sp-btn" onClick={() => confirmThen('Clear My List?', clearList, 'My List cleared.')}>Clear</button>
+          <button type="button" className="yt-btn btn-info sp-btn" onClick={() => confirmThen('Clear My List?', clearList, 'My List cleared.')}>Clear</button>
         </Field>
         <Field label="Reset all settings">
-          <button type="button" className="btn btn-info sp-btn" onClick={() => confirmThen('Reset all settings to defaults?', reset, 'Settings reset.')}>Reset</button>
+          <button type="button" className="yt-btn btn-info sp-btn" onClick={() => confirmThen('Reset all settings to defaults?', reset, 'Settings reset.')}>Reset</button>
         </Field>
         <p className="sp-notice" role="status" aria-live="polite">{notice}</p>
       </Section>
@@ -189,7 +189,7 @@ export default function SettingsPanel() {
           }
         >
           {canInstall && !installed && (
-            <button type="button" className="btn btn-accent sp-btn" onClick={promptInstall}>Install</button>
+            <button type="button" className="yt-btn btn-accent sp-btn" onClick={promptInstall}>Install</button>
           )}
         </Field>
         <p className="sp-notice">Defaults: accent {DEFAULT_SETTINGS.accent}, dark theme.</p>

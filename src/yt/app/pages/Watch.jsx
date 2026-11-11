@@ -58,7 +58,7 @@ export default function Watch() {
     return portal(
       <div className="watch watch--missing">
         <h1>Title not found</h1>
-        <Link to="/" className="btn btn-play">Back to Home</Link>
+        <Link to="/" className="yt-btn btn-play">Back to Home</Link>
       </div>
     )
   }

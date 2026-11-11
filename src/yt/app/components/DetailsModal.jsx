@@ -97,7 +97,7 @@ export default function DetailsModal({ id, onClose }) {
           <div className="modal__heroContent">
             <h2 id="modal-title" className="modal__title">{movie.title}</h2>
             <div className="modal__actions">
-              <button type="button" className="btn btn-play" onClick={() => navigate(`/watch/${movie.id}`)}>
+              <button type="button" className="yt-btn btn-play" onClick={() => navigate(`/watch/${movie.id}`)}>
                 <Icon name="play" size={20} /> Play
               </button>
               <button type="button" className="modal__round" aria-label={inList ? 'Remove from My List' : 'Add to My List'} aria-pressed={inList} onClick={() => toggle(movie.id)}>

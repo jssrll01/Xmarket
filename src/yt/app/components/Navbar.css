@@ -16,7 +16,7 @@
 }
 .navbar--solid { background: #000; }
 
-.logo {
+.yt-logo {
   font-family: 'Bebas Neue', Impact, 'Arial Narrow', sans-serif;
   font-weight: 900;
   font-stretch: condensed;
@@ -25,7 +25,7 @@
   color: #E50914;
   white-space: nowrap;
 }
-@media (min-width: 768px) { .logo { font-size: 1.9rem; } }
+@media (min-width: 768px) { .yt-logo { font-size: 1.9rem; } }
 
 .navbar__links { display: none; flex: 1; gap: var(--space-5); }
 .navbar__link {
@@ -34,11 +34,11 @@
   transition: color var(--t-fast) var(--ease);
 }
 .navbar__link:hover { color: #b3b3b3; }
-.navbar__link.active { color: #fff; font-weight: 700; }
+.navbar__link.yt-active { color: #fff; font-weight: 700; }
 
 .navbar__right { display: none; align-items: center; gap: var(--space-4); }
 
-.icon-btn {
+.yt-icon-btn {
   display: inline-grid;
   place-items: center;
   width: 40px;
@@ -46,7 +46,7 @@
   border-radius: 50%;
   color: inherit;
 }
-.icon-btn:hover { background: rgba(255, 255, 255, 0.12); }
+.yt-icon-btn:hover { background: rgba(255, 255, 255, 0.12); }
 
 .navbar__search { display: flex; align-items: center; border: 1px solid transparent; }
 .navbar__search input {
@@ -100,7 +100,7 @@
   animation: fade-in 0.2s var(--ease) both;
 }
 .sheet__link { padding: var(--space-3) 0; font-size: 1.05rem; color: #b3b3b3; border-bottom: 1px solid #222; }
-.sheet__link.active { color: #fff; font-weight: 700; }
+.sheet__link.yt-active { color: #fff; font-weight: 700; }
 
 .bottom-nav {
   position: fixed;
@@ -124,8 +124,8 @@
   font-size: 0.65rem;
   color: #8c8c8c;
 }
-.bottom-nav__item.active { color: #fff; }
-.bottom-nav__item.active svg { color: var(--accent); }
+.bottom-nav__item.yt-active { color: #fff; }
+.bottom-nav__item.yt-active svg { color: var(--accent); }
 
 @media (min-width: 768px) {
   .navbar__links, .navbar__right { display: flex; }

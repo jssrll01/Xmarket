@@ -4,7 +4,7 @@ import './Footer.css'
 
 export default function Footer() {
   return (
-    <footer className="footer">
+    <footer className="yt-footer">
       <div className="footer__cols">
         <nav aria-label="Browse">
           <h3>Browse</h3>

@@ -1,5 +1,5 @@
-.row { position: relative; z-index: 1; margin-bottom: var(--row-space); }
-.row:hover, .row:focus-within { z-index: 5; }
+.yt-row { position: relative; z-index: 1; margin-bottom: var(--row-space); }
+.yt-row:hover, .yt-row:focus-within { z-index: 5; }
 
 .row__title {
   position: relative;
@@ -46,5 +46,5 @@
 
 @media (hover: hover) and (min-width: 768px) {
   .row__arrow { display: flex; top: 44px; bottom: 190px; }
-  .row:hover .row__arrow, .row__arrow:focus-visible { opacity: 1; }
+  .yt-row:hover .row__arrow, .row__arrow:focus-visible { opacity: 1; }
 }

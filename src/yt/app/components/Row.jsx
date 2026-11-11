@@ -28,7 +28,7 @@ function Row({ title, items, rank = false, progress }) {
   if (!items.length) return null
 
   return (
-    <section className="row" aria-label={title}>
+    <section className="yt-row" aria-label={title}>
       <h2 className="row__title">{title}</h2>
       <div className="row__viewport">
         {edges.left && (

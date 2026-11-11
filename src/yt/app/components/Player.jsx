@@ -525,8 +525,8 @@ export default function Player({ movie, next, onBack, onNext, onTryAnother }) {
           <h2>Video unavailable</h2>
           <p>{errorMsg}</p>
           <div className="player__panelBtns">
-            <button type="button" className="btn btn-play" onClick={onTryAnother}>Try another title</button>
-            <button type="button" className="btn btn-info" onClick={onBack}>Go back</button>
+            <button type="button" className="yt-btn btn-play" onClick={onTryAnother}>Try another title</button>
+            <button type="button" className="yt-btn btn-info" onClick={onBack}>Go back</button>
           </div>
         </div>
       )}
@@ -538,21 +538,21 @@ export default function Player({ movie, next, onBack, onNext, onTryAnother }) {
               <p className="player__upnext">Up next in {countdown}</p>
               <h2>{next.title}</h2>
               <div className="player__panelBtns">
-                <button type="button" className="btn btn-play" onClick={onNext}>
+                <button type="button" className="yt-btn btn-play" onClick={onNext}>
                   <Icon name="play" size={20} /> Play now
                 </button>
-                <button type="button" className="btn btn-info" onClick={() => setCountdown(null)}>Cancel</button>
+                <button type="button" className="yt-btn btn-info" onClick={() => setCountdown(null)}>Cancel</button>
               </div>
             </>
           ) : (
             <>
               <h2>{movie.title}</h2>
               <div className="player__panelBtns">
-                <button type="button" className="btn btn-play" onClick={replay}>Watch again</button>
+                <button type="button" className="yt-btn btn-play" onClick={replay}>Watch again</button>
                 {next && (
-                  <button type="button" className="btn btn-info" onClick={onNext}>Next: {next.title}</button>
+                  <button type="button" className="yt-btn btn-info" onClick={onNext}>Next: {next.title}</button>
                 )}
-                <button type="button" className="btn btn-info" onClick={onBack}>Back</button>
+                <button type="button" className="yt-btn btn-info" onClick={onBack}>Back</button>
               </div>
             </>
           )}

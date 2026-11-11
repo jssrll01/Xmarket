@@ -85,7 +85,7 @@ export default function Navbar() {
   return (
     <>
       <header className={`navbar${scrolled || menuOpen ? ' navbar--solid' : ''}`}>
-        <Link to="/" className="logo" aria-label="YT PREMIUM home">YT PREMIUM</Link>
+        <Link to="/" className="yt-logo" aria-label="YT PREMIUM home">YT PREMIUM</Link>
 
         <nav className="navbar__links" aria-label="Primary">
           {NAV_LINKS.map((l) => (
@@ -99,7 +99,7 @@ export default function Navbar() {
           <div className={`navbar__search${searchOpen ? ' is-open' : ''}`} role="search">
             <button
               type="button"
-              className="icon-btn"
+              className="yt-icon-btn"
               aria-label="Search"
               aria-expanded={searchOpen}
               onClick={() => setSearchOpen((v) => !v)}
@@ -118,7 +118,7 @@ export default function Navbar() {
             />
           </div>
 
-          <Link to="/settings" className="icon-btn navbar__settings" aria-label="Settings">
+          <Link to="/settings" className="yt-icon-btn navbar__settings" aria-label="Settings">
             <Icon name="settings" size={22} />
           </Link>
 
@@ -149,7 +149,7 @@ export default function Navbar() {
 
         <button
           type="button"
-          className="icon-btn navbar__burger"
+          className="yt-icon-btn navbar__burger"
           aria-label={menuOpen ? 'Close menu' : 'Open menu'}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((v) => !v)}

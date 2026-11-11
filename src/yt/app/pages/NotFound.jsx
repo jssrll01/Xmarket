@@ -7,7 +7,7 @@ export default function NotFound() {
     <div className="notfound">
       <h1>Lost your way?</h1>
       <p>We couldn’t find that page.</p>
-      <Link to="/" className="btn btn-play">YT PREMIUM Home</Link>
+      <Link to="/" className="yt-btn btn-play">YT PREMIUM Home</Link>
     </div>
   )
 }

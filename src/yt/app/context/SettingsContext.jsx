@@ -36,16 +36,13 @@ export function SettingsProvider({ children }) {
   const settings = useMemo(() => ({ ...DEFAULT_SETTINGS, ...stored }), [stored])
 
   useEffect(() => {
-    const root = document.documentElement
+    const root = document.querySelector(".yt-root") || document.createElement("div")
     root.dataset.theme = settings.theme
     root.dataset.cardSize = settings.cardSize
     root.dataset.density = settings.density
     root.dataset.font = settings.fontSize
     root.dataset.reduceMotion = String(settings.reduceMotion)
     root.style.setProperty('--accent', settings.accent)
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', THEME_COLORS[settings.theme] || THEME_COLORS.dark)
   }, [settings])
 
   const update = useCallback(

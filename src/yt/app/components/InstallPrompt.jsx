@@ -11,7 +11,7 @@ export default function InstallPrompt() {
   if (installed || dismissed || !(canInstall || ios)) return null
 
   return (
-    <aside className="install" role="complementary" aria-label="Install app">
+    <aside className="yt-install" role="complementary" aria-label="Install app">
       <div className="install__text">
         <strong>Install YT PREMIUM</strong>
         {ios && showSteps ? (
@@ -21,9 +21,9 @@ export default function InstallPrompt() {
         )}
       </div>
       {canInstall ? (
-        <button type="button" className="btn btn-accent install__btn" onClick={promptInstall}>Install</button>
+        <button type="button" className="yt-btn btn-accent install__btn" onClick={promptInstall}>Install</button>
       ) : (
-        <button type="button" className="btn btn-accent install__btn" onClick={() => setShowSteps(true)}>How</button>
+        <button type="button" className="yt-btn btn-accent install__btn" onClick={() => setShowSteps(true)}>How</button>
       )}
       <button type="button" className="install__close" aria-label="Dismiss" onClick={dismiss}>
         <Icon name="close" size={18} />

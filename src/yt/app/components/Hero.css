@@ -1,4 +1,4 @@
-.hero { --hero-h: 78vh; position: relative; color: var(--text); }
+.yt-hero { --hero-h: 78vh; position: relative; color: var(--text); }
 
 .hero__media {
   position: relative;
@@ -87,7 +87,7 @@
 .hero__age { display: none; }
 
 @media (min-width: 768px) {
-  .hero { height: var(--hero-h); min-height: 480px; color: #fff; }
+  .yt-hero { height: var(--hero-h); min-height: 480px; color: #fff; }
   .hero__media { position: absolute; inset: 0; height: 100%; aspect-ratio: auto; }
   .hero__shade {
     background:

@@ -34,9 +34,9 @@ export default function HoverPreview({ movie }) {
         </button>
       </div>
       <p className="hover-preview__meta">
-        <span className="badge">{movie.rating}</span>
+        <span className="yt-badge">{movie.rating}</span>
         <span>{movie.duration}</span>
-        <span className="badge">HD</span>
+        <span className="yt-badge">HD</span>
       </p>
       <p className="hover-preview__genres">{movie.genres.join(' • ')}</p>
     </div>

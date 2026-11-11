@@ -52,7 +52,7 @@ export default function YouTubeResults() {
       </div>
 
       {items === null && (
-        <button type="button" className="btn btn-play" onClick={() => run(false)} disabled={busy}>
+        <button type="button" className="yt-btn btn-play" onClick={() => run(false)} disabled={busy}>
           {busy ? 'Searching…' : `Search YouTube for “${q}”`}
         </button>
       )}
@@ -77,7 +77,7 @@ export default function YouTubeResults() {
           </ul>
           {next && (
             <div className="yts__more">
-              <button type="button" className="btn btn-info" onClick={() => run(true)} disabled={busy}>{busy ? 'Loading…' : 'Load more'}</button>
+              <button type="button" className="yt-btn btn-info" onClick={() => run(true)} disabled={busy}>{busy ? 'Loading…' : 'Load more'}</button>
             </div>
           )}
         </>

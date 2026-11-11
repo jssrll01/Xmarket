@@ -17,7 +17,7 @@
     transition: opacity var(--t) var(--ease), visibility var(--t);
   }
   .card--hoverable:hover .hover-preview,
-  .card:focus-within .hover-preview {
+  .yt-card:focus-within .hover-preview {
     opacity: 1;
     visibility: visible;
     transition-delay: 0.2s;
@@ -42,5 +42,5 @@
 .hp-btn.is-on { background: var(--accent); border-color: var(--accent); color: #fff; }
 
 .hover-preview__meta { display: flex; align-items: center; gap: 8px; font-size: 0.7rem; color: var(--text-dim); }
-.badge { padding: 0 5px; border: 1px solid var(--text-dim); font-size: 0.65rem; }
+.yt-badge { padding: 0 5px; border: 1px solid var(--text-dim); font-size: 0.65rem; }
 .hover-preview__genres { margin-top: 6px; font-size: 0.7rem; }

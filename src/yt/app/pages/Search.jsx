@@ -27,7 +27,7 @@ export default function Search() {
   if (!movies.length) return <EmptyState catalog />
 
   return (
-    <div className="search">
+    <div className="yt-search">
       <label className="search__field">
         <Icon name="search" size={20} />
         <input
@@ -45,7 +45,7 @@ export default function Search() {
           <h2 className="search__heading">Browse by genre</h2>
           <div className="search__genres">
             {genres.map((g) => (
-              <button key={g} type="button" className="chip" onClick={() => setQuery(g)}>{g}</button>
+              <button key={g} type="button" className="yt-chip" onClick={() => setQuery(g)}>{g}</button>
             ))}
           </div>
         </section>

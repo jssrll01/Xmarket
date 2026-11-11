@@ -14,7 +14,7 @@ function Card({ movie, rank, progress }) {
 
   return (
     <article
-      className={`card${rank ? ' card--rank' : ''}${hoverable ? ' card--hoverable' : ''}`}
+      className={`yt-card${rank ? ' card--rank' : ''}${hoverable ? ' card--hoverable' : ''}`}
       onMouseEnter={() => hoverable && setArmed(true)}
     >
       {rank && <span className="card__rank" aria-hidden="true">{rank}</span>}

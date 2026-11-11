@@ -1,5 +1,5 @@
-.card { position: relative; display: flex; align-items: center; flex: none; }
-.card:not(.card--rank) { width: var(--card-w); }
+.yt-card { position: relative; display: flex; align-items: center; flex: none; }
+.yt-card:not(.card--rank) { width: var(--card-w); }
 
 .card__body { position: relative; width: var(--card-w); border-radius: var(--radius); }
 

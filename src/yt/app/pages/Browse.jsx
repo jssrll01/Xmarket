@@ -41,12 +41,12 @@ export default function Browse({ title, subtitle, items, emptyTitle, emptyText }
       ) : (
         <>
           <div className="browse__controls">
-            <div className="chips no-scrollbar" role="group" aria-label="Filter by genre">
+            <div className="yt-chips no-scrollbar" role="group" aria-label="Filter by genre">
               {genres.map((g) => (
                 <button
                   key={g}
                   type="button"
-                  className={`chip${g === activeGenre ? ' is-active' : ''}`}
+                  className={`yt-chip${g === activeGenre ? ' is-active' : ''}`}
                   aria-pressed={g === activeGenre}
                   onClick={() => setGenre(g)}
                 >

@@ -1,4 +1,4 @@
-.install {
+.yt-install {
   position: fixed;
   left: var(--space-3);
   right: var(--space-3);
@@ -22,5 +22,5 @@
 .install__close:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
 
 @media (min-width: 768px) {
-  .install { left: auto; right: var(--space-5); bottom: var(--space-5); width: 400px; }
+  .yt-install { left: auto; right: var(--space-5); bottom: var(--space-5); width: 400px; }
 }

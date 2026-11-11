@@ -44,7 +44,7 @@ export default function Hero({ items }) {
     `&loop=1&playlist=${movie.youtubeId}&modestbranding=1&rel=0&playsinline=1&disablekb=1&iv_load_policy=3&start=30`
 
   return (
-    <section className="hero" aria-label="Featured title">
+    <section className="yt-hero" aria-label="Featured title">
       <div className="hero__media">
         <img
           key={movie.id}
@@ -93,10 +93,10 @@ export default function Hero({ items }) {
         </p>
         <p className="hero__desc">{movie.description}</p>
         <div className="hero__buttons">
-          <button type="button" className="btn btn-play" onClick={() => navigate(`/watch/${movie.id}`)}>
+          <button type="button" className="yt-btn btn-play" onClick={() => navigate(`/watch/${movie.id}`)}>
             <Icon name="play" size={22} /> Play
           </button>
-          <button type="button" className="btn btn-info" onClick={() => openDetails(movie.id)}>
+          <button type="button" className="yt-btn btn-info" onClick={() => openDetails(movie.id)}>
             <Icon name="info" size={22} /> More Info
           </button>
         </div>
