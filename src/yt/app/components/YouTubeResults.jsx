@@ -53,12 +53,18 @@ export default function YouTubeResults() {
 
   return (
     <section className="yts" aria-label="YouTube results">
-      <div className="yts__head">
-        <h2>From YouTube</h2>
-        {items && <span className="yts__src">Results for “{q}”</span>}
-      </div>
 
-      {items === null && busy && <p className="yts__empty">Searching…</p>}
+      {items === null && !error && (
+        <ul className="yts__grid" aria-busy="true" aria-label="Loading results">
+          {[0, 1, 2, 3, 4, 5].map((i) => (
+            <li key={i}>
+              <span className="sk" style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', borderRadius: 8 }} />
+              <span className="sk sk-line" style={{ display: 'block', width: '90%', height: 14, borderRadius: 99, marginTop: 10 }} />
+              <span className="sk sk-line" style={{ display: 'block', width: '55%', height: 12, borderRadius: 99, marginTop: 8 }} />
+            </li>
+          ))}
+        </ul>
+      )}
       {error && <p className="yts__err" role="alert">{error}</p>}
       {items && items.length === 0 && <p className="yts__empty">No playable videos found. Try different words.</p>}
 
