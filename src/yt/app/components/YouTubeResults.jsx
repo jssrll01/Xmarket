@@ -42,6 +42,13 @@ export default function YouTubeResults() {
 
   const play = (v) => nav('/play/' + v.id, { state: { title: v.title, channel: v.channel } })
 
+  // search automatically while typing (waits for a pause so quota is not wasted)
+  useEffect(() => {
+    if (q.length < 2 || readCache(q)) return undefined
+    const t = setTimeout(() => run(false), 700)
+    return () => clearTimeout(t)
+  }, [q])
+
   if (!searchEnabled || q.length < 2) return null
 
   return (
@@ -51,11 +58,7 @@ export default function YouTubeResults() {
         {items && <span className="yts__src">Results for “{q}”</span>}
       </div>
 
-      {items === null && (
-        <button type="button" className="yt-btn btn-play" onClick={() => run(false)} disabled={busy}>
-          {busy ? 'Searching…' : `Search YouTube for “${q}”`}
-        </button>
-      )}
+      {items === null && busy && <p className="yts__empty">Searching…</p>}
       {error && <p className="yts__err" role="alert">{error}</p>}
       {items && items.length === 0 && <p className="yts__empty">No playable videos found. Try different words.</p>}
 

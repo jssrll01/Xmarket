@@ -24,6 +24,19 @@ export async function searchYouTube(q, pageToken = '') {
   const hit = readCache(query, pageToken)
   if (hit) return hit
   if (pageToken) return { items: [], next: '' }
+  const KEY = process.env.REACT_APP_YOUTUBE_API_KEY
+  if (KEY) {
+    const res = await fetch('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&videoEmbeddable=true&safeSearch=moderate&q=' + encodeURIComponent(query) + '&key=' + KEY)
+    const j = await res.json().catch(() => ({}))
+    if (!res.ok) throw new Error((j.error && j.error.message) || 'Search failed. Try again.')
+    const items = (j.items || []).filter((x) => x.id && x.id.videoId).map((x) => ({
+      id: x.id.videoId, title: x.snippet.title, channel: x.snippet.channelTitle, duration: '',
+      thumb: 'https://img.youtube.com/vi/' + x.id.videoId + '/mqdefault.jpg'
+    }))
+    const out = { items, next: '' }
+    writeCache(query, pageToken, out)
+    return out
+  }
   const { data, error } = await supabase.rpc('yt_search', { p_q: query })
   if (error || !data) throw new Error('Search failed. Try again.')
   if (data.ok === false) throw new Error(data.error === 'PIN_REQUIRED' ? 'Please enter the PIN again.' : (data.error || 'Search failed. Try again.'))
