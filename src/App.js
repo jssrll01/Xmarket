@@ -72,6 +72,8 @@ import SocialsPost from './pages/SocialsPost';
 import CreatorNewPost from './pages/CreatorNewPost';
 import CreatorPostHistory from './pages/CreatorPostHistory';
 import Vip from './pages/Vip';
+import YtGate from './yt/YtGate';
+import YtApp from './yt/YtApp';
 import ChatSearch from './pages/ChatSearch';
 import VideoViewer from './pages/VideoViewer';
 import CreatorNewVideo from './pages/CreatorNewVideo';
@@ -217,6 +219,7 @@ function Router() {
         <Route path="/messages" element={<DmInbox />} />
         <Route path="/messages/:tid" element={<DmChat />} />
         <Route path="/vip" element={<Vip />} />
+        <Route path="/yt" element={<YtGate><YtApp /></YtGate>} />
         <Route path="/my-reports" element={<MyReports />} />
         <Route path="/report/bug" element={<BugReport />} />
         <Route path="/report/order" element={<OrderReport />} />

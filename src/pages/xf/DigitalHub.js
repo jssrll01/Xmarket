@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, Package, CheckSquare, Heart, Store, Newspaper, GraduationCap, Briefcase, Search } from 'lucide-react';
+import { Play as YtPlay } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import TopupButton from '../../components/TopupButton';
 import { peso, useMe } from './xfUi';
@@ -54,6 +55,7 @@ export default function DigitalHub() {
     ['/digital-products', 'Digital Products', Package, tag(st && st.products, 'available', 'available'), 'files prompts download'],
     ['/demand-polls', 'Demand Polls', CheckSquare, tag(st && st.polls, 'open poll', 'open polls'), 'vote results survey'],
     ['/sponsorships', 'Sponsorships', Heart, st ? (st.target ? Math.round(pct) + '% funded' : 'No fund open') : null, 'donate donors fund'],
+    ['/yt', 'YouTube Premium', YtPlay, 'Free to watch', 'youtube video movies watch pinoy'],
     ['/market-shop', 'Market Shop', Store, 'VIP, badges, more', 'vip badge booster gift'],
     ['/articles', 'Weekly Articles', Newspaper, 'New weekly', 'news read blog'],
     ['/scholarships', 'Scholarships', GraduationCap, 'Apply', 'school study grant'],
