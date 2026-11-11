@@ -104,22 +104,7 @@ export default function SettingsPanel() {
           options={[['dark', 'Dark'], ['light', 'Light'], ['amoled', 'AMOLED']]}
           onChange={(v) => update('theme', v)}
         />
-        <Field label="Accent color">
-          <div className="sp-accents">
-            {ACCENTS.map((c) => (
-              <button
-                key={c}
-                type="button"
-                className={`sp-swatch${settings.accent.toLowerCase() === c.toLowerCase() ? ' is-on' : ''}`}
-                style={{ background: c }}
-                aria-label={`Accent ${c}`}
-                aria-pressed={settings.accent.toLowerCase() === c.toLowerCase()}
-                onClick={() => update('accent', c)}
-              />
-            ))}
-            <input type="color" aria-label="Custom accent color" value={settings.accent} onChange={(e) => update('accent', e.target.value)} />
-          </div>
-        </Field>
+        
       </Section>
 
       <Section id="interface" title="Interface">
@@ -154,10 +139,7 @@ export default function SettingsPanel() {
         <Switch label="Data saver" hint="Lower quality video and smaller thumbnails" checked={settings.dataSaver} onChange={(v) => update('dataSaver', v)} />
       </Section>
 
-      <Section id="language" title="Language & region">
-        <Select label="Language" hint="Label only: the interface stays in English" value={settings.language} options={LANGUAGES.map((l) => [l, l])} onChange={(v) => update('language', v)} />
-        <Select label="Region" hint="Label only" value={settings.region} options={REGIONS.map((r) => [r, r])} onChange={(v) => update('region', v)} />
-      </Section>
+      
 
       <Section id="storage" title="Storage">
         <Field label="Watch history" hint={`${historyCount} saved`}>
@@ -166,9 +148,7 @@ export default function SettingsPanel() {
         <Field label="My List" hint={`${list.length} titles`}>
           <button type="button" className="yt-btn btn-info sp-btn" onClick={() => confirmThen('Clear My List?', clearList, 'My List cleared.')}>Clear</button>
         </Field>
-        <Field label="Reset all settings">
-          <button type="button" className="yt-btn btn-info sp-btn" onClick={() => confirmThen('Reset all settings to defaults?', reset, 'Settings reset.')}>Reset</button>
-        </Field>
+        
         <p className="sp-notice" role="status" aria-live="polite">{notice}</p>
       </Section>
 
@@ -176,23 +156,6 @@ export default function SettingsPanel() {
         <Field label="Version" hint={`YT PREMIUM ${APP_VERSION}`}>
           <span className="sp-field__hint">{APP_VERSION}</span>
         </Field>
-        <Field
-          label="Install app"
-          hint={
-            installed
-              ? 'Already installed'
-              : ios
-                ? 'Tap Share, then “Add to Home Screen”'
-                : canInstall
-                  ? 'Add YT PREMIUM to your device'
-                  : 'Use your browser menu and choose “Install app”'
-          }
-        >
-          {canInstall && !installed && (
-            <button type="button" className="yt-btn btn-accent sp-btn" onClick={promptInstall}>Install</button>
-          )}
-        </Field>
-        <p className="sp-notice">Defaults: accent {DEFAULT_SETTINGS.accent}, dark theme.</p>
       </Section>
     </div>
   )

@@ -44,7 +44,6 @@ export default function App() {
               <Route path="/tv" element={<TvShows />} />
               <Route path="/movies" element={<Movies />} />
               <Route path="/pinoy" element={<Pinoy />} />
-              <Route path="/new" element={<NewPopular />} />
               <Route path="/my-list" element={<MyList />} />
               <Route path="/search" element={<><Search /><YouTubeResults /></>} />
               <Route path="/play/:vid" element={<ErrorBoundary><WatchYT /></ErrorBoundary>} />
@@ -56,7 +55,6 @@ export default function App() {
           </div>
           {detailId && <DetailsModal id={detailId} onClose={closeDetails} />}
         </Suspense>
-        {!immersive && <Footer />}
       </main>
     </>
   )

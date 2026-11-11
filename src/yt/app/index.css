@@ -101,8 +101,8 @@
 
 .yt-root #root { min-height: 100vh; }
 
-.yt-root a { color: inherit; text-decoration: none; }
-.yt-root button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+:where(.yt-root) a { color: inherit; text-decoration: none; }
+:where(.yt-root) button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .yt-root img { display: block; max-width: 100%; }
 .yt-root h1, .yt-root h2, .yt-root h3, .yt-root p { margin: 0; }
 .yt-root ul { list-style: none; margin: 0; padding: 0; }
@@ -197,14 +197,7 @@
   }
 }
 
-/* undo xmarket global form styling inside YT */
-.yt-root button, .yt-root input, .yt-root select, .yt-root textarea {
-  all: revert-layer;
-}
-.yt-root button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; box-shadow: none; border-radius: 0; }
-.yt-root input, .yt-root select, .yt-root textarea { box-shadow: none; }
-.yt-root label { color: inherit; font-size: inherit; }
-.yt-root h1, .yt-root h2, .yt-root h3, .yt-root h4 { color: inherit; }
+
 
 /* beat xmarket's !important input styles inside YT */
 .yt-root input:not([type=range]):not([type=checkbox]):not([type=radio]),
@@ -220,3 +213,19 @@
   box-shadow: none !important; border-color: var(--accent) !important;
 }
 .yt-root input[type=range] { background: transparent !important; border: none !important; box-shadow: none !important; }
+
+.yt-root input:not([type=range]):not([type=checkbox]):not([type=radio]):focus,
+.yt-root input:not([type=range]):not([type=checkbox]):not([type=radio]):active {
+  background: var(--surface-2) !important;
+  color: var(--text) !important;
+}
+
+/* YT UI tweaks */
+.yt-root .navbar__burger, .yt-root .sheet, .yt-root .row__arrow { display: none !important; }
+.yt-root .navbar__search input:not([type=range]):not([type=checkbox]):not([type=radio]) {
+  background: transparent !important; border: 0 !important; box-shadow: none !important; color: var(--text) !important;
+}
+.yt-root .sp-switch { position: relative; width: 46px; height: 26px; border-radius: 13px; background: var(--surface-2); border: 1px solid var(--border); }
+.yt-root .sp-switch.is-on { background: var(--accent); border-color: var(--accent); }
+.yt-root .sp-switch span { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #fff; }
+.yt-root .sp-switch.is-on span { transform: translateX(20px); }

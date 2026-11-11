@@ -9,14 +9,12 @@ export const NAV_LINKS = [
   { to: '/tv', label: 'TV Shows' },
   { to: '/movies', label: 'Movies' },
   { to: '/pinoy', label: 'Pinoy' },
-  { to: '/new', label: 'New & Popular' },
   { to: '/my-list', label: 'My List' }
 ]
 
 const BOTTOM_LINKS = [
   { to: '/', label: 'Home', icon: 'home', end: true },
   { to: '/search', label: 'Search', icon: 'search' },
-  { to: '/new', label: 'New', icon: 'new' },
   { to: '/my-list', label: 'My List', icon: 'list' },
   { to: '/settings', label: 'Settings', icon: 'settings' }
 ]
