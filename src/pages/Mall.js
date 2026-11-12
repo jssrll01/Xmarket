@@ -772,7 +772,7 @@ For questions, complaints, or claims relating to XMARKET Mall, customers may con
 
 XMARKET Customer Support
 
- Email: [xmarket.official@gmail.com]
+ Email: [xmarket.official.marketplace@gmail.com]
 
  Website: [https://xmarket-app.onrender.com]
 
