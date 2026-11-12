@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useLegalDoc } from '../lib/legal';
 
-const DOC = `
+const DOC_FALLBACK = `
 XMARKET REFUND AND RETURN POLICY
 Last Updated: October 6, 2026
 
@@ -905,6 +906,7 @@ Important: This document is a general business-policy draft and is not legal adv
 
 export default function Refund() {
   const navigate = useNavigate();
+  const DOC = useLegalDoc('refund', DOC_FALLBACK);
   const goBackSafe = () => {
     const idx = window.history.state?.idx ?? 0;
     if (idx > 0) navigate(-1);

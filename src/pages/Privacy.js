@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useLegalDoc } from '../lib/legal';
 
-const DOC = `
+const DOC_FALLBACK = `
 XMARKET PRIVACY POLICY
 Last Updated: October 6, 2026
 
@@ -1157,6 +1158,7 @@ Last Updated: October 6, 2026
 
 export default function Privacy() {
   const navigate = useNavigate();
+  const DOC = useLegalDoc('privacy', DOC_FALLBACK);
   const goBackSafe = () => {
     const idx = window.history.state?.idx ?? 0;
     if (idx > 0) navigate(-1);

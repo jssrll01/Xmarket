@@ -1,8 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useLegalDoc } from '../lib/legal';
 
-const DOC = `
+const DOC_FALLBACK = `
 XMARKET TERMS OF SERVICE
 Last Updated: October 6, 2026
 
@@ -1056,6 +1057,7 @@ Your Marketplace. Your Choice.
 
 export default function Terms() {
   const navigate = useNavigate();
+  const DOC = useLegalDoc('terms', DOC_FALLBACK);
   const goBackSafe = () => {
     const idx = window.history.state?.idx ?? 0;
     if (idx > 0) navigate(-1);
