@@ -17,3 +17,8 @@
   .search__field { display: none; }
   .yt-search { padding-top: calc(var(--nav-h) + var(--space-5)); }
 }
+
+/* single clean search bar: the input sits flat inside one pill */
+.yt-search .search__field input,
+.yt-search .search__field input[type="search"]{border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;padding:0!important;margin:0;border-radius:0!important;-webkit-appearance:none;appearance:none;flex:1;min-width:0;height:auto}
+.yt-search .search__field input::-webkit-search-cancel-button{-webkit-appearance:none}

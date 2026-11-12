@@ -1150,8 +1150,8 @@ button:focus, a:focus {
 /* Modal / confirm dialog */
 .dialog-backdrop {
   background: rgba(15, 23, 42, 0.35);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  
+  
   animation: pageEnterFade 160ms ease-out both;
 }
 .dialog {
@@ -1582,8 +1582,8 @@ body {
 .fs-unit {
   flex: 1;
   background: rgba(255,255,255,0.18);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  
+  
   border-radius: 12px;
   padding: 8px 4px;
   text-align: center;
@@ -1941,8 +1941,8 @@ body {
   padding: 5px 12px;
   border-radius: 999px;
   background: rgba(255,255,255,0.22);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  
+  
   font-size: 10.5px; font-weight: 800;
   letter-spacing: 0.5px; text-transform: uppercase;
   color: #FFFFFF;
@@ -1979,8 +1979,8 @@ body {
 }
 .sm-stat {
   background: rgba(255,255,255,0.18);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  
+  
   border-radius: 14px;
   padding: 10px 8px;
   text-align: center;
@@ -2278,8 +2278,8 @@ input[type="range"].filter-range,
   justify-content: center;
   padding: 24px;
   background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  
+  
   animation: pageEnterFade 160ms ease-out both;
 }
 .dialog {
@@ -2330,8 +2330,8 @@ input[type="range"].filter-range,
   padding: 5px 12px;
   border-radius: 999px;
   background: rgba(255,255,255,0.22);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  
+  
   font-size: 10.5px; font-weight: 800;
   letter-spacing: 0.5px; text-transform: uppercase;
   color: #FFFFFF;
@@ -2630,7 +2630,7 @@ input:not([type=range]):not([type=checkbox]):not([type=radio]):focus, select:foc
 
 /* ===== XM WHITE THEME v2 (drawer, menus) ===== */
 .drawer { background: #FFFFFF !important; border-left: 1px solid var(--border); box-shadow: -10px 0 30px rgba(15,23,42,.08) !important; }
-.drawer-backdrop { background: rgba(15,23,42,.35) !important; -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px); }
+.drawer-backdrop { background: rgba(15,23,42,.35) !important;   }
 .drawer-item { background: #F4F6FA !important; border: 1px solid var(--border) !important; border-radius: 14px !important; box-shadow: none !important; font-weight: 700; }
 .drawer-item:hover { background: #EEF2FF !important; }
 .drawer-item:active { background: #E8EEFF !important; box-shadow: var(--inset) !important; transform: none; }

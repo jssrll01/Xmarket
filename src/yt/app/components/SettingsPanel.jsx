@@ -141,6 +141,32 @@ export default function SettingsPanel() {
 
       
 
+      <Section id="display" title="Picture and display">
+        <Field label="Brightness" hint={`${settings.brightness}%`}>
+          <input className="sp-range" type="range" min="50" max="150" step="5" aria-label="Brightness" value={settings.brightness} onChange={(e) => update('brightness', Number(e.target.value))} />
+        </Field>
+        <Field label="Contrast" hint={`${settings.contrast}%`}>
+          <input className="sp-range" type="range" min="50" max="150" step="5" aria-label="Contrast" value={settings.contrast} onChange={(e) => update('contrast', Number(e.target.value))} />
+        </Field>
+        <Field label="Color saturation" hint={`${settings.saturation}%`}>
+          <input className="sp-range" type="range" min="0" max="200" step="10" aria-label="Color saturation" value={settings.saturation} onChange={(e) => update('saturation', Number(e.target.value))} />
+        </Field>
+        <Field label="Night warmth" hint={`${settings.warmth}% (softer blue light)`}>
+          <input className="sp-range" type="range" min="0" max="60" step="5" aria-label="Night warmth" value={settings.warmth} onChange={(e) => update('warmth', Number(e.target.value))} />
+        </Field>
+        <Field label="Reset picture">
+          <button type="button" className="yt-btn btn-info sp-btn" onClick={() => { update('brightness', 100); update('contrast', 100); update('saturation', 100); update('warmth', 0); }}>Reset</button>
+        </Field>
+      </Section>
+
+      <Section id="performance" title="Performance">
+        <Switch label="Performance mode" hint="Turns off interface animations and blur for smoother scrolling on slower phones" checked={settings.performanceMode} onChange={(v) => update('performanceMode', v)} />
+      </Section>
+
+      <Section id="search" title="Search">
+        <Segmented label="Safe search" hint="Filters search results" value={settings.safeSearch} options={[['none', 'Off'], ['moderate', 'Moderate'], ['strict', 'Strict']]} onChange={(v) => update('safeSearch', v)} />
+      </Section>
+
       <Section id="storage" title="Storage">
         <Field label="Watch history" hint={`${historyCount} saved`}>
           <button type="button" className="yt-btn btn-info sp-btn" onClick={() => confirmThen('Clear your watch history?', clearHistory, 'Watch history cleared.')}>Clear</button>

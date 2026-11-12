@@ -2,7 +2,7 @@
 import { supabase } from '../../../lib/supabase'
 
 const TTL_MS = 6 * 60 * 60 * 1000
-const PREFIX = 'ytp.search.'
+const PREFIX = 'ytp.search2.'
 export const searchEnabled = true
 
 const cacheKey = (q, token) => PREFIX + q.toLowerCase().replace(/\s+/g, ' ').trim() + '|' + (token || '')
@@ -18,6 +18,16 @@ export function readCache(q, token = '') {
 function writeCache(q, token, data) {
   try { localStorage.setItem(cacheKey(q, token), JSON.stringify({ t: Date.now(), data })) } catch {}
 }
+const safeMode = () => {
+  try {
+    const s = JSON.parse(localStorage.getItem('yt.settings') || '{}')
+    return ['none', 'moderate', 'strict'].includes(s.safeSearch) ? s.safeSearch : 'moderate'
+  } catch { return 'moderate' }
+}
+const toItem = (x) => ({
+  id: x.id.videoId, title: x.snippet.title, channel: x.snippet.channelTitle, duration: '',
+  thumb: 'https://img.youtube.com/vi/' + x.id.videoId + '/mqdefault.jpg'
+})
 
 export async function searchYouTube(q, pageToken = '') {
   const query = q.trim()
@@ -26,14 +36,24 @@ export async function searchYouTube(q, pageToken = '') {
   if (pageToken) return { items: [], next: '' }
   const KEY = process.env.REACT_APP_YOUTUBE_API_KEY
   if (KEY) {
-    const res = await fetch('https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=20&videoEmbeddable=true&safeSearch=moderate&q=' + encodeURIComponent(query) + '&key=' + KEY)
-    const j = await res.json().catch(() => ({}))
-    if (!res.ok) throw new Error((j.error && j.error.message) || 'Search failed. Try again.')
-    const items = (j.items || []).filter((x) => x.id && x.id.videoId).map((x) => ({
-      id: x.id.videoId, title: x.snippet.title, channel: x.snippet.channelTitle, duration: '',
-      thumb: 'https://img.youtube.com/vi/' + x.id.videoId + '/mqdefault.jpg'
-    }))
-    const out = { items, next: '' }
+    const page = async (token) => {
+      const url = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&videoEmbeddable=true&safeSearch=' + safeMode()
+        + '&q=' + encodeURIComponent(query) + (token ? '&pageToken=' + token : '') + '&key=' + KEY
+      const res = await fetch(url)
+      const j = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error((j.error && j.error.message) || 'Search failed. Try again.')
+      return j
+    }
+    const a = await page('')
+    let all = (a.items || []).filter((x) => x.id && x.id.videoId).map(toItem)
+    if (a.nextPageToken) {
+      try {
+        const b = await page(a.nextPageToken)
+        const seen = new Set(all.map((v) => v.id))
+        ;(b.items || []).filter((x) => x.id && x.id.videoId && !seen.has(x.id.videoId)).forEach((x) => all.push(toItem(x)))
+      } catch (e) { /* keep the first 50 */ }
+    }
+    const out = { items: all.slice(0, 100), next: '' }
     writeCache(query, pageToken, out)
     return out
   }

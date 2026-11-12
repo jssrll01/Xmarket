@@ -232,3 +232,7 @@
 
 /* hide the Exit button while the details modal is open so it does not cover the close X */
 .yt-root:has(.modal) .yt-exit { display: none; }
+
+/* picture settings apply to the player */
+.yt-root video,.yt-root iframe{filter:brightness(var(--yt-bright,1)) contrast(var(--yt-contrast,1)) saturate(var(--yt-sat,1)) sepia(var(--yt-warm,0))}
+.yt-root[data-perf="true"] *{animation:none!important;transition:none!important;}

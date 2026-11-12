@@ -24,7 +24,13 @@ export const DEFAULT_SETTINGS = {
   landscapeOnPlay: false,
   dataSaver: false,
   language: 'English',
-  region: 'United States'
+  region: 'United States',
+  brightness: 100,
+  contrast: 100,
+  saturation: 100,
+  warmth: 0,
+  performanceMode: false,
+  safeSearch: 'moderate'
 }
 
 const THEME_COLORS = { dark: '#141414', light: '#f3f3f3', amoled: '#000000' }
@@ -43,6 +49,11 @@ export function SettingsProvider({ children }) {
     root.dataset.font = settings.fontSize
     root.dataset.reduceMotion = String(settings.reduceMotion)
     root.style.setProperty('--accent', settings.accent)
+    root.style.setProperty('--yt-bright', String(settings.brightness / 100))
+    root.style.setProperty('--yt-contrast', String(settings.contrast / 100))
+    root.style.setProperty('--yt-sat', String(settings.saturation / 100))
+    root.style.setProperty('--yt-warm', String(settings.warmth / 100))
+    root.dataset.perf = String(settings.performanceMode)
   }, [settings])
 
   const update = useCallback(

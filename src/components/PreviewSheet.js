@@ -24,7 +24,7 @@ export default function PreviewSheet({ open, product }) {
   const p = last;
   return createPortal(
     <div style={{ position: 'fixed', inset: 0, zIndex: 5000, pointerEvents: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
-      background: shown ? 'rgba(15,23,42,.55)' : 'rgba(15,23,42,0)', backdropFilter: shown ? 'blur(6px)' : 'blur(0px)', WebkitBackdropFilter: shown ? 'blur(6px)' : 'blur(0px)', transition: 'background .2s ease, backdrop-filter .2s ease' }}>
+      background: shown ? 'rgba(15,23,42,.55)' : 'rgba(15,23,42,0)', transition: 'background .2s ease' }}>
       <div className="card" style={{ width: 'min(380px, 100%)', maxHeight: '82vh', overflow: 'hidden', padding: 0, background: 'var(--bg, #fff)', borderRadius: 20, boxShadow: '0 20px 50px rgba(0,0,0,.35)',
         transform: shown ? 'scale(1)' : 'scale(.86)', opacity: shown ? 1 : 0, transition: 'transform .22s cubic-bezier(.2,.9,.3,1.2), opacity .18s ease' }}>
         {p.image && <img src={p.image} alt="" style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', display: 'block' }} />}

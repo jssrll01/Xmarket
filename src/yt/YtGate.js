@@ -16,7 +16,9 @@ export default function YtGate({ children }) {
   useEffect(() => {
     if (loading) return;
     if (!user) { nav('/signin', { replace: true }); return; }
-    setOk(false);
+    let alive = true;
+    supabase.rpc('yt_unlocked_today').then(({ data }) => { if (alive) setOk(data === true); });
+    return () => { alive = false; };
   }, [user, loading, nav]);
 
   const submit = async (e) => {
