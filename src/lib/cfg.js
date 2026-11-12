@@ -138,3 +138,30 @@ export const loadFaqs = (scope) =>
   fromDb('faqs', 'scope,question,answer', (list) =>
     list.filter((f) => f.scope === scope).map((f) => [f.question, f.answer])
   );
+
+// Help index: [{ name, items: [{ t, slug }] }] in the same shape as the old CATEGORIES constant
+export async function loadHelp() {
+  if (!(await dbConfigOn())) return null;
+  const data = await cached('help', async () => {
+    const [c, a] = await Promise.all([
+      supabase.from('help_categories').select('id,title').eq('active', true).order('sort_order', { ascending: true }),
+      supabase.from('help_articles').select('category_id,slug,title').eq('active', true).order('sort_order', { ascending: true }),
+    ]);
+    if (c.error) throw c.error;
+    if (a.error) throw a.error;
+    return { c: c.data || [], a: a.data || [] };
+  });
+  if (!data || !data.c.length || !data.a.length) return null;
+  const out = data.c
+    .map((cat) => ({ name: cat.title, items: data.a.filter((x) => x.category_id === cat.id).map((x) => ({ t: x.title, slug: x.slug })) }))
+    .filter((cat) => cat.items.length);
+  return out.length ? out : null;
+}
+
+// Article text written in the database, or null so the built-in page is used
+export async function loadHelpBody(slug) {
+  if (!(await dbConfigOn())) return null;
+  const { data, error } = await supabase.from('help_articles').select('title,body').eq('slug', slug).eq('active', true).maybeSingle();
+  if (error || !data || !String(data.body || '').trim()) return null;
+  return { title: data.title, body: data.body };
+}

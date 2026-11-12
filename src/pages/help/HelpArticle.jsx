@@ -1,4 +1,5 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
+import { loadHelpBody } from '../../lib/cfg';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
@@ -147,6 +148,14 @@ export default function HelpArticle() {
   const { slug } = useParams();
   const navigate = useNavigate();
   const Component = ARTICLES[slug];
+  // an article written in the database (body text) wins over the built-in page
+  const [db, setDb] = useState(null);
+  useEffect(() => {
+    let live = true;
+    setDb(null);
+    loadHelpBody(slug).then((v) => { if (live) setDb(v); }).catch(() => {});
+    return () => { live = false; };
+  }, [slug]);
 
   return (
     <div className="help-article" style={{ padding: '16px 20px 60px', color: 'var(--text)' }}>
@@ -154,7 +163,14 @@ export default function HelpArticle() {
         <ArrowLeft size={20} />
       </button>
 
-      {Component ? (
+      {db ? (
+        <div>
+          <h2 style={{ marginBottom: 12 }}>{db.title}</h2>
+          {db.body.split(/\n\s*\n/).map((p, i) => (
+            <p key={i} style={{ marginBottom: 10, fontSize: 13.5, lineHeight: 1.7, whiteSpace: 'pre-line' }}>{p}</p>
+          ))}
+        </div>
+      ) : Component ? (
         <Suspense fallback={
           <div style={{
             display: 'flex', flexDirection: 'column',

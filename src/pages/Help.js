@@ -1,8 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, X, ChevronDown, MessageCircle, HelpCircle, Package, Wallet, RotateCcw, Ticket, Flag, Bug } from 'lucide-react';
+import { useCfg, loadHelp } from '../lib/cfg';
 
-const CATEGORIES = [
+const CATEGORIES_FALLBACK = [
   { name: 'Shop on XMARKET', items: [
     { t: '[New to XMARKET] How do I create an XMARKET account?', slug: 'create-account' },
     { t: '[Shopping] How do I search for products?', slug: 'search-products' },
@@ -205,6 +206,7 @@ function CategoryBlock({ category, search, isOpen, onToggle }) {
 
 export default function Help() {
   const navigate = useNavigate();
+  const CATEGORIES = useCfg(loadHelp, CATEGORIES_FALLBACK);
   const goBackSafe = () => {
     const idx = window.history.state?.idx ?? 0;
     if (idx > 0) navigate(-1);
