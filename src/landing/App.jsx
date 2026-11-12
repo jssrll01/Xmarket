@@ -6,6 +6,7 @@ import {
   UserPlus, CreditCard,
 } from "lucide-react";
 import { useParallax } from "./useParallax.js";
+import { useCfg, loadFaqs } from "../lib/cfg";
 import "./styles.css";
 
 // EDIT THIS: the URL of your main XMARKET app
@@ -44,7 +45,7 @@ const buy = [
 ];
 
 
-const faqs = [
+const FAQS_FALLBACK = [
   ["What is XMARKET?", "XMARKET is an online marketplace where you can shop from verified sellers and pay with Xwallet."],
   ["What is Xwallet?", "Xwallet is the built-in wallet for paying, topping up and receiving earnings on XMARKET."],
   ["Is it safe to buy?", "Sellers are verified and refund support is available if an order has a problem."],
@@ -291,6 +292,7 @@ function Install() {
 }
 
 function Faq() {
+  const faqs = useCfg(() => loadFaqs("landing"), FAQS_FALLBACK);
   return (
     <section className="wrap section narrow" id="faq">
       <h2 className="center" data-reveal>Frequently asked questions</h2>

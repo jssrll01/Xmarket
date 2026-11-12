@@ -132,3 +132,9 @@ export function useCfg(loader, fallback) {
   }, []);
   return value;
 }
+
+// FAQ rows for one page (scope), as [question, answer] pairs
+export const loadFaqs = (scope) =>
+  fromDb('faqs', 'scope,question,answer', (list) =>
+    list.filter((f) => f.scope === scope).map((f) => [f.question, f.answer])
+  );
