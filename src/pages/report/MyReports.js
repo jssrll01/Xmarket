@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Ticket, AlertCircle, Clock, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { fetchMyReports } from '../../lib/reports';
+import { useCfg, loadReportCategories } from '../../lib/cfg';
 
 const STATUS_META = {
   submitted:   { label: 'Submitted',   color: '#2563EB', icon: AlertCircle },
@@ -15,7 +16,7 @@ const STATUS_META = {
   completed:   { label: 'Resolved',    color: '#10B981', icon: CheckCircle2 },
 };
 
-const CATEGORY_LABELS = {
+const CATEGORY_LABELS_FALLBACK = {
   bug: 'Bug & Technical',
   order: 'Order & Product',
   shop: 'Shop / Seller',
@@ -24,6 +25,8 @@ const CATEGORY_LABELS = {
 };
 
 export default function MyReports() {
+  const cats = useCfg(loadReportCategories, null);
+  const CATEGORY_LABELS = cats ? Object.fromEntries(cats.map((c) => [c.id, c.label])) : CATEGORY_LABELS_FALLBACK;
   const nav = useNavigate();
   const { user } = useAuth();
   const [items, setItems] = useState([]);
