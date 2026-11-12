@@ -2,11 +2,12 @@ import { CardListSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, AlertCircle } from 'lucide-react';
+import { useCfg, loadReturnReasons } from '../lib/cfg';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 
-const REASONS = [
+const REASONS_FALLBACK = [
   'Item is damaged / defective',
   'Item is not as described',
   'Received wrong item',
@@ -16,6 +17,7 @@ const REASONS = [
 ];
 
 export default function Returns() {
+  const REASONS = useCfg(loadReturnReasons, REASONS_FALLBACK);
   const nav = useNavigate();
   const { user } = useAuth();
   const { show: showToast } = useToast();

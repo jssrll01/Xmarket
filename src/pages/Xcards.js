@@ -5,10 +5,11 @@ import { ArrowLeft, Copy, Check, Ticket } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { fetchWallet } from '../lib/xwallet';
+import { useCfg, loadXcardValues } from '../lib/cfg';
 import { purchaseXcard, fetchMyXcards } from '../lib/xcards';
 import TopupButton from '../components/TopupButton';
 
-const DENOMS = [100, 200, 500, 1000];
+const DENOMS_FALLBACK = [100, 200, 500, 1000];
 const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const CSS = `
@@ -55,6 +56,7 @@ const CSS = `
 `;
 
 export default function Xcards() {
+  const DENOMS = useCfg(loadXcardValues, DENOMS_FALLBACK);
   const nav = useNavigate();
   const { user } = useAuth();
   const { show: showToast } = useToast();

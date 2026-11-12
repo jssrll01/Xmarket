@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone, MapPin,
-  Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft, Youtube } from 'lucide-react';
+  Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft } from 'lucide-react';
 import { Sparkles as CreatorIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';

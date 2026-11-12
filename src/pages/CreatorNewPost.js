@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ImagePlus, ShieldAlert } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
+import { useCfg, loadSetting } from '../lib/cfg';
 import { Sk, SkStyle } from './socialsUi';
 
-const RULES = [
+const RULES_FALLBACK = [
   'No nudity, violence, hate speech or harassment.',
   'No scams, fake offers or misleading claims.',
   'No copied or stolen content, and no spam.',
@@ -36,6 +37,7 @@ export default function CreatorNewPost() {
     return () => clearTimeout(h);
   }, [pq]);
   const PRESETS = ['Facebook', 'Instagram', 'TikTok', 'YouTube', 'Referral link'];
+  const RULES = useCfg(() => loadSetting('creator_post_rules', (v) => { const a = JSON.parse(v); if (!Array.isArray(a) || !a.length || !a.every((x) => typeof x === 'string')) throw new Error('bad rules'); return a; }), RULES_FALLBACK);
   const addLink = (label) => setLinks((p) => (p.length >= 5 ? p : [...p, { label: label || '', url: '' }]));
   const setLink = (i, k, v) => setLinks((p) => p.map((x, j) => (j === i ? { ...x, [k]: v } : x)));
   const delLink = (i) => setLinks((p) => p.filter((_, j) => j !== i));

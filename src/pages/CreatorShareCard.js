@@ -3,10 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useToast } from '../components/Toast';
+import { useCfg, loadSetting } from '../lib/cfg';
 
-const IMG = 'https://res.cloudinary.com/bvw3okdf/image/upload/v1794045447/f7wp6kuxtrauehi6dbiw.jpg';
+const IMG_FALLBACK = 'https://res.cloudinary.com/bvw3okdf/image/upload/v1794045447/f7wp6kuxtrauehi6dbiw.jpg';
 
 export default function CreatorShareCard() {
+  const IMG = useCfg(() => loadSetting('share_card_url'), IMG_FALLBACK);
   const nav = useNavigate();
   const { show } = useToast();
   const cv = useRef(null);
@@ -48,7 +50,7 @@ export default function CreatorShareCard() {
     };
     img.onerror = () => setErr('Could not load the card image. Check your connection and try again.');
     img.src = IMG;
-  }, [code, state]);
+  }, [code, state, IMG]);
 
   const blob = () => new Promise((res, rej) => { try { cv.current.toBlob((b) => (b ? res(b) : rej(new Error('fail'))), 'image/jpeg', 0.92); } catch (e) { rej(e); } });
   const download = async () => {

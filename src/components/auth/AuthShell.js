@@ -1,10 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { useCfg, loadSetting } from '../../lib/cfg';
 import './auth.css';
+
+const LOGO_FALLBACK = 'https://res.cloudinary.com/bvw3okdf/image/upload/f_auto,q_auto,w_400,c_limit/v1793930341/mqfefdb3lxz5nrugsy5t.jpg';
 
 export default function AuthShell({ title, subtitle, children, footer }) {
   const nav = useNavigate();
+  const LOGO = useCfg(() => loadSetting('logo_url'), LOGO_FALLBACK);
   return (
     <div className="page-enter auth-page">
       <div className="auth-wrap">
@@ -17,7 +21,7 @@ export default function AuthShell({ title, subtitle, children, footer }) {
         </button>
 
         <div className="auth-brand">
-          <img className="auth-logo" src="https://res.cloudinary.com/bvw3okdf/image/upload/f_auto,q_auto,w_400,c_limit/v1793930341/mqfefdb3lxz5nrugsy5t.jpg" alt="XMARKET" decoding="async" fetchpriority="high" />
+          <img className="auth-logo" src={LOGO} alt="XMARKET" decoding="async" fetchpriority="high" />
         </div>
 
         <div className="auth-card">

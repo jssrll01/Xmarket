@@ -1,4 +1,5 @@
 import { useVip } from '../lib/vip';
+import { useCfg, loadPayments, loadDeliveries } from '../lib/cfg';
 import { rpcPin } from '../lib/pinBus';
 import { getShippingFeeSync, fetchShippingTiers } from '../lib/shipping';
 import OrderTotals from '../components/OrderTotals';
@@ -21,7 +22,7 @@ import { fetchWallet } from '../lib/xwallet';
 const CLD_CLOUD = 'bvw3okdf';
 const CLD_PRESET = 'xmarket_receipts';
 
-const PAYMENTS = [
+const PAYMENTS_FALLBACK = [
   { id: 'gcash', label: 'GCash',
     note: 'Send payment to GCash number 09454408496 (JE*****L C.). Upload your receipt screenshot after payment. Scan the QR below.',
     qr: 'https://res.cloudinary.com/bvw3okdf/image/upload/v1790593677/GCash-MyQR-28092026184016.PNG.jpg' },
@@ -35,7 +36,7 @@ const PAYMENTS = [
     note: 'Pay instantly with your Xwallet balance. Order will process immediately.' },
 ];
 
-const DELIVERIES = [
+const DELIVERIES_FALLBACK = [
   { id: 'doortodoor', label: 'Door to door',
     note: 'Delivered straight to your door. The shipping fee is shown in your order summary.' },
   { id: 'express', label: 'Express [Lalamove]',
@@ -62,6 +63,8 @@ function InfoNote({ text }) {
 }
 
 export default function Checkout() {
+  const PAYMENTS = useCfg(() => loadPayments('checkout'), PAYMENTS_FALLBACK);
+  const DELIVERIES = useCfg(loadDeliveries, DELIVERIES_FALLBACK);
   const { items, dispatch } = useCart();
   const { user, loading: authLoading, profile } = useAuth();
   const { show: showToast } = useToast();

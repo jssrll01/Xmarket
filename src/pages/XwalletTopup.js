@@ -4,9 +4,10 @@ import { ArrowLeft, AlertCircle, Upload, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { supabase } from '../lib/supabase';
+import { useCfg, loadPayments } from '../lib/cfg';
 import { submitTopupBilling } from '../lib/xwallet';
 
-const PAYMENTS = [
+const PAYMENTS_FALLBACK = [
   { id: 'gcash', label: 'GCash',
     note: 'Send payment to GCash number 09454408496 (JE*****L C.). Upload your receipt after payment. Scan the QR below.',
     qr: 'https://res.cloudinary.com/bvw3okdf/image/upload/v1790593677/GCash-MyQR-28092026184016.PNG.jpg' },
@@ -35,6 +36,7 @@ function InfoNote({ text }) {
 }
 
 export default function XwalletTopup() {
+  const PAYMENTS = useCfg(() => loadPayments('topup'), PAYMENTS_FALLBACK);
   const nav = useNavigate();
   const [params] = useSearchParams();
   const loc = useLocation();
