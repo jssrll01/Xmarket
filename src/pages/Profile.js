@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone, MapPin,
-  Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft
-} from 'lucide-react';
+  Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft, Youtube } from 'lucide-react';
 import { Sparkles as CreatorIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -173,8 +172,10 @@ export default function Profile() {
         <ChevronRight size={16} color="var(--muted)" />
       </Link>
       <Link to="/yt" style={menuRow}>
-        <span style={{ flex: 1, fontWeight: 700 }}>YouTube Premium</span>
-        <span style={{ fontSize: 11.5, color: "var(--muted)" }}>PIN protected</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4" /><path d="M10 9l5 3-5 3z" /></svg> YouTube Premium
+        </span>
+        <ChevronRight size={16} color="var(--muted)" />
       </Link>
 
       <Link to="/creator-studio" style={menuRow}>

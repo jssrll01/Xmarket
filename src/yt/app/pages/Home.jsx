@@ -21,7 +21,9 @@ export default function Home() {
       if (!groups.has(m.channel)) groups.set(m.channel, [])
       groups.get(m.channel).push(m)
     })
-    if (groups.size) return [...groups].map(([name, items]) => ({ id: name, title: name, items }))
+    const tag = movies.filter((m) => /tagalized/i.test(m.title || '') || (m.genres || []).includes('Tagalized Korean'))
+    const tagRow = tag.length ? [{ id: 'tagalized-korean', title: 'Tagalized Korean Movies', items: tag }] : []
+    if (groups.size) return [...tagRow, ...[...groups].map(([name, items]) => ({ id: name, title: name, items }))]
     return buildCategories(movies)
   }, [])
   const top10 = useMemo(() => getTop10(movies), [])
