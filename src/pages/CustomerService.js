@@ -1,10 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCfg, loadSupportChannels } from '../lib/cfg';
 import {
   ArrowLeft, MessageCircle, Mail, Phone, Bug, Package, Store, FileText, Shield, ChevronRight, Clock
 } from 'lucide-react';
 
-const CHANNELS = [
+const CHANNELS_FALLBACK = [
   { icon: Mail,   label: 'Email us',        sub: 'xmarket.official.marketplace@gmail.com',   href: 'mailto:xmarket.official.marketplace@gmail.com',    color: '#2563EB' },
   { icon: Phone,  label: 'Call us',         sub: 'Mon–Sat · 9AM–6PM',    href: 'tel:+639454408496',            color: '#10B981' },
   { icon: MessageCircle, label: 'Live chat', sub: 'Coming soon',         href: null,                            color: '#7C3AED' },
@@ -20,6 +21,11 @@ const REPORTS = [
 
 export default function CustomerService() {
   const nav = useNavigate();
+  const channelRows = useCfg(loadSupportChannels, null);
+  const CHANNEL_ICONS = { Mail, Phone, MessageCircle };
+  const CHANNELS = channelRows
+    ? channelRows.map((c) => ({ ...c, icon: CHANNEL_ICONS[c.icon] || MessageCircle }))
+    : CHANNELS_FALLBACK;
   const goBackSafe = () => {
     const idx = window.history.state?.idx ?? 0;
     if (idx > 0) nav(-1);

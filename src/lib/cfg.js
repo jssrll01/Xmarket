@@ -85,6 +85,11 @@ export const loadXcardValues = () =>
 export const loadReturnReasons = () =>
   fromDb('return_reasons', 'label', (list) => list.map((r) => r.label));
 
+export const loadSupportChannels = () =>
+  fromDb('support_channels', 'label,sub,href,icon,color', (list) =>
+    list.map((c) => ({ icon: c.icon, label: c.label, sub: c.sub, href: c.href, color: c.color }))
+  );
+
 export const loadReportCategories = () =>
   fromDb('report_categories', 'code,label', (list) =>
     list.map((r) => ({ id: r.code, label: r.label }))
