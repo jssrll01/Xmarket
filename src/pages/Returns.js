@@ -25,6 +25,7 @@ export default function Returns() {
   const [loading, setLoading] = useState(true);
   const [activeOrder, setActiveOrder] = useState(null);
   const [reason, setReason] = useState(REASONS[0]);
+  const [rsOpen, setRsOpen] = useState(false);
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [existingReturns, setExistingReturns] = useState({});
@@ -126,10 +127,21 @@ export default function Returns() {
               Return #{activeOrder.order_code}
             </h3>
             <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Reason</label>
-            <select value={reason} onChange={e => setReason(e.target.value)}
-              style={{ width: '100%', padding: 10, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 }}>
-              {REASONS.map(r => <option key={r}>{r}</option>)}
-            </select>
+            <div style={{ position: 'relative' }}>
+              <button type="button" onClick={() => setRsOpen(o => !o)} aria-haspopup="listbox" aria-expanded={rsOpen}
+                style={{ width: '100%', textAlign: 'left', padding: '12px 40px 12px 14px', borderRadius: 12, border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--text)', fontSize: 14, position: 'relative' }}>
+                {reason}
+                <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%) rotate(' + (rsOpen ? '180' : '0') + 'deg)', fontSize: 11 }}>▼</span>
+              </button>
+              {rsOpen && (
+                <div role="listbox" style={{ position: 'absolute', left: 0, right: 0, bottom: '100%', marginBottom: 6, zIndex: 50, maxHeight: 260, overflowY: 'auto', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 12, boxShadow: '0 8px 24px rgba(0,0,0,.18)' }}>
+                  {REASONS.map(r => (
+                    <div key={r} role="option" aria-selected={r === reason} onClick={() => { setReason(r); setRsOpen(false); }}
+                      style={{ padding: '12px 14px', fontSize: 14, cursor: 'pointer', fontWeight: r === reason ? 700 : 500, color: r === reason ? 'var(--primary)' : 'var(--text)', borderBottom: '1px solid var(--border)' }}>{r}</div>
+                  ))}
+                </div>
+              )}
+            </div>
             <label style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>Note (optional)</label>
             <textarea value={note} onChange={e => setNote(e.target.value)}
               placeholder="Any extra details…"

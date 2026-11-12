@@ -32,3 +32,8 @@ body.has-bottom-nav .back-to-top { bottom: calc(84px + env(safe-area-inset-botto
   box-shadow: 0 8px 18px -6px rgba(37, 99, 235, .7), 0 0 0 4px #fff;
 }
 .bn-center.active .bn-ico { background: #1D4ED8; }
+
+/* no active-tab indication: all tabs look the same on every page */
+.bn-item.active { color: var(--muted); }
+.bn-item.active .bn-ico { background: transparent; }
+.bn-center.active .bn-ico { background: #2563EB; }

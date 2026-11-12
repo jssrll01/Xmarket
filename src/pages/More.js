@@ -26,7 +26,6 @@ export default function More() {
       { label: 'Terms of Service', path: '/terms', icon: FileText },
       { label: 'Privacy Policy', path: '/privacy', icon: FileText },
       { label: 'Refund & Return Policy', path: '/refund', icon: FileText },
-      { label: 'Vouchers Terms & Conditions', path: '/vouchers', icon: FileText },
       { label: 'XMARKET Mall Terms', path: '/mall', icon: FileText },
       { label: 'Advertising Policy', path: '/advertising', icon: FileText },
       { label: 'Off-Platform Advertising Terms', path: '/off-platform-ads', icon: FileText },
