@@ -50,7 +50,7 @@ export default function Search() {
           </div>
         </section>
       ) : results.length === 0 ? (
-        <EmptyState title="No results" text={`Nothing matched “${deferred}”. Try a title, genre or actor.`} />
+        deferred.trim().length >= 2 ? null : <EmptyState title="No results" text={`Nothing matched “${deferred}”. Try a title, genre or actor.`} />
       ) : (
         <>
           <h2 className="search__heading">{results.length} result{results.length === 1 ? '' : 's'}</h2>

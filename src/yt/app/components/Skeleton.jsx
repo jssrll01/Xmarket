@@ -1,13 +1,11 @@
 /* eslint-disable */
-import './Skeleton.css'
-
 function RowSkeleton({ count = 6 }) {
   return (
-    <div className="sk-row">
-      <div className="skeleton sk-row__title" />
-      <div className="sk-row__cards">
+    <div style={{ padding: '16px 16px 0' }}>
+      <span className="sk sk-line" style={{ display: 'block', width: 160, height: 18, borderRadius: 99, marginBottom: 12 }} />
+      <div style={{ display: 'flex', gap: 10, overflow: 'hidden' }}>
         {Array.from({ length: count }, (_, i) => (
-          <div key={i} className="skeleton sk-card" />
+          <span key={i} className="sk" style={{ flex: '0 0 140px', aspectRatio: '16 / 9', borderRadius: 8 }} />
         ))}
       </div>
     </div>
@@ -17,8 +15,8 @@ function RowSkeleton({ count = 6 }) {
 export default function Skeleton({ variant = 'row' }) {
   if (variant === 'page') {
     return (
-      <div className="sk-page" role="status" aria-label="Loading">
-        <div className="skeleton sk-hero" />
+      <div role="status" aria-label="Loading">
+        <span className="sk" style={{ display: 'block', width: '100%', aspectRatio: '16 / 9', borderRadius: 0 }} />
         <RowSkeleton />
         <RowSkeleton />
       </div>
