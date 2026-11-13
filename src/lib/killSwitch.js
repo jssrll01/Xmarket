@@ -20,3 +20,11 @@ export function useBlocked(scope) {
   }, [scope]);
   return { blocked };
 }
+
+// Xadmin saves payment switches as gcash, maya and gotyme. Checkout names can be "GCash", "Maya", "Bank transfer".
+export function payBlocked(blocked, p) {
+  const t = (String(p.id || '') + ' ' + String(p.label || '')).toLowerCase();
+  if (t.includes('wallet')) return false;
+  const key = t.includes('gcash') ? 'gcash' : t.includes('maya') ? 'maya' : (t.includes('gotyme') || t.includes('bank')) ? 'gotyme' : null;
+  return !!key && blocked.has(key);
+}

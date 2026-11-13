@@ -1,6 +1,6 @@
 import { useVip } from '../lib/vip';
 import { useCfg, loadPayments, loadDeliveries } from '../lib/cfg';
-import { useBlocked } from '../lib/killSwitch';
+import { useBlocked, payBlocked } from '../lib/killSwitch';
 import { rpcPin } from '../lib/pinBus';
 import { getShippingFeeSync, fetchShippingTiers } from '../lib/shipping';
 import OrderTotals from '../components/OrderTotals';
@@ -66,7 +66,7 @@ function InfoNote({ text }) {
 export default function Checkout() {
   const PAYMENTS = useCfg(() => loadPayments('checkout'), PAYMENTS_FALLBACK);
   const { blocked: blockedPay } = useBlocked('payment');
-  const OPEN_PAYMENTS = PAYMENTS.filter((p) => !blockedPay.has(p.id));
+  const OPEN_PAYMENTS = PAYMENTS.filter((p) => !payBlocked(blockedPay, p));
   const DELIVERIES = useCfg(loadDeliveries, DELIVERIES_FALLBACK);
   const { items, dispatch } = useCart();
   const { user, loading: authLoading, profile } = useAuth();
