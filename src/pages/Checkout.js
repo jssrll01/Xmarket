@@ -1,5 +1,6 @@
 import { useVip } from '../lib/vip';
 import { useCfg, loadPayments, loadDeliveries } from '../lib/cfg';
+import { useBlocked } from '../lib/killSwitch';
 import { rpcPin } from '../lib/pinBus';
 import { getShippingFeeSync, fetchShippingTiers } from '../lib/shipping';
 import OrderTotals from '../components/OrderTotals';
@@ -64,6 +65,8 @@ function InfoNote({ text }) {
 
 export default function Checkout() {
   const PAYMENTS = useCfg(() => loadPayments('checkout'), PAYMENTS_FALLBACK);
+  const { blocked: blockedPay } = useBlocked('payment');
+  const OPEN_PAYMENTS = PAYMENTS.filter((p) => !blockedPay.has(p.id));
   const DELIVERIES = useCfg(loadDeliveries, DELIVERIES_FALLBACK);
   const { items, dispatch } = useCart();
   const { user, loading: authLoading, profile } = useAuth();
@@ -176,7 +179,13 @@ export default function Checkout() {
 
   const upd = (k, v) => setForm({ ...form, [k]: v });
 
-  const selectedPayment = PAYMENTS.find(p => p.id === form.payment);
+  useEffect(() => {
+    if (OPEN_PAYMENTS.length && !OPEN_PAYMENTS.some((p) => p.id === form.payment)) {
+      setForm((f) => ({ ...f, payment: OPEN_PAYMENTS[0].id }));
+    }
+    // eslint-disable-next-line
+  }, [OPEN_PAYMENTS.map((p) => p.id).join(','), form.payment]);
+  const selectedPayment = OPEN_PAYMENTS.find(p => p.id === form.payment);
   const selectedDelivery = DELIVERIES.find(d => d.id === form.delivery);
 
   const availableDeliveries = DELIVERIES.filter(d => {
@@ -293,7 +302,7 @@ export default function Checkout() {
       }
       setMissing([]);
 
-      const paymentLabel = PAYMENTS.find(p => p.id === form.payment)?.label;
+      const paymentLabel = OPEN_PAYMENTS.find(p => p.id === form.payment)?.label;
       const deliveryLabel = DELIVERIES.find(d => d.id === form.delivery)?.label;
       const newOrderId = 'XM-' + Date.now().toString().slice(-8);
 
@@ -530,7 +539,7 @@ export default function Checkout() {
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ marginBottom: 8 }}>Mode of Payment</h3>
-        {PAYMENTS.map(p => {
+        {OPEN_PAYMENTS.map(p => {
           const isCodDisabled = false;
           return (
             <label key={p.id} style={{
@@ -551,6 +560,7 @@ export default function Checkout() {
           );
 
         })}
+        {OPEN_PAYMENTS.length === 0 && <InfoNote text="No payment method is available right now. Please try again later." />}
         {selectedPayment && <InfoNote text={selectedPayment.note} />}
         {selectedPayment?.qr && (
           <div style={{ marginTop: 10, padding: 16, textAlign: 'center', background: 'var(--card)', borderRadius: 12 }}>
