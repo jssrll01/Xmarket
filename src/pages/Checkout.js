@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import { useVip } from '../lib/vip';
 import { useCfg, loadPayments, loadDeliveries } from '../lib/cfg';
 import { useBlocked, payBlocked } from '../lib/killSwitch';
@@ -250,7 +251,7 @@ export default function Checkout() {
     if (error) { setXcardError(error); setXcardValue(0); setXcardId(null); return; }
     setXcardValue(Number(card.value) || 0);
     setXcardId(card.id);
-    showToast(`Xcard ₱${card.value} applied`);
+    showToast(`Xcard ${money(card.value, 'raw')} applied`);
   };
 
     const placeOrder = async () => {
@@ -414,20 +415,20 @@ export default function Checkout() {
           {placed && (<>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
               <span style={{ color: 'var(--text-dim)' }}>Subtotal</span>
-              <span style={{ fontWeight: 700 }}>₱{placed.subtotal.toFixed(2)}</span>
+              <span style={{ fontWeight: 700 }}>{money(placed.subtotal, 'tofixed')}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
               <span style={{ color: 'var(--text-dim)' }}>Discount</span>
-              <span style={{ fontWeight: 700 }}>-₱{placed.discount.toFixed(2)}</span>
+              <span style={{ fontWeight: 700 }}>-{money(placed.discount, 'tofixed')}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
               <span style={{ color: 'var(--text-dim)' }}>Shipping</span>
-              <span style={{ fontWeight: 700 }}>{placed.shipping === 0 ? 'FREE' : '₱' + placed.shipping.toFixed(2)}</span>
+              <span style={{ fontWeight: 700 }}>{placed.shipping === 0 ? 'FREE' : money(placed.shipping, 'tofixed')}</span>
             </div>
           </>)}
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
             <span style={{ color: 'var(--text-dim)' }}>Total</span>
-            <span style={{ fontWeight: 800 }}>₱{placed ? (Math.max(0, placed.subtotal - placed.discount) + placed.shipping).toFixed(2) : Number(total).toFixed(2)}</span>
+            <span style={{ fontWeight: 800 }}>{money(placed ? (Math.max(0, placed.subtotal - placed.discount) + placed.shipping) : Number(total), 'tofixed')}</span>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 6 }}>
             <span style={{ color: 'var(--text-dim)' }}>Payment</span>
@@ -561,7 +562,7 @@ export default function Checkout() {
                 onChange={() => { if (!isCodDisabled) upd('payment', p.id); }}
                 style={{ marginRight: 8 }} />
               {p.id === 'xwallet'
-                ? `Xwallet Balance (₱${xwalletBalance.toFixed(2)})`
+                ? `Xwallet Balance (${money(xwalletBalance, 'tofixed')})`
                 : p.label}
             </label>
           );
@@ -681,7 +682,7 @@ export default function Checkout() {
             borderRadius: 8, fontSize: 12.5, color: '#065F46', fontWeight: 600,
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
-            <span>✓ Xcard applied: ₱{xcardValue} off</span>
+            <span>✓ Xcard applied: {money(xcardValue, 'raw')} off</span>
             <button onClick={() => { setXcardValue(0); setXcardInput(''); setXcardId(null); }}
               style={{ background: 'none', border: 'none', color: '#DC2626', fontWeight: 700, cursor: 'pointer', fontSize: 12 }}>
               Remove

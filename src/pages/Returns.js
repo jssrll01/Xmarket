@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import { CardListSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -88,7 +89,7 @@ export default function Returns() {
           <div key={o.id} className="card" style={{ padding: 14, marginBottom: 10 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <div style={{ fontWeight: 700, fontSize: 14 }}>#{o.order_code}</div>
-              <div style={{ fontWeight: 800, fontSize: 14 }}>₱{o.total}</div>
+              <div style={{ fontWeight: 800, fontSize: 14 }}>{money(o.total, 'raw')}</div>
             </div>
             <div style={{ fontSize: 11.5, color: 'var(--muted)', marginBottom: 10 }}>
               {new Date(o.created_at).toLocaleDateString()}

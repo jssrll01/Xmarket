@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import FollowChip from './FollowChip';
 import { NameLabel } from '../components/PerkBadges';
 import { usePerkFlags } from '../lib/perks';
@@ -143,7 +144,7 @@ export function ProductTiles({ products }) {
           {pr.image ? <img src={imgUrl(pr.image, 300)} alt="" width="140" height="110" loading="lazy" decoding="async" style={{ width: '100%', height: 110, objectFit: 'cover', display: 'block' }} /> : <div style={{ height: 110, background: '#EFF6FF' }} />}
           <div style={{ padding: 8 }}>
             <div style={{ fontSize: 12.5, fontWeight: 700, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{pr.name}</div>
-            {pr.price != null && <div style={{ color: '#1D4ED8', fontWeight: 800, fontSize: 13, marginTop: 2 }}>₱{Number(pr.price).toLocaleString('en-PH')}</div>}
+            {pr.price != null && <div style={{ color: '#1D4ED8', fontWeight: 800, fontSize: 13, marginTop: 2 }}>{money(pr.price)}</div>}
             <div style={{ fontSize: 11.5, color: '#2563EB', fontWeight: 700, marginTop: 4 }}>Shop now ›</div>
           </div>
         </button>

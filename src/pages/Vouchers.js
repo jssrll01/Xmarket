@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import { VoucherListSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -77,8 +78,8 @@ export default function Vouchers() {
                 ? `${v.discount_value}% off`
                 : v.discount_type === 'shipping'
                   ? 'Free shipping'
-                  : `₱${v.discount_value} off`}
-              {v.min_spend > 0 && ` · min ₱${v.min_spend}`}
+                  : `${money(v.discount_value, 'raw')} off`}
+              {v.min_spend > 0 && ` · min ${money(v.min_spend, 'raw')}`}
               
               {v.expires_at && ` · expires ${new Date(v.expires_at).toLocaleDateString()}`}
             </div>

@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { SlidersHorizontal, ChevronDown, Check } from 'lucide-react';
 import { priceRange } from '../lib/variants';
@@ -142,7 +143,7 @@ export function useProductFilters(items, defaultSort = 'price') {
           <div className="filter-row">
             <div className="filter-label">
               <span>Max price</span>
-              <span className="filter-value">₱{limit.toLocaleString()}</span>
+              <span className="filter-value">{money(limit)}</span>
             </div>
             <input type="range" min="0" max={top} step="10" value={limit} onChange={(e) => setMaxPrice(+e.target.value)} />
           </div>

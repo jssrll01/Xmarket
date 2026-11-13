@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import { ProductGridSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
@@ -113,7 +114,7 @@ export default function SellerProfile() {
 
   const searched = products.filter(p => (p.name || '').toLowerCase().includes(q.trim().toLowerCase()));
   const { shown, bar, filtersOn } = useProductFilters(searched);
-  const label = (v) => (v.discount_type === 'percent' ? `${Number(v.discount_value)}% off` : `₱${Number(v.discount_value)} off`);
+  const label = (v) => (v.discount_type === 'percent' ? `${Number(v.discount_value)}% off` : `${money(Number(v.discount_value), 'raw')} off`);
 
   return (
     <div className="page-enter" style={{ paddingBottom: 60 }}>
@@ -169,7 +170,7 @@ export default function SellerProfile() {
                   <div key={v.id} className="card" style={{ padding: 12, minWidth: 190, flexShrink: 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, fontSize: 15 }}><Ticket size={16} color="var(--primary)" /> {label(v)}</div>
                     <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 4 }}>
-                      {v.title || 'Store voucher'}{Number(v.min_spend) > 0 ? ` · Min. spend ₱${Number(v.min_spend)}` : ''}
+                      {v.title || 'Store voucher'}{Number(v.min_spend) > 0 ? ` · Min. spend ${money(Number(v.min_spend), 'raw')}` : ''}
                     </div>
                     {v.expires_at && <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>Until {new Date(v.expires_at).toLocaleDateString()}</div>}
                     <button onClick={() => collect(v)} disabled={got} className={got ? 'btn-ghost' : 'btn-primary'} style={{ width: '100%', padding: '8px 0', marginTop: 10, fontSize: 12.5 }}>

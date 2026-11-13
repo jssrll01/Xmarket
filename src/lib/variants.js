@@ -1,3 +1,4 @@
+import { money } from './currency';
 /**
 
  * Variant model
@@ -108,14 +109,14 @@ export function totalStock(product) {
  * Returns { min, max, isRange, display } where display is '₱60' or '₱60–₱90'
  */
 export function priceRange(product) {
-  if (!product) return { min: 0, max: 0, isRange: false, display: '₱0' };
+  if (!product) return { min: 0, max: 0, isRange: false, display: money(0) };
   const prices = product.variant_prices;
   const hasConfig = product.variant_config && Object.keys(product.variant_config).length > 0;
   const values = (hasConfig && prices && typeof prices === 'object')
     ? Object.values(prices).map(Number).filter(n => n > 0)
     : [];
   if (values.length === 0) {
-    return { min: 0, max: 0, isRange: false, display: '₱0' };
+    return { min: 0, max: 0, isRange: false, display: money(0) };
   }
   const min = Math.min(...values);
   const max = Math.max(...values);
@@ -123,8 +124,8 @@ export function priceRange(product) {
   return {
     min, max, isRange,
     display: isRange
-      ? `₱${min.toLocaleString()}–₱${max.toLocaleString()}`
-      : `₱${min.toLocaleString()}`,
+      ? `${money(min)}–${money(max)}`
+      : money(min),
   };
 }
 

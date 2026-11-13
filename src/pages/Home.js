@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import DiscountTag from '../components/DiscountTag';
 import React, { useState, useEffect, useRef } from 'react';
 import PillRow, { pillStyle } from '../components/PillRow';
@@ -731,7 +732,7 @@ export default function Home() {
         <div className="filter-row">
           <div className="filter-label">
             <span>Max price</span>
-            <span className="filter-value">₱{maxPrice.toLocaleString()}</span>
+            <span className="filter-value">{money(maxPrice)}</span>
           </div>
           <input
             type="range" min="0" max="1000000" step="1000"

@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import { CardListSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -80,7 +81,7 @@ export default function Bundles() {
                   </div>
                 )}
                 {b.save_amount > 0 && (
-                  <span className="bn-save-badge">SAVE ₱{b.save_amount}</span>
+                  <span className="bn-save-badge">SAVE {money(b.save_amount, 'raw')}</span>
                 )}
                 <span className="bn-count-badge">
                   <Package size={11} />
@@ -128,10 +129,10 @@ export default function Bundles() {
               )}
 
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 10 }}>
-                <span style={{ fontWeight: 900, fontSize: 18, color: 'var(--primary)' }}>₱{b.bundle_price}</span>
+                <span style={{ fontWeight: 900, fontSize: 18, color: 'var(--primary)' }}>{money(b.bundle_price, 'raw')}</span>
                 {b.original_price && b.original_price > b.bundle_price && (
                   <span style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'line-through' }}>
-                    ₱{b.original_price}
+                    {money(b.original_price, 'raw')}
                   </span>
                 )}
               </div>

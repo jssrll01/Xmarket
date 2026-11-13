@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import React, { useEffect, useState } from 'react';
 import { getPromoDisplay, loadDiscountTiers } from '../lib/promo';
 
@@ -17,7 +18,7 @@ export default function PromoPrice({ price, currencyFormatter, size = 'normal' }
   }, []);
 
   const promo = getPromoDisplay(price, tiers);
-  const format = currencyFormatter || ((p) => `₱${Number(p).toFixed(2)}`);
+  const format = currencyFormatter || ((p) => money(p, 'tofixed'));
   const isSmall = size === 'small';
 
   return (
@@ -59,7 +60,7 @@ export default function PromoPrice({ price, currencyFormatter, size = 'normal' }
                 whiteSpace: 'nowrap',
               }}
             >
-              {promo.tierRate && Math.abs(promo.discountPercent - promo.tierRate) < 0.01 ? Math.round(promo.tierRate) + '% OFF' : 'SAVE ₱' + Number(promo.discountAmount).toFixed(0)}
+              {promo.tierRate && Math.abs(promo.discountPercent - promo.tierRate) < 0.01 ? Math.round(promo.tierRate) + '% OFF' : 'SAVE ' + money(promo.discountAmount, 'int')}
             </span>
           </>
         ) : (

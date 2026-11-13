@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import React, { useEffect, useState } from 'react';
 import { X, ShoppingCart, Zap, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import SmartImage from './SmartImage';
@@ -49,7 +50,7 @@ export default function QuickView({ product, onClose, onAddToCart, onOpenFull })
         <div className="qv-body">
           <div className="qv-name">{product.name}</div>
           <div className="qv-price-row">
-            <span className="qv-price money">{complete ? `₱${price.toLocaleString()}` : rangeInfo.display}</span>
+            <span className="qv-price money">{complete ? money(price) : rangeInfo.display}</span>
             {stock <= 0 && <span className="qv-stock-out">Out of stock</span>}
             {stock > 0 && stock <= 5 && (
               <span className="stock-low-pulse">Only {stock} left</span>

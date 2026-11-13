@@ -1,7 +1,8 @@
+import { money } from '../lib/currency';
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 
 // open: boolean. Stays mounted for 200 ms after open=false so the close animation can play.
 export default function PreviewSheet({ open, product }) {

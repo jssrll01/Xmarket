@@ -1,7 +1,8 @@
+import { money } from '../lib/currency';
 import React, { useRef, useState } from 'react';
 import PreviewSheet from './PreviewSheet';
 
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 
 // <LongPressPreview product={{ name, price, image, description }}>…card…</LongPressPreview>
 export default function LongPressPreview({ product, children, delay = 450 }) {

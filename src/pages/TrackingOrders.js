@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, Copy, Check, RefreshCw, ChevronDown, Search } from 'lucide-react';
@@ -17,7 +18,7 @@ const LABEL = { pending: 'Pending', paid: 'Paid', processing: 'Preparing', shipp
 const TONE = { pending: ['#B45309', '#FEF3C7'], paid: ['#1D4ED8', '#DBEAFE'], processing: ['#1D4ED8', '#DBEAFE'], shipped: ['#6D28D9', '#EDE9FE'], delivered: ['#047857', '#D1FAE5'], completed: ['#047857', '#D1FAE5'], cancelled: ['#B91C1C', '#FEE2E2'] };
 const RANK = { pending: 0, paid: 1, processing: 1, shipped: 2, delivered: 3, completed: 3 };
 const norm = (s) => String(s || 'pending').toLowerCase();
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 const when = (d) => (d ? new Date(d).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' }) : '');
 const orderTotal = (o) => Math.max(0, (Number(o.subtotal) || 0) - (Number(o.discount) || 0)) + (Number(o.shipping_fee) || 0);
 const imgOf = (p) => {

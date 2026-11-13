@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import { OrderDetailSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -150,25 +151,25 @@ export default function OrderDetail() {
         {items.map(it => (
           <div key={it.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
             <span>{it.name}{it.variant ? ` (${it.variant})` : ''} × {it.quantity}</span>
-            <span>₱{(Number(it.price) || 0) * (Number(it.quantity) || 1)}</span>
+            <span>{money((Number(it.price) || 0) * (Number(it.quantity) || 1), 'raw')}</span>
           </div>
         ))}
         <hr style={{ margin: '10px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-          <span>Subtotal</span><span>₱{subtotal.toFixed(2)}</span>
+          <span>Subtotal</span><span>{money(subtotal, 'tofixed')}</span>
         </div>
         {discount > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--primary)' }}>
-            <span>Discount</span><span>-₱{discount.toFixed(2)}</span>
+            <span>Discount</span><span>-{money(discount, 'tofixed')}</span>
           </div>
         )}
         {(
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
-            <span>Shipping</span><span>₱{shipping.toFixed(2)}</span>
+            <span>Shipping</span><span>{money(shipping, 'tofixed')}</span>
           </div>
         )}
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 16, marginTop: 8 }}>
-          <span>Total</span><span>₱{total.toFixed(2)}</span>
+          <span>Total</span><span>{money(total, 'tofixed')}</span>
         </div>
       </div>
 

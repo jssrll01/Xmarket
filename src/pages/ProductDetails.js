@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import DiscountTag from '../components/DiscountTag';
 import ProductQA from '../components/ProductQA';
 import { firstNumber } from '../lib/discount';
@@ -84,12 +85,12 @@ export default function ProductDetails() {
     : totalStock(product);
 
   // Display price: specific variant price when complete, else the min/max range
-  const priceInfo = product ? priceRange(product) : { display: '₱0', min: 0, max: 0, isRange: false };
+  const priceInfo = product ? priceRange(product) : { display: money(0), min: 0, max: 0, isRange: false };
   let displayPrice = priceInfo.display;
   if (selComplete && product?.variant_prices) {
     const label = Object.keys(variant).sort().map(k => variant[k]).join(' / ');
     const specific = product.variant_prices[label];
-    if (typeof specific === 'number') displayPrice = '₱' + specific.toLocaleString();
+    if (typeof specific === 'number') displayPrice = money(specific);
   }
   const [qty, setQty] = useState(1);
   const [adding, setAdding] = useState(false);

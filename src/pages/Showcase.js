@@ -1,3 +1,4 @@
+import { moneyShort } from '../lib/currency';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Percent, TrendingDown, Sparkles, PackageSearch, Tag } from 'lucide-react';
@@ -89,9 +90,7 @@ export default function Showcase({ page }) {
           </div>
           <div className="sm-stat">
             <div className="sm-stat-num">
-              {stats.avg >= 1000
-                ? '₱' + (stats.avg / 1000).toFixed(1) + 'k'
-                : '₱' + stats.avg.toLocaleString()}
+              {moneyShort(stats.avg)}
             </div>
             <div className="sm-stat-lab">Avg price</div>
           </div>

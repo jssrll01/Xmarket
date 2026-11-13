@@ -1,3 +1,4 @@
+import { money, isPeso } from '../lib/currency';
 import React from 'react';
 import { safeFixed } from '../lib/format';
 import { discountPercent, itemDiscount } from '../lib/discount';
@@ -11,7 +12,7 @@ const row = {
   padding: '3px 0',
 };
 
-const m = (v) => '₱' + safeFixed(v);
+const m = (v) => money(Number(safeFixed(v)), 'tofixed');
 
 const hr = (
   <hr
@@ -131,6 +132,9 @@ export default function OrderTotals({
         <span>Total</span>
         <span>{m(total)}</span>
       </div>
+      {!isPeso() && (
+        <div style={{ textAlign: 'right', fontSize: 11, color: 'var(--muted)' }}>Display only. You are charged ₱{safeFixed(total)} (PHP).</div>
+      )}
 
       {totalDiscount > 0 && (
         <div

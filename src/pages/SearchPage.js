@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Search, X, Clock, Trash2, TrendingUp, PackageSearch } from 'lucide-react';
@@ -7,7 +8,7 @@ import { imgUrl } from '../lib/img';
 import VoiceButton from '../components/VoiceButton';
 import LongPressPreview from '../components/LongPressPreview';
 
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'plain');
 const clean = (s) => String(s || '').replace(/[%,()*\\]/g, ' ').trim();
 const minPrice = (vp) => { const v = Object.values(vp || {}).map(Number).filter(n => n > 0); return v.length ? Math.min(...v) : 0; };
 const SORTS = [['rel', 'Relevance'], ['new', 'Latest'], ['sold', 'Top Sales'], ['pa', 'Price ↑'], ['pd', 'Price ↓']];

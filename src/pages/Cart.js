@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import OrderTotals from '../components/OrderTotals';
 import { itemDiscount, loadDiscountRules } from '../lib/discount';
 import { ListRowsSkeleton } from '../components/Skeleton';
@@ -95,7 +96,7 @@ export default function Cart() {
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 700 }}>{i.name}</div>
             {i.variant && <div style={{ fontSize: 12, color: 'var(--muted)' }}>Variant: {comboLabel(parseCartVariant(i.variant))}</div>}
-            <div style={{ fontWeight: 800, marginTop: 4 }}>₱{i.price}</div>
+            <div style={{ fontWeight: 800, marginTop: 4 }}>{money(i.price, 'raw')}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
               <button onClick={() => dispatch({ type: 'DECREASE', payload: i.rowId })} className="btn-ghost" style={{ padding: 7 }}>
                 <Minus size={14} />
