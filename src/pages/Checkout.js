@@ -67,7 +67,9 @@ export default function Checkout() {
   const PAYMENTS = useCfg(() => loadPayments('checkout'), PAYMENTS_FALLBACK);
   const { blocked: blockedPay } = useBlocked('payment');
   const OPEN_PAYMENTS = PAYMENTS.filter((p) => !payBlocked(blockedPay, p));
-  const DELIVERIES = useCfg(loadDeliveries, DELIVERIES_FALLBACK);
+  const DELIVERIES_ALL = useCfg(loadDeliveries, DELIVERIES_FALLBACK);
+  const { blocked: blockedDel } = useBlocked('delivery');
+  const DELIVERIES = DELIVERIES_ALL.filter((d) => !blockedDel.has(d.id));
   const { items, dispatch } = useCart();
   const { user, loading: authLoading, profile } = useAuth();
   const { show: showToast } = useToast();
@@ -186,6 +188,11 @@ export default function Checkout() {
     // eslint-disable-next-line
   }, [OPEN_PAYMENTS.map((p) => p.id).join(','), form.payment]);
   const selectedPayment = OPEN_PAYMENTS.find(p => p.id === form.payment);
+  useEffect(() => {
+    if (allInstant || !DELIVERIES.length || DELIVERIES.some((d) => d.id === form.delivery)) return;
+    const next = DELIVERIES.find((d) => d.id !== 'instant') || DELIVERIES[0];
+    setForm((f) => ({ ...f, delivery: next.id }));
+  }, [DELIVERIES, form.delivery, allInstant]);
   const selectedDelivery = DELIVERIES.find(d => d.id === form.delivery);
 
   const availableDeliveries = DELIVERIES.filter(d => {
