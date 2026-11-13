@@ -1,3 +1,4 @@
+import { money, moneyFmt } from './lib/currency';
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { supabase } from './lib/supabase';
@@ -77,7 +78,7 @@ const CSS = `
 .xc-note{font-size:11px;color:#64748b;margin-top:8px;line-height:1.4}
 `;
 
-const peso = (n, d = 2) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: d, maximumFractionDigits: d });
+const peso = (n, d = 2) => moneyFmt(n, d, d);
 
 const phtFmt = (sec, o) => new Date(sec * 1000).toLocaleString('en-PH', { timeZone: 'Asia/Manila', ...o });
 const phtTick = (sec, type) => (type >= 3 ? phtFmt(sec, { hour: 'numeric', minute: '2-digit', hour12: true }) : type === 2 ? phtFmt(sec, { month: 'short', day: 'numeric' }) : type === 1 ? phtFmt(sec, { month: 'short' }) : phtFmt(sec, { year: 'numeric' }));
@@ -332,7 +333,7 @@ export default function XCoin() {
     const ref = 'XCOIN-' + Date.now() + '-' + Math.random().toString(36).substring(7);
     const { data, error } = await supabase.rpc('xcoin_sell_position', { p_position_id: id, p_ref: ref });
     if (error) setMessage(error.message);
-    else setMessage(`Closed position for ₱${data.php_received.toFixed(2)} at ₱${data.execution_price.toFixed(2)}`);
+    else setMessage(`Closed position for ${money(data.php_received, 'tofixed')} at ${money(data.execution_price, 'tofixed')}`);
     await loadAccount();
     setLoading(false);
   };
@@ -381,11 +382,11 @@ export default function XCoin() {
     if (tradeType === 'buy') {
       const { data, error } = await supabase.rpc('xcoin_buy', { p_php_amount: amt, p_ref: ref });
       if (error) setMessage(error.message);
-      else setMessage(`Successfully bought ${data.xcoin_bought.toFixed(4)} XCOIN at ₱${data.execution_price.toFixed(2)}`);
+      else setMessage(`Successfully bought ${data.xcoin_bought.toFixed(4)} XCOIN at ${money(data.execution_price, 'tofixed')}`);
     } else {
       const { data, error } = await supabase.rpc('xcoin_sell', { p_xcoin_amount: amt, p_ref: ref });
       if (error) setMessage(error.message);
-      else setMessage(`Successfully sold ${amt} XCOIN for ₱${data.php_received.toFixed(2)} at ₱${data.execution_price.toFixed(2)}`);
+      else setMessage(`Successfully sold ${amt} XCOIN for ${money(data.php_received, 'tofixed')} at ${money(data.execution_price, 'tofixed')}`);
     }
     await loadAccount();
     loadSupply();

@@ -36,7 +36,7 @@ import { BoosterTag } from '../components/PerkBadges';
 // Keeps data layer untouched; edit here to change slide copy.
 const BANNER_META = [
   { title: 'Mega Deals Week', sub: 'Up to 70% off across all categories', cta: 'Shop Now' },
-  { title: 'Free Shipping', sub: 'On orders over ₱500 nationwide', cta: 'Learn More' },
+  { title: 'Free Shipping', sub: 'On orders over ' + money(500) + ' nationwide', cta: 'Learn More' },
   { title: 'New Arrivals', sub: 'Fresh drops every Friday', cta: 'Explore' },
 ];
 

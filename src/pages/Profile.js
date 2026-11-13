@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import VipBadge from '../components/VipBadge';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -123,7 +124,7 @@ export default function Profile() {
         </Link>
         <Link to="/xwallet" className="card" style={{ padding: 14, textDecoration: 'none', color: 'inherit' }}>
           <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase' }}>Xwallet</div>
-          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 4 }}>{statsLoaded ? '₱' + Number(stats.extra?.xwallet_balance || 0).toFixed(2) : <span className="sk" style={{ display: 'inline-block', width: 80, height: 18 }} />}</div>
+          <div style={{ fontSize: 18, fontWeight: 900, marginTop: 4 }}>{statsLoaded ? money(Number(stats.extra?.xwallet_balance || 0), 'tofixed') : <span className="sk" style={{ display: 'inline-block', width: 80, height: 18 }} />}</div>
           {stats.extra?.created_at && <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>Member since {new Date(stats.extra.created_at).toLocaleDateString()}</div>}
         </Link>
       </div>

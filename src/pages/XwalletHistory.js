@@ -1,7 +1,8 @@
+import { money } from '../lib/currency';
 import React from 'react';
 import { ArrowLeft, ArrowDownLeft, ArrowUpRight, Phone, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 const STATUS = { approved: '#059669', completed: '#059669', rejected: '#DC2626', processing: '#3B82F6', pending: '#F59E0B' };
 const TITLES = { topups: 'Top-up history', loads: 'Load history', txns: 'All transactions', withdrawals: 'Withdrawal history' };
 const row = { padding: 12, marginBottom: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 };

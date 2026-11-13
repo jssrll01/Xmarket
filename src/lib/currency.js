@@ -80,3 +80,15 @@ export function moneyShort(n) {
   if (x >= 1000) return c.symbol + (x / 1000).toFixed(1) + 'k';
   return c.code === 'PHP' ? c.symbol + x.toLocaleString() : money(n);
 }
+
+// min/max decimals for peso output. Other currencies use at least 2 decimals.
+export function moneyFmt(n, minD, maxD) {
+  const c = cur();
+  const v = Number(n || 0);
+  if (c.code === 'PHP') return c.symbol + v.toLocaleString('en-PH', { minimumFractionDigits: minD, maximumFractionDigits: maxD });
+  const x = v * Number(c.rate || 1);
+  return c.symbol + x.toLocaleString('en-US', { minimumFractionDigits: Math.max(2, minD), maximumFractionDigits: Math.max(2, maxD) });
+}
+
+// The number part only, without the symbol
+export const amount = (n, mode = 'auto') => money(n, mode).slice(cur().symbol.length);

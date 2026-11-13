@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, Upload, CheckCircle2 } from 'lucide-react';
@@ -147,12 +148,12 @@ export default function XwalletTopup() {
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 12 }}>Summary</h3>
         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 6 }}>
-          <span>Subtotal</span><span>₱{subtotal.toFixed(2)}</span>
+          <span>Subtotal</span><span>{money(subtotal, 'tofixed')}</span>
         </div>
         
         <hr style={{ margin: '10px 0', border: 'none', borderTop: '1px solid var(--border)' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: 16 }}>
-          <span>Total</span><span>₱{total.toFixed(2)}</span>
+          <span>Total</span><span>{money(total, 'tofixed')}</span>
         </div>
       </div>
 

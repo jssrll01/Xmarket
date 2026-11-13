@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import { Coins as CoinsI } from 'lucide-react';
 import { Gamepad2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
@@ -60,7 +61,7 @@ export default function WalletBar() {
       <div style={{ borderRadius: 14, background: 'var(--card)', border: '1px solid var(--border)', overflow: 'hidden', display: 'flex', alignItems: 'stretch' }}>
         <Cell to="/xwallet" grad="linear-gradient(135deg, #14B8A6, #0F766E)"
           icon={<Wallet size={18} color="#fff" />} label="Xwallet"
-          sub={user ? (balance === null ? '...' : '₱' + Number(balance).toFixed(2)) : 'Sign in'} />
+          sub={user ? (balance === null ? '...' : money(Number(balance), 'tofixed')) : 'Sign in'} />
         {divider}
         <Cell to="/xcards" grad="linear-gradient(135deg, #6366F1, #7C3AED)" icon={<CreditCard size={18} color="#fff" />} label="Xcards" sub="Gift cards" />
         {divider}

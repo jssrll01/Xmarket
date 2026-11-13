@@ -1,8 +1,9 @@
+import { money } from '../lib/currency';
 import React from 'react';
 
 export const BLUE = '#2563EB';
 export const MUTED = '#64748B';
-export const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const peso = (n) => money(n, 'fixed');
 export const card = { background: 'var(--card, #fff)', border: '1px solid rgba(148,163,184,.25)', borderRadius: 18, padding: 16, marginBottom: 12, boxShadow: '0 1px 2px rgba(15,23,42,.04), 0 10px 28px rgba(37,99,235,.06)' };
 export const inp = { width: '100%', padding: 13, marginBottom: 10, borderRadius: 12, border: '1px solid rgba(148,163,184,.5)', fontSize: 14, boxSizing: 'border-box', background: 'var(--card, #fff)' };
 export const btn = { padding: '12px 16px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg,#2563EB,#3B82F6)', color: '#fff', fontWeight: 800, fontSize: 13, cursor: 'pointer', boxShadow: '0 6px 16px rgba(37,99,235,.28)' };

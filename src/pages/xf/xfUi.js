@@ -1,8 +1,9 @@
+import { money } from '../../lib/currency';
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
 
-export const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const peso = (n) => money(n, 'fixed');
 
 export function useMe() {
   const { user } = useAuth();

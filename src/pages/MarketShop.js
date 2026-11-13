@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import React, { useEffect, useState } from 'react';
 import HubSearch from './xf/HubSearch';
 import { CardListSkeleton } from '../components/Skeleton';
@@ -10,7 +11,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { PerkStatus } from '../components/PerkBadges';
 
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 const day = (d) => new Date(d).toLocaleDateString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric' });
 const EMAIL = /^\S+@\S+\.\S+$/;
 const PERK_DESC = {

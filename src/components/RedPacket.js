@@ -1,8 +1,9 @@
+import { money } from '../lib/currency';
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { rpcPin } from '../lib/pinBus';
 
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 const left = (iso) => {
   const ms = new Date(iso).getTime() - Date.now();
   if (ms <= 0) return null;

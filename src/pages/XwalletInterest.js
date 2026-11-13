@@ -1,8 +1,9 @@
+import { money } from '../lib/currency';
 import React, { useState } from 'react';
 import { TrendingUp } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 
 export default function XwalletInterest({ summary, log, onApplied }) {
   const [code, setCode] = useState(() => { try { return (new URLSearchParams(window.location.search).get('ref') || '').toUpperCase(); } catch (e) { return ''; } });

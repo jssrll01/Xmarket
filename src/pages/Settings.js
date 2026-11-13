@@ -1,4 +1,5 @@
 import { currencies, currentCode, setCurrency, refreshCurrencies } from '../lib/currency';
+import CurrencyPicker from '../components/CurrencyPicker';
 import React, { useEffect, useState } from 'react';
 import { Bell, ArrowLeft, Globe, Coins, User, MapPin, ShieldCheck, HelpCircle, Headphones, FileText, Lock, ChevronRight, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -141,12 +142,7 @@ export default function SettingsPage() {
       <Section title="Preferences">
         <Row icon={Globe} label="Language" hint="English is the only supported language" right={badge('English')} />
         <Row icon={Coins} label="Currency" hint={curNow === 'PHP' ? 'Prices are shown in Philippine Peso (default)' : 'Display only. You always pay in PHP'}
-          right={(
-            <select aria-label="Currency" value={curNow} onChange={(e) => setCurrency(e.target.value)}
-              style={{ fontSize: 13, fontWeight: 700, padding: '6px 8px', borderRadius: 8, border: '1px solid var(--border, #E5E7EB)', background: 'var(--card, #fff)', color: 'var(--text, #111)' }}>
-              {curList.map((c) => <option key={c.code} value={c.code}>{c.code === 'PHP' ? 'PHP (₱) · default' : c.code + ' (' + c.symbol + ')'}</option>)}
-            </select>
-          )} last />
+          right={<CurrencyPicker list={curList} value={curNow} onChange={setCurrency} />} last />
       </Section>
 
       <Section title="Account">

@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import { WalletSkeleton } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +11,7 @@ import { purchaseXcard, fetchMyXcards } from '../lib/xcards';
 import TopupButton from '../components/TopupButton';
 
 const DENOMS_FALLBACK = [100, 200, 500, 1000];
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 
 const CSS = `
 .xcn{padding:16px 16px 70px;max-width:560px;margin:0 auto}
@@ -94,7 +95,7 @@ export default function Xcards() {
     const { error } = await purchaseXcard(user.id, selected);
     setBuying(false);
     if (error) { showToast(error.message); return; }
-    showToast(`Xcard ₱${selected} purchased`);
+    showToast(`Xcard ${money(selected, 'raw')} purchased`);
     refresh();
   };
   const copyCode = async (code) => {
@@ -120,7 +121,7 @@ export default function Xcards() {
         <div className="xcn-row"><span className="xcn-brand">XMARKET</span><span className="xcn-tag">Gift card</span></div>
         <div className="xcn-chip" />
         <div>
-          <div className="xcn-amt">₱{selected.toLocaleString()}</div>
+          <div className="xcn-amt">{money(selected)}</div>
           <div className="xcn-foot"><span>One-time use</span><span>No expiry</span></div>
         </div>
       </div>
@@ -129,10 +130,10 @@ export default function Xcards() {
         <div className="xcn-bal"><span>Xwallet balance</span><span style={{ display: 'inline-flex', alignItems: 'center' }}><b>{peso(balance)}</b><TopupButton /></span></div>
         <div className="xcn-lab">Amount</div>
         <div className="xcn-seg">
-          {DENOMS.map(d => <button key={d} className={selected === d ? 'on' : ''} onClick={() => setSelected(d)}>₱{d.toLocaleString()}</button>)}
+          {DENOMS.map(d => <button key={d} className={selected === d ? 'on' : ''} onClick={() => setSelected(d)}>{money(d)}</button>)}
         </div>
         {insufficient && <div className="xcn-warn">You need {peso(selected - balance)} more.<button onClick={() => nav('/xwallet/topup')}>Top up</button></div>}
-        <button className="xcn-buy" aria-busy={buying} onClick={buy} disabled={buying || insufficient}>{buying ? 'Purchasing…' : `Buy ₱${selected.toLocaleString()} Xcard`}</button>
+        <button className="xcn-buy" aria-busy={buying} onClick={buy} disabled={buying || insufficient}>{buying ? 'Purchasing…' : `Buy ${money(selected)} Xcard`}</button>
         <div className="xcn-note">Deducted from your Xwallet immediately.</div>
       </div>
 
@@ -140,7 +141,7 @@ export default function Xcards() {
         <div className="xcn-stats">
           <div><b>{available.length}</b><span>Available</span></div>
           <div><b>{redeemed}</b><span>Redeemed</span></div>
-          <div><b>₱{availableValue.toLocaleString()}</b><span>Value left</span></div>
+          <div><b>{money(availableValue)}</b><span>Value left</span></div>
         </div>
       </div>
 
@@ -160,7 +161,7 @@ export default function Xcards() {
                     <div className="xcn-meta">{used ? 'Redeemed' : 'Purchased'} {d ? new Date(d).toLocaleDateString() : ''}</div>
                   </div>
                   <div className="xcn-val">
-                    <div>₱{Number(c.value).toLocaleString()}</div>
+                    <div>{money(Number(c.value))}</div>
                     {!used && <button className="xcn-copy" onClick={() => copyCode(c.code)}>{copied === c.code ? <Check size={13} /> : <Copy size={13} />}{copied === c.code ? 'Copied' : 'Copy'}</button>}
                   </div>
                 </div>

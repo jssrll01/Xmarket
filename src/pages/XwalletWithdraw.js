@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import React, { useRef, useState } from 'react';
 import { CheckCircle2, AlertCircle, Clock, Loader2 } from 'lucide-react';
 import { useToast } from '../components/Toast';
@@ -9,7 +10,7 @@ const STATUS = {
   pending: ['#F59E0B', Clock], processing: ['#3B82F6', Loader2], approved: ['#10B981', CheckCircle2],
   completed: ['#059669', CheckCircle2], rejected: ['#DC2626', AlertCircle],
 };
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 const inp = { width: '100%', padding: 12, marginTop: 6, marginBottom: 12, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14 };
 const lbl = { fontSize: 12, fontWeight: 700, color: 'var(--muted)' };
 
@@ -107,7 +108,7 @@ export default function XwalletWithdraw({ balance, withdrawals, onDone, onSeeAll
           <div key={w.id} className="card" style={{ padding: 12, marginBottom: 8 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontWeight: 800, fontSize: 14 }}>{peso(w.net_amount)} <span style={{ fontWeight: 500, fontSize: 11, color: 'var(--muted)' }}>(₱{Number(w.amount).toFixed(2)} − ₱{Number(w.fee).toFixed(2)} fee)</span></div>
+                <div style={{ fontWeight: 800, fontSize: 14 }}>{peso(w.net_amount)} <span style={{ fontWeight: 500, fontSize: 11, color: 'var(--muted)' }}>({money(Number(w.amount), 'tofixed')} − {money(Number(w.fee), 'tofixed')} fee)</span></div>
                 <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
                   {w.method === 'bank' ? w.bank_name : w.method === 'gcash' ? 'GCash' : 'Maya'} · {w.account_name} · ••••{String(w.account_number).slice(-4)}
                 </div>

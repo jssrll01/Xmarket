@@ -1,9 +1,10 @@
+import { money } from '../../lib/currency';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowDownLeft, ArrowUpRight, Plus, Smartphone, TrendingUp, Send, RotateCcw, Clock } from 'lucide-react';
 
 export const BLUE = '#2563EB';
-export const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const peso = (n) => money(n, 'fixed');
 export const dt = (d) => new Date(d).toLocaleString('en-PH', { dateStyle: 'medium', timeStyle: 'short' });
 export const STATUS = { approved: '#059669', completed: '#059669', rejected: '#DC2626', processing: '#3B82F6', pending: '#F59E0B' };
 

@@ -1,7 +1,8 @@
+import { moneyFmt } from './currency';
 import { supabase } from './supabase';
 
 export const fmt = (n) => Number(n || 0).toLocaleString('en-PH');
-export const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+export const peso = (n) => moneyFmt(n, 0, 2);
 const newKey = () => (window.crypto && window.crypto.randomUUID)
   ? window.crypto.randomUUID()
   : 'k' + Date.now() + Math.random().toString(36).slice(2);

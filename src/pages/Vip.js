@@ -1,3 +1,4 @@
+import { money, symbol, amount } from '../lib/currency';
 import React, { useEffect, useState } from 'react';
 import { ListRowsSkeleton, CardListSkeleton } from '../components/Skeleton';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +9,7 @@ import { useVip, purchaseVip, fetchVipHistory, VIP_PRICE, VIP_DAYS } from '../li
 import VipBadge from '../components/VipBadge';
 import '../vip.css';
 
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
 const PERKS = [
@@ -89,7 +90,7 @@ function Purchase({ user, status, onJoined }) {
         <div className="vip-hero-ic"><Crown size={30} /></div>
         <h2>XMARKET VIP</h2>
         <p>Premium perks for the way you shop.</p>
-        <div className="vip-price"><span>₱</span>{VIP_PRICE}<small> / {VIP_DAYS} days</small></div>
+        <div className="vip-price"><span>{symbol()}</span>{amount(VIP_PRICE)}<small> / {VIP_DAYS} days</small></div>
       </div>
 
       <Perks />

@@ -1,3 +1,4 @@
+import { money } from '../../lib/currency';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import HubSearch from './HubSearch';
 import { useNavigate } from 'react-router-dom';
@@ -9,7 +10,7 @@ import { useToast } from '../../components/Toast';
 import { CardListSkeleton } from '../../components/Skeleton';
 import TopupButton from '../../components/TopupButton';
 
-const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const peso = (n) => money(n, 'fixed');
 const size = (b) => (!b ? '' : b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB');
 
 async function startDownload(path, name) {
