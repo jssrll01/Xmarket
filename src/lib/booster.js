@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { money } from './currency';
 
 const PLAT = {
   Facebook: { bg: '#1877F2', glyph: 'f' },
@@ -17,7 +18,7 @@ export const STATUS_INFO = {
 };
 export const STEPS = ['pending', 'starting', 'ongoing', 'completed'];
 
-export const peso = (n) => '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const peso = (n) => money(n, 'fixed');
 export const num = (n) => Number(n || 0).toLocaleString('en-PH');
 export const calcTotal = (price, qty, per) => {
   const p = Number(price);
