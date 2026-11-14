@@ -18,7 +18,7 @@ function ServiceRow({ s, onPick, showPlatform }) {
         <b>{s.name}</b>
         <small>{showPlatform ? s.platform + ' · ' + s.category + ' · ' : ''}{num(s.min_qty)} to {num(s.max_qty)}</small>
       </span>
-      <span className="bst-row-pr">{peso(s.price)}</span>
+      <span className="bst-row-pr">{peso(calcTotal(s.price, s.min_qty, s.per_qty))}</span>
     </button>
   );
 }
@@ -32,7 +32,7 @@ function OrderSheet({ service, onClose, onPlaced }) {
   const max = service.max_qty;
   const step = max - min >= 1000 ? 100 : 10;
   const [target, setTarget] = useState('');
-  const [qty, setQty] = useState(String(Math.min(Math.max(1000, min), max)));
+  const [qty, setQty] = useState(String(min));
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [balance, setBalance] = useState(null);
@@ -49,7 +49,6 @@ function OrderSheet({ service, onClose, onPlaced }) {
   const qtyOk = q >= min && q <= max;
   const total = qtyOk ? calcTotal(service.price, q, service.per_qty) : 0;
   const short = balance !== null && total > balance;
-  const profile = service.target_kind === 'profile';
   const chips = useMemo(
     () => [...new Set([min, 500, 1000, 2500, 5000, 10000, max])].filter((v) => v >= min && v <= max).sort((a, b) => a - b).slice(0, 6),
     [min, max]
@@ -59,7 +58,7 @@ function OrderSheet({ service, onClose, onPlaced }) {
     if (busy) return;
     if (!uid) { nav('/signin'); return; }
     const t = target.trim();
-    if (!t) { show(profile ? 'Enter the username or profile link.' : 'Enter the link.'); return; }
+    if (!t) { show('Enter the link.'); return; }
     if (!qtyOk) { show(`Quantity must be between ${num(min)} and ${num(max)}.`); return; }
     setBusy(true);
     const { data, error } = await rpcPin('booster_order', {
@@ -81,14 +80,14 @@ function OrderSheet({ service, onClose, onPlaced }) {
         </div>
         {service.description && <p className="bst-desc">{service.description}</p>}
         <div className="bst-facts">
-          <div><small>Price</small><b>{peso(service.price)}</b></div>
+          <div><small>Price for {num(min)}</small><b>{peso(calcTotal(service.price, min, service.per_qty))}</b></div>
           <div><small>Quantity</small><b>{num(min)} to {num(max)}</b></div>
           <div><small>Start time</small><b>{service.est_time || 'After admin review'}</b></div>
         </div>
 
-        <label className="bst-lbl">{profile ? 'Username or profile link' : 'Link'}</label>
+        <label className="bst-lbl">Link</label>
         <input className="bst-in" value={target} maxLength={300} autoCapitalize="off" autoCorrect="off" autoComplete="off" spellCheck={false}
-          placeholder={profile ? '@username or profile link' : 'Paste the full link (https://...)'} onChange={(e) => setTarget(e.target.value)} />
+          placeholder="Paste the link (https://...)" onChange={(e) => setTarget(e.target.value)} />
 
         <label className="bst-lbl">Quantity</label>
         <QtyField value={qty} onChange={setQty} min={min} max={max} step={step} />
@@ -214,7 +213,7 @@ export default function SocialBooster() {
                   <button key={s.id} type="button" className="bst-popc" onClick={() => pick(s)}>
                     <PlatformIcon platform={s.platform} size={32} />
                     <b>{s.name}</b>
-                    <span className="bst-pc-pr">{peso(s.price)}</span>
+                    <span className="bst-pc-pr">{peso(calcTotal(s.price, s.min_qty, s.per_qty))}</span>
                   </button>
                 ))}
               </div>
