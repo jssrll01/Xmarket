@@ -46,6 +46,7 @@ export default function Notifications() {
     }
     if (n.type === 'order') nav('/orders');
     if (n.type === 'cart') nav('/cart');
+    if (n.type === 'booster') nav('/my-boost-orders');
     if (n.type === 'mention_global') nav('/global-chat');
     if (n.type === 'mention_comment' || n.type === 'mention_post') nav('/socials');
   };

@@ -72,6 +72,9 @@ import SocialsPost from './pages/SocialsPost';
 import CreatorNewPost from './pages/CreatorNewPost';
 import CreatorPostHistory from './pages/CreatorPostHistory';
 import Vip from './pages/Vip';
+import SocialBooster from './pages/SocialBooster';
+import MyBoostOrders from './pages/MyBoostOrders';
+import SocialBoosterEntry from './components/SocialBoosterEntry';
 import YtGate from './yt/YtGate';
 import YtRoot from './yt/YtRoot';
 import ChatSearch from './pages/ChatSearch';
@@ -197,7 +200,7 @@ function Router() {
         <Route path="/demand-polls/results" element={<PollResults />} />
         <Route path="/sponsorships" element={<Sponsorships />} />
         <Route path="/sponsorships/donors" element={<SponsorDonors />} />
-        <Route path="/digital-hub" element={<DigitalHub />} />
+        <Route path="/digital-hub" element={<><DigitalHub /><SocialBoosterEntry /></>} />
         <Route path="/global-chat" element={<GlobalChat />} />
         <Route path="/chat-search" element={<ChatSearch />} />
         <Route path="/socials" element={<Socials />} />
@@ -219,6 +222,8 @@ function Router() {
         <Route path="/messages" element={<DmInbox />} />
         <Route path="/messages/:tid" element={<DmChat />} />
         <Route path="/vip" element={<Vip />} />
+        <Route path="/social-booster" element={<SocialBooster />} />
+        <Route path="/my-boost-orders" element={<MyBoostOrders />} />
         <Route path="/yt/*" element={<YtGate><YtRoot /></YtGate>} />
         <Route path="/my-reports" element={<MyReports />} />
         <Route path="/report/bug" element={<BugReport />} />
