@@ -2,7 +2,7 @@ import { supabase } from './supabase';
 
 const PLAT = {
   Facebook: { bg: '#1877F2', glyph: 'f' },
-  Instagram: { bg: 'linear-gradient(45deg,#F9A825,#E1306C,#7B3FE4)', glyph: 'IG' },
+  Instagram: { bg: '#E1306C', glyph: 'IG' },
   TikTok: { bg: '#111827', glyph: 'TT' },
   YouTube: { bg: '#FF0000', glyph: 'YT' }
 };

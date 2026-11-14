@@ -18,7 +18,7 @@ function ServiceRow({ s, onPick, showPlatform }) {
         <b>{s.name}</b>
         <small>{showPlatform ? s.platform + ' · ' + s.category + ' · ' : ''}{num(s.min_qty)} to {num(s.max_qty)}</small>
       </span>
-      <span className="bst-row-pr">{peso(s.price)}<small>per {num(s.per_qty)}</small></span>
+      <span className="bst-row-pr">{peso(s.price)}</span>
     </button>
   );
 }
@@ -81,7 +81,7 @@ function OrderSheet({ service, onClose, onPlaced }) {
         </div>
         {service.description && <p className="bst-desc">{service.description}</p>}
         <div className="bst-facts">
-          <div><small>Price</small><b>{peso(service.price)} per {num(service.per_qty)}</b></div>
+          <div><small>Price</small><b>{peso(service.price)}</b></div>
           <div><small>Quantity</small><b>{num(min)} to {num(max)}</b></div>
           <div><small>Start time</small><b>{service.est_time || 'After admin review'}</b></div>
         </div>
@@ -176,7 +176,7 @@ export default function SocialBooster() {
     load(0);
   }, [mode, load]);
 
-  const back = () => { if (platform) setParams({}); else nav(-1); };
+  const back = () => { if (window.history.length > 1) nav(-1); else nav(platform ? '/social-booster' : '/digital-hub', { replace: true }); };
   const pickPlatform = (p) => { setQ(''); setParams({ p }); };
   const pickCategory = (c) => setParams({ p: platform, c }, { replace: true });
   const pick = (s) => { if (!user) { nav('/signin'); return; } setSel(s); };
@@ -214,7 +214,7 @@ export default function SocialBooster() {
                   <button key={s.id} type="button" className="bst-popc" onClick={() => pick(s)}>
                     <PlatformIcon platform={s.platform} size={32} />
                     <b>{s.name}</b>
-                    <span>{peso(s.price)} per {num(s.per_qty)}</span>
+                    <span className="bst-pc-pr">{peso(s.price)}</span>
                   </button>
                 ))}
               </div>
