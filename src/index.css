@@ -2733,3 +2733,5 @@ button[aria-busy="true"]::after, .btn-busy::after { content: ""; position: absol
 .neu-ic{background:var(--bg)!important;border:0!important;box-shadow:var(--inset);color:var(--primary)}
 .neu-row .btn-primary{background:var(--primary);box-shadow:0 4px 10px -4px rgba(37,99,235,.45)}
 .neu-row button[aria-label^="Gift"]{border:0!important;background:var(--card)!important;box-shadow:var(--raised-sm)}
+
+html, body { touch-action: pan-x pan-y; }

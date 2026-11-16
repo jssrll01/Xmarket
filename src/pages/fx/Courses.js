@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, BookOpen, PlayCircle, ChevronDown } from 'lucide-react';
+import { HubHead, XF_CSS } from '../xf/xfUi';
+import { CardListSkeleton } from '../../components/Skeleton';
+import { BookOpen, PlayCircle, ChevronDown } from 'lucide-react';
 import { fx, S } from '../../lib/fx';
 
 export default function Courses() {
@@ -11,12 +12,11 @@ export default function Courses() {
     fx('fx_courses_list').then((d) => setRows(Array.isArray(d) ? d : [])).catch((e) => { setErr(e.message); setRows([]); });
   }, []);
   return (
-    <div className="page-enter" style={S.page}>
-      <Link to="/digital-hub" style={S.back}><ArrowLeft size={16} /> Digital Hub</Link>
-      <h1 style={S.h1}>Courses</h1>
-      <p style={S.sub}>Learn at your own pace.</p>
+    <div className="page-enter xf">
+      <style>{XF_CSS}</style>
+      <HubHead title="Courses" sub="Learn at your own pace." />
       {err && <div style={S.err}>{err}</div>}
-      {rows === null && <div style={S.muted}>Loading…</div>}
+      {rows === null && <CardListSkeleton count={3} />}
       {rows && !rows.length && !err && <div style={{ ...S.card, textAlign: 'center', ...S.muted }}>No courses yet. Check back soon.</div>}
       {(rows || []).map((c) => {
         const isOpen = open === c.id;

@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import HubSearch from './HubSearch';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { XF_CSS, peso, useMe, XfSkel } from './xfUi';
-import TopupButton from '../../components/TopupButton';
 
 export default function Sponsorships() {
   const nav = useNavigate();
-  const { user, me, reload } = useMe();
+  const { user, reload } = useMe();
   const [funds, setFunds] = useState(null);
   const [amt, setAmt] = useState({});
   const [msg, setMsg] = useState({});
   const [busy, setBusy] = useState('');
-  const [q, setQ] = useState('');
+  const q = '';
   const hit = (s) => !q.trim() || String(s || '').toLowerCase().includes(q.trim().toLowerCase());
   const load = async () => {
     const { data } = await supabase.from('sponsor_funds').select('*').order('created_at', { ascending: false });
@@ -40,8 +38,6 @@ export default function Sponsorships() {
         <div><h1>Sponsorships</h1><p>Help fund XMARKET projects with your Xwallet.</p></div>
       </header>
       <button type="button" onClick={() => nav('/sponsorships/donors')} style={{ width: '100%', marginBottom: 12, padding: 13, border: 0, borderRadius: 14, background: 'var(--card)', color: 'var(--primary)', boxShadow: 'var(--raised-sm)', fontWeight: 700, fontSize: 14 }}>View donors list</button>
-      <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b><TopupButton /></div>
-      <HubSearch value={q} onChange={setQ} placeholder="Search sponsorships" />
       {funds === null && <XfSkel kind="fund" />}
       {funds && !funds.length && <div className="xf-card xf-empty">No fund is open right now.</div>}
       {funds && funds.length > 0 && !funds.some((f) => hit((f.title || '') + ' ' + (f.project || ''))) && <div className="xf-card xf-empty">No matches.</div>}

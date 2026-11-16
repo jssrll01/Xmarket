@@ -1,14 +1,13 @@
 import { money } from '../../lib/currency';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import HubSearch from './HubSearch';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, FileText } from 'lucide-react';
+import { HubHead, XF_CSS } from './xfUi';
+import { Download, FileText } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { rpcPin, showReceipt } from '../../lib/pinBus';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../components/Toast';
 import { CardListSkeleton } from '../../components/Skeleton';
-import TopupButton from '../../components/TopupButton';
 
 const peso = (n) => money(n, 'fixed');
 const size = (b) => (!b ? '' : b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB');
@@ -27,9 +26,8 @@ export default function DigitalProducts() {
   const { show } = useToast();
   const [items, setItems] = useState(null);
   const [mine, setMine] = useState({});
-  const [bal, setBal] = useState(null);
   const [busy, setBusy] = useState('');
-  const [q, setQ] = useState('');
+  const q = '';
   const hit = (s) => !q.trim() || String(s || '').toLowerCase().includes(q.trim().toLowerCase());
   const refs = useRef({});
 
@@ -40,8 +38,6 @@ export default function DigitalProducts() {
       const m = await supabase.rpc('digital_my_files');
       const o = {}; (m.data || []).forEach((x) => { o[x.item_id] = x; });
       setMine(o);
-      const p = await supabase.from('profiles').select('xwallet_balance').eq('id', user.id).maybeSingle();
-      setBal(p.data ? p.data.xwallet_balance : null);
     }
   }, [user]);
   useEffect(() => { load(); }, [load]);
@@ -65,20 +61,9 @@ export default function DigitalProducts() {
   };
 
   return (
-    <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-        <button className="icon-btn" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button>
-        <div>
-          <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Digital Products</h2>
-          <div style={{ fontSize: 13, color: 'var(--muted)' }}>Pay with Xwallet. Download right after payment.</div>
-        </div>
-      </div>
-      {user && bal !== null && (
-        <div className="card neu-bal" style={{ padding: 14, marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: 14 }}>Xwallet balance</span><span style={{ display: 'inline-flex', alignItems: 'center' }}><b style={{ color: '#1D4ED8', fontSize: 18 }}>{peso(bal)}</b><TopupButton /></span>
-        </div>
-      )}
-      <HubSearch value={q} onChange={setQ} placeholder="Search digital products" />
+    <div className="page-enter xf">
+      <style>{XF_CSS}</style>
+      <HubHead title="Digital Products" sub="Pay with Xwallet. Download right after payment." />
       {items === null && <CardListSkeleton count={4} />}
       {items && items.length === 0 && <div className="card" style={{ padding: 28, textAlign: 'center', color: 'var(--muted)' }}>No digital products yet.</div>}
       {items && items.length > 0 && !items.some((it) => hit(it.title)) && <div className="card" style={{ padding: 28, textAlign: 'center', color: 'var(--muted)' }}>No matches.</div>}

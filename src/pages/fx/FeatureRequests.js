@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowLeft, ThumbsUp } from 'lucide-react';
+import { HubHead, XF_CSS } from '../xf/xfUi';
+import { CardListSkeleton } from '../../components/Skeleton';
+import { ThumbsUp } from 'lucide-react';
 import { fx, S, when } from '../../lib/fx';
 
 export default function FeatureRequests() {
@@ -30,10 +31,9 @@ export default function FeatureRequests() {
   const open = (rows || []).filter((r) => r.is_open);
   const closed = (rows || []).filter((r) => !r.is_open).sort((a, b) => b.votes - a.votes);
   return (
-    <div className="page-enter" style={S.page}>
-      <Link to="/digital-hub" style={S.back}><ArrowLeft size={16} /> Digital Hub</Link>
-      <h1 style={S.h1}>Feature Requests</h1>
-      <p style={S.sub}>Vote on what we build next. Each option runs for a week, then the result is shown.</p>
+    <div className="page-enter xf">
+      <style>{XF_CSS}</style>
+      <HubHead title="Feature Requests" sub="Vote on what we build next. Each option runs for a week, then the result is shown." />
       {err && <div style={S.err}>{err}</div>}
       {isCr && (
         <div style={S.card}>
@@ -44,7 +44,7 @@ export default function FeatureRequests() {
           <div style={{ ...S.muted, marginTop: 8 }}>One option per week. Everyone is notified when you post.</div>
         </div>
       )}
-      {rows === null && <div style={S.muted}>Loading…</div>}
+      {rows === null && <CardListSkeleton count={3} />}
       {rows && !open.length && !err && <div style={{ ...S.card, textAlign: 'center', ...S.muted }}>No open votes right now.</div>}
       {open.map((r) => (
         <div key={r.id} style={S.card}>

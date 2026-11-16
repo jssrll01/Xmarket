@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import HubSearch from './HubSearch';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { XF_CSS, peso, useMe, XfSkel } from './xfUi';
-import TopupButton from '../../components/TopupButton';
 import PollShare from '../../components/PollShare';
 
 export default function DemandPolls() {
   const nav = useNavigate();
-  const { user, me, reload } = useMe();
+  const { user, reload } = useMe();
   const [polls, setPolls] = useState(null);
   const [mine, setMine] = useState({});
   const [res, setRes] = useState({});
   const [msg, setMsg] = useState({});
   const [fresh, setFresh] = useState({});
-  const [q, setQ] = useState('');
+  const q = '';
   const hit = (s) => !q.trim() || String(s || '').toLowerCase().includes(q.trim().toLowerCase());
   const load = async () => {
     const { data } = await supabase.from('demand_polls').select('*').order('created_at', { ascending: false });
@@ -48,8 +46,6 @@ export default function DemandPolls() {
         <div><h1>Demand Polls</h1><p>Vote on what XMARKET should add. Earn Xwallet rewards.</p></div>
       </header>
       <button type="button" onClick={() => nav('/demand-polls/results')} style={{ width: '100%', marginBottom: 12, padding: 13, border: 0, borderRadius: 14, background: 'var(--card)', color: 'var(--primary)', boxShadow: 'var(--raised-sm)', fontWeight: 700, fontSize: 14 }}>View poll results</button>
-      <div className="xf-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b><TopupButton /></div>
-      <HubSearch value={q} onChange={setQ} placeholder="Search polls" />
       {polls === null && <XfSkel kind="polls" />}
       {polls && !polls.length && <div className="xf-card xf-empty">No active polls right now.</div>}
       {polls && polls.length > 0 && !polls.some((p) => mine[p.id] === undefined || fresh[p.id]) && <div className="xf-card xf-empty">You have voted on all polls. New polls will show up here.</div>}

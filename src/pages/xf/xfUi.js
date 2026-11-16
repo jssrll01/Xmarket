@@ -1,4 +1,6 @@
 import { money } from '../../lib/currency';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../context/AuthContext';
@@ -194,5 +196,18 @@ export function XfSkel({ kind = 'cards' }) {
         <div style={{ display: 'flex', justifyContent: 'center' }}>{L('80%', 12, 10)}</div>
       </div>
     </div>
+  );
+}
+
+const HEAD_CSS = '.hh{display:flex;align-items:center;gap:14px;margin-bottom:20px}.hh h1{font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.1;margin:0}.hh p{font-size:13.5px;color:#64748B;margin:3px 0 0}';
+export function HubHead({ title, sub }) {
+  const nav = useNavigate();
+  const back = () => (window.history.length > 1 ? nav(-1) : nav('/digital-hub'));
+  return (
+    <header className="hh">
+      <style>{HEAD_CSS}</style>
+      <button onClick={back} className="icon-btn" aria-label="Back"><ArrowLeft size={20} /></button>
+      <div><h1>{title}</h1>{sub && <p>{sub}</p>}</div>
+    </header>
   );
 }

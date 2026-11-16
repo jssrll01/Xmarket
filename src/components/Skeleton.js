@@ -170,3 +170,18 @@ export function GameListSkeleton({ count = 4 }) {
     </div>
   );
 }
+
+export function PageSkeleton({ rows = 3 }) {
+  return (
+    <div className="fade-up" style={{ padding: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+        <div className="sk" style={{ width: 40, height: 40, borderRadius: '50%', flexShrink: 0 }} />
+        <div style={{ flex: 1 }}>
+          <div className="sk sk-line" style={{ width: '45%', height: 20 }} />
+          <div className="sk sk-line" style={{ width: '70%', marginTop: 8 }} />
+        </div>
+      </div>
+      <CardListSkeleton count={rows} />
+    </div>
+  );
+}
