@@ -14,6 +14,8 @@ export default function EmbedBuilder() {
   const [res, setRes] = useState([]);
   const [pick, setPick] = useState(null);
   const [w, setW] = useState(300);
+  const [allowed, setAllowed] = useState(null);
+  useEffect(() => { supabase.rpc('creator_dashboard').then(({ data }) => setAllowed(!!(data && data.ok))); }, []);
 
   useEffect(() => {
     const t = clean(text);
@@ -34,6 +36,19 @@ export default function EmbedBuilder() {
     try { await navigator.clipboard.writeText(code); show('Embed code copied'); } catch (e) { show('Press and hold the code to copy it'); }
   };
 
+  if (allowed === null) return <div className="page-enter" style={{ padding: 16 }}><div className="sk sk-line" style={{ width: 160, height: 18 }} /></div>;
+  if (!allowed) {
+    return (
+      <div className="page-enter" style={{ padding: 16 }}>
+        <button className="icon-btn" aria-label="Back" onClick={() => nav(-1)}><ArrowLeft size={20} /></button>
+        <div className="card" style={{ padding: 24, marginTop: 14, textAlign: 'center' }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 6px' }}>Creator account needed</h2>
+          <div style={{ fontSize: 13, color: 'var(--muted)' }}>Embed a product is for active creators. Join Creator Studio to use it.</div>
+          <button className="btn-primary" style={{ marginTop: 14, padding: '10px 18px' }} onClick={() => nav('/creator-studio')}>Open Creator Studio</button>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 100 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>

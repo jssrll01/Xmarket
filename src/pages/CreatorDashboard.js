@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bell, Users, Clock, TrendingUp, Wallet, ChevronRight, ClipboardList, Link2, Calendar, CheckCircle2, Share2, Pencil, MessageCircle } from 'lucide-react';
+import { ArrowLeft, Bell, Users, Clock, TrendingUp, Wallet, ChevronRight, ClipboardList, Link2, Calendar, CheckCircle2, Share2, Pencil, MessageCircle, Trophy, Code } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import useMyAvatar from '../lib/useMyAvatar';
 import useDmUnread from '../lib/useDmUnread';
@@ -152,6 +152,8 @@ export default function CreatorDashboard() {
           <NavRow icon={ClipboardList} title="New post" sub="Post to XMARKET Socials, once per day" onClick={() => nav('/creator-studio/post')} />
           <NavRow icon={Clock} title="Post history" sub="Your posts, likes and comments" onClick={() => nav('/creator-studio/posts')} />
           <NavRow icon={Bell} title="Notifications" sub="Approvals, commissions and updates" onClick={() => nav('/notifications')} />
+          <NavRow icon={Trophy} title="Referral leaders" sub="Weekly top referrers and badges" onClick={() => nav('/referral-leaders')} />
+          <NavRow icon={Code} title="Embed a product" sub="Copy a product widget for any website" onClick={() => nav('/embed-builder')} />
         </div>
         <div style={card}>
           <div style={{ fontWeight: 800, fontSize: 14, marginBottom: 8 }}>Creator profile</div>

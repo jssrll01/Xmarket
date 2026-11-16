@@ -1,4 +1,4 @@
-import { BookOpen, Lightbulb, Trophy } from 'lucide-react';
+import { BookOpen, Lightbulb } from 'lucide-react';
 import PointsExpiryBanner from '../../components/fx/PointsExpiryBanner';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -31,8 +31,6 @@ export default function DigitalHub() {
   const { me } = useMe();
   const [st, setSt] = useState(null);
   const [q, setQ] = useState('');
-  const [isCr, setIsCr] = useState(false);
-  useEffect(() => { supabase.rpc('fx_is_creator').then(({ data }) => setIsCr(data === true)); }, []);
   useEffect(() => {
     (async () => {
       try {
@@ -64,7 +62,6 @@ export default function DigitalHub() {
     ['/freelance', 'Freelance Work', Briefcase, 'Find work', 'jobs gig work'],
     ['/courses', 'Courses', BookOpen, 'Learn', 'course lesson learn study'],
     ['/feature-requests', 'Feature Requests', Lightbulb, 'Vote on ideas', 'feature request vote idea'],
-    ...(isCr ? [['/referral-leaders', 'Referral Leaders', Trophy, 'Weekly badges', 'referral leader badge creator']] : []),
   ];
   const term = q.trim().toLowerCase();
   const shown = term ? ITEMS.filter((i) => (i[1] + ' ' + (i[3] || '') + ' ' + i[4]).toLowerCase().includes(term)) : ITEMS;
