@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -13,7 +14,7 @@ export default function YouMayAlsoLike({ excludeIds = [], title = 'You may also 
     let alive = true;
     supabase
       .from('products')
-      .select('id, legacy_id, name, images, store, variant_config, variant_prices, variant_stock')
+      .select('id, legacy_id, name, images, store, variant_config, variant_prices, variant_stock, compare_at_price')
       .limit(40)
       .then(({ data }) => {
         if (!alive) return;
@@ -42,7 +43,7 @@ export default function YouMayAlsoLike({ excludeIds = [], title = 'You may also 
             <div style={{ padding: 12 }}>
               <div style={{ fontSize: 13, fontWeight: 700, lineHeight: 1.35, marginBottom: 4 }}>{p.name}</div>
               {p.store && <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>{p.store}</div>}
-              <div style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(p).display}</div>
+              <div style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(p).display}</div>{Number(p.compare_at_price) > priceRange(p).min && priceRange(p).min > 0 && <div style={{ fontSize: 11, color: 'var(--muted)', textDecoration: 'line-through' }}>{money(p.compare_at_price)}</div>}
             </div>
           </Link>
         ))}

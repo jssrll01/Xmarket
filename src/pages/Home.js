@@ -875,7 +875,7 @@ export default function Home() {
                     {p.verified && <BadgeCheck size={12} color="#2563EB" />}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 6, flexWrap: 'nowrap' }}>
-                    <span style={{ fontWeight: 800, fontSize: 15, whiteSpace: 'nowrap' }}>{priceRange(p).display}</span>
+                    <span style={{ fontWeight: 800, fontSize: 15, whiteSpace: 'nowrap' }}>{priceRange(p).display}</span>{Number(p.compare_at_price) > priceRange(p).min && priceRange(p).min > 0 && <span style={{ fontSize: 11, color: 'var(--muted)', textDecoration: 'line-through', whiteSpace: 'nowrap' }}>{money(p.compare_at_price)}</span>}
                     <DiscountTag price={priceRange(p).min} />
                   </div>
                 </div>

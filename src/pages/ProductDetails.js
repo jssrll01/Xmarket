@@ -268,7 +268,7 @@ export default function ProductDetails() {
         </div>
         <h2>{product.name}</h2>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 24, fontWeight: 'bold' }}>{displayPrice}</span>
+          <span style={{ fontSize: 24, fontWeight: 'bold' }}>{displayPrice}</span>{Number(product && product.compare_at_price) > firstNumber(displayPrice) && firstNumber(displayPrice) > 0 && <span style={{ fontSize: 15, color: 'var(--muted)', textDecoration: 'line-through', marginLeft: 8 }}>{money(product.compare_at_price)}</span>}
           <DiscountTag price={firstNumber(displayPrice)} />
           
         </div>

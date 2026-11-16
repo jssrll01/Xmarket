@@ -26,7 +26,7 @@ export async function fetchProducts() {
     description: p.description,
     variants: p.variants || [],
     variant_config: p.variant_config || {},
-    variant_prices: p.variant_prices || {},
+    variant_prices: p.variant_prices || {}, compare_at_price: p.compare_at_price || null,
     variant_stock: p.variant_stock || {},
     totalStock: totalStock({
       variant_config: p.variant_config,
@@ -81,7 +81,7 @@ function mapProduct(p) {
     description: p.description,
     variants: p.variants || [],
     variant_config: p.variant_config || {},
-    variant_prices: p.variant_prices || {},
+    variant_prices: p.variant_prices || {}, compare_at_price: p.compare_at_price || null,
     variant_stock: p.variant_stock || {},
     totalStock: totalStock({
       variant_config: p.variant_config,

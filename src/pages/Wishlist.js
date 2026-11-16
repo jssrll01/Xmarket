@@ -1,3 +1,4 @@
+import { money } from '../lib/currency';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Heart, Store } from 'lucide-react';
@@ -19,7 +20,7 @@ export default function Wishlist() {
     if (!user) { nav('/signin', { replace: true }); return; }
     supabase
       .from('wishlists')
-      .select('id, product:products(id, legacy_id, name, images, store, sold, variant_config, variant_prices, variant_stock)')
+      .select('id, product:products(id, legacy_id, name, images, store, sold, variant_config, variant_prices, variant_stock, compare_at_price)')
       .eq('user_id', user.id)
       .then(({ data }) => { setItems(data || []); setLoading(false); });
   }, [user, nav]);
@@ -84,7 +85,7 @@ export default function Wishlist() {
                     </div>
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(w.product).display}</span>
+                    <span style={{ fontWeight: 800, fontSize: 15 }}>{priceRange(w.product).display}</span>{Number(w.product.compare_at_price) > priceRange(w.product).min && priceRange(w.product).min > 0 && <span style={{ fontSize: 11, color: 'var(--muted)', textDecoration: 'line-through', marginLeft: 6 }}>{money(w.product.compare_at_price)}</span>}
                     {out
                       ? <span style={{ fontSize: 10.5, fontWeight: 700, color: '#991B1B' }}>Sold out</span>
                       : (w.product.sold > 0 && <span style={{ fontSize: 10.5, color: 'var(--muted)' }}>{w.product.sold} sold</span>)}
