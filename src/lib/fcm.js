@@ -99,7 +99,7 @@ export function autoRefreshPush() {
         const has = rows.some((r) => String(r.token).charAt(0) === '{');
         if (old.length && !has) {
           const res = await requestPushPermission({ userId: u.id });
-          if (res.ok) await supabase.from('push_tokens').delete().eq('user_id', u.id).in('id', old.map((r) => r.id));
+          if (!res.ok) return; await supabase.from('push_tokens').delete().eq('user_id', u.id).in('id', old.map((r) => r.id));
         }
         localStorage.setItem('xm_wp1', '1');
       } catch (e) {}
