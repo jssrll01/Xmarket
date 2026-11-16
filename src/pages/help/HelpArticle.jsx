@@ -1,3 +1,4 @@
+import { CardListSkeleton as LoadSk } from '../../components/Skeleton';
 import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { loadHelpBody } from '../../lib/cfg';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -177,8 +178,8 @@ export default function HelpArticle() {
             alignItems: 'center', justifyContent: 'center',
             padding: 60, gap: 12
           }}>
-            <span className="spinner" style={{ width: 24, height: 24, borderWidth: 3 }} />
-            <div style={{ color: 'var(--text-dim)', fontSize: 13 }}>Loading article...</div>
+            <LoadSk count={3} />
+            <LoadSk count={3} />
           </div>
         }>
           <Component />

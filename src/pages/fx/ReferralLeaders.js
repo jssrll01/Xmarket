@@ -1,3 +1,4 @@
+import { CardListSkeleton as LoadSk } from '../../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Trophy } from 'lucide-react';
@@ -16,7 +17,7 @@ export default function ReferralLeaders() {
       <h1 style={S.h1}>Referral Leaders</h1>
       <p style={S.sub}>The creator with the most active referrals each week earns a Referral Leader badge.</p>
       {err && <div style={S.err}>{err}</div>}
-      {!d && !err && <div style={S.muted}>Loading…</div>}
+      {!d && !err && <LoadSk count={3} />}
       {d && (
         <>
           <div style={S.card}>

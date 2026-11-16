@@ -1,3 +1,4 @@
+import { CardListSkeleton as LoadSk } from '../components/Skeleton';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Heart, MessageCircle, Share2, Send, X, Play, Gift } from 'lucide-react';
@@ -110,7 +111,7 @@ function Player({ v, active, near }) {
       <img decoding="async" className="vv-poster" src={thumb(v)} alt="" />
       {near && <iframe ref={ref} className={playing ? 'on' : ''} title={v.title || 'video'} src={src} onLoad={() => { setReady(true); const w = ref.current && ref.current.contentWindow; if (w) w.postMessage(JSON.stringify({ event: 'listening', id: 1, channel: 'widget' }), '*'); }} allow="autoplay; encrypted-media" tabIndex={-1} />}
       <div className="vv-mask" />
-      {active && !playing && !paused && <div className="vv-spin" />}
+      {active && !playing && !paused && <LoadSk count={3} />}
       <div className="vv-shield" onClick={tapIt}>
         {flash && <span className="vv-playic"><Play size={44} fill="#fff" color="#fff" /></span>}
       </div>
