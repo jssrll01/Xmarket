@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone, MapPin,
-  Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft } from 'lucide-react';
+  Gift, Heart, Settings, ChevronRight, Package, Home, ArrowLeft, Code } from 'lucide-react';
 import { Sparkles as CreatorIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
@@ -188,6 +188,12 @@ export default function Profile() {
       <Link to="/account" style={menuRow}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <Settings size={18} color="var(--primary)" /> Account settings
+        </span>
+        <ChevronRight size={16} color="var(--muted)" />
+      </Link>
+      <Link to="/embed-builder" style={menuRow}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Code size={18} color="var(--primary)" /> Embed a product
         </span>
         <ChevronRight size={16} color="var(--muted)" />
       </Link>
