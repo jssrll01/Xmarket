@@ -1,5 +1,6 @@
 import { money } from '../lib/currency';
 import VipBadge from '../components/VipBadge';
+import { ProfileProgress } from '../components/FeatureBits';
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -108,6 +109,7 @@ export default function Profile() {
         </button>
       </div>
 
+      <ProfileProgress />
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 12 }}>
         {[['Orders', stats.orders, '/orders'], ['Wishlist', stats.wishlist, '/wishlist'], ['Following', stats.following, '/following']].map(([k, v, to]) => (
           <Link key={k} to={to} className="card" style={{ padding: '12px 8px', textAlign: 'center', textDecoration: 'none', color: 'inherit' }}>

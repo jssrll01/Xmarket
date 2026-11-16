@@ -18,6 +18,7 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import { supabase } from '../lib/supabase';
 import SmartImage from '../components/SmartImage';
+import { DeliveryEstimate } from '../components/FeatureBits';
 import { ProductDetailSkeleton } from '../components/Skeleton';
 import ProductReviews from '../components/ProductReviews';
 
@@ -274,6 +275,7 @@ export default function ProductDetails() {
           <DiscountTag price={firstNumber(displayPrice)} />
           
         </div>
+        <DeliveryEstimate preorder={!!product.preorder} />
         <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 6 }}>
           <span>{product.sold} sold</span>
           <span style={{ margin: '0 6px', color: '#CBD5E1' }}>·</span>

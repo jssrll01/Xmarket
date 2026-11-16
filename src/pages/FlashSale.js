@@ -4,6 +4,7 @@ import { ArrowLeft, Zap, Timer, TrendingDown, Sparkles, Clock } from 'lucide-rea
 import { supabase } from '../lib/supabase';
 import SmartImage from '../components/SmartImage';
 import { priceRange } from '../lib/variants';
+import { FlashCountdown } from '../components/FeatureBits';
 
 const SORTS = [
   { key: 'new',  label: 'Newest first',  icon: Clock },
@@ -16,15 +17,16 @@ export default function FlashSale() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sort, setSort] = useState('new');
+  const [rev, setRev] = useState(0);
 
   useEffect(() => {
-    supabase.from('products')
+    Promise.resolve(supabase.rpc('flash_tick')).catch(() => null).then(() => supabase.from('products')
       .select('*')
       .eq('flash_sale', true)
       .order('created_at', { ascending: false })
-      .limit(60)
+      .limit(60))
       .then(({ data }) => { setProducts(data || []); setLoading(false); });
-  }, []);
+  }, [rev]);
 
   const stats = useMemo(() => {
     if (!products.length) return { count: 0, freshCount: 0 };
@@ -71,6 +73,7 @@ export default function FlashSale() {
             <div className="fs-unit-num">{stats.count}</div>
             <div className="fs-unit-lab">Live deals</div>
           </div>
+          <FlashCountdown onRotate={() => setRev((r) => r + 1)} />
         </div>
       </div>
 

@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import { fetchWallet } from '../lib/xwallet';
 import { useVip, purchaseVip, fetchVipHistory, VIP_PRICE, VIP_DAYS } from '../lib/vip';
 import VipBadge from '../components/VipBadge';
+import { PricePerDay } from '../components/FeatureBits';
 import '../vip.css';
 
 const peso = (n) => money(n, 'fixed');
@@ -91,6 +92,7 @@ function Purchase({ user, status, onJoined }) {
         <h2>XMARKET VIP</h2>
         <p>Premium perks for the way you shop.</p>
         <div className="vip-price"><span>{symbol()}</span>{amount(VIP_PRICE)}<small> / {VIP_DAYS} days</small></div>
+        <PricePerDay />
       </div>
 
       <Perks />
