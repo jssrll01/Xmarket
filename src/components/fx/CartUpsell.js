@@ -15,7 +15,7 @@ export default function CartUpsell({ items }) {
     let a = true;
     fx('fx_upsell_for', { p_ids: ids }).then((r) => { if (a) setRows(Array.isArray(r) ? r : []); }).catch(() => { if (a) setRows([]); });
     return () => { a = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [key]);
   if (!rows.length) return null;
   return (
