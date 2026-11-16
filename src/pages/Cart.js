@@ -96,7 +96,7 @@ export default function Cart() {
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 700 }}>{i.name}</div>
             {i.variant && <div style={{ fontSize: 12, color: 'var(--muted)' }}>Variant: {comboLabel(parseCartVariant(i.variant))}</div>}
-            <div style={{ fontWeight: 800, marginTop: 4 }}>{money(i.price, 'raw')}</div>
+            <div style={{ fontWeight: 800, marginTop: 4 }}>{money(i.price, 'raw')}{Number(i.compare_at_price) > Number(i.price) && Number(i.price) > 0 && <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--muted)', textDecoration: 'line-through', marginLeft: 6 }}>{money(i.compare_at_price, 'raw')}</span>}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
               <button onClick={() => dispatch({ type: 'DECREASE', payload: i.rowId })} className="btn-ghost" style={{ padding: 7 }}>
                 <Minus size={14} />
