@@ -1,3 +1,4 @@
+import SpendMilestone from '../components/fx/SpendMilestone';
 import { money } from '../lib/currency';
 import { useVip } from '../lib/vip';
 import { useCfg, loadPayments, loadDeliveries } from '../lib/cfg';
@@ -691,6 +692,7 @@ export default function Checkout() {
         )}
 
         <h3 style={{ marginBottom: 8 }}>Order Summary</h3>
+        <SpendMilestone current={discount} />
         <OrderTotals showItems items={items} subtotal={subtotal} productDiscount={productDiscount} discountTiers={discountTiers} promoDiscount={promoDiscount} xcardDiscount={xcardDiscount} shipping={shipping} total={total} />
       </div>
 
@@ -710,3 +712,5 @@ export default function Checkout() {
     </>
   );
 }
+
+// fx-patched

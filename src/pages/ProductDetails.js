@@ -1,3 +1,4 @@
+import LiveViewers from '../components/fx/LiveViewers';
 import { money } from '../lib/currency';
 import DiscountTag from '../components/DiscountTag';
 import ProductQA from '../components/ProductQA';
@@ -258,6 +259,7 @@ export default function ProductDetails() {
             ))}
           </div>
         )}
+        <LiveViewers productId={id} />
       </div>
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
@@ -376,3 +378,5 @@ export default function ProductDetails() {
     </div>
   );
 }
+
+// fx-patched

@@ -1,3 +1,4 @@
+import CartUpsell from '../components/fx/CartUpsell';
 import { money } from '../lib/currency';
 import OrderTotals from '../components/OrderTotals';
 import { itemDiscount, loadDiscountRules } from '../lib/discount';
@@ -121,6 +122,7 @@ export default function Cart() {
       ))}
 
       <div className="card" style={{ padding: 16, marginTop: 12 }}>
+        <CartUpsell items={items} />
         <OrderTotals hideShipping items={items} subtotal={subtotal} productDiscount={productDiscount} discountTiers={discountTiers} total={total} />
       </div>
 
@@ -156,3 +158,5 @@ export default function Cart() {
     </div>
   );
 }
+
+// fx-patched

@@ -1,3 +1,5 @@
+import { BookOpen, Lightbulb, Trophy } from 'lucide-react';
+import PointsExpiryBanner from '../../components/fx/PointsExpiryBanner';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Zap, Package, CheckSquare, Heart, Store, Newspaper, GraduationCap, Briefcase, Search } from 'lucide-react';
@@ -29,6 +31,8 @@ export default function DigitalHub() {
   const { me } = useMe();
   const [st, setSt] = useState(null);
   const [q, setQ] = useState('');
+  const [isCr, setIsCr] = useState(false);
+  useEffect(() => { supabase.rpc('fx_is_creator').then(({ data }) => setIsCr(data === true)); }, []);
   useEffect(() => {
     (async () => {
       try {
@@ -58,6 +62,9 @@ export default function DigitalHub() {
     ['/articles', 'Weekly Articles', Newspaper, 'New weekly', 'news read blog'],
     ['/scholarships', 'Scholarships', GraduationCap, 'Apply', 'school study grant'],
     ['/freelance', 'Freelance Work', Briefcase, 'Find work', 'jobs gig work'],
+    ['/courses', 'Courses', BookOpen, 'Learn', 'course lesson learn study'],
+    ['/feature-requests', 'Feature Requests', Lightbulb, 'Vote on ideas', 'feature request vote idea'],
+    ...(isCr ? [['/referral-leaders', 'Referral Leaders', Trophy, 'Weekly badges', 'referral leader badge creator']] : []),
   ];
   const term = q.trim().toLowerCase();
   const shown = term ? ITEMS.filter((i) => (i[1] + ' ' + (i[3] || '') + ' ' + i[4]).toLowerCase().includes(term)) : ITEMS;
@@ -66,6 +73,7 @@ export default function DigitalHub() {
       <style>{CSS}</style>
       <header className="hb-head"><h1>Digital Hub</h1><p>Drops, products, polls and more.</p></header>
       <div className="hb-bal"><span>Xwallet balance</span><b>{peso(me && me.xwallet_balance)}</b><TopupButton /></div>
+      <PointsExpiryBanner />
       <label className="hb-s"><Search size={16} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search Hub features" aria-label="Search Hub features" /></label>
       <div className="hb-grid">
         {shown.map(([to, t, Ic, tg]) => (
@@ -83,3 +91,5 @@ export default function DigitalHub() {
     </div>
   );
 }
+
+// fx-patched

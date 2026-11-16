@@ -1,3 +1,6 @@
+import Courses from './pages/fx/Courses';
+import FeatureRequests from './pages/fx/FeatureRequests';
+import ReferralLeaders from './pages/fx/ReferralLeaders';
 import XCoin from './XCoin';
 import PinHost from './components/PinHost';
 import ChangePin from './pages/ChangePin';
@@ -205,6 +208,9 @@ function Router() {
         <Route path="/sponsorships" element={<Sponsorships />} />
         <Route path="/sponsorships/donors" element={<SponsorDonors />} />
         <Route path="/digital-hub" element={<><DigitalHub /><SocialBoosterEntry /></>} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/feature-requests" element={<FeatureRequests />} />
+        <Route path="/referral-leaders" element={<ReferralLeaders />} />
         <Route path="/global-chat" element={<GlobalChat />} />
         <Route path="/chat-search" element={<ChatSearch />} />
         <Route path="/socials" element={<Socials />} />
@@ -271,3 +277,5 @@ export default function App() {
     </AuthProvider>
   );
 }
+
+// fx-patched

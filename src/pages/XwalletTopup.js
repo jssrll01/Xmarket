@@ -1,3 +1,4 @@
+import TopupBonusNote from '../components/fx/TopupBonusNote';
 import { money } from '../lib/currency';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
@@ -126,6 +127,7 @@ export default function XwalletTopup() {
           style={{ width: '100%', padding: 12, marginTop: 6, borderRadius: 10, border: '1px solid var(--border)', fontSize: 14, background: 'var(--bg)', color: 'var(--muted)' }} />
       </div>
 
+      <TopupBonusNote payment={payment} amount={amount} />
       {/* Payment method */}
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <h3 style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>Payment method</h3>
@@ -197,3 +199,5 @@ export default function XwalletTopup() {
     </div>
   );
 }
+
+// fx-patched
