@@ -1,3 +1,5 @@
+import PwaInstallBanner from './components/PwaInstallBanner';
+import { startTrustSeals } from './lib/trustSeals';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
@@ -21,10 +23,12 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+startTrustSeals();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
     <App />
+    <PwaInstallBanner />
   </BrowserRouter>
 );
 

@@ -30,6 +30,8 @@ import Home from './pages/Home';
 import ProductDetails from './pages/ProductDetails';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import EmbedProduct from './pages/EmbedProduct';
+import EmbedBuilder from './pages/EmbedBuilder';
 import Notifications from './pages/Notifications';
 import CustomerService from './pages/CustomerService';
 import Help from './pages/Help';
@@ -159,6 +161,8 @@ function Router() {
         <Route path="/store/:store" element={<SellerProfile />} />
         <Route path="/rewards" element={<Rewards />} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/embed/:id" element={<EmbedProduct />} />
+        <Route path="/embed-builder" element={<EmbedBuilder />} />
         <Route path="/creator-studio" element={<CreatorStudio />} />
         <Route path="/creator-studio/referrals" element={<CreatorReferrals />} />
         <Route path="/creator-studio/followers" element={<CreatorFollowers />} />

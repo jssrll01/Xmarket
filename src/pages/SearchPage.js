@@ -1,18 +1,43 @@
 import { money } from '../lib/currency';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Search, X, Clock, Trash2, TrendingUp, PackageSearch } from 'lucide-react';
+import { ArrowLeft, ArrowUpLeft, Search, X, Clock, Trash2, TrendingUp, PackageSearch, Tag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import useRecentSearches from '../hooks/useRecentSearches';
 import { imgUrl } from '../lib/img';
 import VoiceButton from '../components/VoiceButton';
 import LongPressPreview from '../components/LongPressPreview';
+import AnchorPrice from '../components/AnchorPrice';
 
 const peso = (n) => money(n, 'plain');
 const clean = (s) => String(s || '').replace(/[%,()*\\]/g, ' ').trim();
 const minPrice = (vp) => { const v = Object.values(vp || {}).map(Number).filter(n => n > 0); return v.length ? Math.min(...v) : 0; };
 const SORTS = [['rel', 'Relevance'], ['new', 'Latest'], ['sold', 'Top Sales'], ['pa', 'Price ↑'], ['pd', 'Price ↓']];
 const COLS = 'id,name,category,store,images,sold,variant_prices,created_at,description';
+const COLS2 = COLS + ',compare_at_price';
+
+// Works before and after the compare_at_price column exists.
+async function fetchProducts(build) {
+  let r = await build(COLS2);
+  if (r.error) r = await build(COLS);
+  return r;
+}
+
+function lev(a, b) {
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) {
+    const cur = [i];
+    for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[b.length];
+}
+
+function Hl({ s, q }) {
+  const i = q ? s.toLowerCase().indexOf(q.toLowerCase()) : -1;
+  if (i < 0) return <>{s}</>;
+  return <>{s.slice(0, i)}<b>{s.slice(i, i + q.length)}</b>{s.slice(i + q.length)}</>;
+}
 
 function ProductRow({ title, items }) {
   if (!items || items.length === 0) return null;
@@ -27,7 +52,7 @@ function ProductRow({ title, items }) {
             </div>
             <div style={{ padding: 8 }}>
               <div style={{ fontSize: 12, fontWeight: 600, lineHeight: 1.3, height: 32, overflow: 'hidden' }}>{p.name}</div>
-              <div style={{ fontWeight: 800, fontSize: 14, color: '#DC2626', marginTop: 4 }}>{peso(minPrice(p.variant_prices))}</div>
+              <div style={{ marginTop: 4 }}><AnchorPrice price={minPrice(p.variant_prices)} compareAt={p.compare_at_price} size="small" /></div>
             </div>
           </Link>
         ))}
@@ -48,6 +73,8 @@ export default function SearchPage() {
   const [popular, setPopular] = useState([]);
   const [recs, setRecs] = useState([]);
   const [seen, setSeen] = useState([]);
+  const [related, setRelated] = useState([]);
+  const [zero, setZero] = useState({ for: '', fix: '', similar: [] });
   const { recent, add, remove, clear } = useRecentSearches();
   const inputRef = useRef(null);
 
@@ -65,32 +92,85 @@ export default function SearchPage() {
       .then(({ data }) => setPopular((data || []).map(r => r.name)));
   }, []);
 
+  // Autocomplete: product names (best matches first) plus matching categories.
   useEffect(() => {
     const t = clean(text);
     if (q || t.length < 2) { setSugg([]); return undefined; }
+    let alive = true;
     const h = setTimeout(async () => {
-      const { data } = await supabase.from('products').select('name').ilike('name', '%' + t + '%').limit(6);
-      setSugg((data || []).map(r => r.name));
+      const [a, b] = await Promise.all([
+        supabase.from('products').select('name').ilike('name', '%' + t + '%').order('sold', { ascending: false }).limit(14),
+        supabase.from('products').select('category').ilike('category', '%' + t + '%').limit(40),
+      ]);
+      if (!alive) return;
+      const low = t.toLowerCase();
+      const names = [...new Set((a.data || []).map((r) => r.name))];
+      names.sort((x, y) => (x.toLowerCase().startsWith(low) ? 0 : 1) - (y.toLowerCase().startsWith(low) ? 0 : 1));
+      const cats = [...new Set((b.data || []).map((r) => r.category).filter(Boolean))].slice(0, 2);
+      setSugg(names.slice(0, 5).map((n) => ({ t: n, kind: 'product' })).concat(cats.map((c) => ({ t: c, kind: 'category' }))));
     }, 200);
-    return () => clearTimeout(h);
+    return () => { alive = false; clearTimeout(h); };
   }, [text, q]);
 
   useEffect(() => {
     const t = clean(q);
-    if (!t) { setRows([]); return; }
+    if (!t) { setRows([]); return undefined; }
     let alive = true;
     setLoading(true);
     const p = '%' + t + '%';
-    supabase.from('products').select(COLS)
-      .or(`name.ilike.${p},category.ilike.${p},store.ilike.${p}`).limit(80)
-      .then(({ data }) => { if (alive) { setRows(data || []); setLoading(false); } });
+    fetchProducts((cols) => supabase.from('products').select(cols).or(`name.ilike.${p},category.ilike.${p},store.ilike.${p}`).limit(80))
+      .then(({ data }) => {
+        if (!alive) return;
+        const found = data || [];
+        setRows(found); setLoading(false);
+        supabase.rpc('log_search', { p_term: t, p_hits: found.length }).then(() => {}, () => {});
+      });
     return () => { alive = false; };
   }, [q]);
+
+  // People also search
+  useEffect(() => {
+    const t = clean(q);
+    if (!t) { setRelated([]); return undefined; }
+    let alive = true;
+    supabase.rpc('related_searches', { p_term: t, p_limit: 8 }).then(({ data }) => { if (alive) setRelated(Array.isArray(data) ? data : []); }, () => {});
+    return () => { alive = false; };
+  }, [q]);
+
+  // Zero results: spelling suggestion and similar products.
+  useEffect(() => {
+    if (!q || loading || rows.length > 0) return undefined;
+    let alive = true;
+    (async () => {
+      const words = clean(q).toLowerCase().split(/\s+/).filter((w) => w.length >= 2);
+      const pool = await supabase.from('products').select('name,category').order('sold', { ascending: false }).limit(300);
+      const vocab = new Set();
+      (pool.data || []).forEach((r) => (r.name + ' ' + (r.category || '')).toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).forEach((w) => { if (w.length >= 3) vocab.add(w); }));
+      const fixed = words.map((w) => {
+        if (w.length < 3 || vocab.has(w)) return w;
+        const lim = w.length > 5 ? 2 : 1;
+        let best = w; let bd = lim + 1;
+        vocab.forEach((v) => { if (Math.abs(v.length - w.length) > lim) return; const x = lev(w, v); if (x < bd) { bd = x; best = v; } });
+        return best;
+      });
+      const fix = fixed.join(' ') !== words.join(' ') ? fixed.join(' ') : '';
+      const terms = (fix ? fixed : words).filter((w) => w.length >= 3);
+      let similar = [];
+      if (terms.length) {
+        const clause = terms.map((w) => `name.ilike.%${w}%,category.ilike.%${w}%`).join(',');
+        const r = await fetchProducts((cols) => supabase.from('products').select(cols).or(clause).order('sold', { ascending: false }).limit(12));
+        similar = r.data || [];
+      }
+      if (alive) setZero({ for: q, fix, similar });
+    })();
+    return () => { alive = false; };
+  }, [q, loading, rows]);
 
   const go = (term) => {
     const t = (term || '').trim();
     if (!t) return;
     add(t); setParams({ q: t });
+    window.scrollTo(0, 0);
   };
 
   const list = useMemo(() => {
@@ -105,7 +185,22 @@ export default function SearchPage() {
     return a;
   }, [rows, sort, q]);
 
+  const also = useMemo(() => {
+    const low = clean(q).toLowerCase();
+    const base = related.length ? related : [...new Set(rows.map((r) => r.category).filter(Boolean))];
+    return [...new Set([...base, ...popular])].filter((t) => t && t.toLowerCase() !== low).slice(0, 10);
+  }, [related, rows, popular, q]);
+
   const chip = { padding: '8px 14px', borderRadius: 999, background: 'var(--card)', border: '1px solid var(--border)', fontSize: 13, fontWeight: 600, whiteSpace: 'nowrap', cursor: 'pointer' };
+  const zr = zero.for === q ? zero : { fix: '', similar: [] };
+  const alsoBlock = also.length > 0 ? (
+    <div style={{ padding: '16px 16px 4px' }}>
+      <b style={{ fontSize: 15, display: 'block', marginBottom: 10 }}>People also search</b>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        {also.map((t) => <span key={t} style={chip} onClick={() => go(t)}>{t.length > 28 ? t.slice(0, 28) + '…' : t}</span>)}
+      </div>
+    </div>
+  ) : null;
 
   return (
     <div style={{ minHeight: '100vh', paddingBottom: 40 }}>
@@ -123,10 +218,16 @@ export default function SearchPage() {
 
       {!q && (
         <div style={{ padding: '4px 16px' }}>
-          {sugg.length > 0 ? sugg.map(n => (
-            <button key={n} onClick={() => go(n)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', padding: '12px 0', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
-              <Search size={15} color="#94a3b8" /> {n}
-            </button>
+          {sugg.length > 0 ? sugg.map((s) => (
+            <div key={s.kind + s.t} style={{ display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
+              <button onClick={() => go(s.t)} style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0, textAlign: 'left', padding: '12px 0', fontSize: 14 }}>
+                {s.kind === 'category' ? <Tag size={15} color="#94a3b8" /> : <Search size={15} color="#94a3b8" />}
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <Hl s={s.t} q={clean(text)} />{s.kind === 'category' && <span style={{ color: 'var(--muted)', fontSize: 12 }}> · category</span>}
+                </span>
+              </button>
+              <button aria-label="Use this text" onClick={() => { setText(s.t); if (inputRef.current) inputRef.current.focus(); }} style={{ padding: 10, color: '#94a3b8' }}><ArrowUpLeft size={16} /></button>
+            </div>
           )) : (<>
             {recent.length > 0 && (<>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '10px 0' }}>
@@ -173,7 +274,7 @@ export default function SearchPage() {
               </div>
               <div style={{ padding: 10 }}>
                 <div style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.3, height: 34, overflow: 'hidden' }}>{p.name}</div>
-                <div style={{ fontWeight: 800, fontSize: 16, color: '#DC2626', marginTop: 6 }}>{peso(p.price)}</div>
+                <div style={{ marginTop: 6 }}><AnchorPrice price={p.price} compareAt={p.compare_at_price} /></div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>
                   <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '60%' }}>{p.store}</span>
                   <span>{p.sold || 0} sold</span>
@@ -182,13 +283,18 @@ export default function SearchPage() {
             </Link></LongPressPreview>
           ))}
         </div>
-        {!loading && list.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px 24px', color: 'var(--muted)' }}>
+        {!loading && list.length > 0 && alsoBlock}
+        {!loading && list.length === 0 && (<>
+          <div style={{ textAlign: 'center', padding: '40px 24px 8px', color: 'var(--muted)' }}>
             <PackageSearch size={44} />
-            <div style={{ fontWeight: 800, color: 'var(--text)', marginTop: 10 }}>No products found</div>
-            <div style={{ fontSize: 13, marginTop: 4 }}>Try a different keyword or check the spelling.</div>
+            <div style={{ fontWeight: 800, color: 'var(--text)', marginTop: 10, fontSize: 16 }}>No results for “{q}”</div>
+            {zr.fix && <div style={{ fontSize: 14, marginTop: 8 }}>Did you mean <button onClick={() => go(zr.fix)} style={{ fontWeight: 800, color: 'var(--primary)' }}>{zr.fix}</button>?</div>}
+            <div style={{ fontSize: 13, marginTop: 10, lineHeight: 1.6 }}>Check the spelling · Use fewer or more general words · Try a category name</div>
           </div>
-        )}
+          {alsoBlock}
+          <ProductRow title="Similar products" items={zr.similar} />
+          <ProductRow title="Recommended for you" items={recs} />
+        </>)}
       </>)}
     </div>
   );
