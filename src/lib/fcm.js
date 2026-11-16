@@ -1,91 +1,108 @@
-import { getToken, onMessage } from 'firebase/messaging';
 import { supabase } from './supabase';
-import { getMessagingSafe, VAPID_KEY } from './firebase';
+export { isPushSupported } from './fcm.legacy';
 
-const SW_URL = '/firebase-messaging-sw.js';
+const PUB = 'BPUM5APrsAz0cP128blqtMRsPsqB-JAO2G-Tg0FvfAtv1ZpnyVdcI1Sqq5g6kdL_i8qeWfZer7qyN0voH2y4U0A';
+const SW_URL = '/service-worker.js';
 
-async function ensureServiceWorker() {
-  if (!('serviceWorker' in navigator)) return null;
+function toKey(s) {
+  const p = '='.repeat((4 - (s.length % 4)) % 4);
+  const raw = atob((s + p).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+}
+function sameKey(buf, key) {
+  if (!buf) return false;
+  const a = new Uint8Array(buf);
+  return a.length === key.length && a.every((v, i) => v === key[i]);
+}
+async function getReg() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return null;
   try {
-    const reg = await navigator.serviceWorker.register(SW_URL, { scope: '/' });
-    await navigator.serviceWorker.ready;
-    return reg;
+    await navigator.serviceWorker.register(SW_URL);
+    return await navigator.serviceWorker.ready;
   } catch (e) {
-    console.warn('[fcm] SW register failed:', e);
     return null;
   }
+}
+const pack = (sub) => {
+  const j = sub.toJSON();
+  return JSON.stringify({ endpoint: j.endpoint, keys: j.keys });
+};
+async function subscribe(reg) {
+  const key = toKey(PUB);
+  let sub = await reg.pushManager.getSubscription();
+  if (sub && !sameKey(sub.options && sub.options.applicationServerKey, key)) {
+    try { await sub.unsubscribe(); } catch (e) {}
+    sub = null;
+  }
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+  return sub;
 }
 
 export async function requestPushPermission({ userId }) {
   if (!userId) return { ok: false, error: 'Missing userId' };
   if (!('Notification' in window)) return { ok: false, error: 'Notifications not supported' };
   if (Notification.permission === 'denied') return { ok: false, error: 'Notifications blocked. Enable in browser settings.' };
-
-  // Ask for permission
   if (Notification.permission !== 'granted') {
     const perm = await Notification.requestPermission();
     if (perm !== 'granted') return { ok: false, error: 'Permission denied' };
   }
-
-  // Register SW first
-  const reg = await ensureServiceWorker();
-  if (!reg) return { ok: false, error: 'Service worker failed' };
-
-  // Get FCM token
-  const messaging = await getMessagingSafe();
-  if (!messaging) return { ok: false, error: 'Firebase messaging unsupported on this device' };
-
-  let token;
-  try {
-    token = await getToken(messaging, {
-      vapidKey: VAPID_KEY,
-      serviceWorkerRegistration: reg,
-    });
-  } catch (e) {
-    return { ok: false, error: 'Token error: ' + e.message };
-  }
-
-  if (!token) return { ok: false, error: 'No token returned' };
-
-  // Save to Supabase
-  try {
-    const { error } = await supabase
-      .from('push_tokens')
-      .upsert(
-        { user_id: userId, token, platform: 'web', updated_at: new Date().toISOString() },
-        { onConflict: 'user_id,token' }
-      );
-    if (error) throw error;
-  } catch (e) {
-    return { ok: false, error: 'Save failed: ' + e.message, token };
-  }
-
+  const reg = await getReg();
+  if (!reg) return { ok: false, error: 'Push is not supported here. On iPhone, add the app to the Home Screen first.' };
+  let sub;
+  try { sub = await subscribe(reg); } catch (e) { return { ok: false, error: 'Subscribe error: ' + e.message }; }
+  const token = pack(sub);
+  const { error } = await supabase
+    .from('push_tokens')
+    .upsert({ user_id: userId, token, platform: 'web', updated_at: new Date().toISOString() }, { onConflict: 'user_id,token' });
+  if (error) return { ok: false, error: 'Save failed: ' + error.message, token };
   return { ok: true, token };
 }
 
 export async function getCurrentPushToken() {
-  const messaging = await getMessagingSafe();
-  if (!messaging) return null;
   try {
-    return await getToken(messaging, { vapidKey: VAPID_KEY });
-  } catch {
+    if (!('serviceWorker' in navigator)) return null;
+    const reg = await navigator.serviceWorker.getRegistration();
+    const sub = reg && (await reg.pushManager.getSubscription());
+    return sub ? pack(sub) : null;
+  } catch (e) {
     return null;
   }
 }
 
 export async function setupForegroundHandler(handler) {
-  const messaging = await getMessagingSafe();
-  if (!messaging) return () => {};
-  return onMessage(messaging, (payload) => {
-    try { handler(payload); } catch (e) { console.warn(e); }
-  });
+  if (!('serviceWorker' in navigator)) return () => {};
+  const f = (e) => {
+    if (e.data && e.data.type === 'xm-push') {
+      const p = e.data.payload || {};
+      try { handler({ notification: { title: p.title, body: p.body }, data: { url: p.url } }); } catch (err) {}
+    }
+  };
+  navigator.serviceWorker.addEventListener('message', f);
+  return () => navigator.serviceWorker.removeEventListener('message', f);
 }
 
-export function isPushSupported() {
-  return (
-    typeof window !== 'undefined' &&
-    'Notification' in window &&
-    'serviceWorker' in navigator &&
-    window.isSecureContext
-  );
+// One-time silent move of old Firebase subscribers to Web Push.
+export function autoRefreshPush() {
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
+  let done = false;
+  try { done = localStorage.getItem('xm_wp1') === '1'; } catch (e) {}
+  if (done) return;
+  supabase.auth.onAuthStateChange((ev, session) => {
+    const u = session && session.user;
+    if (!u || done || (ev !== 'SIGNED_IN' && ev !== 'INITIAL_SESSION')) return;
+    done = true;
+    setTimeout(async () => {
+      try {
+        const { data } = await supabase.from('push_tokens').select('id,token').eq('user_id', u.id);
+        const rows = data || [];
+        const old = rows.filter((r) => String(r.token).charAt(0) !== '{');
+        const has = rows.some((r) => String(r.token).charAt(0) === '{');
+        if (old.length && !has) {
+          const res = await requestPushPermission({ userId: u.id });
+          if (res.ok) await supabase.from('push_tokens').delete().eq('user_id', u.id).in('id', old.map((r) => r.id));
+        }
+        localStorage.setItem('xm_wp1', '1');
+      } catch (e) {}
+    }, 2000);
+  });
 }

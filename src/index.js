@@ -24,6 +24,7 @@ if ('serviceWorker' in navigator) {
 }
 
 startTrustSeals();
+import('./lib/fcm').then((m) => m.autoRefreshPush && m.autoRefreshPush()).catch(() => {});
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>

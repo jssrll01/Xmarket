@@ -51,3 +51,30 @@ self.addEventListener('fetch', (e) => {
   }
   // Supabase, wallet, chat and everything else go straight to the network
 });
+
+/* ---- web push ---- */
+self.addEventListener('push', (event) => {
+  let d = {};
+  try { d = event.data ? event.data.json() : {}; } catch (e) { d = { body: event.data ? event.data.text() : '' }; }
+  event.waitUntil((async () => {
+    await self.registration.showNotification(d.title || 'XMARKET', {
+      body: d.body || '',
+      icon: '/icons/icon-192.png',
+      badge: '/icons/icon-192.png',
+      tag: d.tag,
+      data: { url: d.url || '/' },
+    });
+    const cs = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    cs.forEach((c) => c.postMessage({ type: 'xm-push', payload: d }));
+  })());
+});
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) || '/';
+  event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((list) => {
+    for (const c of list) {
+      if (c.url.indexOf(self.location.origin) === 0 && 'focus' in c) { c.navigate(url); return c.focus(); }
+    }
+    return self.clients.openWindow(url);
+  }));
+});
