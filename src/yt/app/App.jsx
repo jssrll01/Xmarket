@@ -5,6 +5,7 @@ import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import Skeleton from './components/Skeleton.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
+import MiniHost from './components/MiniHost.jsx'
 
 const Home = lazy(() => import('./pages/Home.jsx'))
 const TvShows = lazy(() => import('./pages/TvShows.jsx'))
@@ -46,8 +47,8 @@ export default function App() {
               <Route path="/pinoy" element={<Pinoy />} />
               <Route path="/my-list" element={<MyList />} />
               <Route path="/search" element={<><Search /><YouTubeResults /></>} />
-              <Route path="/play/:vid" element={<ErrorBoundary><WatchYT /></ErrorBoundary>} />
-              <Route path="/watch/:id" element={<ErrorBoundary><Watch /></ErrorBoundary>} />
+              <Route path="/play/:vid" element={null} />
+              <Route path="/watch/:id" element={null} />
               <Route path="/title/:id" element={<Details />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="*" element={<NotFound />} />
@@ -56,6 +57,7 @@ export default function App() {
           {detailId && <DetailsModal id={detailId} onClose={closeDetails} />}
         </Suspense>
       </main>
+      <MiniHost />
     </>
   )
 }

@@ -155,6 +155,7 @@ export default function Player({ movie, next, onBack, onNext, onTryAnother }) {
                 /* some options may be rejected */
               }
               setStatus('ready')
+              window.__xmYt = p
               p.playVideo()
               if (s.fullscreenOnPlay || s.landscapeOnPlay) {
                 if (navigator.userActivation?.isActive) {
@@ -209,6 +210,7 @@ export default function Player({ movie, next, onBack, onNext, onTryAnother }) {
         /* player already gone */
       }
       playerRef.current = null
+      window.__xmYt = null
       if (mountRef.current) mountRef.current.innerHTML = ''
     }
   }, [movie.id, movie.youtubeId, enterFullscreen])
@@ -395,6 +397,7 @@ export default function Player({ movie, next, onBack, onNext, onTryAnother }) {
   // Keyboard shortcuts
   const keyHandler = useRef(null)
   keyHandler.current = (e) => {
+    if (document.body.classList.contains('yt-mini')) return
     if (e.metaKey || e.ctrlKey || e.altKey) return
     const tag = e.target.tagName
     if (tag === 'INPUT' || tag === 'SELECT' || tag === 'TEXTAREA') return

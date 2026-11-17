@@ -1,0 +1,49 @@
+body.yt-mini { overflow: auto !important; }
+body.yt-mini .watch {
+  inset: auto !important;
+  top: auto !important;
+  left: auto !important;
+  right: var(--xm-r, 10px) !important;
+  bottom: var(--xm-b, 84px) !important;
+  width: min(62vw, 260px) !important;
+  height: calc(min(62vw, 260px) * 9 / 16) !important;
+  min-height: 0 !important;
+  transform: none !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  z-index: 450 !important;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55) !important;
+}
+body.yt-mini .watch .player { width: 100% !important; height: 100% !important; }
+body.yt-mini .watch .player > *:not(.player__video) { display: none !important; }
+.xm-mini {
+  position: fixed;
+  right: var(--xm-r, 10px);
+  bottom: var(--xm-b, 84px);
+  width: min(62vw, 260px);
+  height: calc(min(62vw, 260px) * 9 / 16);
+  z-index: 451;
+  touch-action: none;
+  border-radius: 12px;
+}
+.xm-mini__bar {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 14px 6px 6px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.75));
+  border-radius: 0 0 12px 12px;
+}
+.xm-mini__bar button {
+  border: 0;
+  border-radius: 99px;
+  min-width: 34px;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.22);
+}
