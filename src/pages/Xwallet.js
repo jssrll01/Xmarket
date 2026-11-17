@@ -1,3 +1,5 @@
+import { useAuth } from '../context/AuthContext';
+import { PageSkeleton as PageSk } from '../components/Skeleton';
 import XCard from '../components/XCard';
 import { Coins } from 'lucide-react';
 import { PinGate } from '../components/PinHost';
@@ -17,6 +19,7 @@ const ACTIONS = [
 
 export default function Xwallet() {
   const nav = useNavigate();
+  const { loading: authLoading } = useAuth();
   const { user, loading, balance, txns, topups, interest } = useWallet();
   const [pts, setPts] = React.useState(null);
   React.useEffect(() => { if (user) fetchLoyalty(user.id).then(setPts).catch(() => {}); }, [user]);
@@ -28,15 +31,16 @@ export default function Xwallet() {
       .then(({ data }) => {
         const rows = data || [];
         setTot({
-          inn: rows.reduce((n, t) => n + (Number(t.amount) > 0 ? Number(t.amount) : 0), 0),
-          out: rows.reduce((n, t) => n + (Number(t.amount) < 0 ? Math.abs(Number(t.amount)) : 0), 0),
+          inn: (rows || []).reduce((n, t) => n + (Number(t.amount) > 0 ? Number(t.amount) : 0), 0),
+          out: (rows || []).reduce((n, t) => n + (Number(t.amount) < 0 ? Math.abs(Number(t.amount)) : 0), 0),
         });
       });
   }, [user, txns]);
+  if (authLoading) return <PageSk />;
   if (!user) return <SignIn />;
 
   const DONE = ['approved', 'rejected', 'cancelled', 'canceled', 'completed', 'failed'];
-  const pending = topups.filter(t => !DONE.includes(String(t.status || 'pending').toLowerCase())).reduce((n, t) => n + (Number(t.amount) || 0), 0);
+  const pending = (topups || []).filter(t => !DONE.includes(String(t.status || 'pending').toLowerCase())).reduce((n, t) => n + (Number(t.amount) || 0), 0);
   const moneyIn = tot.inn;
   const moneyOut = tot.out;
   const on = interest && interest.interest_enabled;
@@ -85,7 +89,7 @@ export default function Xwallet() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {mini('Bank', on ? 'Earning 1.5% p.a.' : 'Daily interest 1.5% p.a.', TrendingUp, '/xwallet/bank', on ? 'ACTIVE' : 'OFF')}
-          {mini('History', `${txns.length} records`, Clock, '/xwallet/history')}
+          {mini('History', `${(txns || []).length} records`, Clock, '/xwallet/history')}
         </div>
 
         
@@ -101,10 +105,10 @@ export default function Xwallet() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
           <h3 style={{ fontSize: 15, fontWeight: 800, margin: 0 }}>Recent activity</h3>
-          {txns.length > 3 && <button onClick={() => nav('/xwallet/history')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center' }}>See all <ChevronRight size={15} /></button>}
+          {(txns || []).length > 3 && <button onClick={() => nav('/xwallet/history')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 800, fontSize: 13, display: 'flex', alignItems: 'center' }}>See all <ChevronRight size={15} /></button>}
         </div>
-        {txns.length === 0 && <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No transactions yet.</p>}
-        {txns.slice(0, 3).map(t => <Row key={t.id} it={txnItem(t)} onClick={() => nav('/xwallet/history')} />)}
+        {(txns || []).length === 0 && <p style={{ color: 'var(--muted)', textAlign: 'center', padding: 20, fontSize: 13 }}>No transactions yet.</p>}
+        {(txns || []).slice(0, 3).map(t => <Row key={t.id} it={txnItem(t)} onClick={() => nav('/xwallet/history')} />)}
 
         <div className="card" style={{ padding: 14, marginTop: 12 }}>
           <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 8 }}>Keep your wallet safe</div>
