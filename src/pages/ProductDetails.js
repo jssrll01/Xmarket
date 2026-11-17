@@ -260,7 +260,6 @@ export default function ProductDetails() {
             ))}
           </div>
         )}
-        <LiveViewers productId={id} />
       </div>
 
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
@@ -304,6 +303,7 @@ export default function ProductDetails() {
         </div>
       )}
 
+      <LiveViewers productId={id} />
       <div className="card" style={{ padding: 16, marginBottom: 12 }}>
         <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Quantity</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>

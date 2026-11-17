@@ -26,7 +26,7 @@ export default function LiveViewers({ productId }) {
   }, [productId]);
   if (n < 1) return null;
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, margin: '10px 16px 0', fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, margin: '0 16px 14px', fontSize: 13, fontWeight: 600, color: 'var(--muted)' }}>
       <Eye size={15} /> {n} {n === 1 ? 'person' : 'people'} viewing this
     </div>
   );
