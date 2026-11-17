@@ -1,3 +1,4 @@
+import { PageSkeleton as PageSk } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Store, Search, X, BadgeCheck } from 'lucide-react';
@@ -23,6 +24,7 @@ export default function Xmall() {
   );
   const { shown, bar, filtersOn } = useProductFilters(filtered);
 
+  if (loading) return <PageSk />;
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
       <button onClick={() => nav(-1)} className="icon-btn" style={{ marginBottom: 12 }}>

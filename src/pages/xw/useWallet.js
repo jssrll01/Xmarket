@@ -1,3 +1,4 @@
+import { PageSkeleton as PageSk } from '../../components/Skeleton';
 import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -30,5 +31,6 @@ export default function useWallet() {
     return () => { supabase.removeChannel(ch); };
   }, [user, refresh]);
 
+  if (loading) return <PageSk />;
   return { user, loading, refresh, ...d };
 }

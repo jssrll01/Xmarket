@@ -1,3 +1,4 @@
+import { PageSkeleton as PageSk } from '../components/Skeleton';
 import { money } from '../lib/currency';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -35,6 +36,7 @@ export default function Wishlist() {
   const valid = items.filter(w => w.product);
   const ids = valid.map(w => w.product.id);
 
+  if (loading) return <PageSk />;
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
       <button onClick={goBackSafe} className="icon-btn" style={{ marginBottom: 12 }}>

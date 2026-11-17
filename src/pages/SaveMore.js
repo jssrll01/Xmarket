@@ -1,3 +1,4 @@
+import { PageSkeleton as PageSk } from '../components/Skeleton';
 import { moneyShort } from '../lib/currency';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
@@ -53,6 +54,7 @@ export default function SaveMore() {
     return copy;
   }, [products, sort]);
 
+  if (loading) return <PageSk />;
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
       <button onClick={() => nav(-1)} className="icon-btn" style={{ marginBottom: 12 }}>

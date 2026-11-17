@@ -1,3 +1,4 @@
+import { PageSkeleton as PageSk } from '../components/Skeleton';
 import { NameLabel } from '../components/PerkBadges';
 import { ShareCard } from '../components/ShareSheet';
 import useReactions from '../lib/useReactions';
@@ -177,6 +178,7 @@ export default function GlobalChat() {
     );
   });
 
+  if (loading) return <PageSk />;
   return (
     <div className="page-enter gc-page">
       {head}

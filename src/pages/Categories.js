@@ -1,3 +1,4 @@
+import { PageSkeleton as PageSk } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Tag, ChevronRight } from 'lucide-react';
@@ -18,6 +19,7 @@ export default function Categories() {
     });
   }, []);
 
+  if (loading) return <PageSk />;
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 80 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
