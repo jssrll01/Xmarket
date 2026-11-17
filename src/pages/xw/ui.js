@@ -91,6 +91,6 @@ export function Row({ it, onClick }) {
 }
 
 export const txnItem = (t) => ({
-  key: 't' + t.id, kind: kindOf(t), title: String(t.type || 'transaction').replace(/_/g, ' '),
+  key: 't' + t.id, kind: kindOf(t), title: (t.meta && t.meta.nfc) ? (t.meta.nfc === 'in' ? 'NFC payment received' : 'NFC payment') : String(t.type || 'transaction').replace(/_/g, ' '),
   amount: Number(t.amount), at: t.created_at, status: 'completed', note: t.note, ref: t.id, src: 'txn',
 });

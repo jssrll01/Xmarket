@@ -85,6 +85,7 @@ export default function Xwallet() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {mini('Bank', on ? 'Earning 1.5% p.a.' : 'Daily interest 1.5% p.a.', TrendingUp, '/xwallet/bank', on ? 'ACTIVE' : 'OFF')}
           {mini('History', `${txns.length} records`, Clock, '/xwallet/history')}
+          {mini('NFC Card', 'Tap to pay at partners', Smartphone, '/xwallet/nfc')}
         </div>
 
         
