@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ProductGridSkeleton } from '../components/Skeleton';
+import { XmSlot } from './FloatPlayer';
 
 function Card({ m, onPlay }) {
   return (
@@ -87,7 +88,7 @@ export default function YtApp() {
           <button aria-label="Close player" onClick={() => setPlay(null)} style={{ position: 'absolute', top: 'calc(12px + env(safe-area-inset-top, 0px))', right: 12, width: 40, height: 40, borderRadius: 99, border: 0, background: 'rgba(255,255,255,.18)', color: '#fff', display: 'grid', placeItems: 'center', zIndex: 2 }}><X size={20} /></button>
           <style>{'@media (orientation: landscape){.yt-frame{aspect-ratio:auto!important;height:100%!important}}'}</style>
           <div className="yt-frame" style={{ position: 'relative', width: '100%', aspectRatio: '16 / 9' }}>
-            <iframe title={play.title} src={'https://www.youtube-nocookie.com/embed/' + play.youtube_id + '?autoplay=1&rel=0&playsinline=1'} allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowFullScreen style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }} />
+            <XmSlot video={play} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0 }} />
           </div>
         </div>
       )}

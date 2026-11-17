@@ -1,4 +1,5 @@
 import PwaInstallBanner from './components/PwaInstallBanner';
+import FloatPlayerHost from './yt/FloatPlayer';
 import { startTrustSeals } from './lib/trustSeals';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -30,6 +31,7 @@ root.render(
   <BrowserRouter>
     <App />
     <PwaInstallBanner />
+    <FloatPlayerHost />
   </BrowserRouter>
 );
 

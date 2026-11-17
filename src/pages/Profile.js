@@ -176,7 +176,6 @@ export default function Profile() {
       </Link>
       <Link to="/yt" style={menuRow}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="4" /><path d="M10 9l5 3-5 3z" /></svg> YouTube Premium
         </span>
         <ChevronRight size={16} color="var(--muted)" />
       </Link>

@@ -37,6 +37,10 @@ const NavRow = ({ icon, title, sub, onClick, first }) => (
   </button>
 );
 
+const YtIcon = ({ size = 20, color = 'currentColor', strokeWidth = 2 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round"><rect x="2.5" y="5" width="19" height="14" rx="3.5" /><path d="M10 9.2v5.6l4.8-2.8z" /></svg>
+);
+
 export default function CreatorDashboard() {
   const nav = useNavigate();
   const avatar = useMyAvatar();
@@ -152,6 +156,7 @@ export default function CreatorDashboard() {
           <NavRow icon={ClipboardList} title="New post" sub="Post to XMARKET Socials, once per day" onClick={() => nav('/creator-studio/post')} />
           <NavRow icon={Clock} title="Post history" sub="Your posts, likes and comments" onClick={() => nav('/creator-studio/posts')} />
           <NavRow icon={Bell} title="Notifications" sub="Approvals, commissions and updates" onClick={() => nav('/notifications')} />
+          <NavRow icon={YtIcon} title="YouTube Premium" sub="Watch videos and music" onClick={() => nav('/yt')} />
           <NavRow icon={Trophy} title="Referral leaders" sub="Weekly top referrers and badges" onClick={() => nav('/referral-leaders')} />
           <NavRow icon={Code} title="Embed a product" sub="Copy a product widget for any website" onClick={() => nav('/embed-builder')} />
         </div>
