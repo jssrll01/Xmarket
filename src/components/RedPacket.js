@@ -74,12 +74,14 @@ export function PacketBubble({ m, onClaimed, onToast }) {
 export function PacketCreate({ thread, onClose, onDone, onToast }) {
   const [amt, setAmt] = useState('');
   const [note, setNote] = useState('');
+  const [pin, setPin] = useState('');
   const [busy, setBusy] = useState(false);
   const send = async () => {
     const a = Number(amt);
     if (!a || a < 1 || a > 5000) { onToast('Enter ₱1 to ₱5,000.'); return; }
+    if (!/^\d{4}$/.test(pin)) { onToast('Enter your 4-digit PIN.'); return; }
     setBusy(true);
-    const { data, error } = await rpcPin('dm_packet_create', { p_thread: thread, p_amount: a, p_note: note || null });
+    const { data, error } = await supabase.rpc('dm_packet_create', { p_thread: thread, p_amount: a, p_note: note || null, p_pin: pin });
     setBusy(false);
     if (error) { onToast(error.message); return; }
     if (!data || !data.ok) { onToast((data && data.error) || 'Could not send.'); return; }
@@ -96,6 +98,8 @@ export function PacketCreate({ thread, onClose, onDone, onToast }) {
         <input type="number" inputMode="decimal" value={amt} onChange={(e) => setAmt(e.target.value)} placeholder="0.00" style={inp} />
         <label style={lbl}>Message (optional)</label>
         <input value={note} maxLength={60} onChange={(e) => setNote(e.target.value)} placeholder="Good luck!" style={inp} />
+        <label style={lbl}>Xwallet PIN</label>
+        <input type="password" inputMode="numeric" autoComplete="off" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="••••" style={{ ...inp, letterSpacing: 8, textAlign: "center" }} />
         <button className="btn-primary" disabled={busy} onClick={send} style={{ width: '100%', padding: 14, fontSize: 15, fontWeight: 800 }}>{busy ? 'Sending…' : 'Send red packet'}</button>
         <button onClick={onClose} style={{ width: '100%', marginTop: 8, padding: 10, color: 'var(--muted)', fontWeight: 700 }}>Cancel</button>
       </div>
