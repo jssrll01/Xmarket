@@ -25,6 +25,7 @@ export default function useWallet() {
     const ch = supabase.channel('xwallet-hub-' + user.id)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'xwallet_withdrawals', filter: 'user_id=eq.' + user.id }, () => refresh())
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'xwallet_txns', filter: 'user_id=eq.' + user.id }, () => refresh())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'xwallet_topups', filter: 'user_id=eq.' + user.id }, () => refresh())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
   }, [user, refresh]);

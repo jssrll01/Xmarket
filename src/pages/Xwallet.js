@@ -4,6 +4,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight } from 'lucide-react';
 import useWallet from './xw/useWallet';
+import { supabase } from '../lib/supabase';
 import { fetchLoyalty } from '../lib/promos';
 import { SignIn, Sk, SkStyle, Row, txnItem, peso } from './xw/ui';
 
@@ -17,11 +18,25 @@ export default function Xwallet() {
   const { user, loading, balance, txns, topups, interest } = useWallet();
   const [pts, setPts] = React.useState(null);
   React.useEffect(() => { if (user) fetchLoyalty(user.id).then(setPts).catch(() => {}); }, [user]);
+  const [tot, setTot] = React.useState({ inn: 0, out: 0 });
+  React.useEffect(() => {
+    if (!user) return;
+    supabase.from('xwallet_txns').select('amount,type').eq('user_id', user.id)
+      .not('type', 'in', '(xcoin_buy,xcoin_sell,adjustment)').limit(5000)
+      .then(({ data }) => {
+        const rows = data || [];
+        setTot({
+          inn: rows.reduce((n, t) => n + (Number(t.amount) > 0 ? Number(t.amount) : 0), 0),
+          out: rows.reduce((n, t) => n + (Number(t.amount) < 0 ? Math.abs(Number(t.amount)) : 0), 0),
+        });
+      });
+  }, [user, txns]);
   if (!user) return <SignIn />;
 
-  const pending = topups.filter(t => t.status === 'pending').reduce((n, t) => n + (Number(t.amount) || 0), 0);
-  const moneyIn = txns.filter(t => t.amount > 0).reduce((n, t) => n + Number(t.amount), 0);
-  const moneyOut = txns.filter(t => t.amount < 0).reduce((n, t) => n + Math.abs(Number(t.amount)), 0);
+  const DONE = ['approved', 'rejected', 'cancelled', 'canceled', 'completed', 'failed'];
+  const pending = topups.filter(t => !DONE.includes(String(t.status || 'pending').toLowerCase())).reduce((n, t) => n + (Number(t.amount) || 0), 0);
+  const moneyIn = tot.inn;
+  const moneyOut = tot.out;
   const on = interest && interest.interest_enabled;
 
   const mini = (title, sub, Icon, to, tag) => (
