@@ -775,7 +775,7 @@ XMARKET Customer Support
 
  Email: [xmarket.official.marketplace@gmail.com]
 
- Website: [https://xmarket-app.onrender.com]
+ Website: [https://xmarket-app.shop]
 
  Support Hours: [7AM - 7PM Daily]
 

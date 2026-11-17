@@ -10,7 +10,7 @@ import { useCfg, loadFaqs } from "../lib/cfg";
 import "./styles.css";
 
 // EDIT THIS: the URL of your main XMARKET app
-const APP_URL = "https://xmarket-app.onrender.com";
+const APP_URL = "https://xmarket-app.shop";
 
 // EDIT THESE with your real numbers
 const stats = [
