@@ -74,35 +74,58 @@ export function PacketBubble({ m, onClaimed, onToast }) {
 export function PacketCreate({ thread, onClose, onDone, onToast }) {
   const [amt, setAmt] = useState('');
   const [note, setNote] = useState('');
-  const [pin, setPin] = useState('');
   const [busy, setBusy] = useState(false);
-  const send = async () => {
+  const [ask, setAsk] = useState(false);
+  const [pin, setPin] = useState('');
+  const [err, setErr] = useState('');
+  const start = () => {
     const a = Number(amt);
     if (!a || a < 1 || a > 5000) { onToast('Enter ₱1 to ₱5,000.'); return; }
-    if (!/^\d{4}$/.test(pin)) { onToast('Enter your 4-digit PIN.'); return; }
-    setBusy(true);
-    const { data, error } = await supabase.rpc('dm_packet_create', { p_thread: thread, p_amount: a, p_note: note || null, p_pin: pin });
+    setPin(''); setErr(''); setAsk(true);
+  };
+  const cancelPin = () => { if (busy) return; setAsk(false); setPin(''); setErr(''); onToast('Red packet cancelled.'); };
+  const confirm = async () => {
+    if (!/^\d{4}$/.test(pin)) { setErr('Enter your 4-digit PIN.'); return; }
+    setBusy(true); setErr('');
+    const { data, error } = await supabase.rpc('dm_packet_create', { p_thread: thread, p_amount: Number(amt), p_note: note || null, p_pin: pin });
     setBusy(false);
-    if (error) { onToast(error.message); return; }
-    if (!data || !data.ok) { onToast((data && data.error) || 'Could not send.'); return; }
+    if (error) { setErr(error.message); return; }
+    if (!data || !data.ok) { setErr((data && data.error) || 'Could not send.'); setPin(''); return; }
+    setAsk(false);
     onDone();
   };
   const inp = { width: '100%', padding: 12, marginTop: 6, marginBottom: 12, fontSize: 14 };
   const lbl = { fontSize: 12, fontWeight: 700, color: 'var(--muted)' };
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 4000, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-      <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 560, background: '#fff', borderRadius: '24px 24px 0 0', padding: '20px 18px calc(18px + env(safe-area-inset-bottom, 0px))' }}>
-        <div style={{ fontSize: 18, fontWeight: 900 }}>🧧 Send a red packet</div>
-        <div style={{ fontSize: 12.5, color: 'var(--muted)', margin: '4px 0 14px' }}>The amount is taken from your Xwallet now. If it is not opened within 12 hours it is returned to you.</div>
-        <label style={lbl}>Amount (₱1 to ₱5,000)</label>
-        <input type="number" inputMode="decimal" value={amt} onChange={(e) => setAmt(e.target.value)} placeholder="0.00" style={inp} />
-        <label style={lbl}>Message (optional)</label>
-        <input value={note} maxLength={60} onChange={(e) => setNote(e.target.value)} placeholder="Good luck!" style={inp} />
-        <label style={lbl}>Xwallet PIN</label>
-        <input type="password" inputMode="numeric" autoComplete="off" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="••••" style={{ ...inp, letterSpacing: 8, textAlign: "center" }} />
-        <button className="btn-primary" disabled={busy} onClick={send} style={{ width: '100%', padding: 14, fontSize: 15, fontWeight: 800 }}>{busy ? 'Sending…' : 'Send red packet'}</button>
-        <button onClick={onClose} style={{ width: '100%', marginTop: 8, padding: 10, color: 'var(--muted)', fontWeight: 700 }}>Cancel</button>
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 4000, background: 'rgba(15,23,42,.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+        <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 560, background: '#fff', borderRadius: '24px 24px 0 0', padding: '20px 18px calc(18px + env(safe-area-inset-bottom, 0px))' }}>
+          <div style={{ fontSize: 18, fontWeight: 900 }}>🧧 Send a red packet</div>
+          <div style={{ fontSize: 12.5, color: 'var(--muted)', margin: '4px 0 14px' }}>The amount is taken from your Xwallet now. If it is not opened within 12 hours it is returned to you.</div>
+          <label style={lbl}>Amount (₱1 to ₱5,000)</label>
+          <input type="number" inputMode="decimal" value={amt} onChange={(e) => setAmt(e.target.value)} placeholder="0.00" style={inp} />
+          <label style={lbl}>Message (optional)</label>
+          <input value={note} maxLength={60} onChange={(e) => setNote(e.target.value)} placeholder="Good luck!" style={inp} />
+          <button className="btn-primary" onClick={start} style={{ width: '100%', padding: 14, fontSize: 15, fontWeight: 800 }}>Send red packet</button>
+          <button onClick={onClose} style={{ width: '100%', marginTop: 8, padding: 10, color: 'var(--muted)', fontWeight: 700 }}>Cancel</button>
+        </div>
       </div>
-    </div>
+      {ask && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 5000, background: 'rgba(15,23,42,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <div style={{ width: '100%', maxWidth: 320, background: '#fff', borderRadius: 22, padding: 22, textAlign: 'center', animation: 'rpPop .22s ease-out both' }}>
+            <div style={{ fontSize: 38 }}>🔒</div>
+            <div style={{ fontWeight: 900, fontSize: 18, marginTop: 4 }}>Enter your PIN</div>
+            <div style={{ fontSize: 13, color: 'var(--muted)', margin: '4px 0 8px' }}>Confirm sending {peso(Number(amt))} as a red packet.</div>
+            <input autoFocus type="password" inputMode="numeric" autoComplete="off" maxLength={4} value={pin} placeholder="••••"
+              onChange={(e) => { setPin(e.target.value.replace(/\D/g, '').slice(0, 4)); setErr(''); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') confirm(); }}
+              style={{ width: '100%', padding: 13, fontSize: 22, letterSpacing: 10, textAlign: 'center', margin: '8px 0' }} />
+            {err && <div style={{ color: '#DC2626', fontSize: 12.5, marginBottom: 8 }}>{err}</div>}
+            <button className="btn-primary" disabled={busy || pin.length !== 4} onClick={confirm} style={{ width: '100%', padding: 13, fontWeight: 800 }}>{busy ? 'Sending…' : 'Confirm'}</button>
+            <button onClick={cancelPin} style={{ width: '100%', marginTop: 8, padding: 10, color: 'var(--muted)', fontWeight: 700 }}>Cancel</button>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
