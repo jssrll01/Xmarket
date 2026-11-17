@@ -14,6 +14,13 @@ export default function YtGate({ children }) {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
+    const h = window.location.hostname;
+    if (/(^|\.)xmarket-app\.shop$/.test(h) && !/[?&]_yt=1/.test(window.location.search)) {
+      window.location.replace('https://xmarket-app.onrender.com/yt?_yt=1');
+    }
+  }, []);
+
+  useEffect(() => {
     if (loading) return;
     if (!user) { nav('/signin', { replace: true }); return; }
     let alive = true;
