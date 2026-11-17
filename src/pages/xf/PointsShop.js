@@ -1,3 +1,4 @@
+import { CardListSkeleton as LoadSk } from '../../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
@@ -36,6 +37,7 @@ export function PointsShopList({ hideBalance, onRedeemed }) {
       <style>{XF_CSS}</style>
       {!hideBalance && <div className="xf-bal"><span>Your points</span><b>{pts.toLocaleString()}</b></div>}
       {items === null && <div className="sk" style={{ height: 120, borderRadius: 16 }} />}
+      {items === null && <LoadSk count={3} />}
       {items && !items.length && <div className="xf-card xf-empty">No rewards yet.</div>}
       {(items || []).map((r) => {
         const out = r.stock !== null && r.stock < 1;

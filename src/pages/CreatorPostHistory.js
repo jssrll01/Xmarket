@@ -1,3 +1,4 @@
+import { CardListSkeleton as LoadSk } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, MessageCircle } from 'lucide-react';
@@ -17,6 +18,7 @@ export default function CreatorPostHistory() {
         <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Post history</h2>
       </div>
       {!rows && [0, 1, 2].map(i => <Sk key={i} h={96} r={16} style={{ marginBottom: 10 }} />)}
+      {rows === null && <LoadSk count={3} />}
       {rows && rows.length === 0 && <div className="card" style={{ padding: 24, textAlign: 'center', color: 'var(--muted)' }}>You have not posted yet.</div>}
       {rows && rows.map(p => (
         <div key={p.id} className="card" onClick={() => p.status === 'active' && nav('/socials/post/' + p.id + '/comments')} style={{ padding: 10, marginBottom: 10, display: 'flex', gap: 12, cursor: p.status === 'active' ? 'pointer' : 'default', opacity: p.status === 'active' ? 1 : 0.6 }}>

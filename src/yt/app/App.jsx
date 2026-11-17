@@ -1,3 +1,4 @@
+import { PageSkeleton as PageSk } from '../../components/Skeleton';
 /* eslint-disable */
 import { lazy, Suspense } from 'react'
 import { Route, Routes, useLocation, useSearchParams } from 'react-router-dom'
@@ -38,7 +39,7 @@ export default function App() {
     <>
       {!immersive && <Navbar />}
       <main className="app-main">
-        <Suspense fallback={<Skeleton variant="page" />}>
+        <Suspense fallback={<PageSk />}>
           <div className="page-fade" key={pathname}>
             <Routes>
               <Route path="/" element={<Home />} />

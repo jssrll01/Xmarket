@@ -1,3 +1,4 @@
+import { CardListSkeleton as LoadSk } from '../components/Skeleton';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Send } from 'lucide-react';
@@ -30,6 +31,7 @@ export default function DmInbox() {
       </div>
       <div style={{ fontSize: 12, color: 'var(--muted)', margin: '-6px 0 12px' }}>Chats are deleted automatically after 24 hours.</div>
       {rows === null && [0, 1, 2].map(i => <div key={i} className="sk" style={{ height: 68, borderRadius: 16, marginBottom: 10 }} />)}
+      {rows === null && <LoadSk count={3} />}
       {rows && rows.length === 0 && <div className="card" style={{ padding: 24, textAlign: 'center', color: 'var(--muted)', fontSize: 13.5 }}>No messages yet. Open a creator's profile and tap Message to start a chat.</div>}
       {rows && rows.map(r => (
         <div key={r.thread_id} className="card" onClick={() => nav('/messages/' + r.thread_id)} style={{ padding: 12, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>

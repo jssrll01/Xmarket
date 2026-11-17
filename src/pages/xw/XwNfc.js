@@ -1,3 +1,4 @@
+import { CardListSkeleton as LoadSk } from '../../components/Skeleton';
 /* eslint-disable */
 import React, { useCallback, useEffect, useState } from 'react';
 import { CreditCard, Plus, Trash2 } from 'lucide-react';
@@ -66,7 +67,7 @@ export default function XwNfc() {
         </button>
       </div>
 
-      {cards === null ? <p style={{ color: 'var(--muted)', fontSize: 13 }}>Loading…</p>
+      {cards === null ? <LoadSk count={3} />
         : cards.length === 0 ? <p style={{ color: 'var(--muted)', fontSize: 13, textAlign: 'center' }}>No cards yet.</p>
         : cards.map((c) => (
           <div key={c.id} className="card" style={{ padding: 14, marginBottom: 8 }}>

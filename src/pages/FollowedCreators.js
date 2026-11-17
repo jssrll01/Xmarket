@@ -1,3 +1,4 @@
+import { CardListSkeleton as LoadSk } from '../components/Skeleton';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
@@ -12,6 +13,7 @@ export default function FollowedCreators() {
   return (
     <div style={{ marginBottom: 18 }}>
       <h3 style={{ fontSize: 15, fontWeight: 800, margin: '0 0 10px' }}>Creators you follow</h3>
+      {rows === null && <LoadSk count={3} />}
       {rows.map(c => (
         <div key={c.creator_id} className="card" onClick={() => nav('/socials/creator/' + c.username)} style={{ padding: 12, marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
           <Avatar name={c.username} url={c.avatar_url} size={44} />

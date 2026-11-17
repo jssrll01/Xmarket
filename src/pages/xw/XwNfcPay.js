@@ -1,3 +1,4 @@
+import { CardListSkeleton as LoadSk } from '../../components/Skeleton';
 /* eslint-disable */
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '../../lib/supabase';
@@ -78,7 +79,7 @@ export default function XwNfcPay() {
 
   return (
     <Shell title="Tap to Pay" back="/xwallet/nfc">
-      {info === null ? <p style={{ color: 'var(--muted)', fontSize: 13 }}>Loading…</p>
+      {info === null ? <LoadSk count={3} />
         : !info.partner ? (
           <div className="card" style={{ padding: 16, fontSize: 13.5, lineHeight: 1.6 }}>
             This account is not registered as an Xmarket NFC partner. Contact Xmarket to become a partner.

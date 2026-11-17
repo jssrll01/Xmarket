@@ -1,3 +1,4 @@
+import XCard from '../components/XCard';
 import { Coins } from 'lucide-react';
 import { PinGate } from '../components/PinHost';
 import React from 'react';
@@ -57,6 +58,7 @@ export default function Xwallet() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <button className="icon-btn" aria-label="Back" onClick={() => nav('/', { replace: true })}><ArrowLeft size={20} /></button>
         <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Xwallet</h2>
+        <XCard />
       </div>
 
       {loading ? (<><Sk h={160} r={22} style={{ marginBottom: 12 }} /><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}><Sk h={96} r={18} /><Sk h={96} r={18} /></div><Sk h={190} r={20} /></>) : (<>

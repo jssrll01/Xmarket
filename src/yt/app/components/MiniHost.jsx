@@ -1,3 +1,4 @@
+import { PageSkeleton as PageSk } from '../../../components/Skeleton';
 /* eslint-disable */
 import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -133,7 +134,7 @@ export default function MiniHost() {
 
   return (
     <>
-      <Suspense fallback={null}>
+      <Suspense fallback={<PageSk />}>
         <Routes location={shown}>
           <Route path="/watch/:id" element={<ErrorBoundary><Watch /></ErrorBoundary>} />
           <Route path="/play/:vid" element={<ErrorBoundary><WatchYT /></ErrorBoundary>} />
