@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 
 export const bus = { ask: null, receipt: null };
-export const askPin = () => new Promise((res) => { if (!bus.ask) return res(null); bus.ask(res); });
+export const askPin = () => new Promise((res) => { let n = 0; const go = () => { if (bus.ask) return bus.ask(res); if (++n > 30) return res(null); setTimeout(go, 50); }; go(); });
 export const showReceipt = (r) => { if (bus.receipt) bus.receipt(r); };
 
 // calls a function without a PIN first; if the server says PIN_REQUIRED, asks for it and retries

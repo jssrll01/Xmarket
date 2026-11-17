@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { bus } from '../lib/pinBus';
 
-const box = { position: 'fixed', inset: 0, zIndex: 9000, background: 'rgba(15,23,42,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 };
+const box = { position: 'fixed', inset: 0, zIndex: 2147483000, background: 'rgba(15,23,42,.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 };
 const card = { width: '100%', maxWidth: 340, background: '#fff', borderRadius: 22, padding: 22, textAlign: 'center' };
 const inp = { width: '100%', padding: 13, fontSize: 22, letterSpacing: 10, textAlign: 'center', marginBottom: 10 };
 const digits = (s) => String(s).replace(/\D/g, '').slice(0, 4);
