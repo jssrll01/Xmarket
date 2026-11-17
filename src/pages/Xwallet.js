@@ -3,15 +3,16 @@ import { Coins } from 'lucide-react';
 import { PinGate } from '../components/PinHost';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight, QrCode, CreditCard } from 'lucide-react';
 import useWallet from './xw/useWallet';
 import { supabase } from '../lib/supabase';
 import { fetchLoyalty } from '../lib/promos';
 import { SignIn, Sk, SkStyle, Row, txnItem, peso } from './xw/ui';
 
+const XWP_CSS = '.xwp{max-width:560px;margin:0 auto}.xwp .xc-wrap{margin:2px 0 14px}.xwp .xc{max-width:none;border-radius:20px}.xwp .card{border-radius:16px!important;border:1px solid #E2E8F0!important;box-shadow:0 1px 2px rgba(15,23,42,.04),0 10px 22px -16px rgba(15,23,42,.22)!important}';
 const ACTIONS = [
   ['Top-up', Plus, '/xwallet/topup'], ['Send Money', Send, '/xwallet/send'], ['Buy Load', Smartphone, '/xwallet/load'],
-  ['Withdraw', ArrowUpRight, '/xwallet/withdraw'], ['Bank', TrendingUp, '/xwallet/bank'], ['History', Clock, '/xwallet/history'],
+  ['Withdraw', ArrowUpRight, '/xwallet/withdraw'], ['QR Pay', QrCode, '/xwallet/qr'], ['NFC Card', CreditCard, '/xwallet/nfc'],
 ];
 
 export default function Xwallet() {
@@ -52,8 +53,9 @@ export default function Xwallet() {
   );
 
   return (
-    <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
+    <div className="page-enter xwp" style={{ padding: 16, paddingBottom: 60 }}>
       <SkStyle />
+      <style>{XWP_CSS}</style>
       <PinGate />
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <button className="icon-btn" aria-label="Back" onClick={() => nav('/', { replace: true })}><ArrowLeft size={20} /></button>
@@ -62,11 +64,8 @@ export default function Xwallet() {
       <XCard />
 
       {loading ? (<><Sk h={160} r={22} style={{ marginBottom: 12 }} /><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}><Sk h={96} r={18} /><Sk h={96} r={18} /></div><Sk h={190} r={20} /></>) : (<>
-        <div style={{ padding: 20, marginBottom: 12, borderRadius: 22, border: '1px solid #E2E8F0', background: 'linear-gradient(135deg,#FFFFFF 0%,#F1F5F9 60%,#E2E8F0 100%)', boxShadow: '0 14px 34px rgba(15,23,42,.08)' }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', letterSpacing: 1, textTransform: 'uppercase' }}>Xwallet balance</div>
-          <div style={{ fontSize: 38, fontWeight: 900, letterSpacing: -1, marginTop: 4 }}>{peso(balance)}</div>
-          <div style={{ fontSize: 11.5, color: 'var(--muted)', marginTop: 2 }}>{user.email}</div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 14 }}>
+        <div style={{ marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginTop: 0 }}>
             {[['Pending', pending], ['Money in', moneyIn], ['Money out', moneyOut]].map(([k, v]) => (
               <div key={k} style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: 12, padding: '8px 10px' }}>
                 <div style={{ fontSize: 9.5, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: .6 }}>{k}</div>
@@ -87,7 +86,6 @@ export default function Xwallet() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {mini('Bank', on ? 'Earning 1.5% p.a.' : 'Daily interest 1.5% p.a.', TrendingUp, '/xwallet/bank', on ? 'ACTIVE' : 'OFF')}
           {mini('History', `${txns.length} records`, Clock, '/xwallet/history')}
-          {mini('NFC Card', 'Tap to pay at partners', Smartphone, '/xwallet/nfc')}
         </div>
 
         

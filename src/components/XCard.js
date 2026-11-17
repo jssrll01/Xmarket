@@ -66,7 +66,7 @@ export default function XCard() {
             <small>Available balance</small>
             <div className="xc-amt">
               <strong>{show ? money(me.xwallet_balance, 'fixed') : '••••••'}</strong>
-              <button type="button" className="xc-eye" onClick={flip} aria-label={show ? 'Hide balance' : 'Show balance'}>{show ? <EyeOff size={15} /> : <Eye size={15} />}</button>
+              <button type="button" className="xc-eye" onClick={flip} aria-label={show ? 'Hide balance' : 'Show balance'}>{show ? <Eye size={15} /> : <EyeOff size={15} />}</button>
             </div>
           </div>
         </div>
