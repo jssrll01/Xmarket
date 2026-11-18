@@ -63,7 +63,7 @@ export default function WalletBar() {
           icon={<Wallet size={18} color="#fff" />} label="Xwallet"
           sub={user ? (balance === null ? '...' : money(Number(balance), 'tofixed')) : 'Sign in'} />
         {divider}
-        <Cell to="/xcards" grad="linear-gradient(135deg, #6366F1, #7C3AED)" icon={<CreditCard size={18} color="#fff" />} label="Xcards" sub="Gift cards" />
+        <Cell to="/game-credits" grad="linear-gradient(135deg, #6366F1, #7C3AED)" icon={<Gamepad2 size={18} color="#fff" />} label="Game Credits" sub="Top up games" />
         {divider}
         <Cell to="/xcoin" grad="linear-gradient(135deg, #3B82F6, #2563EB)" icon={<CoinsI size={18} color="#fff" />} label="XCOIN" sub="Market" />
         {divider}
