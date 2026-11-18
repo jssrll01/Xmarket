@@ -202,6 +202,15 @@ export default function ProductReviews({ product }) {
         </div>
       )}
 
+      {reviews.some(r => r.photo_url) && (
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', marginBottom: 12 }}>
+          {reviews.filter(r => r.photo_url).slice(0, 12).map(r => (
+            <img key={r.id} decoding="async" loading="lazy" src={cld(r.photo_url, 'w_160,h_160,c_fill,f_auto,q_auto')} alt="Buyer photo" onClick={() => setZoom(r.photo_url)}
+              style={{ width: 72, height: 72, borderRadius: 10, objectFit: 'cover', flex: '0 0 auto', cursor: 'zoom-in' }} />
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <ListRowsSkeleton compact />
       ) : reviews.length === 0 ? (
@@ -214,6 +223,7 @@ export default function ProductReviews({ product }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
               <div style={{ fontSize: 13, fontWeight: 700 }}>
                 {r.first_name || r.username || 'XMARKET user'}
+                <span style={{ marginLeft: 6, fontSize: 10.5, fontWeight: 700, color: '#059669', background: '#D1FAE5', padding: '2px 7px', borderRadius: 20, verticalAlign: 'middle' }}>\u2713 Verified purchase</span>
               </div>
               <Stars value={r.rating} size={12} />
             </div>

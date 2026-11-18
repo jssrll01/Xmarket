@@ -21,6 +21,7 @@ import SmartImage from '../components/SmartImage';
 import { DeliveryEstimate } from '../components/FeatureBits';
 import { ProductDetailSkeleton } from '../components/Skeleton';
 import ProductReviews from '../components/ProductReviews';
+import MoreFromSeller from '../components/MoreFromSeller';
 
 function Description({ text }) {
   const HEADINGS = [
@@ -353,6 +354,7 @@ export default function ProductDetails() {
         <Description text={product.description} />
       </div>
 
+      <MoreFromSeller product={product} />
       <ProductReviews product={product} />
       <ProductQA productId={product.id} />
 

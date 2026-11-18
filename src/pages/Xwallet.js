@@ -7,6 +7,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight, QrCode, CreditCard } from 'lucide-react';
 import useWallet from './xw/useWallet';
+import SpendLimit from './xw/SpendLimit';
 import { supabase } from '../lib/supabase';
 import { fetchLoyalty } from '../lib/promos';
 import { SignIn, Sk, SkStyle, Row, txnItem, peso } from './xw/ui';
@@ -91,6 +92,8 @@ export default function Xwallet() {
           {mini('Bank', on ? 'Earning 1.5% p.a.' : 'Daily interest 1.5% p.a.', TrendingUp, '/xwallet/bank', on ? 'ACTIVE' : 'OFF')}
           {mini('History', `${(txns || []).length} records`, Clock, '/xwallet/history')}
         </div>
+
+        <SpendLimit refreshKey={(txns || []).length} />
 
         
 
