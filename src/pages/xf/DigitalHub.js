@@ -71,7 +71,7 @@ export default function DigitalHub() {
       <style>{CSS}</style>
       <header className="hb-head">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 4 }}>
-          <h1 style={{ margin: 0 }}>Digital Hub</h1>
+          <h1 style={{ margin: 0 }}>Featured</h1>
           <TgCommunityButton />
         </div>
         <p>Drops, products, polls and more.</p>

@@ -13,7 +13,7 @@ export default function ReferralLeaders() {
   const have = d ? Number(d.my_unredeemed) : 0;
   return (
     <div className="page-enter" style={S.page}>
-      <Link to="/digital-hub" style={S.back}><ArrowLeft size={16} /> Digital Hub</Link>
+      <Link to="/digital-hub" style={S.back}><ArrowLeft size={16} /> Featured</Link>
       <h1 style={S.h1}>Referral Leaders</h1>
       <p style={S.sub}>The creator with the most active referrals each week earns a Referral Leader badge.</p>
       {err && <div style={S.err}>{err}</div>}
