@@ -151,3 +151,18 @@ export async function fetchMyInterestLog(userId, limit = 30) {
     .eq('user_id', userId).order('day', { ascending: false }).limit(limit);
   return data || [];
 }
+
+// ============================================================
+// GAME CREDITS
+// ============================================================
+export async function buyGameCredit(itemId, qty, playerId, zoneId) {
+  const pin = await askPin();
+  if (pin === null) return { error: { message: 'Cancelled' } };
+  const { data, error } = await supabase.rpc('game_credit_buy', {
+    p_item: itemId, p_qty: Number(qty), p_player_id: playerId, p_zone_id: zoneId || '', p_pin: pin,
+  });
+  if (error) return { error: { message: error.message } };
+  if (data && data.error) return { error: { message: data.error } };
+  return { order: data, error: null };
+}
+

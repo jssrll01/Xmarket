@@ -22,6 +22,7 @@ import CreatorEarnings from './pages/CreatorEarnings';
 import SearchPage from './pages/SearchPage';
 import XwSend from './pages/xw/XwSend';
 import XwLoad from './pages/xw/XwLoad';
+import GameCredits from './pages/GameCredits';
 import XwWithdrawPage from './pages/xw/XwWithdrawPage';
 import XwBank from './pages/xw/XwBank';
 import XwHistory from './pages/xw/XwHistory';
@@ -198,6 +199,7 @@ function Router() {
         <Route path="/xwallet/topup" element={<XwalletTopup />} />
         <Route path="/xwallet/send" element={<XwSend />} />
         <Route path="/xwallet/load" element={<XwLoad />} />
+        <Route path="/game-credits" element={<GameCredits />} />
         <Route path="/xwallet/withdraw" element={<XwWithdrawPage />} />
         <Route path="/xwallet/bank" element={<XwBank />} />
         <Route path="/xwallet/history" element={<XwHistory />} />
