@@ -32,7 +32,6 @@ export default function BarcodeScanner({ onCode, onClose }) {
       } catch (e) { setErr('Camera is not available. Allow camera access, or type the digits below.'); }
     })();
     return () => { stop = true; clearTimeout(timer); if (stream) stream.getTracks().forEach((t) => t.stop()); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
