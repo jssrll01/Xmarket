@@ -1,3 +1,4 @@
+import ShareProductFab from './components/ShareProductFab';
 import Courses from './pages/fx/Courses';
 import FeatureRequests from './pages/fx/FeatureRequests';
 import ReferralLeaders from './pages/fx/ReferralLeaders';
@@ -145,6 +146,7 @@ function Router() {
   return (
     <>
 <PinHost />
+<ShareProductFab />
       <LiveRoutes><Routes>
         <Route path="/landing-page" element={<LandingPage />} />
         <Route path="/" element={<Home />} />

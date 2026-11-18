@@ -8,6 +8,7 @@ import { imgUrl } from '../lib/img';
 import VoiceButton from '../components/VoiceButton';
 import LongPressPreview from '../components/LongPressPreview';
 import AnchorPrice from '../components/AnchorPrice';
+import SearchBoost from '../components/SearchBoost';
 
 const peso = (n) => money(n, 'plain');
 const clean = (s) => String(s || '').replace(/[%,()*\\]/g, ' ').trim();
@@ -212,6 +213,7 @@ export default function SearchPage() {
             style={{ width: '100%', height: 44, padding: '0 38px 0 36px', fontSize: 15 }} />
           {text && <button type="button" aria-label="Clear" onClick={() => { setText(''); setParams({}); if (inputRef.current) inputRef.current.focus(); }} style={{ position: 'absolute', right: 8, top: 10 }}><X size={18} /></button>}
         </form>
+<SearchBoost />
         <VoiceButton onText={(t, fin) => { setText(t); if (fin) go(t); }} />
         <button onClick={() => go(text)} style={{ fontWeight: 800, color: 'var(--primary)', padding: '0 4px' }}>Search</button>
       </div>
