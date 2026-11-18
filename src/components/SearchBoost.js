@@ -102,8 +102,8 @@ export default function SearchBoost() {
   return (
     <div ref={host} style={{ margin: '12px 0' }}>
       <div style={{ display: 'flex', gap: 8 }}>
-        <button type="button" style={btn} onClick={() => { setMsg(''); setScan(true); }}>{BAR} Scan barcode</button>
-        <button type="button" style={btn} disabled={busy} onClick={() => file.current && file.current.click()}><Camera size={16} /> {busy ? 'Comparing…' : 'Search by photo'}</button>
+        {false && <button type="button" style={btn} onClick={() => { setMsg(''); setScan(true); }}>{BAR} Scan barcode</button>}
+        {false && <button type="button" style={btn} disabled={busy} onClick={() => file.current && file.current.click()}><Camera size={16} /> {busy ? 'Comparing…' : 'Search by photo'}</button>}
         <input ref={file} type="file" accept="image/*" onChange={onPhoto} style={{ display: 'none' }} />
       </div>
       {msg && <div style={{ marginTop: 10, fontSize: 13, color: '#B45309', background: '#FEF3C7', borderRadius: 12, padding: '9px 12px' }}>{msg}</div>}
