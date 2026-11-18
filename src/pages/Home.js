@@ -687,7 +687,7 @@ export default function Home() {
           )}
         </div>
 
-      <NewsStrip />
+      
 
       <div className="chips">
         {categories.map(c => (

@@ -174,11 +174,7 @@ export default function Profile() {
         </span>
         <ChevronRight size={16} color="var(--muted)" />
       </Link>
-      <Link to="/yt" style={menuRow}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        </span>
-        <ChevronRight size={16} color="var(--muted)" />
-      </Link>
+      
 
       <Link to="/creator-studio" style={menuRow}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
