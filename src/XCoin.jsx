@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { supabase } from './lib/supabase';
 import { createChart, CandlestickSeries, AreaSeries, CrosshairMode } from 'lightweight-charts';
 import { useNavigate } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 // [label, candle seconds, hours of history]
 const TFS = [['24h', 900, 24], ['168h', 3600, 168]];
@@ -401,14 +402,13 @@ export default function XCoin() {
       <div className="xc-top">
         <div className="xc-top-in">
           <div>
-            <button className="xc-back" onClick={() => navigate(-1)}>← Return</button>
+            <button className="icon-btn" aria-label="Back" onClick={() => (window.history.state && window.history.state.idx > 0 ? navigate(-1) : navigate('/', { replace: true }))} style={{ marginBottom: 6 }}><ArrowLeft size={20} /></button>
             <div className="xc-pair" style={{ marginTop: 4 }}>
               <div className="xc-logo">X</div>
               <div><b>XCOIN / PHP<span className="xc-chip">2.0</span></b><small>XTRADE market</small></div>
             </div>
           </div>
           <div className="xc-clock">PHT {phtTime}</div>
-          <div className="xc-wal"><small>Xwallet balance</small><b>{peso(xwalletBalance)}</b></div>
         </div>
       </div>
 
