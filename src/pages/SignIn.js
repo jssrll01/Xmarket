@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail } from 'lucide-react';
-import { signIn } from '../lib/auth';
+import { signIn, signInWithGoogle } from '../lib/auth';
 import GoogleButton from '../components/auth/GoogleButton';
 import { useToast } from '../components/Toast';
 import AuthShell from '../components/auth/AuthShell';
@@ -69,6 +69,7 @@ export default function SignIn() {
       </form>
       <div style={{ textAlign: 'center', color: 'var(--text-secondary, #888)', fontSize: 13, margin: '16px 0 12px' }}>or</div>
       <GoogleButton onDone={onGoogleDone} onError={(m) => toast(m)} />
+      <div style={{ textAlign: 'center', marginTop: 10 }}><button type="button" onClick={async () => { const { error } = await signInWithGoogle(); if (error) toast(error.message); }} style={{ background: 'none', border: 0, color: 'var(--primary)', fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Google not opening? Use classic Google sign-in</button></div>
     </AuthShell>
   );
 }

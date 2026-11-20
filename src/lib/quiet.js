@@ -8,7 +8,14 @@ if (process.env.NODE_ENV === 'production') {
     console[k] = (...args) => o(...args.map(slim));
   });
 }
-const OK = new Set([window.location.origin, 'https://www.youtube.com', 'https://www.youtube-nocookie.com']);
+const TRUSTED = [
+  /^https:\/\/(www\.)?youtube(-nocookie)?\.com$/,
+  /^https:\/\/accounts\.google\.com$/,
+  /^https:\/\/www\.google\.com$/,
+  /^https:\/\/challenges\.cloudflare\.com$/,
+  /^https:\/\/([a-z0-9-]+\.)?hcaptcha\.com$/,
+];
 window.addEventListener('message', (e) => {
-  if (!OK.has(e.origin)) e.stopImmediatePropagation();
+  if (e.origin === window.location.origin) return;
+  if (!TRUSTED.some((r) => r.test(e.origin))) e.stopImmediatePropagation();
 }, true);
