@@ -13,6 +13,7 @@ import YouMayAlsoLike from '../components/YouMayAlsoLike';
 import SmartImage from '../components/SmartImage';
 import ConfirmDialog from '../components/ConfirmDialog';
 import { useToast } from '../components/Toast';
+import FreeShipBar from '../components/FreeShipBar';
 
 export default function Cart() {
   const { items, dispatch } = useCart();
@@ -78,6 +79,7 @@ export default function Cart() {
       <button onClick={goBackSafe} className="icon-btn" style={{ marginBottom: 12 }}>
         <ArrowLeft size={20} />
       </button>
+<FreeShipBar />
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2>Shopping Cart</h2>

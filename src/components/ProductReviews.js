@@ -9,6 +9,7 @@ import {
   voteHelpful, unvoteHelpful, hasVoted,
 } from '../lib/reviews';
 import { uploadReviewPhoto, cld } from '../lib/cloudinary';
+import HelpfulVote from './HelpfulVote';
 
 function Stars({ value = 0, size = 14 }) {
   return (
@@ -259,7 +260,7 @@ export default function ProductReviews({ product }) {
                 Share
               </button>
             </div>
-          </div>
+          <HelpfulVote id={r.id} /></div>
         ))
       )}
       {zoom && (

@@ -8,6 +8,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import './index.css';
+import { initPrefs } from './lib/prefs';
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -28,6 +29,7 @@ if ('serviceWorker' in navigator) {
 
 startTrustSeals();
 import('./lib/fcm').then((m) => m.autoRefreshPush && m.autoRefreshPush()).catch(() => {});
+initPrefs();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>

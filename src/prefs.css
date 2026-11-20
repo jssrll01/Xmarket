@@ -1,0 +1,7 @@
+html[data-xm-mode="filter"][data-xm-theme="dark"]{filter:invert(1) hue-rotate(180deg);background:#fff}
+html[data-xm-mode="filter"][data-xm-theme="dark"] img,
+html[data-xm-mode="filter"][data-xm-theme="dark"] video,
+html[data-xm-mode="filter"][data-xm-theme="dark"] canvas,
+html[data-xm-mode="filter"][data-xm-theme="dark"] iframe,
+html[data-xm-mode="filter"][data-xm-theme="dark"] [data-keep-color]{filter:invert(1) hue-rotate(180deg)}
+html[data-saver="on"] *,html[data-saver="on"] *::before,html[data-saver="on"] *::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}

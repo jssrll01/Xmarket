@@ -123,6 +123,11 @@ import NotFound from './pages/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
 import PushPrompt from './components/PushPrompt';
 import { setupForegroundHandler } from './lib/fcm';
+import Preferences from './pages/Preferences';
+import RequestMoney from './pages/RequestMoney';
+import PayRequest from './pages/PayRequest';
+import ScheduledTransfers from './pages/ScheduledTransfers';
+import DeviceWatch from './components/DeviceWatch';
 
 function Router() {
   useScrollTop();
@@ -147,9 +152,14 @@ function Router() {
   return (
     <>
 <PinHost />
+<DeviceWatch />
 <ShareProductFab />
       <LiveRoutes><Routes>
-        <Route path="/landing-page" element={<LandingPage />} />
+        <Route path="/preferences" element={<Preferences />} />
+          <Route path="/request-money" element={<RequestMoney />} />
+          <Route path="/pay/:token" element={<PayRequest />} />
+          <Route path="/scheduled-transfers" element={<ScheduledTransfers />} />
+          <Route path="/landing-page" element={<LandingPage />} />
         <Route path="/" element={<Home />} />
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/cart" element={<Cart />} />

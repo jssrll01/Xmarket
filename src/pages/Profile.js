@@ -188,6 +188,12 @@ export default function Profile() {
         </span>
         <ChevronRight size={16} color="var(--muted)" />
       </Link>
+<Link to="/preferences" style={menuRow}>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <Settings size={18} color="var(--primary)" /> App preferences
+        </span>
+        <ChevronRight size={16} color="var(--muted)" />
+      </Link>
     </div>
   );
 }
