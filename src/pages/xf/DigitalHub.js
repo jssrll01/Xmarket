@@ -1,8 +1,8 @@
-import { BookOpen, Lightbulb } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 import PointsExpiryBanner from '../../components/fx/PointsExpiryBanner';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Zap, Package, CheckSquare, Heart, Store, Newspaper, GraduationCap, Briefcase, Search, Gamepad2 } from 'lucide-react';
+import { Zap, Package, CheckSquare, Heart, Store, Newspaper, Search } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import TopupButton from '../../components/TopupButton';
 import { peso, useMe } from './xfUi';
@@ -58,12 +58,7 @@ export default function DigitalHub() {
     ['/demand-polls', 'Demand Polls', CheckSquare, tag(st && st.polls, 'open poll', 'open polls'), 'vote results survey'],
     ['/sponsorships', 'Sponsorships', Heart, st ? (st.target ? Math.round(pct) + '% funded' : 'No fund open') : null, 'donate donors fund'],
     ['/market-shop', 'Market Shop', Store, 'VIP, badges, more', 'vip badge booster gift'],
-    ['/game-credits', 'Game Credits', Gamepad2, 'MLBB, HOK, more', 'game credits diamonds mlbb mobile legends honor of kings arena breakout top up'],
     ['/articles', 'Weekly Articles', Newspaper, 'New weekly', 'news read blog'],
-    ['/scholarships', 'Scholarships', GraduationCap, 'Apply', 'school study grant'],
-    ['/freelance', 'Freelance Work', Briefcase, 'Find work', 'jobs gig work'],
-    ['/courses', 'Courses', BookOpen, 'Learn', 'course lesson learn study'],
-    ['/feature-requests', 'Feature Requests', Lightbulb, 'Vote on ideas', 'feature request vote idea'],
   ];
   const term = q.trim().toLowerCase();
   const shown = term ? ITEMS.filter((i) => (i[1] + ' ' + (i[3] || '') + ' ' + i[4]).toLowerCase().includes(term)) : ITEMS;

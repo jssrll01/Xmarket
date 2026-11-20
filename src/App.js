@@ -1,14 +1,10 @@
 import ShareProductFab from './components/ShareProductFab';
-import Courses from './pages/fx/Courses';
-import FeatureRequests from './pages/fx/FeatureRequests';
 import ReferralLeaders from './pages/fx/ReferralLeaders';
 import XCoin from './XCoin';
 import PinHost from './components/PinHost';
 import ChangePin from './pages/ChangePin';
 import MarketShop from './pages/MarketShop';
 import Articles from './pages/Articles';
-import Scholarships from './pages/Scholarships';
-import Freelance from './pages/Freelance';
 import React from 'react';
 import LiveRoutes from './components/LiveRoutes';
 import { Routes, Route, Navigate } from 'react-router-dom';
@@ -225,8 +221,6 @@ function Router() {
         <Route path="/sponsorships" element={<Sponsorships />} />
         <Route path="/sponsorships/donors" element={<SponsorDonors />} />
         <Route path="/digital-hub" element={<><DigitalHub /><SocialBoosterEntry /></>} />
-        <Route path="/courses" element={<Courses />} />
-        <Route path="/feature-requests" element={<FeatureRequests />} />
         <Route path="/referral-leaders" element={<ReferralLeaders />} />
         <Route path="/global-chat" element={<GlobalChat />} />
         <Route path="/chat-search" element={<ChatSearch />} />
@@ -234,8 +228,6 @@ function Router() {
         <Route path="/xwallet/change-pin" element={<ChangePin />} />
         <Route path="/market-shop" element={<MarketShop />} />
         <Route path="/articles" element={<Articles />} />
-        <Route path="/scholarships" element={<Scholarships />} />
-        <Route path="/freelance" element={<Freelance />} />
         <Route path="/socials/creator/:username" element={<SocialsCreator />} />
         <Route path="/socials/video/:id" element={<VideoViewer />} />
         <Route path="/creator-studio/video" element={<CreatorNewVideo />} />
