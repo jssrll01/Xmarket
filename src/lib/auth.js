@@ -76,6 +76,10 @@ export async function signInWithGoogle() {
   });
 }
 
+export async function signInWithGoogleIdToken(idToken, nonce) {
+  return supabase.auth.signInWithIdToken({ provider: 'google', token: idToken, nonce });
+}
+
 export async function signOut() {
   await logoutCleanup();
   return supabase.auth.signOut();
