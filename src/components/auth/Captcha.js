@@ -29,7 +29,7 @@ const hint = (c) => {
   return 'Reload the page and try again.';
 };
 
-function Turnstile({ onToken }, ref) {
+function Turnstile({ onToken, onFail }, ref) {
   const box = useRef(null), wid = useRef(null);
   const [err, setErr] = useState('');
   useImperativeHandle(ref, () => ({
@@ -51,7 +51,7 @@ function Turnstile({ onToken }, ref) {
         } catch (e) { setErr('Security check failed: ' + (e && e.message ? e.message : e)); }
       };
       if (t.ready) t.ready(go); else go();
-    }).catch(() => setErr('Could not reach Cloudflare (challenges.cloudflare.com). Turn off data saver or ad blocker, or try another network.'));
+    }).catch(() => { if (onFail) onFail(); });
     return () => { dead = true; try { if (window.turnstile && wid.current != null) window.turnstile.remove(wid.current); } catch (e) {} };
   }, []); // eslint-disable-line
   return (
@@ -92,4 +92,9 @@ function Local({ onToken }, ref) {
 }
 
 export const CAPTCHA_MODE = SITE_KEY ? 'turnstile' : 'local';
-export default forwardRef(SITE_KEY ? Turnstile : Local);
+const TS = forwardRef(Turnstile), LC = forwardRef(Local);
+const Smart = forwardRef((props, ref) => {
+  const [fb, setFb] = useState(false);
+  return fb ? <LC ref={ref} onToken={props.onToken} /> : <TS ref={ref} onToken={props.onToken} onFail={() => setFb(true)} />;
+});
+export default SITE_KEY ? Smart : LC;
