@@ -24,9 +24,10 @@ export default function SignUp() {
     if (form.password !== form.confirm) return toast('Passwords do not match');
     if (form.password.length < 6) return toast('Password must be at least 6 characters');
     setBusy(true);
-    const { error } = await signUp(form);
+    const { data, error } = await signUp(form);
     setBusy(false);
     if (error) return toast(error.message);
+    if (!data || !data.session) { toast('Check your email for the verification code.'); nav('/verify-email?email=' + encodeURIComponent(form.email.trim().toLowerCase())); return; }
     await signOut();
     toast('Account created. Please sign in.');
     nav('/signin');

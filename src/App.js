@@ -114,6 +114,7 @@ import Account from './pages/Account';
 import Wishlist from './pages/Wishlist';
 import SignIn from './pages/SignIn';
 import ForgotPassword from './pages/ForgotPassword';
+import VerifyEmail from './pages/VerifyEmail';
 import { AuthProvider } from './context/AuthContext';
 import NotFound from './pages/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -255,6 +256,7 @@ function Router() {
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/refund" element={<Refund />} />
