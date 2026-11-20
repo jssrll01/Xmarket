@@ -1,4 +1,4 @@
-const V = 'v4';
+const V = 'v5';
 const STATIC = 'xm-static-' + V, IMG = 'xm-img-' + V, PAGES = 'xm-pages-' + V;
 const IMG_HOSTS = ['res.cloudinary.com', 'img.youtube.com'];
 
@@ -41,7 +41,7 @@ self.addEventListener('fetch', (e) => {
   }
 
   // Images: show the cached one at once, refresh in the background
-  if (IMG_HOSTS.includes(u.hostname) || (u.origin === location.origin && r.destination === 'image')) {
+  if (u.origin === location.origin && r.destination === 'image') {
     e.respondWith(caches.open(IMG).then((c) => c.match(r).then((hit) => {
       const net = fetch(r).then((res) => {
         if (res.ok || res.type === 'opaque') { c.put(r, res.clone()); trim(IMG, 250); }

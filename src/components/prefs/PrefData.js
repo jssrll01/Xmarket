@@ -19,7 +19,6 @@ export default function PrefData() {
   };
   return (
     <Card title="Your data">
-      <div style={{ fontSize: 13, color: 'var(--muted, #64748B)', marginBottom: 10 }}>Download your profile, orders, wallet history, reviews and posts as a file. Private messages and security details are not included.</div>
       <button type="button" style={pri} disabled={busy} onClick={go}>{busy ? 'Preparing...' : 'Download my data'}</button>
       {msg && <div style={{ fontSize: 13, marginTop: 8 }}>{msg}</div>}
     </Card>

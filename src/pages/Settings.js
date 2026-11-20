@@ -21,7 +21,7 @@ function Switch({ on, busy, disabled, onChange }) {
       onClick={() => onChange(!on)}
       style={{
         width: 50, height: 30, borderRadius: 999, border: 'none', padding: 3, flexShrink: 0,
-        background: on ? '#16A34A' : '#CBD5E1', cursor: (busy || disabled) ? 'not-allowed' : 'pointer',
+        background: on ? '#2563EB' : '#CBD5E1', cursor: (busy || disabled) ? 'not-allowed' : 'pointer',
         opacity: (busy || disabled) ? 0.6 : 1, transition: 'background .2s',
         display: 'flex', justifyContent: on ? 'flex-end' : 'flex-start',
       }}

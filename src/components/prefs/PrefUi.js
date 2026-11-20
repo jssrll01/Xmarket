@@ -1,16 +1,16 @@
 import React from 'react';
 
 export const Card = ({ title, children }) => (
-  <section style={{ background: '#fff', border: '1px solid var(--border, #E2E8F0)', borderRadius: 20, padding: 16, marginBottom: 14 }}>
-    {title && <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: '.06em', textTransform: 'uppercase', color: 'var(--muted, #64748B)', marginBottom: 10 }}>{title}</div>}
-    {children}
+  <section style={{ marginBottom: 18 }}>
+    {title && <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: 0.6, textTransform: 'uppercase', color: 'var(--muted, #64748B)', margin: '0 4px 8px' }}>{title}</div>}
+    <div className="card" style={{ padding: '10px 16px', overflow: 'hidden' }}>{children}</div>
   </section>
 );
 
 export const Row = ({ label, hint, children }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '8px 0' }}>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '6px 0', minHeight: 44 }}>
     <div style={{ minWidth: 0 }}>
-      <div style={{ fontSize: 15, fontWeight: 700 }}>{label}</div>
+      <div style={{ fontSize: 14, fontWeight: 700 }}>{label}</div>
       {false && hint && <div style={{ fontSize: 12.5, color: 'var(--muted, #64748B)', marginTop: 2 }}>{hint}</div>}
     </div>
     {children}
