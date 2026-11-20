@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone,
 } from 'lucide-react';
-import { signUp, signOut } from '../lib/auth';
+import { signUp, signIn } from '../lib/auth';
 import { useToast } from '../components/Toast';
 import AuthShell from '../components/auth/AuthShell';
 import AuthField from '../components/auth/AuthField';
@@ -31,10 +31,12 @@ export default function SignUp() {
     const { data, error } = await signUp(form, cap);
     setBusy(false);
     if (error) { if (capRef.current) capRef.current.reset(); return toast(error.message); }
-    if (!data || !data.session) { toast('Check your email for the verification code.'); nav('/verify-email?email=' + encodeURIComponent(form.email.trim().toLowerCase())); return; }
-    await signOut();
-    toast('Account created. Please sign in.');
-    nav('/signin');
+    if (!data || !data.session) {
+      const r = await signIn(form.email, form.password);
+      if (r.error) { toast('Account created. Please sign in.'); nav('/signin'); return; }
+    }
+    toast('Account created. Welcome to XMARKET!');
+    nav('/');
   };
 
 

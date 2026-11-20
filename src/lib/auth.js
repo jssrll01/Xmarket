@@ -61,12 +61,7 @@ export async function signUp(form, captchaToken) {
 export async function signIn(email, password, captchaToken) {
   const em = String(email || '').trim().toLowerCase();
   const res = await supabase.auth.signInWithPassword({ email: em, password, ...(captchaToken ? { options: { captchaToken } } : {}) });
-  if (res.error && /email not confirmed/i.test(String(res.error.message || ''))) {
-    try { await supabase.auth.resend({ type: 'signup', email: em }); } catch (e) { /* ignore */ }
-    try { window.location.assign('/verify-email?email=' + encodeURIComponent(em)); } catch (e) { /* ignore */ }
-    return { data: res.data, error: { message: 'Your email is not verified yet. Enter the code we sent you.' } };
-  }
-  return res;
+    return res;
 }
 
 
