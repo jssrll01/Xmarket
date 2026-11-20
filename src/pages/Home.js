@@ -30,6 +30,7 @@ import { useNavigate as useNavToSearch } from 'react-router-dom';
 import UserMenu from '../components/UserMenu';
 import VariantPicker from '../components/VariantPicker';
 import { BoosterTag } from '../components/PerkBadges';
+import { safeUrl } from '../lib/secure';
 
 
 // Banner copy — parallel to `banners` array in lib/products.js (index-aligned).
@@ -508,7 +509,7 @@ export default function Home() {
           </div>
           {bannerRows[bannerIdx] && bannerRows[bannerIdx].cta_link && (
             /^https?:/i.test(bannerRows[bannerIdx].cta_link)
-              ? <a href={bannerRows[bannerIdx].cta_link} target="_blank" rel="noreferrer" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 12, textDecoration: 'none' }}>
+              ? <a href={safeUrl(bannerRows[bannerIdx].cta_link)} target="_blank" rel="noopener noreferrer" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 12, textDecoration: 'none' }}>
                   {bannerRows[bannerIdx].cta_text && <span style={{ background: '#fff', color: '#2563EB', fontWeight: 800, fontSize: 12, padding: '8px 14px', borderRadius: 999, boxShadow: '0 4px 12px rgba(0,0,0,.2)' }}>{bannerRows[bannerIdx].cta_text}</span>}
                 </a>
               : <Link to={bannerRows[bannerIdx].cta_link} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 12, textDecoration: 'none' }}>

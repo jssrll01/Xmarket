@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.117.2",
+    "dompurify": "^3.4.18",
     "firebase": "^13.0.0",
     "lightweight-charts": "^5.2.1",
     "lucide-react": "^1.46.0",
@@ -15,7 +16,7 @@
   },
   "scripts": {
     "start": "HOST=127.0.0.1 react-scripts start",
-    "build": "react-scripts build",
+    "build": "GENERATE_SOURCEMAP=false INLINE_RUNTIME_CHUNK=false react-scripts build",
     "dev": "HOST=127.0.0.1 react-scripts start"
   },
   "browserslist": {

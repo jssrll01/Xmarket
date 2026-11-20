@@ -73,6 +73,7 @@ function Player({ v, active, near }) {
   };
   useEffect(() => {
     const onMsg = (e) => {
+    if (!/^https:\/\/www\.youtube(-nocookie)?\.com$/.test(e.origin)) return;
       const w = ref.current && ref.current.contentWindow;
       if (!w || e.source !== w) return;
       let d = e.data;
@@ -100,7 +101,7 @@ function Player({ v, active, near }) {
     if (last.current === null && go && first.current) { last.current = go; return undefined; }
     last.current = go;
     const w = ref.current && ref.current.contentWindow;
-    if (w) w.postMessage(JSON.stringify({ event: 'command', func: go ? 'playVideo' : 'pauseVideo', args: [] }), '*');
+    if (w) w.postMessage(JSON.stringify({ event: 'command', func: go ? 'playVideo' : 'pauseVideo', args: [] }), 'https://www.youtube-nocookie.com');
     return undefined;
   }, [active, paused, ready]);
   const src = 'https://www.youtube-nocookie.com/embed/' + v.youtube_id

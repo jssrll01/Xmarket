@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { clearLocalSensitive } from '../lib/secure';
 
 const AuthContext = createContext(null);
 
@@ -15,6 +16,7 @@ export function AuthProvider({ children }) {
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange(async (event, s) => {
+      if (event === 'SIGNED_OUT') clearLocalSensitive();
       setSession((prev) => (prev && s && prev.user && s.user && prev.user.id === s.user.id && event !== 'USER_UPDATED' ? prev : s));
       if (event === 'SIGNED_IN' && s?.user) {
       }

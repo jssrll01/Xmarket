@@ -3,6 +3,7 @@ import { Link2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { BLUE, MUTED, peso, card, Pill, Sk, SkStyle } from './creatorUi';
 import CreatorShell, { Chips, Chip } from './creatorPage';
+import { safeUrl } from '../lib/secure';
 
 const FILTERS = [['all', 'All'], ['pending', 'Pending'], ['approved', 'Approved'], ['rejected', 'Rejected']];
 
@@ -44,7 +45,7 @@ export default function CreatorHistory() {
           <div style={{ fontSize: 12, color: MUTED, margin: '4px 0' }}>{s.description}</div>
           <div style={{ fontSize: 11, color: '#94a3b8' }}>Submitted {new Date(s.submitted_at).toLocaleString()}</div>
           {s.link && (
-            <a href={s.link} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: BLUE, wordBreak: 'break-all', marginTop: 8 }}>
+            <a href={safeUrl(s.link)} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: BLUE, wordBreak: 'break-all', marginTop: 8 }}>
               <Link2 size={14} />{s.link}
             </a>
           )}

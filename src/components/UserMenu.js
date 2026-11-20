@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, Package, Heart, Settings, LogOut, FileText, RotateCcw, CreditCard } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
+import { logoutCleanup } from '../lib/secure';
 
 const EXIT_MS = 160; // keep in sync with .um-out in index.css
 
@@ -46,6 +47,7 @@ export default function UserMenu() {
   const go = (path) => { setOpen(false); nav(path); };
 
   const signOut = async () => {
+    try { await logoutCleanup(); } catch {}
     try { await supabase.auth.signOut(); } catch {}
     setOpen(false);
     nav('/');

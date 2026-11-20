@@ -1,3 +1,4 @@
+import { isGmail, logoutCleanup, withDevice } from './secure';
 import { supabase } from './supabase';
 
 /**
@@ -23,10 +24,11 @@ export async function precheckDuplicates({ email, phone }) {
 }
 
 export async function signUp(form) {
+  if (form && form.email !== undefined && !isGmail(form.email)) return { data: null, error: { message: 'Only @gmail.com email addresses can be used to sign up.' } };
   // Pre-check email + phone for duplicates before hitting auth
   const pre = await precheckDuplicates({ email: form.email, phone: form.phone });
   if (pre.error) return pre;
-  const { data, error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp(withDevice({
     email: form.email,
     password: form.password,
     options: {
@@ -37,7 +39,7 @@ export async function signUp(form) {
         phone: form.phone,
       },
     },
-  });
+  }));
   // Map unfriendly messages to clear ones
   if (error) {
     const m = String(error.message || '');
@@ -59,6 +61,7 @@ export async function signIn(email, password) {
 }
 
 export async function signOut() {
+  await logoutCleanup();
   return supabase.auth.signOut();
 }
 

@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify';
 // Adds a small trust row above every payment button on every page, so new pay buttons get it too.
 const MARK = 'data-xm-seal';
 const SEL = '.ms-pay, .bst-pay, .vip-btn';
@@ -13,7 +14,7 @@ function makeSeal() {
   const d = document.createElement('div');
   d.setAttribute(MARK, '1');
   d.style.cssText = 'display:flex;justify-content:center;flex-wrap:wrap;gap:6px 14px;margin:10px 0 8px;font-size:11px;font-weight:600;color:#64748B;width:100%;box-sizing:border-box';
-  d.innerHTML = ITEMS.map((it) => '<span style="display:inline-flex;align-items:center;gap:5px">' + it[0] + it[1] + '</span>').join('');
+  d.innerHTML = DOMPurify.sanitize(ITEMS.map((it) => '<span style="display:inline-flex;align-items:center;gap:5px">' + it[0] + it[1] + '</span>').join(''));
   return d;
 }
 

@@ -34,7 +34,7 @@ export default function PollShare({ poll }) {
     if (navigator.share) { try { await navigator.share({ title: 'XMARKET poll', text, url }); } catch (e) { /* cancelled */ } setOpen(false); }
     else copy();
   };
-  const out = (href) => { window.open(href, '_blank', 'noopener'); setOpen(false); };
+  const out = (href) => { window.open(href, '_blank', 'noopener,noreferrer'); setOpen(false); };
   return (
     <>
       <style>{CSS}</style>

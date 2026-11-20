@@ -45,7 +45,11 @@ async function blast(list: Tok[], payload: unknown) {
 
 Deno.serve(async (req) => {
   if (req.headers.get("x-push-secret") !== Deno.env.get("PUSH_SECRET")) return new Response("forbidden", { status: 403 });
-  const p = await req.json().catch(() => ({}));
+  const raw = await req.text();
+  if (raw.length > 20000) return new Response("too large", { status: 413 });
+  // deno-lint-ignore no-explicit-any
+  let p: any = {};
+  try { p = JSON.parse(raw); } catch (_e) { p = {}; }
   const campaign = p.kind === "campaign";
   let userId: string | undefined;
   let payload: Record<string, string>;

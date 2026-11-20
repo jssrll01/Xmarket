@@ -1,4 +1,4 @@
-const V = 'v3';
+const V = 'v4';
 const STATIC = 'xm-static-' + V, IMG = 'xm-img-' + V, PAGES = 'xm-pages-' + V;
 const IMG_HOSTS = ['res.cloudinary.com', 'img.youtube.com'];
 
@@ -20,6 +20,7 @@ self.addEventListener('fetch', (e) => {
   const r = e.request;
   if (r.method !== 'GET') return;
   const u = new URL(r.url);
+  if (/\.supabase\.co$/.test(u.hostname) || r.headers.has('authorization') || r.headers.has('apikey') || /[?&](token|access_token|signature|sig|jwt)=/i.test(u.search)) return;
 
   // Pages: network first so deploys show up, cached copy when offline
   if (r.mode === 'navigate') {
@@ -40,7 +41,7 @@ self.addEventListener('fetch', (e) => {
   }
 
   // Images: show the cached one at once, refresh in the background
-  if (IMG_HOSTS.includes(u.hostname) || r.destination === 'image') {
+  if (IMG_HOSTS.includes(u.hostname) || (u.origin === location.origin && r.destination === 'image')) {
     e.respondWith(caches.open(IMG).then((c) => c.match(r).then((hit) => {
       const net = fetch(r).then((res) => {
         if (res.ok || res.type === 'opaque') { c.put(r, res.clone()); trim(IMG, 250); }
@@ -77,4 +78,9 @@ self.addEventListener('notificationclick', (event) => {
     }
     return self.clients.openWindow(url);
   }));
+});
+
+/* logout: wipe every cache */
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'xm-clear') e.waitUntil(caches.keys().then((ks) => Promise.all(ks.map((k) => caches.delete(k)))));
 });

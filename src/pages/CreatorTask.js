@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar, CheckCircle2, Link2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { BLUE, MUTED, peso, card, inp, btn, circBtn, Pill, Sk, SkStyle } from './creatorUi';
+import { safeUrl } from '../lib/secure';
 
 export default function CreatorTask() {
   const { id } = useParams();
@@ -119,7 +120,7 @@ export default function CreatorTask() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <small style={{ color: '#94a3b8' }}>{new Date(s.submitted_at).toLocaleString()}</small><Pill s={s.status} />
               </div>
-              <a href={s.link} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: BLUE, wordBreak: 'break-all' }}>{s.link}</a>
+              <a href={safeUrl(s.link)} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: BLUE, wordBreak: 'break-all' }}>{s.link}</a>
               {s.feedback && <div style={{ fontSize: 12, marginTop: 6, padding: 8, borderRadius: 8, background: 'rgba(148,163,184,.14)' }}>Admin feedback: {s.feedback}</div>}
               {s.status === 'approved' && <div style={{ fontWeight: 800, color: '#059669', marginTop: 4 }}>Earned {peso(s.reward)}</div>}
             </div>

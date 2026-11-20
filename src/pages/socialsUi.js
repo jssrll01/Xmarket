@@ -10,6 +10,7 @@ import { MentionText } from '../components/MsgKit';
 import GiftSheet from '../components/GiftSheet';
 import ShareSheet from '../components/ShareSheet';
 import { imgUrl } from '../lib/img';
+import { safeUrl } from '../lib/secure';
 
 export const BLUE = '#2563EB';
 export const time12 = (d) => new Date(d).toLocaleString('en-PH', { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
@@ -102,7 +103,7 @@ export function PostCard({ p, onLike, onShare, onPin }) {
       {Array.isArray(p.links) && p.links.filter(l => l && /^https?:\/\/\S+$/i.test(l.url || '')).length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, padding: '0 12px 14px' }}>
           {p.links.filter(l => l && /^https?:\/\/\S+$/i.test(l.url || '')).map((l, i) => (
-            <a key={i} href={l.url} target="_blank" rel="noopener noreferrer nofollow" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99, background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
+            <a key={i} href={safeUrl(l.url)} target="_blank" rel="noopener noreferrer nofollow" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 99, background: '#EFF6FF', border: '1px solid #BFDBFE', color: '#1D4ED8', fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1" /><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1" /></svg>
               {l.label}
             </a>

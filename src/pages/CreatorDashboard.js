@@ -6,6 +6,7 @@ import useMyAvatar from '../lib/useMyAvatar';
 import useDmUnread from '../lib/useDmUnread';
 import DmBadge from '../components/DmBadge';
 import { BLUE, MUTED, peso, card, inp, btn, ghost, circBtn, Pill, IconBox, StatCard, Sk, SkStyle, PageSkeleton, copyText, initials } from './creatorUi';
+import { safeUrl } from '../lib/secure';
 
 
 function Bars({ data }) {
@@ -216,7 +217,7 @@ export default function CreatorDashboard() {
             </div>
             <div style={{ fontSize: 12, color: MUTED, margin: '4px 0' }}>{s.description}</div>
             <div style={{ fontSize: 11, color: '#94a3b8' }}>Submitted {new Date(s.submitted_at).toLocaleString()}</div>
-            {s.link && <a href={s.link} target="_blank" rel="noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: BLUE, wordBreak: 'break-all', marginTop: 8 }}><Link2 size={14} />{s.link}</a>}
+            {s.link && <a href={safeUrl(s.link)} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: BLUE, wordBreak: 'break-all', marginTop: 8 }}><Link2 size={14} />{s.link}</a>}
             {s.content && <p style={{ fontSize: 13, margin: '8px 0 0', whiteSpace: 'pre-wrap' }}>{s.content}</p>}
             {s.feedback && <div style={{ fontSize: 12, marginTop: 8, padding: 10, borderRadius: 10, background: 'rgba(148,163,184,.14)' }}><b>Admin feedback:</b> {s.feedback}</div>}
             {s.status === 'approved' && <div style={{ fontSize: 14, fontWeight: 800, color: '#059669', marginTop: 8 }}>Earned {peso(s.reward)}</div>}

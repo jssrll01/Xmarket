@@ -4,6 +4,7 @@ import { useCfg, loadSupportChannels } from '../lib/cfg';
 import {
   ArrowLeft, MessageCircle, Mail, Phone, Bug, Package, Store, FileText, Shield, ChevronRight, Clock
 } from 'lucide-react';
+import { safeUrl } from '../lib/secure';
 
 const CHANNELS_FALLBACK = [
   { icon: Mail,   label: 'Email us',        sub: 'xmarket.official.marketplace@gmail.com',   href: 'mailto:xmarket.official.marketplace@gmail.com',    color: '#2563EB' },
@@ -69,7 +70,7 @@ export default function CustomerService() {
             <ChevronRight size={16} color="var(--muted)" />
           </div>
         );
-        return c.href ? <a key={c.label} href={c.href} style={{ textDecoration: 'none', color: 'inherit' }}>{content}</a> : <div key={c.label}>{content}</div>;
+        return c.href ? <a key={c.label} href={safeUrl(c.href)} style={{ textDecoration: 'none', color: 'inherit' }}>{content}</a> : <div key={c.label}>{content}</div>;
       })}
 
       <h3 style={{ fontSize: 12, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: 1, margin: '20px 0 10px' }}>

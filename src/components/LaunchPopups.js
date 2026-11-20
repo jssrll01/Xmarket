@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { safeUrl } from '../lib/secure';
 
 let loaded = false;
 const get = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
@@ -42,7 +43,7 @@ export default function LaunchPopups() {
     if (!internal && !external) return;
     supabase.rpc('popup_track', { p_id: cur.id, p_kind: 'click' }).then(() => {}, () => {});
     close();
-    if (internal) nav(cur.link); else window.open(cur.link, '_blank', 'noopener,noreferrer');
+    if (internal) nav(cur.link); else window.open(safeUrl(cur.link), '_blank', 'noopener,noreferrer');
   };
   return (
     <div onClick={close} style={{ position: 'fixed', inset: 0, zIndex: 9000, background: 'rgba(15,23,42,.62)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, animation: 'xmPopBg .25s ease both' }}>

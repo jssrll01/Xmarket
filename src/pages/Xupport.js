@@ -7,6 +7,7 @@ import { GREETING, QUICK_CHIPS, BRAIN_DEBUG } from '../lib/xupport';
 console.log('[Xupport] brain debug:', BRAIN_DEBUG);
 
 import { pickBest } from '../lib/xupport/match';
+import { safeUrl } from '../lib/secure';
 
 const STORAGE_KEY = 'xmarket.xupport.history.v1';
 
@@ -146,7 +147,7 @@ export default function Xupport() {
                 <div className="xu-links">
                   {m.links.map((l, k) =>
                     l.href ? (
-                      <a key={k} className="xu-link" href={l.href}>
+                      <a key={k} className="xu-link" href={safeUrl(l.href)}>
                         {l.href.startsWith('mailto:') ? <Mail size={13} /> : <HelpCircle size={13} />}
                         {l.label}
                       </a>
