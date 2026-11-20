@@ -69,16 +69,7 @@ export async function signIn(email, password, captchaToken) {
   return res;
 }
 
-export async function signInWithGoogle() {
-  return supabase.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin },
-  });
-}
 
-export async function signInWithGoogleIdToken(idToken, nonce) {
-  return supabase.auth.signInWithIdToken({ provider: 'google', token: idToken, nonce });
-}
 
 export async function signOut() {
   await logoutCleanup();

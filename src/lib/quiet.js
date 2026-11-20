@@ -10,8 +10,6 @@ if (process.env.NODE_ENV === 'production') {
 }
 const TRUSTED = [
   /^https:\/\/(www\.)?youtube(-nocookie)?\.com$/,
-  /^https:\/\/accounts\.google\.com$/,
-  /^https:\/\/www\.google\.com$/,
   /^https:\/\/challenges\.cloudflare\.com$/,
   /^https:\/\/([a-z0-9-]+\.)?hcaptcha\.com$/,
 ];
