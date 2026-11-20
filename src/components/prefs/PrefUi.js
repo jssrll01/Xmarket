@@ -11,7 +11,7 @@ export const Row = ({ label, hint, children }) => (
   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '8px 0' }}>
     <div style={{ minWidth: 0 }}>
       <div style={{ fontSize: 15, fontWeight: 700 }}>{label}</div>
-      {hint && <div style={{ fontSize: 12.5, color: 'var(--muted, #64748B)', marginTop: 2 }}>{hint}</div>}
+      {false && hint && <div style={{ fontSize: 12.5, color: 'var(--muted, #64748B)', marginTop: 2 }}>{hint}</div>}
     </div>
     {children}
   </div>

@@ -13,7 +13,7 @@ function load() {
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (e) { saved = null; }
   const conn = typeof navigator !== 'undefined' ? navigator.connection : null;
-  return { theme: 'system', font: 100, saver: !!(conn && conn.saveData), haptics: true, ...(saved || {}) };
+  return { theme: 'system', font: 100, saver: !!(conn && conn.saveData), ...(saved || {}), theme: saved && saved.theme === 'dark' ? 'dark' : 'light', haptics: false };
 }
 export const getPrefs = () => { if (!cur) cur = load(); return cur; };
 const resolve = (t) => (t === 'system' ? (mq && mq.matches ? 'dark' : 'light') : t);
@@ -68,9 +68,7 @@ export function setPrefs(patch) {
 const subscribe = (f) => { subs.add(f); return () => subs.delete(f); };
 export function usePrefs() { return [useSyncExternalStore(subscribe, getPrefs), setPrefs]; }
 
-export function haptic(ms = 10) {
-  try { if (getPrefs().haptics && navigator.vibrate) navigator.vibrate(ms); } catch (e) {}
-}
+export function haptic() {}
 
 export function initPrefs() {
   if (inited || typeof window === 'undefined') return;

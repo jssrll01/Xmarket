@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Send, Smartphone, ArrowUpRight, TrendingUp, Clock, ChevronRight, QrCode, CreditCard } from 'lucide-react';
 import useWallet from './xw/useWallet';
 import SpendLimit from './xw/SpendLimit';
+import { ArrowDownLeft as ReqIcon, Repeat as SchedIcon } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fetchLoyalty } from '../lib/promos';
 import { SignIn, Sk, SkStyle, Row, txnItem, peso } from './xw/ui';
@@ -91,6 +92,8 @@ export default function Xwallet() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 16 }}>
           {mini('Bank', on ? 'Earning 1.5% p.a.' : 'Daily interest 1.5% p.a.', TrendingUp, '/xwallet/bank', on ? 'ACTIVE' : 'OFF')}
           {mini('History', `${(txns || []).length} records`, Clock, '/xwallet/history')}
+          {mini('Request money', 'Ask someone to pay', ReqIcon, '/request-money')}
+          {mini('Scheduled', 'Auto transfers', SchedIcon, '/scheduled-transfers')}
         </div>
 
         <SpendLimit refreshKey={(txns || []).length} />

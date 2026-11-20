@@ -1,4 +1,4 @@
-html[data-xm-mode="filter"][data-xm-theme="dark"]{filter:invert(1) hue-rotate(180deg);background:#fff}
+html[data-xm-mode="filter"][data-xm-theme="dark"]{filter:invert(1) hue-rotate(180deg) contrast(.82);background:#fff}
 html[data-xm-mode="filter"][data-xm-theme="dark"] img,
 html[data-xm-mode="filter"][data-xm-theme="dark"] video,
 html[data-xm-mode="filter"][data-xm-theme="dark"] canvas,

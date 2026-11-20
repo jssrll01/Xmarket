@@ -18,7 +18,7 @@ export default function LongPressPreview({ product, children, delay = 450 }) {
     clearTimeout(timer.current);
     timer.current = setTimeout(() => {
       fired.current = true;
-      if (navigator.vibrate) navigator.vibrate(15);
+      
       setOpen(true);
     }, delay);
   };

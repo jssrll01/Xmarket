@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useServerPrefs } from '../../lib/serverPrefs';
 import { Card, Row, Toggle, field, ghost } from './PrefUi';
 
@@ -24,10 +23,6 @@ export default function PrefWallet() {
         </>
       )}
       {err && <div style={{ color: '#DC2626', fontSize: 12.5 }}>{err}</div>}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
-        <Link to="/request-money" style={ghost}>Request money</Link>
-        <Link to="/scheduled-transfers" style={ghost}>Scheduled transfers</Link>
-      </div>
     </Card>
   );
 }

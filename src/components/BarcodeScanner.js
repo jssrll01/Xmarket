@@ -24,7 +24,7 @@ export default function BarcodeScanner({ onCode, onClose }) {
           if (stop) return;
           try {
             const r = await det.detect(v);
-            if (r && r[0] && r[0].rawValue) { try { if (navigator.vibrate) navigator.vibrate(30); } catch (e) {} onCode(r[0].rawValue); return; }
+            if (r && r[0] && r[0].rawValue) { try {  } catch (e) {} onCode(r[0].rawValue); return; }
           } catch (e) {}
           timer = setTimeout(tick, 200);
         };

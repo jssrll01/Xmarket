@@ -76,7 +76,7 @@ export function useLongPress(cb, ms = 450) {
     onPointerDown: (e) => {
       start.current = { x: e.clientX, y: e.clientY };
       clear();
-      t.current = setTimeout(() => { t.current = null; if (navigator.vibrate) navigator.vibrate(12); cb(item); }, ms);
+      t.current = setTimeout(() => { t.current = null;  cb(item); }, ms);
     },
     onPointerMove: (e) => {
       if (start.current && (Math.abs(e.clientX - start.current.x) > 8 || Math.abs(e.clientY - start.current.y) > 8)) clear();

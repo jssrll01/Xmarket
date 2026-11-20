@@ -43,3 +43,4 @@ server/xmarket-pwa-service-account.json
 *.orig
 *.rej
 *~
+*.sql

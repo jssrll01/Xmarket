@@ -15,7 +15,7 @@ function resolve(theme) {
 
 export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState(() => {
-    try { return localStorage.getItem(KEY) || 'system'; } catch { return 'system'; }
+    try { return localStorage.getItem(KEY) === 'dark' ? 'dark' : 'light'; } catch { return 'light'; }
   });
   const [resolved, setResolved] = useState(() => resolve(theme));
 

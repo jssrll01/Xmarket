@@ -11,7 +11,7 @@ import Scholarships from './pages/Scholarships';
 import Freelance from './pages/Freelance';
 import React from 'react';
 import LiveRoutes from './components/LiveRoutes';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import CreatorStudio from './pages/CreatorStudio';
 import CreatorReferrals from './pages/CreatorReferrals';
 import CreatorFollowers from './pages/CreatorFollowers';
@@ -123,7 +123,6 @@ import NotFound from './pages/NotFound';
 import ErrorBoundary from './components/ErrorBoundary';
 import PushPrompt from './components/PushPrompt';
 import { setupForegroundHandler } from './lib/fcm';
-import Preferences from './pages/Preferences';
 import RequestMoney from './pages/RequestMoney';
 import PayRequest from './pages/PayRequest';
 import ScheduledTransfers from './pages/ScheduledTransfers';
@@ -155,7 +154,7 @@ function Router() {
 <DeviceWatch />
 <ShareProductFab />
       <LiveRoutes><Routes>
-        <Route path="/preferences" element={<Preferences />} />
+        <Route path="/preferences" element={<Navigate to="/settings" replace />} />
           <Route path="/request-money" element={<RequestMoney />} />
           <Route path="/pay/:token" element={<PayRequest />} />
           <Route path="/scheduled-transfers" element={<ScheduledTransfers />} />

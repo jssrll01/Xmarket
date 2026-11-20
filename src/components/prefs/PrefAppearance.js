@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { usePrefs } from '../../lib/prefs';
 import { Card } from './PrefUi';
 
-const THEMES = [['light', 'Light'], ['dark', 'Dark'], ['system', 'System']];
+const THEMES = [['light', 'Light'], ['dark', 'Dark']];
 
 export default function PrefAppearance() {
   const [p, set] = usePrefs();

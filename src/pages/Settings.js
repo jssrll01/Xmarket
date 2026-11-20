@@ -6,6 +6,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { requestPushPermission, isPushSupported, getCurrentPushToken } from '../lib/fcm';
 import { supabase } from '../lib/supabase';
+import PrefAppearance from '../components/prefs/PrefAppearance';
+import PrefComfort from '../components/prefs/PrefComfort';
+import PrefWallet from '../components/prefs/PrefWallet';
+import PrefSecurity from '../components/prefs/PrefSecurity';
+import PrefData from '../components/prefs/PrefData';
 
 function Switch({ on, busy, disabled, onChange }) {
   return (
@@ -112,11 +117,10 @@ export default function SettingsPage() {
 
   return (
     <div className="page-enter" style={{ padding: 16, paddingBottom: 60 }}>
-      <button onClick={() => navigate('/')} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'transparent', border: 'none', padding: 0, color: 'var(--muted)', fontSize: 13, fontWeight: 700, cursor: 'pointer', marginBottom: 12 }}>
-        <ArrowLeft size={16} /> Return to Home
-      </button>
-      <h2 style={{ fontSize: 20, fontWeight: 800, marginBottom: 4 }}>Settings</h2>
-      <p style={{ fontSize: 13, color: 'var(--muted)', marginBottom: 20 }}>Manage your account and app preferences</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 18 }}>
+        <button className="icon-btn" aria-label="Back" onClick={() => (window.history.state && window.history.state.idx > 0 ? navigate(-1) : navigate('/', { replace: true }))}><ArrowLeft size={20} /></button>
+        <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Settings</h2>
+      </div>
 
       {msg && (
         <div style={{ padding: '10px 12px', borderRadius: 10, marginBottom: 14, fontSize: 12.5, fontWeight: 600, background: msg.type === 'success' ? '#D1FAE5' : '#FEE2E2', color: msg.type === 'success' ? '#065F46' : '#991B1B' }}>
@@ -128,7 +132,6 @@ export default function SettingsPage() {
         <Row
           icon={Bell}
           label="Push notifications"
-          hint={permission === 'denied' ? 'Blocked in your browser settings' : 'Order updates, top-up alerts and promos'}
           last
           right={<Switch on={hasToken} busy={busy} disabled={!supported || permission === 'denied'} onChange={(v) => (v ? enable() : disable())} />}
         />
@@ -140,21 +143,27 @@ export default function SettingsPage() {
       )}
 
       <Section title="Preferences">
-        <Row icon={Globe} label="Language" hint="English is the only supported language" right={badge('English')} />
-        <Row icon={Coins} label="Currency" hint={curNow === 'PHP' ? 'Prices are shown in Philippine Peso (default)' : 'Display only. You always pay in PHP'}
+        <Row icon={Globe} label="Language" right={badge('English')} />
+        <Row icon={Coins} label="Currency"
           right={<CurrencyPicker list={curList} value={curNow} onChange={setCurrency} />} last />
       </Section>
 
+      <PrefAppearance />
+      <PrefComfort />
+      <PrefWallet />
+      <PrefSecurity />
+      <PrefData />
+
       <Section title="Account">
-        <Row icon={User} label="Profile" hint="Name, photo and contact details" onClick={go('/profile')} />
-        <Row icon={MapPin} label="My account" hint="Addresses and account information" onClick={go('/account')} />
-        <Row icon={Lock} label="Change PIN" hint="Confirm your password first" onClick={go('/xwallet/change-pin')} />
-        <Row icon={ShieldCheck} label="Security reports" hint="Report suspicious activity" onClick={go('/report/security')} last />
+        <Row icon={User} label="Profile" onClick={go('/profile')} />
+        <Row icon={MapPin} label="My account" onClick={go('/account')} />
+        <Row icon={Lock} label="Change PIN" onClick={go('/xwallet/change-pin')} />
+        <Row icon={ShieldCheck} label="Security reports" onClick={go('/report/security')} last />
       </Section>
 
       <Section title="Support">
-        <Row icon={HelpCircle} label="Help center" hint="Guides and frequently asked questions" onClick={go('/help')} />
-        <Row icon={Headphones} label="Customer service" hint="Talk to our support team" onClick={go('/customer-service')} last />
+        <Row icon={HelpCircle} label="Help center" onClick={go('/help')} />
+        <Row icon={Headphones} label="Customer service" onClick={go('/customer-service')} last />
       </Section>
 
       <Section title="Legal">
@@ -164,7 +173,7 @@ export default function SettingsPage() {
       </Section>
 
       <Section title="About">
-        <Row icon={Info} label="XMARKET" hint="Your trusted online marketplace" right={badge('v3.0.0')} last />
+        <Row icon={Info} label="XMARKET" right={badge('v3.0.0')} last />
       </Section>
     </div>
   );

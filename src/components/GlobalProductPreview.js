@@ -21,7 +21,7 @@ export default function GlobalProductPreview() {
       if (!held.current) return;
       if (data && data[0]) {
         const r = data[0];
-        if (navigator.vibrate) navigator.vibrate(15);
+        
         setP({ name: r.name, price: minPrice(r.variant_prices), description: r.description, image: Array.isArray(r.images) && r.images[0] ? imgUrl(r.images[0], 700) : '' });
         setOpen(true);
       }
