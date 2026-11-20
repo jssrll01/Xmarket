@@ -23,12 +23,14 @@ export async function precheckDuplicates({ email, phone }) {
   }
 }
 
-export async function signUp(form) {
+const withCaptcha = (tok, p) => (tok ? { ...p, options: { ...(p.options || {}), captchaToken: tok } } : p);
+
+export async function signUp(form, captchaToken) {
   if (form && form.email !== undefined && !isGmail(form.email)) return { data: null, error: { message: 'Only @gmail.com email addresses can be used to sign up.' } };
   // Pre-check email + phone for duplicates before hitting auth
   const pre = await precheckDuplicates({ email: form.email, phone: form.phone });
   if (pre.error) return pre;
-  const { data, error } = await supabase.auth.signUp(withDevice({
+  const { data, error } = await supabase.auth.signUp(withCaptcha(captchaToken, withDevice({
     email: form.email,
     password: form.password,
     options: {
@@ -39,7 +41,7 @@ export async function signUp(form) {
         phone: form.phone,
       },
     },
-  }));
+  })));
   // Map unfriendly messages to clear ones
   if (error) {
     const m = String(error.message || '');
@@ -56,9 +58,9 @@ export async function signUp(form) {
   return { data, error };
 }
 
-export async function signIn(email, password) {
+export async function signIn(email, password, captchaToken) {
   const em = String(email || '').trim().toLowerCase();
-  const res = await supabase.auth.signInWithPassword({ email: em, password });
+  const res = await supabase.auth.signInWithPassword({ email: em, password, ...(captchaToken ? { options: { captchaToken } } : {}) });
   if (res.error && /email not confirmed/i.test(String(res.error.message || ''))) {
     try { await supabase.auth.resend({ type: 'signup', email: em }); } catch (e) { /* ignore */ }
     try { window.location.assign('/verify-email?email=' + encodeURIComponent(em)); } catch (e) { /* ignore */ }

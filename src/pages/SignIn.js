@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail } from 'lucide-react';
 import { signIn } from '../lib/auth';
@@ -6,6 +6,7 @@ import { useToast } from '../components/Toast';
 import AuthShell from '../components/auth/AuthShell';
 import AuthField from '../components/auth/AuthField';
 import PasswordField from '../components/auth/PasswordField';
+import Captcha from '../components/auth/Captcha';
 
 export default function SignIn() {
   const nav = useNavigate();
@@ -13,13 +14,16 @@ export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
+  const [cap, setCap] = useState('');
+  const capRef = useRef(null);
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (!cap) return toast('Please complete the security check');
     setBusy(true);
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(email, password, cap);
     setBusy(false);
-    if (error) return toast(error.message);
+    if (error) { if (capRef.current) capRef.current.reset(); return toast(error.message); }
     toast('Welcome back!');
     nav('/');
   };
@@ -51,10 +55,11 @@ export default function SignIn() {
             Forgot password?
           </Link>
         </div>
+        <Captcha ref={capRef} onToken={setCap} />
         <button
           type="submit"
           className="btn-primary auth-submit"
-          disabled={busy}
+          disabled={busy || !cap}
           
         >
           {busy ? 'Signing in…' : 'Sign in'}

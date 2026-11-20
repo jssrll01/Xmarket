@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   User, Mail, Phone,
@@ -8,11 +8,14 @@ import { useToast } from '../components/Toast';
 import AuthShell from '../components/auth/AuthShell';
 import AuthField from '../components/auth/AuthField';
 import PasswordField from '../components/auth/PasswordField';
+import Captcha from '../components/auth/Captcha';
 
 export default function SignUp() {
   const nav = useNavigate();
   const { show: toast } = useToast();
   const [busy, setBusy] = useState(false);
+  const [cap, setCap] = useState('');
+  const capRef = useRef(null);
   const [form, setForm] = useState({
     username: '', firstName: '', lastName: '',
     email: '', phone: '', password: '', confirm: '',
@@ -23,10 +26,11 @@ export default function SignUp() {
     e.preventDefault();
     if (form.password !== form.confirm) return toast('Passwords do not match');
     if (form.password.length < 6) return toast('Password must be at least 6 characters');
+    if (!cap) return toast('Please complete the security check');
     setBusy(true);
-    const { data, error } = await signUp(form);
+    const { data, error } = await signUp(form, cap);
     setBusy(false);
-    if (error) return toast(error.message);
+    if (error) { if (capRef.current) capRef.current.reset(); return toast(error.message); }
     if (!data || !data.session) { toast('Check your email for the verification code.'); nav('/verify-email?email=' + encodeURIComponent(form.email.trim().toLowerCase())); return; }
     await signOut();
     toast('Account created. Please sign in.');
@@ -51,10 +55,11 @@ export default function SignUp() {
         <AuthField icon={Phone} label="Mobile Number" type="tel" placeholder="09XX XXX XXXX" value={form.phone} onChange={set('phone')} required />
         <PasswordField label="Password" placeholder="At least 6 characters" value={form.password} onChange={set('password')} required />
         <PasswordField label="Confirm Password" placeholder="Re-enter your password" value={form.confirm} onChange={set('confirm')} required />
+        <Captcha ref={capRef} onToken={setCap} />
         <button
           type="submit"
           className="btn-primary auth-submit"
-          disabled={busy}
+          disabled={busy || !cap}
           
         >
           {busy ? (<span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><style>{'@keyframes xmspin{to{transform:rotate(360deg)}}'}</style><span style={{ width: 16, height: 16, border: '2px solid rgba(255,255,255,.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'xmspin .7s linear infinite' }} />Creating account…</span>) : 'Create account'}
