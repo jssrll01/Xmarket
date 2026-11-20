@@ -9,7 +9,7 @@ import { safeUrl } from '../lib/secure';
 const CHANNELS_FALLBACK = [
   { icon: Mail,   label: 'Email us',        sub: 'xmarket.official.marketplace@gmail.com',   href: 'mailto:xmarket.official.marketplace@gmail.com',    color: '#2563EB' },
   { icon: Phone,  label: 'Call us',         sub: 'Mon–Sat · 9AM–6PM',    href: 'tel:+639454408496',            color: '#10B981' },
-  { icon: MessageCircle, label: 'Live chat', sub: 'Coming soon',         href: null,                            color: '#7C3AED' },
+  { icon: MessageCircle, label: 'Live chat', sub: 'Chat with us on Facebook',         href: 'https://www.facebook.com/share/1FRCHyS4pT/',                            color: '#7C3AED' },
 ];
 
 const REPORTS = [
