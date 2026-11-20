@@ -66,11 +66,11 @@ export async function signOut() {
 }
 
 export async function sendResetCode(email) {
-  return supabase.auth.resetPasswordForEmail(email);
+  return supabase.auth.resetPasswordForEmail(String(email || '').trim().toLowerCase());
 }
 
 export async function verifyResetCode(email, token) {
-  return supabase.auth.verifyOtp({ email, token, type: 'recovery' });
+  return supabase.auth.verifyOtp({ email: String(email || '').trim().toLowerCase(), token: String(token || '').replace(/\D/g, ''), type: 'recovery' });
 }
 
 export async function updatePassword(newPassword) {
