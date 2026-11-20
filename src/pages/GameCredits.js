@@ -17,15 +17,13 @@ const CSS = `
 .gc-top h2{font-size:21px;font-weight:800;margin:0;flex:1;letter-spacing:-.02em}
 .gc-hero{position:relative;overflow:hidden;border-radius:22px;padding:18px;margin-bottom:18px;color:#fff;background:linear-gradient(135deg,#2563EB 0%,#7C3AED 100%);box-shadow:0 10px 24px rgba(79,70,229,.28)}
 .gc-hero:after{content:"";position:absolute;right:-30px;top:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,.12)}
-.gc-hero small{display:block;font-size:12px;opacity:.85}
-.gc-hero b{display:block;font-size:26px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
-.gc-hero p{font-size:12px;opacity:.85;margin:8px 0 0;max-width:80%}
+.gc-hero small{display:block;font-size:12.5px;font-weight:600;color:#fff;opacity:.92}
+.gc-hero b{display:block;color:#fff;font-size:26px;font-weight:800;margin-top:2px;font-variant-numeric:tabular-nums}
+.gc-hero p{font-size:12.5px;line-height:1.45;color:#fff;opacity:.95;margin:8px 0 0;max-width:80%}
 .gc-chips{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 12px;margin-bottom:6px;scrollbar-width:none}
 .gc-chips::-webkit-scrollbar{display:none}
-.gc-chip{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:7px 14px 7px 7px;border-radius:999px;border:0;background:var(--card);box-shadow:var(--raised-sm);font-weight:800;font-size:13px;color:var(--text)}
-.gc-chip i{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:10.5px;font-weight:900;background:var(--bg);box-shadow:var(--inset);color:var(--primary)}
+.gc-chip{flex:0 0 auto;display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;border:0;background:var(--card);box-shadow:var(--raised-sm);font-weight:800;font-size:13px;color:var(--text)}
 .gc-chip.on{background:var(--primary);color:#fff}
-.gc-chip.on i{background:rgba(255,255,255,.22);box-shadow:none;color:#fff}
 .gc-h{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin:6px 2px 10px}
 .gc-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .gc-it{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:18px;border:0;background:var(--card);box-shadow:var(--raised-sm);text-align:left;min-height:104px;color:var(--text)}
@@ -144,7 +142,7 @@ export default function GameCredits() {
           <div className="gc-chips">
             {games.map((x) => (
               <button key={x.code} type="button" onClick={() => setGame(x.code)} className={'gc-chip' + (game === x.code ? ' on' : '')}>
-                <i>{String(x.code).slice(0, 2).toUpperCase()}</i>{x.name}
+                {x.name}
               </button>
             ))}
           </div>
