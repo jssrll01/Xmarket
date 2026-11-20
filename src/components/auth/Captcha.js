@@ -10,7 +10,11 @@ function loadTurnstile() {
     loader = new Promise((resolve, reject) => {
       const s = document.createElement('script');
       s.src = SRC; s.async = true; s.defer = true;
-      s.onload = () => resolve(window.turnstile);
+      s.onload = () => {
+        let n = 0;
+        const wait = () => { if (window.turnstile) resolve(window.turnstile); else if (n++ > 30) { loader = null; reject(new Error('captcha-load')); } else setTimeout(wait, 100); };
+        wait();
+      };
       s.onerror = () => { loader = null; reject(new Error('captcha-load')); };
       document.head.appendChild(s);
     });
@@ -18,9 +22,16 @@ function loadTurnstile() {
   return loader;
 }
 
+const hint = (c) => {
+  c = String(c || '');
+  if (c.indexOf('1102') === 0) return 'This domain is not in your Turnstile hostname list.';
+  if (c.indexOf('1101') === 0 || c.indexOf('4000') === 0) return 'The site key is invalid. Check REACT_APP_TURNSTILE_SITE_KEY.';
+  return 'Reload the page and try again.';
+};
+
 function Turnstile({ onToken }, ref) {
   const box = useRef(null), wid = useRef(null);
-  const [err, setErr] = useState(false);
+  const [err, setErr] = useState('');
   useImperativeHandle(ref, () => ({
     reset() { onToken(''); try { if (window.turnstile && wid.current != null) window.turnstile.reset(wid.current); } catch (e) {} }
   }), [onToken]);
@@ -28,19 +39,25 @@ function Turnstile({ onToken }, ref) {
     let dead = false;
     loadTurnstile().then((t) => {
       if (dead || !box.current) return;
-      wid.current = t.render(box.current, {
-        sitekey: SITE_KEY, theme: 'auto',
-        callback: (tok) => onToken(tok),
-        'expired-callback': () => onToken(''),
-        'error-callback': () => onToken('')
-      });
-    }).catch(() => setErr(true));
+      const go = () => {
+        if (dead || !box.current) return;
+        try {
+          wid.current = t.render(box.current, {
+            sitekey: String(SITE_KEY).trim(), theme: 'auto',
+            callback: (tok) => { setErr(''); onToken(tok); },
+            'expired-callback': () => onToken(''),
+            'error-callback': (c) => { onToken(''); setErr('Security check error ' + c + '. ' + hint(c)); return true; }
+          });
+        } catch (e) { setErr('Security check failed: ' + (e && e.message ? e.message : e)); }
+      };
+      if (t.ready) t.ready(go); else go();
+    }).catch(() => setErr('Could not reach Cloudflare (challenges.cloudflare.com). Turn off data saver or ad blocker, or try another network.'));
     return () => { dead = true; try { if (window.turnstile && wid.current != null) window.turnstile.remove(wid.current); } catch (e) {} };
   }, []); // eslint-disable-line
   return (
     <div className="auth-captcha">
       <div ref={box} />
-      {err && <div className="auth-captcha-err">Could not load the security check. Check your connection and reload.</div>}
+      {err && <div className="auth-captcha-err">{err}</div>}
     </div>
   );
 }
