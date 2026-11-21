@@ -1,5 +1,6 @@
 import './lib/quiet';
 import './lib/fileGuard';
+import './lib/noSave';
 import PwaInstallBanner from './components/PwaInstallBanner';
 import FloatPlayerHost from './yt/FloatPlayer';
 import { startTrustSeals } from './lib/trustSeals';
