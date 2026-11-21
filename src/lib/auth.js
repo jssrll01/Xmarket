@@ -1,4 +1,4 @@
-import { isGmail, logoutCleanup, withDevice } from './secure';
+import { isGmail, logoutCleanup, withDevice, deviceId } from './secure';
 import { supabase } from './supabase';
 
 /**
@@ -52,7 +52,12 @@ export async function signUp(form, captchaToken) {
       return { data: null, error: { message: m } };
     }
     if (/database error/i.test(m)) {
-      return { data: null, error: { message: 'Signup failed — this email or phone may already be in use.' } };
+      let why = '';
+      try {
+        const r = await supabase.rpc('signup_block_reason', { p_email: form.email, p_phone: form.phone, p_device: deviceId() });
+        why = (r && r.data) || '';
+      } catch (e) { /* ignore */ }
+      return { data: null, error: { message: why || 'Signup failed. Please check your details and try again.' } };
     }
   }
   return { data, error };
