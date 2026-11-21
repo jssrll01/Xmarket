@@ -68,6 +68,17 @@ export function DmChat() {
   }, [tid]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
+    let t = null;
+    const onTyping = () => { load(); clearTimeout(t); t = setTimeout(load, 5600); };
+    const ch = supabase.channel('dm-' + tid + '-' + Math.random().toString(36).slice(2, 7))
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'dm_typing', filter: 'thread_id=eq.' + tid }, onTyping)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'dm_typing', filter: 'thread_id=eq.' + tid }, onTyping)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'dm_messages', filter: 'thread_id=eq.' + tid }, () => load())
+      .subscribe();
+    const iv = setInterval(() => { if (!document.hidden) load(); }, 4000);
+    return () => { clearTimeout(t); clearInterval(iv); supabase.removeChannel(ch); };
+  }, [tid, load]);
+  useEffect(() => {
     const n = d && d.messages ? d.messages.length : 0;
     if (n !== last.current) { last.current = n; if (end.current) end.current.scrollIntoView({ behavior: 'smooth' }); }
   }, [d]);
@@ -112,6 +123,10 @@ export function DmChat() {
             </div>
           );
         })}
+        {d.other_typing && (<>
+          <style>{'.dm-dots i{font-style:normal;animation:dmDot 1.2s infinite}.dm-dots i:nth-child(2){animation-delay:.2s}.dm-dots i:nth-child(3){animation-delay:.4s}@keyframes dmDot{0%,60%,100%{opacity:.25}30%{opacity:1}}'}</style>
+          <div style={{ alignSelf: 'flex-start', padding: '8px 14px', borderRadius: 16, background: '#fff', border: '1px solid #E2E8F0', fontSize: 13, color: '#64748B', fontWeight: 700 }}>typing<span className="dm-dots"><i>.</i><i>.</i><i>.</i></span></div>
+        </>)}
         <div ref={end} />
       </div>
       {reply && (<div className="mk-replybar" style={{ margin: 0, borderRadius: 0 }}><span>Replying to <b>{reply.sender === d.me ? 'yourself' : '@' + d.other.name}</b>: {String(reply.body).slice(0, 60)}</span><button type="button" aria-label="Cancel reply" onClick={() => setReply(null)}>✕</button></div>)}

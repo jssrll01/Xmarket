@@ -113,7 +113,7 @@ export default function ProductReviews({ product }) {
     setRating(5);
     clearPhoto();
     setEligibleOrderId(null);
-    showToast(rating === 5 && photoUrl ? 'Review submitted. Your ' + money(0.5, 'tofixed') + ' reward is on its way.' : 'Review submitted');
+    showToast(rating === 5 ? 'Review submitted. Your ' + money(0.5, 'tofixed') + ' reward was added to your Xwallet.' : 'Review submitted');
     const { items } = await fetchProductReviews(product.uuid);
     setReviews(items);
   };
@@ -165,7 +165,8 @@ export default function ProductReviews({ product }) {
       {writing && (
         <div style={{ padding: 12, background: 'var(--card)', borderRadius: 12, marginBottom: 12 }}>
           <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>Your rating</div>
+            <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 2 }}>Your rating</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 8 }}>Give 5 stars and get {money(0.5, 'tofixed')} in your Xwallet (once per product).</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {[1,2,3,4,5].map(i => (
                 <button key={i} onClick={() => setRating(i)} style={{ background: 'none', padding: 2 }}>

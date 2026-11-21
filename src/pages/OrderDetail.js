@@ -176,7 +176,7 @@ export default function OrderDetail() {
       <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
         <button onClick={onWriteReview} disabled={busy || !items.length} className="btn-primary"
           style={{ flex: 1, padding: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-          <Star size={14} /> Write a review
+          <Star size={14} /> Write a review and earn ₱0.50
         </button>
         <button onClick={onReorder} disabled={busy} className="btn-ghost"
           style={{ flex: 1, padding: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
