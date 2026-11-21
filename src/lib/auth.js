@@ -63,10 +63,20 @@ export async function signUp(form, captchaToken) {
   return { data, error };
 }
 
-export async function signIn(email, password, captchaToken) {
+export async function signIn(email, password, captchaToken, opts) {
   const em = String(email || '').trim().toLowerCase();
   const res = await supabase.auth.signInWithPassword({ email: em, password, ...(captchaToken ? { options: { captchaToken } } : {}) });
-    return res;
+  if (res.error || (opts && opts.skipCode)) return res;
+  let need = false;
+  try {
+    const r = await supabase.rpc('login_needs_code', { p_device: deviceId() });
+    need = !r.error && r.data === true;
+  } catch (e) { need = false; }
+  if (!need) return res;
+  try { await supabase.auth.signOut({ scope: 'local' }); } catch (e) { /* ignore */ }
+  const o = await supabase.auth.signInWithOtp({ email: em, options: { shouldCreateUser: false } });
+  if (o.error) return { data: null, error: { message: o.error.message || 'Could not send the code. Please try again.' } };
+  return { data: null, error: null, needsCode: true, email: em };
 }
 
 
@@ -100,4 +110,16 @@ export async function checkNewDevice() {
   } catch {
     return false;
   }
+}
+
+export async function verifyLoginCode(email, code) {
+  const em = String(email || '').trim().toLowerCase();
+  const token = String(code || '').replace(/\D/g, '');
+  const res = await supabase.auth.verifyOtp({ email: em, token, type: 'email' });
+  if (!res.error) { try { await supabase.rpc('login_trust_device', { p_device: deviceId() }); } catch (e) { /* ignore */ } }
+  return res;
+}
+
+export async function resendLoginCode(email) {
+  return supabase.auth.signInWithOtp({ email: String(email || '').trim().toLowerCase(), options: { shouldCreateUser: false } });
 }

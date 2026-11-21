@@ -7,6 +7,7 @@ import AuthShell from '../components/auth/AuthShell';
 import AuthField from '../components/auth/AuthField';
 import PasswordField from '../components/auth/PasswordField';
 import Captcha from '../components/auth/Captcha';
+import LoginCode from '../components/auth/LoginCode';
 
 export default function SignIn() {
   const nav = useNavigate();
@@ -14,6 +15,7 @@ export default function SignIn() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
+  const [step, setStep] = useState('pw');
   const [cap, setCap] = useState('');
   const capRef = useRef(null);
 
@@ -21,12 +23,17 @@ export default function SignIn() {
     e.preventDefault();
     if (!cap) return toast('Please complete the security check');
     setBusy(true);
-    const { error } = await signIn(email, password, cap);
+    const { error, needsCode } = await signIn(email, password, cap);
     setBusy(false);
     if (error) { if (capRef.current) capRef.current.reset(); return toast(error.message); }
+    if (needsCode) { setStep('code'); return; }
     toast('Welcome back!');
     nav('/');
   };
+
+  if (step === 'code') {
+    return <LoginCode email={email.trim().toLowerCase()} onBack={() => { setStep('pw'); setCap(''); }} onDone={() => { toast('Welcome back!'); nav('/'); }} />;
+  }
 
   return (
     <AuthShell
