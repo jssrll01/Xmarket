@@ -27,12 +27,17 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (!session?.user) { setProfile(null); return; }
-    supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', session.user.id)
-      .single()
-      .then(({ data }) => setProfile(data));
+    const uid = session.user.id;
+    let alive = true;
+    (async () => {
+      let { data } = await supabase.from('profiles').select('*').eq('id', uid).maybeSingle();
+      if (!data) {
+        try { await supabase.rpc('ensure_my_profile'); } catch (e) { /* ignore */ }
+        ({ data } = await supabase.from('profiles').select('*').eq('id', uid).maybeSingle());
+      }
+      if (alive) setProfile(data || null);
+    })();
+    return () => { alive = false; };
   }, [session?.user?.id]);
 
   return (
